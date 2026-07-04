@@ -1,0 +1,65 @@
+{
+  "name": "sv-os",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Silicon Valley Learning OS — Google Maps for Computer Science Learning",
+  "license": "MIT",
+  "author": "SV-OS Team",
+  "homepage": "https://github.com/sv-os/sv-os#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sv-os/sv-os.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sv-os/sv-os/issues"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "learning-os",
+    "computer-science",
+    "education"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.8.1",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint -- --fix",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "clean": "turbo clean",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml,css}\"",
+    "prepare": "husky",
+    "dev:web": "turbo dev --filter=@sv-os/web",
+    "dev:api": "turbo dev --filter=@sv-os/api"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml,yml,css}": [
+      "prettier --write"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
+}

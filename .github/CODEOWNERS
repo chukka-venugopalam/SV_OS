@@ -1,0 +1,31 @@
+# Each line is a file pattern followed by one or more owners.
+
+# Default owner for everything
+* @sv-os/engineering
+
+# Core infrastructure
+/turbo.json @sv-os/engineering
+/pnpm-workspace.yaml @sv-os/engineering
+/package.json @sv-os/engineering
+
+# Web frontend
+/apps/web/ @sv-os/frontend
+
+# API backend
+/apps/api/ @sv-os/backend
+
+# Shared packages
+/packages/ui/ @sv-os/frontend
+/packages/types/ @sv-os/engineering
+/packages/config/ @sv-os/engineering
+/packages/eslint-config/ @sv-os/engineering
+/packages/tsconfig/ @sv-os/engineering
+
+# Database
+/database/ @sv-os/backend
+
+# Documentation
+/docs/ @sv-os/engineering
+
+# CI/CD
+/.github/ @sv-os/engineering

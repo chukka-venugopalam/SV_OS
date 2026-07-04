@@ -1,0 +1,43 @@
+# =============================================================================
+# SV-OS — Docker Compose (Development)
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sv-os-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: svos
+      POSTGRES_PASSWORD: svos_dev_password
+      POSTGRES_DB: svos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Schema is managed by Alembic migrations, not init scripts.
+      # Run: cd apps/api && .venv/Scripts/python -m alembic upgrade head
+      # Then: ./database/scripts/seed.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U svos -d svos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sv-os-pgadmin
+    restart: unless-stopped
+    profiles:
+      - tools
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@sv-os.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
