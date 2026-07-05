@@ -1,6 +1,6 @@
 """Graph edge DTO for visualisation and exploration.
 
-The ``GraphEdge`` is the connection between two ``GraphNode``\ s,
+The ``GraphEdge`` is the connection between two ``GraphNode``\'s,
 carrying the relationship type, direction, and weight.
 """
 

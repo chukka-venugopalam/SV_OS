@@ -805,7 +805,10 @@ def _create_learning_resources() -> None:
         batch_op.create_index('ix_learning_resources_node_id', ['node_id'])
         # Index for filtering resources by type (e.g. only videos).
         batch_op.create_index('ix_learning_resources_resource_type',
-                              ['resource_type'])    def _create_learning_paths() -> None:
+                              ['resource_type'])
+
+
+def _create_learning_paths() -> None:
     """13. learning_paths — Curated ordered sequence of knowledge nodes."""
     op.create_table(
         'learning_paths',
