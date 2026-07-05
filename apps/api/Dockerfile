@@ -7,14 +7,14 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml .
 
 RUN uv venv /opt/venv && \
-    uv pip install --no-cache-dir -r pyproject.toml --no-deps
+    uv pip install --no-cache-dir . --no-dev
 
 FROM python:3.12-slim
 
 WORKDIR /app
 
 COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:${PATH}"
 
 COPY app/ app/
 COPY alembic/ alembic/

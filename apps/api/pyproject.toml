@@ -20,10 +20,12 @@ dependencies = [
     "pydantic-settings>=2.7.0",
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
+    "bcrypt<4.1",  # passlib is unmaintained; bcrypt>=4.1 breaks its CryptContext
     "structlog>=25.1.0",
     "httpx>=0.28.0",
     "python-dotenv>=1.1.0",
     "sentry-sdk>=2.22.0",
+    "email-validator>=2.2.0",
 ]
 
 [project.optional-dependencies]

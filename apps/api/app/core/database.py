@@ -51,10 +51,13 @@ Base.metadata.naming_convention = {
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    """Provide a database session with automatic commit/rollback.
+    """Provide a database session.
 
-    Yield a session that is committed on success or rolled back on
-    exception.  Intended for use as a FastAPI dependency::
+    Yields a session.  Commits and rollbacks are managed by the
+    Unit of Work layer, **not** by this generator, to avoid
+    double-commit conflicts.
+
+    Intended for use as a FastAPI dependency::
 
         async def my_endpoint(db: AsyncSession = Depends(get_db_session)):
             ...
@@ -62,10 +65,10 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:
         try:
             yield session
-            await session.commit()
         except Exception:
             await session.rollback()
             raise
+        # NOTE: session.close() is handled by the async_session_factory context manager
 
 
 async def check_database_connection() -> bool:

@@ -20,7 +20,7 @@ from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, SkillRelationshipType
 
 if TYPE_CHECKING:
-    from app.models.skill import Skill
+    pass  # Skill is defined in this file — no forward import needed
 
 
 class Skill(AppBaseMixin, Base):

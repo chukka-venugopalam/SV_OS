@@ -34,8 +34,6 @@ class UserRepository(BaseRepository[User]):
 
     async def find_by_email_or_username(self, email_or_username: str) -> User | None:
         """Find an active user by either email or username."""
-        from sqlalchemy import or_, select
-
         stmt = select(User).where(
             or_(
                 User.email == email_or_username,

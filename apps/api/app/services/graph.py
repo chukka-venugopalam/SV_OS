@@ -10,10 +10,8 @@ from uuid import UUID
 
 from structlog.stdlib import get_logger
 
-from app.models.knowledge_edge import KnowledgeEdge
 from app.models.knowledge_node import KnowledgeNode
 from app.repositories import UnitOfWork
-from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
 
@@ -120,8 +118,7 @@ class GraphService:
                 continue
 
             outgoing = await self._uow.graph.load_outgoing_edges(current_id)
-            for result in outgoing.items if isinstance(outgoing, PageResult) else outgoing:
-                edge = result if isinstance(result, KnowledgeEdge) else None
+            for edge in outgoing.items:
                 if edge and edge.target_node_id not in visited:
                     new_path = path + [{'node_id': current_id, 'edge': edge}]
                     if edge.target_node_id == target_id:

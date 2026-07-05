@@ -346,7 +346,7 @@ class BaseRepository(Generic[ModelT]):
             return 0
 
         if hard or not hasattr(self.model, 'is_deleted'):
-            stmt = select(self.model).where(getattr(self.model).id.in_(ids))
+            stmt = select(self.model).where(self.model.id.in_(ids))
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
             for instance in instances:
@@ -354,8 +354,8 @@ class BaseRepository(Generic[ModelT]):
         else:
             stmt = (
                 select(self.model)
-                .where(getattr(self.model).id.in_(ids))
-                .where(getattr(self.model).is_deleted == False)  # noqa: E712
+                .where(self.model.id.in_(ids))
+                .where(self.model.is_deleted == False)  # noqa: E712
             )
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
@@ -614,7 +614,7 @@ class BaseRepository(Generic[ModelT]):
 
     # ── Batch Loading ──────────────────────────────────────────────
 
-    async def load_related[T](
+    async def load_related(
         self,
         instances: list[ModelT],
         relation_name: str,
@@ -646,7 +646,7 @@ class BaseRepository(Generic[ModelT]):
         stmt = (
             select(self.model)
             .options(selectinload(relation))
-            .where(getattr(self.model).id.in_(ids))
+            .where(self.model.id.in_(ids))
         )
         result = await self.session.execute(stmt)
         _ = list(result.scalars().all())  # Triggers eager loading

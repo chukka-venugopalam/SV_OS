@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from app.models.bookmark import Bookmark
     from app.models.favorite import Favorite
     from app.models.search_history import SearchHistory
-    from app.models.learning_session import LearningSession
+    from app.models.learning_path import LearningSession
     from app.models.audit_log import AuditLog
     from app.models.recommendation import Recommendation
 

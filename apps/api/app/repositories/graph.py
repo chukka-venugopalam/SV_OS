@@ -116,14 +116,14 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
     ) -> list[KnowledgeNode]:
         """Load all nodes that depend on the given node.
 
-        Dependents are nodes reachable via incoming edges with
-        ``relationship_type = 'prerequisite'`` (this node is a
-        prerequisite for them).
+        Dependents are nodes where this node is a prerequisite for them.
+        Since edges go from prerequisite (source) → dependent (target),
+        we look at *outgoing* edges with type 'prerequisite'.
         """
         return await self.load_neighbors(
             node_id=node_id,
             relationship_type='prerequisite',
-            direction='incoming',
+            direction='outgoing',
         )
 
     # ── Dependency Queries ─────────────────────────────────────────
