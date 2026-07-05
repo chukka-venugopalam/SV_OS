@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, text
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -43,6 +43,7 @@ class LearningPath(AppBaseMixin, Base):
         comment='Short description of the learning path',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
+        Enum(Difficulty, name="difficulty_enum", native_enum=True, create_type=False),
         default=Difficulty.BEGINNER, server_default=text("'beginner'"),
         nullable=False,
         comment='Overall difficulty of the path',
@@ -104,6 +105,7 @@ class LearningSession(AppBaseMixin, Base):
         comment='Knowledge node studied',
     )
     status: Mapped[LearningStatus] = mapped_column(
+        Enum(LearningStatus, name="learning_status_enum", native_enum=True, create_type=False),
         default=LearningStatus.ACTIVE, server_default=text("'active'"),
         nullable=False,
         comment='Current status of the session',

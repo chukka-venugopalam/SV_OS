@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, text
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -52,6 +52,7 @@ class UserProgress(AppBaseMixin, Base):
         comment='Knowledge node being progressed',
     )
     status: Mapped[ProgressStatus] = mapped_column(
+        Enum(ProgressStatus, name="progress_enum", native_enum=True, create_type=False),
         default=ProgressStatus.NOT_STARTED,
         server_default=text("'not_started'"),
         nullable=False, index=True,

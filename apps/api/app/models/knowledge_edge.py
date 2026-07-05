@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, Float, ForeignKey, Text, UniqueConstraint, text
+from sqlalchemy import CheckConstraint, Enum, Float, ForeignKey, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -59,10 +59,12 @@ class KnowledgeEdge(AppBaseMixin, Base):
         comment='Target / child node ID',
     )
     relationship_type: Mapped[EdgeType] = mapped_column(
+        Enum(EdgeType, name="edge_type_enum", native_enum=True, create_type=False),
         nullable=False, index=True,
         comment='Semantic type of the relationship',
     )
     direction: Mapped[EdgeDirection] = mapped_column(
+        Enum(EdgeDirection, name="edge_direction_enum", native_enum=True, create_type=False),
         default=EdgeDirection.FORWARD,
         server_default=text("'forward'"),
         nullable=False,

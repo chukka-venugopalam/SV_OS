@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import Boolean, DateTime, String, Text, text
+from sqlalchemy import Boolean, DateTime, Enum, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -60,6 +60,7 @@ class User(AppBaseMixin, Base):
         comment='Bcrypt hash of the user password',
     )
     role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="user_role_enum", native_enum=True, create_type=False),
         default=UserRole.LEARNER, server_default=text("'learner'"),
         nullable=False, comment='Authorization role',
     )

@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, text
+from sqlalchemy import Enum, ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -49,6 +49,7 @@ class Career(AppBaseMixin, Base):
         comment='Display string for average salary (e.g. "$80k-$120k")',
     )
     demand_level: Mapped[DemandLevel] = mapped_column(
+        Enum(DemandLevel, name="demand_enum", native_enum=True, create_type=False),
         default=DemandLevel.GROWING, server_default=text("'growing'"),
         nullable=False, index=True,
         comment='Market demand trend',
@@ -118,6 +119,7 @@ class CareerRequirement(AppBaseMixin, Base):
         comment='Required knowledge node ID',
     )
     requirement_type: Mapped[RequirementType] = mapped_column(
+        Enum(RequirementType, name="requirement_type_enum", native_enum=True, create_type=False),
         nullable=False,
         comment='How strongly the node is required (required / recommended / bonus)',
     )

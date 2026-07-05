@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, text
+from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -46,6 +46,7 @@ class LearningResource(AppBaseMixin, Base):
         comment='URL to access the resource',
     )
     resource_type: Mapped[ResourceType] = mapped_column(
+        Enum(ResourceType, name="resource_type_enum", native_enum=True, create_type=False),
         nullable=False, index=True,
         comment='Category of the resource (video, article, course, etc.)',
     )
@@ -63,6 +64,7 @@ class LearningResource(AppBaseMixin, Base):
         comment='Estimated time to consume the resource',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
+        Enum(Difficulty, name="difficulty_enum", native_enum=True, create_type=False),
         default=Difficulty.BEGINNER, server_default=text("'beginner'"),
         nullable=False,
         comment='Difficulty level of this specific resource',

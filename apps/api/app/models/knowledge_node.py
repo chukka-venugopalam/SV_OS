@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Boolean, Integer, String, Text, text
+from sqlalchemy import Boolean, Enum, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -61,10 +61,12 @@ class KnowledgeNode(AppBaseMixin, Base):
         comment='Full rich-text / Markdown content body',
     )
     node_type: Mapped[NodeType] = mapped_column(
+        Enum(NodeType, name="node_type_enum", native_enum=True, create_type=False),
         nullable=False, index=True,
         comment='Discriminator — subject, concept, technology, or tool',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
+        Enum(Difficulty, name="difficulty_enum", native_enum=True, create_type=False),
         default=Difficulty.BEGINNER, server_default=text("'beginner'"),
         nullable=False, index=True,
         comment='Educational difficulty level',

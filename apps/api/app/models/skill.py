@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, text
+from sqlalchemy import Enum, ForeignKey, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -45,6 +45,7 @@ class Skill(AppBaseMixin, Base):
         comment='Skill category (e.g. "Programming Language", "Soft Skill")',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
+        Enum(Difficulty, name="difficulty_enum", native_enum=True, create_type=False),
         default=Difficulty.BEGINNER, server_default=text("'beginner'"),
         nullable=False,
         comment='Typical difficulty level',
@@ -105,6 +106,7 @@ class SkillRelationship(AppBaseMixin, Base):
         comment='Target / dependent skill ID',
     )
     relationship_type: Mapped[SkillRelationshipType] = mapped_column(
+        Enum(SkillRelationshipType, name="skill_relationship_type_enum", native_enum=True, create_type=False),
         nullable=False,
         comment='Semantic type of the skill relationship',
     )
