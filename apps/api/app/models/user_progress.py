@@ -10,13 +10,13 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint, text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.base import AppBaseMixin
-from app.models.enums import ProgressStatus
+from app.models.enums import ProgressStatus, pg_enum
 
 if TYPE_CHECKING:
     from app.models.knowledge_node import KnowledgeNode
@@ -52,7 +52,7 @@ class UserProgress(AppBaseMixin, Base):
         comment='Knowledge node being progressed',
     )
     status: Mapped[ProgressStatus] = mapped_column(
-        Enum(ProgressStatus, name="progress_enum", native_enum=True, create_type=False),
+        pg_enum(ProgressStatus, "progress_enum"),
         default=ProgressStatus.NOT_STARTED,
         server_default=text("'not_started'"),
         nullable=False, index=True,

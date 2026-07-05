@@ -10,13 +10,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import Enum, Float, ForeignKey, String, Text, text
+from sqlalchemy import Float, ForeignKey, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.base import AppBaseMixin
-from app.models.enums import RecommendationType
+from app.models.enums import RecommendationType, pg_enum
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -46,7 +46,7 @@ class Recommendation(AppBaseMixin, Base):
         comment='Recommended knowledge node ID',
     )
     recommendation_type: Mapped[RecommendationType] = mapped_column(
-        Enum(RecommendationType, name="recommendation_type_enum", native_enum=True, create_type=False),
+        pg_enum(RecommendationType, "recommendation_type_enum"),
         nullable=False, index=True,
         comment='Category of the recommendation',
     )

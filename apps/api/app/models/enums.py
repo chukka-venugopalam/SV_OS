@@ -9,6 +9,50 @@ native enum columns.
 from __future__ import annotations
 
 import enum
+from typing import Any
+
+from sqlalchemy import Enum
+
+
+def pg_enum(enum_cls: type[enum.Enum], name: str) -> Any:
+    """Build a SQLAlchemy ``Enum`` column type mapped to an existing
+    PostgreSQL native enum type.
+
+    Parameters
+    ----------
+    enum_cls : Python ``enum.Enum`` subclass
+        The Python enum class (e.g. ``UserRole``, ``Difficulty``).
+    name : str
+        The name of the PostgreSQL enum type created by Alembic
+        (e.g. ``"user_role_enum"``, ``"difficulty_enum"``).
+
+    Returns
+    -------
+    ``sqlalchemy.Enum`` instance configured with:
+
+    * ``native_enum=True`` — use the PostgreSQL native enum type.
+    * ``create_type=False`` — do **not** auto-create the type (already exists).
+    * ``values_callable=lambda e: [i.value for i in e]`` — store
+      **enum values** (lowercase strings) instead of Python member names.
+
+    Example
+    -------
+    .. code-block:: python
+
+        role: Mapped[UserRole] = mapped_column(
+            pg_enum(UserRole, "user_role_enum"),
+            default=UserRole.LEARNER,
+            server_default=text("'learner'"),
+            nullable=False,
+        )
+    """
+    return Enum(
+        enum_cls,
+        name=name,
+        native_enum=True,
+        create_type=False,
+        values_callable=lambda e: [i.value for i in e],
+    )
 
 
 class NodeType(str, enum.Enum):

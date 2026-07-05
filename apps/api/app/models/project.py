@@ -11,13 +11,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text, UniqueConstraint, text
+from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.base import AppBaseMixin
-from app.models.enums import Difficulty, RequirementType
+from app.models.enums import Difficulty, RequirementType, pg_enum
 
 if TYPE_CHECKING:
     from app.models.knowledge_node import KnowledgeNode
@@ -46,7 +46,7 @@ class Project(AppBaseMixin, Base):
         comment='Project description and goals',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
-        Enum(Difficulty, name="difficulty_enum", native_enum=True, create_type=False),
+        pg_enum(Difficulty, "difficulty_enum"),
         default=Difficulty.INTERMEDIATE,
         server_default=text("'intermediate'"),
         nullable=False, index=True,
@@ -122,7 +122,7 @@ class ProjectRequirement(AppBaseMixin, Base):
         comment='Required knowledge node ID',
     )
     requirement_type: Mapped[RequirementType] = mapped_column(
-        Enum(RequirementType, name="requirement_type_enum", native_enum=True, create_type=False),
+        pg_enum(RequirementType, "requirement_type_enum"),
         nullable=False,
         comment='How strongly the node is required (required / recommended)',
     )
