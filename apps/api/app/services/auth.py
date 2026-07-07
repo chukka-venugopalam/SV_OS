@@ -16,6 +16,7 @@ from passlib.context import CryptContext
 from structlog.stdlib import get_logger
 
 from app.core.config import settings
+from app.models.enums import UserRole
 from app.models.user import User
 from app.repositories import UnitOfWork
 from app.repositories.errors import DuplicateEntityError, EntityNotFoundError, RepositoryError
@@ -173,7 +174,7 @@ class AuthService:
             username=username,
             display_name=display_name,
             password_hash=password_hash,
-            role='learner',
+            role=UserRole.LEARNER,
             preferences={},
         )
 
