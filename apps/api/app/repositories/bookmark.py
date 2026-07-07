@@ -58,11 +58,15 @@ class BookmarkRepository(BaseRepository[Bookmark]):
         user_id: UUID,
         node_id: UUID,
         notes: str | None = None,
-    ) -> tuple[Bookmark, bool]:
+    ) -> tuple[Bookmark | None, bool]:
         """Toggle a bookmark for a user on a node.
 
-        If the bookmark exists, removes (soft-deletes) it.
-        If it does not exist, creates it.
+        If the bookmark exists, removes (soft-deletes) it and returns
+        ``(None, False)`` so the caller never receives a soft-deleted
+        instance.
+
+        If it does not exist, creates it and returns
+        ``(bookmark, True)``.
 
         Returns a tuple of ``(bookmark, created)`` where ``created``
         is ``True`` if the bookmark was newly created.
@@ -70,7 +74,7 @@ class BookmarkRepository(BaseRepository[Bookmark]):
         existing = await self.find_by_user_and_node(user_id, node_id)
         if existing:
             await self.delete(existing.id)
-            return existing, False
+            return None, False
 
         bookmark = await self.create(
             user_id=user_id,

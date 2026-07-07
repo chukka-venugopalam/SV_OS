@@ -11,6 +11,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
+from datetime import datetime
+
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -18,6 +20,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, LearningStatus, pg_enum
+from app.utils.date_utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -110,9 +113,9 @@ class LearningSession(AppBaseMixin, Base):
         nullable=False,
         comment='Current status of the session',
     )
-    started_at: Mapped[Optional[DateTime]] = mapped_column(
-        DateTime(timezone=True), nullable=True,
-        comment='When the session started',
+    started_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=True,
+        comment='When the session started (defaults to creation time)',
     )
     ended_at: Mapped[Optional[DateTime]] = mapped_column(
         DateTime(timezone=True), nullable=True,
@@ -134,6 +137,10 @@ class LearningSession(AppBaseMixin, Base):
     )
     node: Mapped['KnowledgeNode'] = relationship(
         'KnowledgeNode',
+        # Deliberately no back_populates — KnowledgeNode does not
+        # define a ``learning_sessions`` relationship.  Adding one
+        # would pull all LearningSession records into memory every
+        # time a KnowledgeNode is loaded, causing N+1 queries.
     )
 
     def __repr__(self) -> str:

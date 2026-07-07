@@ -16,6 +16,7 @@ from passlib.context import CryptContext
 from structlog.stdlib import get_logger
 
 from app.core.config import settings
+from app.exceptions.base import AppException
 from app.models.enums import UserRole
 from app.models.user import User
 from app.repositories import UnitOfWork
@@ -27,20 +28,18 @@ logger = get_logger(__name__)
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-class AuthenticationError(Exception):
+class AuthenticationError(AppException):
     """Raised when authentication fails (invalid credentials, expired token, etc.)."""
 
     def __init__(self, message: str = 'Authentication failed') -> None:
-        self.message = message
-        super().__init__(self.message)
+        super().__init__(message=message, status_code=401)
 
 
-class AuthorizationError(Exception):
+class AuthorizationError(AppException):
     """Raised when the user lacks permission for an action."""
 
     def __init__(self, message: str = 'Not authorized') -> None:
-        self.message = message
-        super().__init__(self.message)
+        super().__init__(message=message, status_code=403)
 
 
 class AuthService:

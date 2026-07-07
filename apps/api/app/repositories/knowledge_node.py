@@ -148,11 +148,20 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
         )
 
     async def increment_view_count(self, node_id: UUID) -> None:
-        """Atomically increment the view counter for a node."""
-        node = await self.get_by_id(node_id)
-        if node:
-            node.view_count = (node.view_count or 0) + 1
-            await self.session.flush()
+        """Atomically increment the view counter for a node.
+
+        Uses an atomic SQL UPDATE to prevent lost updates from
+        concurrent requests (read-modify-write race condition).
+        """
+        from sqlalchemy import update
+
+        stmt = (
+            update(KnowledgeNode)
+            .where(KnowledgeNode.id == node_id)
+            .values(view_count=KnowledgeNode.view_count + 1)
+        )
+        await self.session.execute(stmt)
+        await self.session.flush()
 
     # ── Full-Text Search ───────────────────────────────────────────
 

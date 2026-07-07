@@ -46,15 +46,12 @@ class SearchService:
 
         # Record search history if user is authenticated
         if user_id and query.strip():
-            try:
-                await self._uow.search_history.create(
-                    user_id=user_id,
-                    query=query.strip(),
-                    filters={'node_type': node_type, 'difficulty': difficulty},
-                    results_count=result.total,
-                )
-            except Exception as e:
-                logger.warning('failed_to_record_search_history', error=str(e))
+            await self._uow.search_history.create(
+                user_id=user_id,
+                query=query.strip(),
+                filters={'node_type': node_type, 'difficulty': difficulty},
+                results_count=result.total,
+            )
 
         return result
 

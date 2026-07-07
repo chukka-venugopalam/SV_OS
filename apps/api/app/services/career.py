@@ -59,18 +59,10 @@ class CareerService:
         }
 
     async def get_nodes_for_career(self, slug: str) -> list:
-        """Get all knowledge nodes required for a career."""
+        """Get all knowledge nodes required for a career.
+
+        Uses a single join query via ``CareerRepository.get_nodes_for_career``
+        to avoid N+1 queries.
+        """
         career = await self._uow.careers.get_by_slug(slug)
-        requirements = await self._uow.careers.get_requirements(career.id)
-
-        nodes = []
-        for req in requirements:
-            node = await self._uow.knowledge_nodes.get_by_id(req.node_id)
-            if node:
-                nodes.append({
-                    'node': node,
-                    'requirement_type': req.requirement_type,
-                    'order_index': req.order_index,
-                })
-
-        return nodes
+        return await self._uow.careers.get_nodes_for_career(career.id)

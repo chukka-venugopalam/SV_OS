@@ -38,13 +38,23 @@ class ProjectService:
         )
 
     async def get_requirements(self, slug: str) -> list:
-        """Get knowledge node requirements for a project."""
+        """Get knowledge node requirements for a project.
+
+        Batches node lookups into a single query to avoid N+1.
+        """
         project = await self._uow.projects.get_by_slug(slug)
         requirements = await self._uow.projects.get_requirements(project.id)
 
+        if not requirements:
+            return []
+
+        node_ids = list({req.node_id for req in requirements})
+        nodes = await self._uow.knowledge_nodes.get_many(node_ids)
+        node_map = {n.id: n for n in nodes}
+
         result = []
         for req in requirements:
-            node = await self._uow.knowledge_nodes.get_by_id(req.node_id)
+            node = node_map.get(req.node_id)
             if node:
                 result.append({
                     'node': node,

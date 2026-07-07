@@ -55,7 +55,7 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
 
     Yields a session.  Commits and rollbacks are managed by the
     Unit of Work layer, **not** by this generator, to avoid
-    double-commit conflicts.
+    double-commit or double-rollback conflicts.
 
     Intended for use as a FastAPI dependency::
 
@@ -63,11 +63,7 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             ...
     """
     async with async_session_factory() as session:
-        try:
-            yield session
-        except Exception:
-            await session.rollback()
-            raise
+        yield session
         # NOTE: session.close() is handled by the async_session_factory context manager
 
 

@@ -90,13 +90,20 @@ CREATE TABLE users (
     display_name VARCHAR(200),
     avatar_url TEXT,
     bio TEXT,
+    password_hash VARCHAR(255),
     role user_role_enum NOT NULL DEFAULT 'learner',
     preferences JSONB NOT NULL DEFAULT '{}',
     is_active BOOLEAN NOT NULL DEFAULT true,
     last_login_at TIMESTAMPTZ,
+    is_deleted BOOLEAN NOT NULL DEFAULT false,
+    version INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON COLUMN users.password_hash IS 'Bcrypt hash of the user password';
+COMMENT ON COLUMN users.is_deleted IS 'Soft-delete flag (True = logically deleted)';
+COMMENT ON COLUMN users.version IS 'Optimistic-locking version counter';
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);

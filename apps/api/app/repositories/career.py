@@ -123,6 +123,55 @@ class CareerRepository(BaseRepository[Career]):
         await self.session.flush()
         return True
 
+    # ── Related Queries ───────────────────────────────────────────
+
+    async def get_nodes_for_career(self, career_id: UUID) -> list[dict[str, Any]]:
+        """Get all knowledge nodes required for a career, with
+        requirement metadata."""
+        from app.models.knowledge_node import KnowledgeNode
+        from sqlalchemy import select
+
+        stmt = (
+            select(KnowledgeNode, CareerRequirement)
+            .join(
+                CareerRequirement,
+                CareerRequirement.node_id == KnowledgeNode.id,
+            )
+            .where(
+                CareerRequirement.career_id == career_id,
+                CareerRequirement.is_deleted == False,  # noqa: E712
+                KnowledgeNode.is_deleted == False,  # noqa: E712
+            )
+            .order_by(CareerRequirement.order_index)
+        )
+        result = await self.session.execute(stmt)
+        return [
+            {
+                'node': node,
+                'requirement_type': req.requirement_type,
+                'order_index': req.order_index,
+            }
+            for node, req in result.all()
+        ]
+
+    async def find_careers_by_node(self, node_id: UUID) -> list['Career']:
+        """Find all careers that require a given knowledge node."""
+        from app.models.knowledge_node import KnowledgeNode
+        from sqlalchemy import select
+
+        stmt = (
+            select(Career)
+            .join(CareerRequirement, CareerRequirement.career_id == Career.id)
+            .where(
+                CareerRequirement.node_id == node_id,
+                Career.is_deleted == False,  # noqa: E712
+                Career.is_published == True,  # noqa: E712
+            )
+            .distinct()
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     # ── Statistics ─────────────────────────────────────────────────
 
     async def count_by_demand(self) -> list[dict[str, Any]]:

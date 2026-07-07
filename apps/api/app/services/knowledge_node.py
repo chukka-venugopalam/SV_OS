@@ -120,7 +120,11 @@ class KnowledgeNodeService:
         logger.info('node_deleted', slug=slug)
 
     async def increment_view(self, slug: str) -> None:
-        """Increment the view count for a node."""
+        """Increment the view count for a node.
+
+        Gets the node ID first, then atomically increments via SQL.
+        The atomic update is a no-op if the node doesn't exist.
+        """
         node = await self._uow.knowledge_nodes.find_by_slug(slug)
         if node:
             await self._uow.knowledge_nodes.increment_view_count(node.id)
@@ -149,18 +153,4 @@ class KnowledgeNodeService:
 
     async def get_related_careers(self, node_id: UUID) -> list:
         """Get careers that require this node."""
-        from app.models.career import Career, CareerRequirement
-        from sqlalchemy import select
-
-        stmt = (
-            select(Career)
-            .join(CareerRequirement, CareerRequirement.career_id == Career.id)
-            .where(
-                CareerRequirement.node_id == node_id,
-                Career.is_deleted == False,
-                Career.is_published == True,
-            )
-            .distinct()
-        )
-        result = await self._uow.session.execute(stmt)
-        return list(result.scalars().all())
+        return await self._uow.careers.find_careers_by_node(node_id)

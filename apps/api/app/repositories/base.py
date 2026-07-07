@@ -74,15 +74,27 @@ class BaseRepository(Generic[ModelT]):
     # ── Read Operations ────────────────────────────────────────────
 
     async def get_by_id(self, id: UUID) -> ModelT | None:
-        """Fetch a single record by primary key (active records only)."""
-        instance = await self.session.get(self.model, id)
-        if instance is not None and self._is_deleted(instance):
-            return None
-        return instance
+        """Fetch a single record by primary key (active records only).
+
+        Uses an explicit SELECT with a WHERE clause instead of
+        ``session.get()`` to avoid returning stale data from the
+        identity map and to ensure the soft-delete filter is applied
+        at the database level.
+        """
+        stmt = select(self.model).where(self.model.id == id)
+        stmt = self._apply_active_filter(stmt)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def get_by_id_including_deleted(self, id: UUID) -> ModelT | None:
-        """Fetch a single record by primary key, including soft-deleted."""
-        return await self.session.get(self.model, id)
+        """Fetch a single record by primary key, including soft-deleted.
+
+        Uses an explicit SELECT to avoid identity-map staleness.
+        Does NOT apply the soft-delete filter.
+        """
+        stmt = select(self.model).where(self.model.id == id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def get_many(self, ids: list[UUID]) -> list[ModelT]:
         """Fetch multiple records by their primary keys (active only)."""
@@ -182,13 +194,15 @@ class BaseRepository(Generic[ModelT]):
         return result.scalar_one_or_none() is not None
 
     async def exists_by_id(self, id: UUID) -> bool:
-        """Check whether an active record with the given ID exists."""
-        instance = await self.session.get(self.model, id)
-        if instance is None:
-            return False
-        if self._is_deleted(instance):
-            return False
-        return True
+        """Check whether an active record with the given ID exists.
+
+        Uses an explicit SELECT with soft-delete filter to avoid
+        identity-map staleness.
+        """
+        stmt = select(self.model).where(self.model.id == id)
+        stmt = self._apply_active_filter(stmt)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none() is not None
 
     # ── Count Operations ───────────────────────────────────────────
 

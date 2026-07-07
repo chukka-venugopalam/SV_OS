@@ -306,29 +306,23 @@ def _create_knowledge_nodes() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('knowledge_nodes') as batch_op:
-        # GIN index on search_vector — enables fast full-text search
-        # queries. This is the most important index for the search
-        # feature.
-        batch_op.create_index('ix_knowledge_nodes_search_vector',
-                              ['search_vector'],
-                              postgresql_using='gin')
-        # No separate index on slug — the unique constraint on slug
-        # already creates a unique index in PostgreSQL.
-        # Index on node_type — filters knowledge graph by type
-        # (subjects, concepts, technologies).
-        batch_op.create_index('ix_knowledge_nodes_node_type', ['node_type'])
-        # Index on difficulty — filters by learning level.
-        batch_op.create_index('ix_knowledge_nodes_difficulty', ['difficulty'])
-        # Index on is_published — most queries filter for published
-        # nodes only.
-        batch_op.create_index('ix_knowledge_nodes_is_published',
-                              ['is_published'])
-        # Index on created_at — supports "recently added" queries
-        # and dashboard widgets.
-        batch_op.create_index('ix_knowledge_nodes_created_at',
-                              ['created_at'],
-                              postgresql_ops={'created_at': 'DESC'})
+    # GIN index on search_vector — enables fast full-text search.
+    op.create_index('ix_knowledge_nodes_search_vector',
+                    'knowledge_nodes', ['search_vector'],
+                    postgresql_using='gin')
+    # Index on node_type — filters knowledge graph by type.
+    op.create_index('ix_knowledge_nodes_node_type',
+                    'knowledge_nodes', ['node_type'])
+    # Index on difficulty — filters by learning level.
+    op.create_index('ix_knowledge_nodes_difficulty',
+                    'knowledge_nodes', ['difficulty'])
+    # Index on is_published — most queries filter for published nodes.
+    op.create_index('ix_knowledge_nodes_is_published',
+                    'knowledge_nodes', ['is_published'])
+    # Index on created_at — supports "recently added" queries.
+    op.create_index('ix_knowledge_nodes_created_at',
+                    'knowledge_nodes', ['created_at'],
+                    postgresql_ops={'created_at': 'DESC'})
 
 
 def _create_knowledge_edges() -> None:
@@ -387,24 +381,18 @@ def _create_knowledge_edges() -> None:
         sa.CheckConstraint('source_node_id != target_node_id',
                            name='ck_knowledge_edges_no_self_loop'),
     )
-    with op.batch_alter_table('knowledge_edges') as batch_op:
-        # Index on source_node_id — fast outgoing edge traversal
-        # (find all edges FROM a node).
-        batch_op.create_index('ix_knowledge_edges_source_node_id',
-                              ['source_node_id'])
-        # Index on target_node_id — fast incoming edge traversal
-        # (find all edges TO a node).
-        batch_op.create_index('ix_knowledge_edges_target_node_id',
-                              ['target_node_id'])
-        # Composite index on source+target — optimises graph
-        # traversal queries that filter both sides simultaneously
-        # (e.g. "is there an edge between X and Y?").
-        batch_op.create_index('ix_knowledge_edges_source_target',
-                              ['source_node_id', 'target_node_id'])
-        # Index on relationship_type — filters edges by type
-        # (e.g. all prerequisite edges).
-        batch_op.create_index('ix_knowledge_edges_relationship_type',
-                              ['relationship_type'])
+    # Index on source_node_id — fast outgoing edge traversal.
+    op.create_index('ix_knowledge_edges_source_node_id',
+                    'knowledge_edges', ['source_node_id'])
+    # Index on target_node_id — fast incoming edge traversal.
+    op.create_index('ix_knowledge_edges_target_node_id',
+                    'knowledge_edges', ['target_node_id'])
+    # Composite index on source+target — optimises graph traversal.
+    op.create_index('ix_knowledge_edges_source_target',
+                    'knowledge_edges', ['source_node_id', 'target_node_id'])
+    # Index on relationship_type — filters edges by type.
+    op.create_index('ix_knowledge_edges_relationship_type',
+                    'knowledge_edges', ['relationship_type'])
 
 
 def _create_tags() -> None:
@@ -463,11 +451,10 @@ def _create_node_tags() -> None:
         sa.UniqueConstraint('node_id', 'tag_id',
                             name='uq_node_tags_node_tag'),
     )
-    with op.batch_alter_table('node_tags') as batch_op:
-        # Index on node_id — find all tags for a node.
-        batch_op.create_index('ix_node_tags_node_id', ['node_id'])
-        # Index on tag_id — find all nodes with a given tag.
-        batch_op.create_index('ix_node_tags_tag_id', ['tag_id'])
+    # Index on node_id — find all tags for a node.
+    op.create_index('ix_node_tags_node_id', 'node_tags', ['node_id'])
+    # Index on tag_id — find all nodes with a given tag.
+    op.create_index('ix_node_tags_tag_id', 'node_tags', ['tag_id'])
 
 
 def _create_skills() -> None:
@@ -545,13 +532,12 @@ def _create_skill_relationships() -> None:
                             'relationship_type',
                             name='uq_skill_relationships_source_target_type'),
     )
-    with op.batch_alter_table('skill_relationships') as batch_op:
-        # Index for outgoing skill relationship traversal.
-        batch_op.create_index('ix_skill_relationships_source_skill_id',
-                              ['source_skill_id'])
-        # Index for incoming skill relationship traversal.
-        batch_op.create_index('ix_skill_relationships_target_skill_id',
-                              ['target_skill_id'])
+    # Index for outgoing skill relationship traversal.
+    op.create_index('ix_skill_relationships_source_skill_id',
+                    'skill_relationships', ['source_skill_id'])
+    # Index for incoming skill relationship traversal.
+    op.create_index('ix_skill_relationships_target_skill_id',
+                    'skill_relationships', ['target_skill_id'])
 
 
 def _create_careers() -> None:
@@ -599,11 +585,10 @@ def _create_careers() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('careers') as batch_op:
-        # No separate index on slug — the unique constraint on slug
-        # already creates a unique index in PostgreSQL.
-        # Index for filtering careers by demand level.
-        batch_op.create_index('ix_careers_demand_level', ['demand_level'])
+    # No separate index on slug — the unique constraint on slug
+    # already creates a unique index in PostgreSQL.
+    # Index for filtering careers by demand level.
+    op.create_index('ix_careers_demand_level', 'careers', ['demand_level'])
 
 
 def _create_career_requirements() -> None:
@@ -644,11 +629,12 @@ def _create_career_requirements() -> None:
         sa.UniqueConstraint('career_id', 'node_id', 'requirement_type',
                             name='uq_career_requirements_career_node_type'),
     )
-    with op.batch_alter_table('career_requirements') as batch_op:
-        # Index for finding all requirements of a career.
-        batch_op.create_index('ix_career_requirements_career_id', ['career_id'])
-        # Index for finding all careers that require a node.
-        batch_op.create_index('ix_career_requirements_node_id', ['node_id'])
+    # Index for finding all requirements of a career.
+    op.create_index('ix_career_requirements_career_id',
+                    'career_requirements', ['career_id'])
+    # Index for finding all careers that require a node.
+    op.create_index('ix_career_requirements_node_id',
+                    'career_requirements', ['node_id'])
 
 
 def _create_projects() -> None:
@@ -698,11 +684,10 @@ def _create_projects() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('projects') as batch_op:
-        # No separate index on slug — the unique constraint on slug
-        # already creates a unique index in PostgreSQL.
-        # Index for filtering projects by difficulty.
-        batch_op.create_index('ix_projects_difficulty', ['difficulty'])
+    # No separate index on slug — the unique constraint on slug
+    # already creates a unique index in PostgreSQL.
+    # Index for filtering projects by difficulty.
+    op.create_index('ix_projects_difficulty', 'projects', ['difficulty'])
 
 
 def _create_project_requirements() -> None:
@@ -743,12 +728,12 @@ def _create_project_requirements() -> None:
         sa.UniqueConstraint('project_id', 'node_id', 'requirement_type',
                             name='uq_project_requirements_project_node_type'),
     )
-    with op.batch_alter_table('project_requirements') as batch_op:
-        # Index for finding all requirements of a project.
-        batch_op.create_index('ix_project_requirements_project_id',
-                              ['project_id'])
-        # Index for finding all projects that require a node.
-        batch_op.create_index('ix_project_requirements_node_id', ['node_id'])
+    # Index for finding all requirements of a project.
+    op.create_index('ix_project_requirements_project_id',
+                    'project_requirements', ['project_id'])
+    # Index for finding all projects that require a node.
+    op.create_index('ix_project_requirements_node_id',
+                    'project_requirements', ['node_id'])
 
 
 def _create_learning_resources() -> None:
@@ -800,12 +785,12 @@ def _create_learning_resources() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('learning_resources') as batch_op:
-        # Index for finding all resources attached to a node.
-        batch_op.create_index('ix_learning_resources_node_id', ['node_id'])
-        # Index for filtering resources by type (e.g. only videos).
-        batch_op.create_index('ix_learning_resources_resource_type',
-                              ['resource_type'])
+    # Index for finding all resources attached to a node.
+    op.create_index('ix_learning_resources_node_id',
+                    'learning_resources', ['node_id'])
+    # Index for filtering resources by type (e.g. only videos).
+    op.create_index('ix_learning_resources_resource_type',
+                    'learning_resources', ['resource_type'])
 
 
 def _create_learning_paths() -> None:
@@ -852,11 +837,9 @@ def _create_learning_paths() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('learning_paths') as batch_op:
-        # Index on is_published — most queries filter for published
-        # learning paths only.
-        batch_op.create_index('ix_learning_paths_is_published',
-                              ['is_published'])
+    # Index on is_published — most queries filter for published paths.
+    op.create_index('ix_learning_paths_is_published',
+                    'learning_paths', ['is_published'])
 
 
 def _create_learning_sessions() -> None:
@@ -903,11 +886,12 @@ def _create_learning_sessions() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('learning_sessions') as batch_op:
-        # Index for finding all sessions for a user.
-        batch_op.create_index('ix_learning_sessions_user_id', ['user_id'])
-        # Index for finding all sessions on a node.
-        batch_op.create_index('ix_learning_sessions_node_id', ['node_id'])
+    # Index for finding all sessions for a user.
+    op.create_index('ix_learning_sessions_user_id',
+                    'learning_sessions', ['user_id'])
+    # Index for finding all sessions on a node.
+    op.create_index('ix_learning_sessions_node_id',
+                    'learning_sessions', ['node_id'])
 
 
 def _create_user_progress() -> None:
@@ -959,13 +943,15 @@ def _create_user_progress() -> None:
         sa.UniqueConstraint('user_id', 'node_id',
                             name='uq_user_progress_user_node'),
     )
-    with op.batch_alter_table('user_progress') as batch_op:
-        # Index for finding all progress records for a user (dashboard).
-        batch_op.create_index('ix_user_progress_user_id', ['user_id'])
-        # Index for finding all progress on a node (analytics).
-        batch_op.create_index('ix_user_progress_node_id', ['node_id'])
-        # Index for filtering by status (e.g. "in progress" items).
-        batch_op.create_index('ix_user_progress_status', ['status'])
+    # Index for finding all progress records for a user.
+    op.create_index('ix_user_progress_user_id',
+                    'user_progress', ['user_id'])
+    # Index for finding all progress on a node.
+    op.create_index('ix_user_progress_node_id',
+                    'user_progress', ['node_id'])
+    # Index for filtering by status.
+    op.create_index('ix_user_progress_status',
+                    'user_progress', ['status'])
 
 
 def _create_bookmarks() -> None:
@@ -1000,9 +986,8 @@ def _create_bookmarks() -> None:
         sa.UniqueConstraint('user_id', 'node_id',
                             name='uq_bookmarks_user_node'),
     )
-    with op.batch_alter_table('bookmarks') as batch_op:
-        # Index for finding all bookmarks for a user.
-        batch_op.create_index('ix_bookmarks_user_id', ['user_id'])
+    # Index for finding all bookmarks for a user.
+    op.create_index('ix_bookmarks_user_id', 'bookmarks', ['user_id'])
 
 
 def _create_favorites() -> None:
@@ -1035,9 +1020,8 @@ def _create_favorites() -> None:
         sa.UniqueConstraint('user_id', 'node_id',
                             name='uq_favorites_user_node'),
     )
-    with op.batch_alter_table('favorites') as batch_op:
-        # Index for finding all favourites for a user.
-        batch_op.create_index('ix_favorites_user_id', ['user_id'])
+    # Index for finding all favourites for a user.
+    op.create_index('ix_favorites_user_id', 'favorites', ['user_id'])
 
 
 def _create_search_history() -> None:
@@ -1072,12 +1056,13 @@ def _create_search_history() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('search_history') as batch_op:
-        # Index for finding search history for a user.
-        batch_op.create_index('ix_search_history_user_id', ['user_id'])
-        # Index for trending searches (most recent first).
-        batch_op.create_index('ix_search_history_created_at', ['created_at'],
-                              postgresql_ops={'created_at': 'DESC'})
+    # Index for finding search history for a user.
+    op.create_index('ix_search_history_user_id',
+                    'search_history', ['user_id'])
+    # Index for trending searches (most recent first).
+    op.create_index('ix_search_history_created_at',
+                    'search_history', ['created_at'],
+                    postgresql_ops={'created_at': 'DESC'})
 
 
 def _create_activity_logs() -> None:
@@ -1116,17 +1101,19 @@ def _create_activity_logs() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('activity_logs') as batch_op:
-        # Index for finding all actions by a user.
-        batch_op.create_index('ix_activity_logs_user_id', ['user_id'])
-        # Index for filtering by action type (e.g. all login events).
-        batch_op.create_index('ix_activity_logs_action', ['action'])
-        # Index for entity lookup (find all actions on an entity).
-        batch_op.create_index('ix_activity_logs_entity',
-                              ['entity_type', 'entity_id'])
-        # Index for time-ordered audit queries.
-        batch_op.create_index('ix_activity_logs_created_at', ['created_at'],
-                              postgresql_ops={'created_at': 'DESC'})
+    # Index for finding all actions by a user.
+    op.create_index('ix_activity_logs_user_id',
+                    'activity_logs', ['user_id'])
+    # Index for filtering by action type (e.g. all login events).
+    op.create_index('ix_activity_logs_action',
+                    'activity_logs', ['action'])
+    # Index for entity lookup (find all actions on an entity).
+    op.create_index('ix_activity_logs_entity',
+                    'activity_logs', ['entity_type', 'entity_id'])
+    # Index for time-ordered audit queries.
+    op.create_index('ix_activity_logs_created_at',
+                    'activity_logs', ['created_at'],
+                    postgresql_ops={'created_at': 'DESC'})
 
 
 def _create_recommendations() -> None:
@@ -1173,14 +1160,15 @@ def _create_recommendations() -> None:
                   server_default=sa.text('1'),
                   comment='Optimistic-locking version counter'),
     )
-    with op.batch_alter_table('recommendations') as batch_op:
-        # Index for finding all recommendations for a user.
-        batch_op.create_index('ix_recommendations_user_id', ['user_id'])
-        # Index for finding all recommendations for a node.
-        batch_op.create_index('ix_recommendations_node_id', ['node_id'])
-        # Index for filtering recommendations by type.
-        batch_op.create_index('ix_recommendations_recommendation_type',
-                              ['recommendation_type'])
+    # Index for finding all recommendations for a user.
+    op.create_index('ix_recommendations_user_id',
+                    'recommendations', ['user_id'])
+    # Index for finding all recommendations for a node.
+    op.create_index('ix_recommendations_node_id',
+                    'recommendations', ['node_id'])
+    # Index for filtering recommendations by type.
+    op.create_index('ix_recommendations_recommendation_type',
+                    'recommendations', ['recommendation_type'])
 
 
 # ═══════════════════════════════════════════════════════════════════

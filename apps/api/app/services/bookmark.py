@@ -39,11 +39,14 @@ class BookmarkService:
         user_id: UUID,
         node_id: UUID,
         notes: str | None = None,
-    ) -> tuple[Bookmark, bool]:
+    ) -> tuple[Bookmark | None, bool]:
         """Toggle a bookmark on a node for a user.
 
-        Returns ``(bookmark, created)`` where ``created`` is True
-        if the bookmark was added, False if removed.
+        Returns ``(bookmark, created)`` where:
+        - ``bookmark`` is the new ``Bookmark`` if created, or ``None`` if removed.
+        - ``created`` is True if the bookmark was added, False if removed.
+
+        Raises ``EntityNotFoundError`` if the node does not exist.
         """
         # Verify node exists
         node = await self._uow.knowledge_nodes.get_by_id(node_id)

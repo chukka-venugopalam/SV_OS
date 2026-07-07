@@ -25,6 +25,11 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from structlog.stdlib import get_logger
 
 from app.exceptions.base import AppException, ErrorDetail
+from app.repositories.errors import (
+    DuplicateEntityError,
+    EntityNotFoundError,
+    RepositoryError,
+)
 
 logger = get_logger(__name__)
 
@@ -124,6 +129,42 @@ async def http_exception_handler(
     )
 
 
+async def repository_error_handler(
+    request: Request, exc: RepositoryError
+) -> JSONResponse:
+    """Handler for repository-layer errors.
+
+    Maps known repository errors to appropriate HTTP status codes:
+    - ``EntityNotFoundError`` → 404
+    - ``DuplicateEntityError`` → 409
+    - All other ``RepositoryError`` → 400
+
+    This is a safety net — endpoints should still catch specific
+    errors when they need custom behaviour.  Without this handler
+    these errors would produce 500 responses.
+    """
+    status_code = 400
+    if isinstance(exc, EntityNotFoundError):
+        status_code = 404
+    elif isinstance(exc, DuplicateEntityError):
+        status_code = 409
+
+    logger.warning(
+        'repository_error',
+        error_type=type(exc).__name__,
+        message=exc.message,
+        status_code=status_code,
+        request_id=_request_id(request),
+    )
+    return JSONResponse(
+        status_code=status_code,
+        content=_error_response(
+            message=exc.message,
+            request_id=_request_id(request),
+        ),
+    )
+
+
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Catch-all handler for unhandled exceptions (no stack trace leak)."""
     logger.error(
@@ -149,4 +190,5 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AppException, app_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+    app.add_exception_handler(RepositoryError, repository_error_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)

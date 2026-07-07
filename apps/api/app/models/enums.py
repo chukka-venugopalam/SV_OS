@@ -8,31 +8,41 @@ native enum columns.
 .. note::
 
     Standard SQLAlchemy ``Enum`` with ``native_enum=True`` passes
-    the Python enum class directly to the ``asyncpg`` driver, which
-    then serialises members via ``.name`` (e.g. ``"LEARNER"``)
-    instead of ``.value`` (e.g. ``"learner"``).  Because our PostgreSQL
+    the Python enum class to the ``asyncpg`` driver, which then
+    serialises members via ``.name`` (e.g. ``"LEARNER"``) instead
+    of ``.value`` (e.g. ``"learner"``).  Because our PostgreSQL
     native enum labels are lowercase values, this produces
     ``InvalidTextRepresentationError``.
 
-    ``PgEnum`` works around this by:
+    ``PgEnum`` avoids this by passing only the **lowercase ``.value``
+    strings** to the base ``Enum`` — since no Python enum class is
+    registered with asyncpg, every value is treated as a plain string
+    and sent as-is to PostgreSQL.
 
-    #. Passing only the **lowercase ``.value`` strings** to the base
-       ``Enum`` — no Python enum class is registered with asyncpg at
-       all, so asyncpg treats everything as plain strings for encoding.
-    #. Overriding ``result_processor`` to install a custom decode step
-       that converts the raw PostgreSQL string back into the proper
-       Python enum member.  This is necessary because ``asyncpg``
-       returns raw strings when no Python enum codec is registered,
-       and SQLAlchemy's native-enum ``result_processor`` returns
-       ``None`` by default.
+    The trade‑off is that ``asyncpg`` returns the raw string on
+    read-back.  SQLAlchemy's ``result_processor`` / ``process_result_value``
+    are **not called** for native PostgreSQL enums because ``asyncpg``
+    handles all result conversion at the driver level via registered
+    type codecs.
+
+    To bridge the gap, we register an ORM-level ``after_load`` event
+    that converts any string attribute backed by a ``PgEnum`` column
+    to the proper Python enum member.  This runs after ``asyncpg``
+    and SQLAlchemy's type system have both finished.
 """
 
 from __future__ import annotations
 
 import enum
-from typing import Any, Callable
+from typing import Any
 
-from sqlalchemy import Enum as SAEnum
+from sqlalchemy import Enum as SAEnum, event
+from sqlalchemy.orm import ColumnProperty, Mapper
+from sqlalchemy.orm.attributes import instance_state
+
+# ────────────────────────────────────────────────────────────────────
+# Custom Enum column type
+# ────────────────────────────────────────────────────────────────────
 
 
 class PgEnum(SAEnum):
@@ -40,13 +50,15 @@ class PgEnum(SAEnum):
     members using their **value** (e.g. ``'learner'``) instead of their
     **name** (e.g. ``'LEARNER'``).
 
-    Bind (Python → DB) passes the raw ``.value`` string so that
-    ``asyncpg`` never receives a Python enum member it would serialise
-    by ``.name``.
+    Bind path (Python → DB)
+        Returns ``.value`` as a plain string so asyncpg never receives
+        a Python enum member that it would serialise by ``.name``.
 
-    Result (DB → Python) installs a custom ``result_processor`` that
-    converts the PostgreSQL returned string back to the proper Python
-    enum member via ``enum_cls(string)``.
+    Result path (DB → Python)
+        ``asyncpg`` returns the raw string (no Python enum class is
+        registered with it).  An ORM ``after_load`` event listener
+        (registered at module level) converts the string back to the
+        proper Python enum member.
 
     Parameters
     ----------
@@ -64,13 +76,9 @@ class PgEnum(SAEnum):
         name: str,
     ) -> None:
         self._user_enum = enum_cls
-        # ── Pass only the lowercase .value strings to the base type ──
-        # The base Enum.__init__ normally receives a Python enum class
-        # as the first argument and registers it with asyncpg.  By
-        # supplying *v.value strings instead, there is **no Python enum
-        # class** for asyncpg to serialise via .name.  asyncpg treats
-        # every value as a plain string, which matches the PostgreSQL
-        # native enum labels exactly.
+        # Pass only the lowercase .value strings — no enum class.
+        # This prevents asyncpg from registering a type codec that
+        # would serialise members by .name.
         super().__init__(
             *(v.value for v in enum_cls),
             name=name,
@@ -93,11 +101,9 @@ class PgEnum(SAEnum):
         if value is None:
             return None
 
-        # ``str`` + ``Enum`` classes make ``isinstance(x, TheEnum)``
-        # return True for both real enum members AND plain strings
-        # (because the enum inherits from ``str``).  We distinguish
-        # real members by checking ``hasattr(value, 'value')``, which
-        # only enum instances have.
+        # Real enum members have a ``.value`` attribute; plain strings
+        # do not — even though ``str`` + ``Enum`` makes ``isinstance``
+        # True for both.
         if isinstance(value, self._user_enum) and hasattr(value, 'value'):
             return value.value
 
@@ -106,56 +112,61 @@ class PgEnum(SAEnum):
 
         return str(value)
 
-    # ── Result (database value → Python value) ─────────────────────
-
-    def result_processor(
-        self,
-        dialect: Any,
-        coltype: Any,
-    ) -> Callable[[Any], Any] | None:
-        """Return a callable that converts the database string back
-        to the proper Python enum member.
-
-        The base ``Enum.result_processor`` returns ``None`` for native
-        PostgreSQL enums because it expects ``asyncpg`` to handle the
-        conversion.  Since our ``__init__`` does **not** register a
-        Python enum class with asyncpg, it returns the raw string.
-
-        Our override always installs a processor so that the returned
-        ORM attribute is a *bona fide* Python enum member.
-        """
-        # ── Collect enum lookup helper ──────────────────────────────
-        user_enum = self._user_enum
-
-        # Ensure we still get the base processor if one exists
-        # (rare for native enums, but harmless to chain)
-        base_processor = super().result_processor(dialect, coltype)
-
-        if user_enum is None:
-            return base_processor
-
-        def _process(value: Any) -> Any:
-            if value is None:
-                return None
-
-            # Let the base processor run first if it exists
-            if base_processor is not None:
-                value = base_processor(value)
-
-            # Convert the final string value to an enum member
-            if isinstance(value, str):
-                try:
-                    return user_enum(value)
-                except (ValueError, KeyError):
-                    pass
-
-            return value
-
-        return _process
-
 
 # Backward-compatible alias — every model imports ``pg_enum``.
 pg_enum = PgEnum
+
+
+# ────────────────────────────────────────────────────────────────────
+# ORM-level load listener
+#  asyncpg bypasses SQLAlchemy's result_processor for native enums.
+#  This listener catches every mapped instance after loading and
+#  converts string attributes backed by PgEnum columns.
+#
+# SQLAlchemy 2.0 removed ``MapperEvents.after_load``.
+# ``InstanceEvents.load`` is the correct replacement, and can be
+# registered via ``Mapper`` as the target class since ``Mapper``
+# dispatches ``InstanceEvents`` for all ORM-mapped classes.
+# ────────────────────────────────────────────────────────────────────
+
+
+def _convert_pgenum_instance(instance: Any) -> None:
+    """Convert any string-typed PgEnum attributes on *instance*
+    to their proper Python enum members in-place.
+    """
+    mapper = instance_state(instance).mapper
+    for attr in mapper.attrs:
+        if not isinstance(attr, ColumnProperty):
+            continue
+
+        column = attr.columns[0]
+        if not isinstance(column.type, PgEnum):
+            continue
+
+        enum_cls = column.type._user_enum
+        if enum_cls is None:
+            continue
+
+        value = getattr(instance, attr.key, None)
+        if isinstance(value, enum_cls):
+            continue  # Already a proper enum member
+        if not isinstance(value, str):
+            continue
+
+        try:
+            setattr(instance, attr.key, enum_cls(value))
+        except (ValueError, KeyError):
+            pass  # Leave the raw string if conversion fails
+
+
+@event.listens_for(Mapper, 'load')
+def _convert_pgenum_on_load(mapper: Mapper, context: Any, target: Any) -> None:
+    """``Mapper.load`` (``InstanceEvents.load``) — fires for every
+    ORM-mapped instance loaded from the database across all mappers.
+    Delegates to ``_convert_pgenum_instance`` which promotes string
+    attributes backed by PgEnum columns to proper Python enum members.
+    """
+    _convert_pgenum_instance(target)
 
 
 class NodeType(str, enum.Enum):
