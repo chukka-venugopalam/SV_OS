@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import { AuthProvider, ThemeProvider } from '@/providers';
 import { ReactQueryProvider } from '@/providers/react-query-provider';
 import { TooltipProvider } from '@sv-os/ui';
+import { SkipNavigation } from '@/components/shared/skip-nav';
+import { ErrorBoundary } from '@/components/shared/error-boundary';
 import './globals.css';
 
 const inter = Inter({
@@ -54,7 +56,10 @@ export default function RootLayout({
           <ReactQueryProvider>
             <AuthProvider>
               <TooltipProvider>
-                {children}
+                <SkipNavigation />
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
               </TooltipProvider>
             </AuthProvider>
           </ReactQueryProvider>

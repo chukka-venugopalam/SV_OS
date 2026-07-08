@@ -86,3 +86,9 @@ export {
   bookmarkKeys,
   favoriteKeys,
 } from './use-bookmarks';
+
+// ── Activity Hooks ─────────────────────────────────────────────────
+export {
+  useActivityFeed,
+  activityKeys,
+} from './use-activity';

@@ -15,6 +15,7 @@ export interface Bookmark {
   user_id: string;
   node_id: string;
   node_title: string;
+  node_slug: string;
   node_type: string;
   created_at: string;
 }
@@ -24,6 +25,7 @@ export interface Favorite {
   user_id: string;
   node_id: string;
   node_title: string;
+  node_slug: string;
   node_type: string;
   created_at: string;
 }

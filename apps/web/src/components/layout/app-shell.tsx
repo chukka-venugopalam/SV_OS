@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { Sidebar } from './sidebar';
 import { TopNav } from './top-nav';
 import { Footer } from './footer';
+import { CommandPaletteWrapper } from './command-palette';
 import { useUIStore } from '@/stores/ui-store';
 import { cn } from '@/lib/cn';
 
@@ -24,9 +25,12 @@ export function AppShell({ children }: AppShellProps) {
         )}
       >
         <TopNav />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1 outline-none" tabIndex={-1}>
+          {children}
+        </main>
         <Footer />
       </div>
+      <CommandPaletteWrapper />
     </div>
   );
 }

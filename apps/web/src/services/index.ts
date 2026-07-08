@@ -26,3 +26,6 @@ export { progressService } from './progress';
 
 export { bookmarkService } from './bookmarks';
 export type { Bookmark, Favorite } from './bookmarks';
+
+export { activityService } from './activity';
+export type { ActivityItem, ActivityFeedResponse, ActivityType } from './activity';
