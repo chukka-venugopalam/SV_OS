@@ -25,7 +25,7 @@ async def list_progress(
     current_user_id: UUID = Depends(get_current_user_id),
     uow: UnitOfWork = Depends(get_uow),
 ) -> dict:
-    """List progress records for the authenticated user."""
+    """List progress records for the authenticated user with node details."""
     service = ProgressService(uow)
     result = await service.list_user_progress(
         user_id=current_user_id,
@@ -34,13 +34,7 @@ async def list_progress(
         per_page=per_page,
     )
     return success_response(
-        data={
-            'items': [_progress_to_dict(p) for p in result.items],
-            'total': result.total,
-            'page': result.page,
-            'per_page': result.per_page,
-            'total_pages': result.total_pages,
-        },
+        data=result,
         message='Progress records retrieved',
     )
 
@@ -70,7 +64,7 @@ async def update_progress(
 ) -> dict:
     """Create or update progress for a knowledge node."""
     service = ProgressService(uow)
-    progress = await service.update_progress(
+    result = await service.update_progress(
         user_id=current_user_id,
         node_id=node_id,
         status=status,
@@ -78,7 +72,7 @@ async def update_progress(
         notes=notes,
     )
     return success_response(
-        data=_progress_to_dict(progress),
+        data=result,
         message='Progress updated',
     )
 
@@ -91,13 +85,13 @@ async def start_node(
 ) -> dict:
     """Mark a node as 'learning' for the authenticated user."""
     service = ProgressService(uow)
-    progress = await service.update_progress(
+    result = await service.update_progress(
         user_id=current_user_id,
         node_id=node_id,
         status='learning',
     )
     return success_response(
-        data=_progress_to_dict(progress),
+        data=result,
         message='Node started',
     )
 
@@ -110,26 +104,12 @@ async def complete_node(
 ) -> dict:
     """Mark a node as 'completed' for the authenticated user."""
     service = ProgressService(uow)
-    progress = await service.update_progress(
+    result = await service.update_progress(
         user_id=current_user_id,
         node_id=node_id,
         status='completed',
     )
     return success_response(
-        data=_progress_to_dict(progress),
+        data=result,
         message='Node completed',
     )
-
-
-def _progress_to_dict(p) -> dict:
-    return {
-        'id': str(p.id),
-        'user_id': str(p.user_id),
-        'node_id': str(p.node_id),
-        'status': p.status.value if hasattr(p.status, 'value') else p.status,
-        'started_at': p.started_at.isoformat() if p.started_at else None,
-        'completed_at': p.completed_at.isoformat() if p.completed_at else None,
-        'time_spent_minutes': p.time_spent_minutes,
-        'notes': p.notes,
-        'updated_at': p.updated_at.isoformat() if p.updated_at else None,
-    }

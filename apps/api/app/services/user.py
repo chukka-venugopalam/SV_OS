@@ -73,10 +73,16 @@ class UserService:
         return user
 
     async def get_dashboard(self, user_id: UUID) -> dict:
-        """Get dashboard summary data for a user.
+        """Get dashboard summary data for a user with "Continue Learning" support.
 
-        Returns aggregated statistics: total progress, bookmarks,
-        completed nodes, learning time, etc.
+        Returns enriched progress statistics with node details so the
+        frontend can display "Continue Learning" cards without additional
+        API calls.  Includes:
+        - Progress statistics
+        - In-progress items with node titles, slugs, difficulty
+        - Recent activity with node metadata
+        - Bookmark and recommendation counts
+        - Learning time stats
         """
         # Progress statistics
         progress_stats = await self._uow.user_progress.count_by_status(user_id)
@@ -89,22 +95,77 @@ class UserService:
         # Active recommendations
         recommendations_count = await self._uow.recommendations.count_active(user_id)
 
-        # Recent activity (last 10 progress updates)
+        # In-progress items with node enrichment (for "Continue Learning")
+        in_progress = await self._uow.user_progress.find_by_user(
+            user_id=user_id,
+            status='learning',
+            page=1,
+            per_page=10,
+        )
+
+        # Enrich in-progress items with node data
+        node_ids = [p.node_id for p in in_progress.items if p]
+        nodes = await self._uow.knowledge_nodes.get_many(node_ids)
+        node_map = {n.id: n for n in nodes}
+
+        enriched_progress = []
+        for p in in_progress.items:
+            if not p:
+                continue
+            node = node_map.get(p.node_id)
+            enriched_progress.append({
+                'node_id': str(p.node_id),
+                'node_slug': node.slug if node else None,
+                'node_title': node.title if node else None,
+                'node_type': node.node_type.value if node and hasattr(node.node_type, 'value') else None,
+                'difficulty': node.difficulty.value if node and hasattr(node.difficulty, 'value') else None,
+                'estimated_minutes': node.estimated_minutes if node else None,
+                'status': p.status.value if hasattr(p.status, 'value') else p.status,
+                'time_spent_minutes': p.time_spent_minutes,
+                'updated_at': p.updated_at.isoformat() if p.updated_at else None,
+            })
+
+        # Recent activity (last 10 progress records)
         recent_progress = await self._uow.user_progress.find_by_user(
             user_id=user_id,
             page=1,
             per_page=10,
         )
 
+        # Enrich recent activity with node data
+        recent_node_ids = [p.node_id for p in recent_progress.items if p]
+        recent_nodes = await self._uow.knowledge_nodes.get_many(recent_node_ids)
+        recent_node_map = {n.id: n for n in recent_nodes}
+
+        enriched_recent = []
+        for p in recent_progress.items:
+            if not p:
+                continue
+            node = recent_node_map.get(p.node_id)
+            enriched_recent.append({
+                'node_slug': node.slug if node else None,
+                'node_title': node.title if node else None,
+                'status': p.status.value if hasattr(p.status, 'value') else p.status,
+                'node_type': node.node_type.value if node and hasattr(node.node_type, 'value') else None,
+                'difficulty': node.difficulty.value if node and hasattr(node.difficulty, 'value') else None,
+                'updated_at': p.updated_at.isoformat() if p.updated_at else None,
+            })
+
         # Learning time stats
         learning_time = await self._uow.learning_sessions.total_time_for_user(user_id)
+
+        # Total nodes for completion context
+        total_nodes = await self._uow.knowledge_nodes.count()
 
         return {
             'progress_by_status': progress_stats,
             'total_time_minutes': total_time,
             'completed_nodes': completed,
+            'total_nodes': total_nodes,
             'bookmarks_count': bookmarks_count,
             'recommendations_count': recommendations_count,
-            'recent_progress': recent_progress.items if recent_progress else [],
             'learning_time_minutes': learning_time,
+            # "Continue Learning" data — enriched with node details
+            'in_progress': enriched_progress,
+            'recent_activity': enriched_recent,
         }

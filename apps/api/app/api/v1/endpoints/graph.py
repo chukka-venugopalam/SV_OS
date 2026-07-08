@@ -11,7 +11,7 @@ from app.api.deps import get_uow
 from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
 from app.schemas.response import success_response
-from app.services.graph import GraphService
+from app.services.legacy_graph import GraphService
 
 logger = get_logger(__name__)
 
@@ -45,26 +45,6 @@ async def explore_node(
             'edge_type_counts': result.get('edge_type_counts', []),
         },
         message='Neighborhood retrieved',
-    )
-
-
-@router.get('/path')
-async def find_path(
-    source_id: UUID = Query(..., description='Source node ID'),
-    target_id: UUID = Query(..., description='Target node ID'),
-    max_depth: int = Query(5, ge=1, le=10, description='Maximum search depth'),
-    uow: UnitOfWork = Depends(get_uow),
-) -> dict:
-    """Find a path between two nodes."""
-    service = GraphService(uow)
-    path = await service.find_path(
-        source_id=source_id,
-        target_id=target_id,
-        max_depth=max_depth,
-    )
-    return success_response(
-        data={'path': path, 'found': len(path) > 0},
-        message='Path search completed',
     )
 
 

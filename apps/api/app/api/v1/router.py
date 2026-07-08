@@ -168,11 +168,14 @@ async def root(
 
 # ── Business route imports (Phase 3) ─────────────────────────────
 from app.api.v1.endpoints import (
+    activity,
+    ai,
     auth,
     bookmarks,
     careers,
     favorites,
     graph,
+    graph_intelligence,
     learning_paths,
     nodes,
     progress,
@@ -183,12 +186,14 @@ from app.api.v1.endpoints import (
 )
 
 router.include_router(auth.router)
+router.include_router(activity.router, prefix='/activity', tags=['activity'])
+router.include_router(ai.router, tags=['ai'])
 router.include_router(bookmarks.router, prefix='/bookmarks', tags=['bookmarks'])
 router.include_router(careers.router, prefix='/careers', tags=['careers'])
 router.include_router(favorites.router, prefix='/favorites', tags=['favorites'])
 router.include_router(graph.router, prefix='/graph', tags=['graph'])
+router.include_router(graph_intelligence.router, prefix='/graph', tags=['graph-intelligence'])
 router.include_router(learning_paths.router, prefix='/learning-paths', tags=['learning-paths'])
-router.include_router(nodes.router, prefix='/nodes', tags=['knowledge-nodes'])
 router.include_router(progress.router, prefix='/progress', tags=['progress'])
 router.include_router(projects.router, prefix='/projects', tags=['projects'])
 router.include_router(recommendations.router, prefix='/recommendations', tags=['recommendations'])

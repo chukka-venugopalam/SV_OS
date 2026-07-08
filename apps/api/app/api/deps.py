@@ -47,7 +47,20 @@ from app.repositories import (
     UserRepository,
 )
 from app.services.auth import AuthService
+from app.services.activity_feed import ActivityFeedService
+from app.services.ai import (
+    EmbeddingService,
+    HybridSearchService,
+    RecommendationV2,
+    SemanticSearchService,
+    SimilarityService,
+)
 from app.services.favorite import FavoriteService
+from app.services.graph.traversal import GraphTraversalService
+from app.services.graph.analytics import GraphAnalyticsService
+from app.services.learning_path_generator import LearningPathGenerator
+from app.services.progress_intelligence import ProgressIntelligence
+from app.services.recommendation_engine import RecommendationEngine
 from app.services.user import UserService
 
 security_scheme = HTTPBearer(auto_error=False)
@@ -266,6 +279,83 @@ def get_favorite_service(
 ) -> FavoriteService:
     """Provide a ``FavoriteService`` instance."""
     return FavoriteService(uow)
+
+
+def get_graph_traversal_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> GraphTraversalService:
+    """Provide a ``GraphTraversalService`` instance."""
+    return GraphTraversalService(uow)
+
+
+def get_graph_analytics_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> GraphAnalyticsService:
+    """Provide a ``GraphAnalyticsService`` instance."""
+    return GraphAnalyticsService(uow)
+
+
+def get_recommendation_engine(
+    uow: UnitOfWork = Depends(get_uow),
+) -> RecommendationEngine:
+    """Provide a ``RecommendationEngine`` instance."""
+    return RecommendationEngine(uow)
+
+
+def get_learning_path_generator(
+    uow: UnitOfWork = Depends(get_uow),
+) -> LearningPathGenerator:
+    """Provide a ``LearningPathGenerator`` instance."""
+    return LearningPathGenerator(uow)
+
+
+def get_progress_intelligence(
+    uow: UnitOfWork = Depends(get_uow),
+) -> ProgressIntelligence:
+    """Provide a ``ProgressIntelligence`` instance."""
+    return ProgressIntelligence(uow)
+
+
+def get_activity_feed_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> ActivityFeedService:
+    """Provide an ``ActivityFeedService`` instance."""
+    return ActivityFeedService(uow)
+
+
+def get_embedding_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> EmbeddingService:
+    """Provide an ``EmbeddingService`` instance."""
+    return EmbeddingService(uow=uow)
+
+
+def get_semantic_search_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> SemanticSearchService:
+    """Provide a ``SemanticSearchService`` instance."""
+    return SemanticSearchService(uow)
+
+
+def get_hybrid_search_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> HybridSearchService:
+    """Provide a ``HybridSearchService`` instance."""
+    return HybridSearchService(uow)
+
+
+def get_recommendation_v2(
+    uow: UnitOfWork = Depends(get_uow),
+) -> RecommendationV2:
+    """Provide a ``RecommendationV2`` instance."""
+    return RecommendationV2(uow)
+
+
+def get_similarity_service(
+    uow: UnitOfWork = Depends(get_uow),
+) -> SimilarityService:
+    """Provide a ``SimilarityService`` instance."""
+    return SimilarityService(uow)
 
 
 # ── Auth Dependencies ──────────────────────────────────────────────
