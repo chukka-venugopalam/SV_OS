@@ -170,6 +170,7 @@ async def root(
 from app.api.v1.endpoints import (
     activity,
     ai,
+    ai_chat,
     auth,
     bookmarks,
     careers,
@@ -188,6 +189,7 @@ from app.api.v1.endpoints import (
 router.include_router(auth.router)
 router.include_router(activity.router, prefix='/activity', tags=['activity'])
 router.include_router(ai.router, tags=['ai'])
+router.include_router(ai_chat.router, prefix='/ai', tags=['ai-chat'])
 router.include_router(bookmarks.router, prefix='/bookmarks', tags=['bookmarks'])
 router.include_router(careers.router, prefix='/careers', tags=['careers'])
 router.include_router(favorites.router, prefix='/favorites', tags=['favorites'])

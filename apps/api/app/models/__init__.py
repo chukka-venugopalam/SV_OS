@@ -9,10 +9,13 @@ Usage:
     from app.models import User, KnowledgeNode, KnowledgeEdge, ...
 """
 
+from app.models.ai_history import PlannerHistory, QuizHistory
+from app.models.ai_memory import AIMemory, AIPreference
 from app.models.audit_log import AuditLog
 from app.models.base import AppBaseMixin
 from app.models.bookmark import Bookmark
 from app.models.career import Career, CareerRequirement
+from app.models.chat_session import ChatMessage, ChatSession
 from app.models.enums import (
     DemandLevel,
     Difficulty,
@@ -79,4 +82,11 @@ __all__ = [
     'NodeTag',
     'SearchHistory',
     'AuditLog',
+    # Phase 4 AI models
+    'ChatSession',
+    'ChatMessage',
+    'AIMemory',
+    'AIPreference',
+    'QuizHistory',
+    'PlannerHistory',
 ]

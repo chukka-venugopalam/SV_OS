@@ -13,6 +13,7 @@ export const ROUTES = {
   PROGRESS: '/progress',
   BOOKMARKS: '/bookmarks',
   SEARCH: '/search',
+  AI_CHAT: '/ai-chat',
   SETTINGS: '/settings',
   SETTINGS_PROFILE: '/settings/profile',
   SETTINGS_PREFERENCES: '/settings/preferences',
@@ -35,11 +36,12 @@ export const NAV_ITEMS = [
   { label: 'Dashboard', href: ROUTES.DASHBOARD, icon: 'LayoutDashboard' },
   { label: 'Explore', href: ROUTES.EXPLORE, icon: 'Compass' },
   { label: 'Graph', href: ROUTES.GRAPH, icon: 'Share2' },
+  { label: 'AI Chat', href: ROUTES.AI_CHAT, icon: 'Bot' },
   { label: 'Careers', href: ROUTES.CAREERS, icon: 'Briefcase' },
   { label: 'Projects', href: ROUTES.PROJECTS, icon: 'FolderGit2' },
   { label: 'Progress', href: ROUTES.PROGRESS, icon: 'BarChart3' },
   { label: 'Bookmarks', href: ROUTES.BOOKMARKS, icon: 'Bookmark' },
-  { label: 'Settings', href: ROUTES.SETTINGS, icon: 'LayoutDashboard' },
+  { label: 'Settings', href: ROUTES.SETTINGS, icon: 'Settings' },
 ] as const;
 
 export const STORAGE_KEYS = {

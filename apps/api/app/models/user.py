@@ -27,6 +27,9 @@ if TYPE_CHECKING:
     from app.models.learning_path import LearningSession
     from app.models.audit_log import AuditLog
     from app.models.recommendation import Recommendation
+    from app.models.chat_session import ChatSession, ChatMessage
+    from app.models.ai_memory import AIMemory, AIPreference
+    from app.models.ai_history import QuizHistory, PlannerHistory
 
 
 class User(AppBaseMixin, Base):
@@ -105,6 +108,18 @@ class User(AppBaseMixin, Base):
     )
     recommendations: Mapped[list['Recommendation']] = relationship(
         'Recommendation', back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    chat_sessions: Mapped[list['ChatSession']] = relationship(
+        'ChatSession', back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    ai_memories: Mapped[list['AIMemory']] = relationship(
+        'AIMemory', back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    ai_preferences: Mapped[list['AIPreference']] = relationship(
+        'AIPreference', back_populates='user',
         cascade='all, delete-orphan',
     )
 
