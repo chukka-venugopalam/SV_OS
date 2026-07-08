@@ -30,32 +30,13 @@ export function formatRelativeTime(date: string | Date): string {
   return formatDate(dateObj);
 }
 
-/** Pluralize a word based on count */
-export function pluralize(count: number, singular: string, plural?: string): string {
-  return count === 1 ? singular : (plural ?? `${singular}s`);
-}
-
-/** Truncate text to a maximum length */
-export function truncate(text: string, maxLength: number, suffix = '...'): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trimEnd() + suffix;
-}
-
-/** Capitalize the first letter of a string */
-export function capitalize(text: string): string {
-  if (!text) return text;
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
-/** Convert a slug to a human-readable title */
-export function slugToTitle(slug: string): string {
-  return slug
-    .split(/[-_]/)
-    .map((word) => capitalize(word))
-    .join(' ');
-}
+// ── Re-exported from utils/ for convenience ────────────────────────
+// These are defined in utils/string.ts but re-exported here for
+// backward compatibility. Prefer importing from '@/utils' in new code.
+export { pluralize, truncate, capitalize, slugToTitle } from '@/utils/string';
 
 /** Format a difficulty level as a human-readable string */
 export function formatDifficulty(difficulty: string): string {
-  return capitalize(difficulty);
+  if (!difficulty) return difficulty;
+  return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 }

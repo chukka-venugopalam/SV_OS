@@ -71,6 +71,31 @@ export {
 } from './accordion';
 
 export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+} from './select';
+
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+} from './table';
+export type { TableCellProps } from './table';
+
+export { Pagination } from './pagination';
+
+export {
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,

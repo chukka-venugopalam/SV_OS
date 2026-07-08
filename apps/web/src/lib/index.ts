@@ -5,3 +5,4 @@ export { storage } from './storage';
 export { generateId, clamp, debounce, throttle, isNullish, getBaseUrl } from './helpers';
 export { apiUrl, routeUrl, withQueryParams } from './url';
 export { ROUTES, API_ROUTES, NAV_ITEMS, STORAGE_KEYS } from './constants';
+export { env } from './env';
