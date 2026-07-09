@@ -1,9 +1,11 @@
 # AI Context — SV-OS
 
 ## One-Line
+
 **Google Maps for Computer Science Learning** — an interactive knowledge graph that maps CS concepts, technologies, projects, and careers.
 
 ## Tech Stack
+
 - **Monorepo**: Turborepo v2, pnpm v10
 - **Frontend**: Next.js 15 (App Router), TypeScript (strict), Tailwind CSS v4, shadcn/ui, TanStack React Query, Zustand, React Hook Form, Zod, Framer Motion, React Flow, Lucide, next-themes
 - **Backend**: FastAPI, Python 3.12+, SQLAlchemy 2.0+, Pydantic v2, Alembic, structlog
@@ -13,15 +15,18 @@
 - **CI**: GitHub Actions (CI, Lint)
 
 ## Architecture
+
 ```
 apps/web (Next.js 15) → REST API → apps/api (FastAPI) → Service Layer → Repository Layer → PostgreSQL
 ```
+
 - Clean Architecture: Routes → Services → Repositories → Database
 - State Management Triad: React Query (server) + Zustand (client) + RHF+Zod (forms)
 - Graph: Adjacency list with recursive CTEs (not Neo4j)
 - Response Format: `{success, message, data, errors, timestamp, request_id}`
 
 ## Repository Structure
+
 ```
 sv-os/
 ├── apps/
@@ -42,9 +47,11 @@ sv-os/
 ```
 
 ## Current Status
+
 **Phase 2.3 — Complete.** Backend infrastructure layer is fully built: FastAPI Clean Architecture with middleware stack, exception system, structured logging, configuration management, dependency injection, database infrastructure, utilities, observability stubs, security foundation, and testing foundation. 17/17 Python tests pass.
 
 ## Key Decisions
+
 1. **No Neo4j**: Relational adjacency list + recursive CTEs for MVP (simpler ops, sufficient performance)
 2. **REST over GraphQL**: Simpler caching, broader tooling for MVP
 3. **Supabase All-in-One**: Database + Auth + RLS from single provider
@@ -60,12 +67,14 @@ sv-os/
 13. **Stub-First Observability**: Health check is real; metrics, tracing are stub interfaces ready for production
 
 ## Architecture Layers
+
 ```
 Middleware (8 layers) → Routes (v1) → Services (Phase 3) → Repositories → Database
 Exception handlers wrap everything for consistent error responses
 ```
 
 ## Backend Module Map
+
 ```
 app/main.py                 — Application factory
 app/core/config.py          — Settings (Pydantic)
@@ -83,10 +92,12 @@ app/startup/                — Lifespan, Diagnostics
 ```
 
 ## Constraints
+
 - No placeholder code, no TODOs, no pseudo-code
 - Every file must compile and be production-ready
 - Dark mode first, Apple-quality UI
 - Accessibility (WCAG AA), SEO, performance
 
 ## Next Steps
+
 Phase 2.4: Database foundation — SQLAlchemy models, Pydantic schemas, Alembic migration, repository implementations built on the existing infrastructure.

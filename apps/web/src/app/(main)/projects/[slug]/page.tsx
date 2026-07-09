@@ -1,20 +1,5 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import {
-  ArrowLeft,
-  FolderGit2,
-  Github,
-  Globe,
-  Clock,
-  CheckCircle2,
-  BookOpen,
-  ArrowRight,
-  ExternalLink,
-} from 'lucide-react';
-import { useProject, useProjectRequirements } from '@/hooks/use-projects';
-import { Shell } from '@/components/shared/shell';
 import {
   Card,
   CardContent,
@@ -26,8 +11,24 @@ import {
   ErrorState,
   EmptyState,
 } from '@sv-os/ui';
-import { slugToTitle } from '@/lib';
+import {
+  ArrowLeft,
+  FolderGit2,
+  Github,
+  Globe,
+  Clock,
+  CheckCircle2,
+  BookOpen,
+  ArrowRight,
+  ExternalLink,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
 import { NODE_TYPE_COLORS } from '@/components/graph';
+import { Shell } from '@/components/shared/shell';
+import { useProject, useProjectRequirements } from '@/hooks/use-projects';
+import { slugToTitle } from '@/lib';
 
 const difficultyColors: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
   beginner: 'success',
@@ -50,7 +51,10 @@ export default function ProjectDetailPage() {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-12 w-2/3" />
           <Skeleton className="h-4 w-1/2" />
-          <div className="flex gap-2"><Skeleton className="h-6 w-20 rounded-full" /><Skeleton className="h-6 w-20 rounded-full" /></div>
+          <div className="flex gap-2">
+            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
         </div>
       </Shell>
     );
@@ -59,7 +63,10 @@ export default function ProjectDetailPage() {
   if (isError || !project) {
     return (
       <Shell>
-        <ErrorState title="Project not found" message="This project doesn't exist or has been removed." />
+        <ErrorState
+          title="Project not found"
+          message="This project doesn't exist or has been removed."
+        />
       </Shell>
     );
   }
@@ -76,7 +83,7 @@ export default function ProjectDetailPage() {
 
       <div className="mb-8">
         <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-project-50 text-project-600 dark:bg-project-950/30 dark:text-project-400">
+          <div className="bg-project-50 text-project-600 dark:bg-project-950/30 dark:text-project-400 flex h-12 w-12 items-center justify-center rounded-xl">
             <FolderGit2 className="h-6 w-6" />
           </div>
           <Badge variant={difficultyColors[project.difficulty] ?? 'secondary'} size="sm">
@@ -84,8 +91,12 @@ export default function ProjectDetailPage() {
           </Badge>
         </div>
 
-        <h1 className="mb-3 text-3xl font-bold text-neutral-900 dark:text-neutral-50">{project.title}</h1>
-        <p className="mb-4 text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">{project.description}</p>
+        <h1 className="mb-3 text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+          {project.title}
+        </h1>
+        <p className="mb-4 text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
+          {project.description}
+        </p>
 
         <div className="flex flex-wrap items-center gap-3">
           {project.estimated_time && (
@@ -118,7 +129,9 @@ export default function ProjectDetailPage() {
       {/* Tech Stack */}
       {project.tech_stack && project.tech_stack.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Tech Stack</h2>
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            Tech Stack
+          </h2>
           <div className="flex flex-wrap gap-2">
             {project.tech_stack.map((tech) => (
               <Badge key={tech} variant="secondary" size="lg" className="text-xs">
@@ -132,12 +145,14 @@ export default function ProjectDetailPage() {
       {/* Knowledge Requirements */}
       {requirements && (
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Knowledge Requirements</h2>
+          <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            Knowledge Requirements
+          </h2>
 
           {requirements.required.length > 0 && (
             <div>
-              <h3 className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                <CheckCircle2 className="mr-1 inline h-3 w-3 text-error-500" />
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <CheckCircle2 className="text-error-500 mr-1 inline h-3 w-3" />
                 Required
               </h3>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -147,11 +162,20 @@ export default function ProjectDetailPage() {
                       <CardContent className="flex items-center gap-3 p-3">
                         <div
                           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
-                          style={{ backgroundColor: NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)' }}
-                        >{node.title.charAt(0)}</div>
+                          style={{
+                            backgroundColor:
+                              NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)',
+                          }}
+                        >
+                          {node.title.charAt(0)}
+                        </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400">{node.title}</p>
-                          <p className="text-xs text-neutral-400 dark:text-neutral-500">{slugToTitle(node.difficulty)}</p>
+                          <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                            {node.title}
+                          </p>
+                          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                            {slugToTitle(node.difficulty)}
+                          </p>
                         </div>
                         <ArrowRight className="h-4 w-4 shrink-0 text-neutral-300 opacity-0 group-hover:opacity-100" />
                       </CardContent>
@@ -164,8 +188,8 @@ export default function ProjectDetailPage() {
 
           {requirements.recommended.length > 0 && (
             <div>
-              <h3 className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                <BookOpen className="mr-1 inline h-3 w-3 text-info-500" />
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <BookOpen className="text-info-500 mr-1 inline h-3 w-3" />
                 Recommended
               </h3>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -173,10 +197,22 @@ export default function ProjectDetailPage() {
                   <Link key={node.id} href={`/explore/${node.slug}`}>
                     <Card className="group cursor-pointer transition-all hover:shadow-sm">
                       <CardContent className="flex items-center gap-3 p-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white" style={{ backgroundColor: NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)' }}>{node.title.charAt(0)}</div>
+                        <div
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
+                          style={{
+                            backgroundColor:
+                              NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)',
+                          }}
+                        >
+                          {node.title.charAt(0)}
+                        </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400">{node.title}</p>
-                          <p className="text-xs text-neutral-400 dark:text-neutral-500">{slugToTitle(node.difficulty)}</p>
+                          <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                            {node.title}
+                          </p>
+                          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                            {slugToTitle(node.difficulty)}
+                          </p>
                         </div>
                         <ArrowRight className="h-4 w-4 shrink-0 text-neutral-300 opacity-0 group-hover:opacity-100" />
                       </CardContent>

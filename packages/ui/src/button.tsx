@@ -1,16 +1,17 @@
-import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
+
 import { cn } from './cn';
 import { LoadingSpinner } from './loading-spinner';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950 disabled:pointer-events-none disabled:opacity-50',
+  'focus-visible:ring-primary-500 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-offset-neutral-950',
   {
     variants: {
       variant: {
         default:
-          'bg-primary-600 text-white shadow-sm hover:bg-primary-700 active:bg-primary-800 dark:bg-primary-500 dark:hover:bg-primary-600 dark:active:bg-primary-700',
+          'bg-primary-600 hover:bg-primary-700 active:bg-primary-800 dark:bg-primary-500 dark:hover:bg-primary-600 dark:active:bg-primary-700 text-white shadow-sm',
         secondary:
           'bg-neutral-100 text-neutral-900 shadow-sm hover:bg-neutral-200 active:bg-neutral-300 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:active:bg-neutral-600',
         outline:
@@ -18,9 +19,8 @@ const buttonVariants = cva(
         ghost:
           'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 dark:active:bg-neutral-700',
         danger:
-          'bg-error-600 text-white shadow-sm hover:bg-error-700 active:bg-error-800 dark:bg-error-500 dark:hover:bg-error-600 dark:active:bg-error-700',
-        link:
-          'text-primary-600 underline-offset-4 hover:underline dark:text-primary-400',
+          'bg-error-600 hover:bg-error-700 active:bg-error-800 dark:bg-error-500 dark:hover:bg-error-600 dark:active:bg-error-700 text-white shadow-sm',
+        link: 'text-primary-600 dark:text-primary-400 underline-offset-4 hover:underline',
       },
       size: {
         xs: 'h-7 px-2 text-xs',
@@ -39,8 +39,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
 }

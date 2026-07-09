@@ -4,9 +4,9 @@
  * Provides functions for interacting with project endpoints.
  */
 
+import type { Project, ProjectWithRequirements, KnowledgeNode , PaginatedResponse } from '@sv-os/types';
+
 import { apiClient } from '@/lib/api-client';
-import type { Project, ProjectWithRequirements, KnowledgeNode } from '@sv-os/types';
-import type { PaginatedResponse } from '@sv-os/types';
 
 // ── Service ───────────────────────────────────────────────────────
 
@@ -19,7 +19,9 @@ export const projectService = {
     difficulty?: string;
   }): Promise<PaginatedResponse<Project>> {
     return apiClient
-      .get<PaginatedResponse<Project>>('/projects', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<PaginatedResponse<Project>>('/projects', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 
@@ -34,7 +36,9 @@ export const projectService = {
     recommended: KnowledgeNode[];
   }> {
     return apiClient
-      .get<{ required: KnowledgeNode[]; recommended: KnowledgeNode[] }>(`/projects/${slug}/requirements`)
+      .get<{ required: KnowledgeNode[]; recommended: KnowledgeNode[] }>(
+        `/projects/${slug}/requirements`,
+      )
       .then((res) => res.data!);
   },
 };

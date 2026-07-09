@@ -1,9 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+} from '@sv-os/ui';
 import Link from 'next/link';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@sv-os/ui';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { useAuth } from '@/providers/auth-provider';
 
 export default function LoginPage() {
@@ -23,11 +33,7 @@ export default function LoginPage() {
       await login(email, password);
       router.replace('/dashboard');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Login failed. Please check your credentials.',
-      );
+      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
     } finally {
       setIsSubmitting(false);
     }
@@ -42,7 +48,7 @@ export default function LoginPage() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-md bg-error-50 p-3 text-sm text-error-700 dark:bg-error-900/30 dark:text-error-400">
+            <div className="bg-error-50 text-error-700 dark:bg-error-900/30 dark:text-error-400 rounded-md p-3 text-sm">
               {error}
             </div>
           )}
@@ -75,11 +81,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
@@ -88,7 +90,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <Link
             href="/signup"
-            className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+            className="text-primary-600 hover:text-primary-500 dark:text-primary-400 font-medium"
           >
             Create one
           </Link>

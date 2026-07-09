@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from './cn';
 
 interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -14,7 +15,7 @@ export function ScrollArea({
   return (
     <div
       className={cn(
-        'overflow-auto scrollbar-thin',
+        'scrollbar-thin overflow-auto',
         orientation === 'vertical' && 'overflow-x-hidden',
         orientation === 'horizontal' && 'overflow-y-hidden',
         className,

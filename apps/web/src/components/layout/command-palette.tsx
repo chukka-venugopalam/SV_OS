@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { CommandPalette as CommandPaletteUI } from '@sv-os/ui';
 import { useRouter } from 'next/navigation';
+import { useCallback, useMemo, useState } from 'react';
+
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchSuggestions, useTrendingSearches, useSearchHistory } from '@/hooks/use-search';
-import { useCommand } from '@/providers/command-provider';
-import { CommandPalette as CommandPaletteUI } from '@sv-os/ui';
 import { ROUTES } from '@/lib/constants';
+import { useCommand } from '@/providers/command-provider';
 
 const navigationCommands = [
   { id: 'nav-dashboard', label: 'Go to Dashboard', icon: '📊', href: ROUTES.DASHBOARD },

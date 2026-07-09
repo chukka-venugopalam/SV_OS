@@ -4,8 +4,9 @@
  * Provides functions for full-text search across knowledge nodes.
  */
 
-import { apiClient } from '@/lib/api-client';
 import type { KnowledgeNode } from '@sv-os/types';
+
+import { apiClient } from '@/lib/api-client';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -39,7 +40,9 @@ export const searchService = {
     page_size?: number;
   }): Promise<SearchResult> {
     return apiClient
-      .get<SearchResult>('/search', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<SearchResult>('/search', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 

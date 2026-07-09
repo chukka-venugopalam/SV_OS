@@ -7,6 +7,7 @@ All notable changes to SV-OS will be documented in this file.
 ### Phase 3.2: Repository Cleanup & Deployment Preparation
 
 #### Removed
+
 - **`apps/web/src/lib/api.ts`**: Dead code — the simpler API client was unused in favor of the feature-rich `api-client.ts`
 - **`docs/FolderStructure.md`**: Duplicate of `docs/FOLDER_STRUCTURE.md` (case-insensitive collision)
 - **`apps/web/src/components/ui/`**: Empty directory (all UI components live in `packages/ui`)
@@ -16,21 +17,25 @@ All notable changes to SV-OS will be documented in this file.
 - **`docker/`**: Empty directory with placeholder `.gitkeep`
 
 #### Fixed
+
 - **`apps/web/.env.local.example`**: Replaced `[BLOCKED]` placeholder with a proper environment variable template
 - **`apps/web/src/lib/index.ts`**: Removed broken `api` export (file was deleted)
 
 #### Added
+
 - **`apps/web/README.md`**: Comprehensive README for the frontend app
 - **`apps/api/README.md`**: Comprehensive README for the backend API
 - **`docs/DEPLOYMENT.md`**: Full deployment guide covering Render, Vercel, Supabase, Docker, and CI/CD
 
 #### Updated
+
 - **`.ai/HANDOVER.md`**: Removed reference to deleted `api.ts`
 - **`.ai/PROJECT_STATE.md`**: Updated to Phase 3.2 complete
 - **`.ai/CHANGELOG.md`**: This entry
 - **`.ai/SESSION_NOTES.md`**: Added Session 10
 
 #### Verified
+
 - ✅ TypeScript compilation passes (0 errors, `tsc --noEmit`)
 - ✅ pnpm install succeeds
 - ✅ Turborepo workspace configuration is correct (6 packages, all `@sv-os/*` namespaced)
@@ -44,6 +49,7 @@ All notable changes to SV-OS will be documented in this file.
 ### Phase 3: Application Services + Auth + API + Frontend Integration
 
 #### Added Code — Application Services (13 files)
+
 - **`apps/api/app/services/auth.py`**: `AuthService` — JWT access/refresh tokens, bcrypt password hashing via passlib, register, login, refresh_tokens, change_password, get_authenticated_user, role checking. `AuthenticationError` and `AuthorizationError` exception classes.
 - **`apps/api/app/services/user.py`**: `UserService` — get_profile, update_profile (display_name, avatar_url, bio, preferences), get_dashboard
 - **`apps/api/app/services/knowledge_node.py`**: `KnowledgeNodeService` — get_by_slug, list_nodes (with pagination/filtering/sorting), get_popular, increment_view, get_prerequisites, get_neighbors, get_resources, get_related_careers
@@ -59,6 +65,7 @@ All notable changes to SV-OS will be documented in this file.
 - **`apps/api/app/services/recommendation.py`**: `RecommendationService` (stub) — get_for_user, get_popular_nodes, dismiss, get_type_counts
 
 #### Added Code — REST API Endpoints (12 files, ~48 endpoints)
+
 - **`apps/api/app/api/v1/endpoints/auth.py`**: 7 endpoints — register, login, refresh, me, update me, change-password, logout
 - **`apps/api/app/api/v1/endpoints/nodes.py`**: 8 endpoints — list, search, popular, get by slug, prerequisites, related, resources, careers
 - **`apps/api/app/api/v1/endpoints/graph.py`**: 4 endpoints — explore, path, statistics, prerequisite-chain
@@ -73,12 +80,14 @@ All notable changes to SV-OS will be documented in this file.
 - **`apps/api/app/api/v1/endpoints/recommendations.py`**: 3 endpoints — list, popular, dismiss
 
 #### Added Code — Authentication Infrastructure
+
 - **`apps/api/alembic/versions/0003_add_password_hash.py`**: Migration adding password_hash column to users table
 - **`apps/api/app/schemas/auth/auth.py`**: LoginRequest, SignupRequest, TokenResponse, LoginResponse, RefreshRequest, ChangePasswordRequest
 - **`apps/api/app/api/deps.py`**: get_current_user_id_from_token, get_current_user_id, get_optional_user_id, get_current_user, require_admin, 3 service injectors
 - **`apps/api/app/repositories/favorite.py`**: `FavoriteRepository` — find_by_user, find_by_user_and_node, count_by_user, is_favorited
 
 #### Added Code — Frontend Auth Infrastructure (7 files)
+
 - **`apps/web/src/lib/api-client.ts`**: Enhanced fetch API client with automatic Bearer token injection, transparent 401 → token refresh, request deduplication, ApiRequestError class
 - **`apps/web/src/lib/auth-client.ts`**: Auth operations — signup, login, getProfile, updateProfile, changePassword, logout
 - **`apps/web/src/hooks/use-auth.ts`**: 7 React Query hooks — useCurrentUser, useIsAuthenticated, useLogin, useSignup, useLogout, useUpdateProfile, useChangePassword, useAuthListener
@@ -88,10 +97,12 @@ All notable changes to SV-OS will be documented in this file.
 - **`apps/web/src/app/(auth)/signup/page.tsx`**: Signup form with email/username/password, client-side validation
 
 #### Added Code — Testing (2 files)
+
 - **`apps/api/tests/services/__init__.py`**: Test package
 - **`apps/api/tests/services/test_auth_service.py`**: 29 test cases — password hashing (6), registration (4), login (6), JWT tokens (6), token refresh (3), password change (3), authorization (3)
 
 #### Modified Code
+
 - **`apps/api/app/api/v1/router.py`**: All 12 endpoint routers wired with proper prefixes and tags
 - **`apps/api/app/api/deps.py`**: Auth dependencies + 3 service injectors
 - **`apps/api/app/repositories/__init__.py`**: Added FavoriteRepository to exports
@@ -103,6 +114,7 @@ All notable changes to SV-OS will be documented in this file.
 - **`apps/api/app/models/user.py`**: Added password_hash field
 
 #### Verified
+
 - ✅ All 13 backend service classes import successfully
 - ✅ All 12 backend endpoint modules import successfully
 - ✅ Frontend TypeScript compilation passes (0 errors)
@@ -115,6 +127,7 @@ All notable changes to SV-OS will be documented in this file.
 ### Phase 2.5: Database Persistence Layer
 
 #### Added Migrations
+
 - **`apps/api/alembic/versions/0001_create_extensions.py`**: 6 PostgreSQL extensions enabled
   - uuid-ossp (UUID generation), pgcrypto (crypto functions), pg_trgm (fuzzy search)
   - unaccent (accent removal), btree_gin (GIN on scalars), btree_gist (GiST on scalars)
@@ -127,10 +140,12 @@ All notable changes to SV-OS will be documented in this file.
   - 30 indexes across all tables, each justified for specific query patterns
 
 #### Added Seed Data
+
 - **`database/seeds/08_skills.sql`**: 44 skills across 7 categories (Programming Language, Web, DevOps, Database, Cloud, AI/ML, Security, Soft Skills)
 - **`database/seeds/09_tags.sql`**: 30 tags across 5 categories (Difficulty, Content Type, Topic, Format, Technology)
 
 #### Added Database Utilities
+
 - **`database/scripts/reset.sh`**: Drop, recreate, migrate, and seed
 - **`database/scripts/seed.sh`**: Load seed data in dependency order
 - **`database/scripts/backup.sh`**: Custom-format PostgreSQL backup
@@ -138,6 +153,7 @@ All notable changes to SV-OS will be documented in this file.
 - **`database/scripts/health_check.sql`**: Verify extensions, enums, tables, triggers, indexes, constraints, views
 
 #### Added Migration Tests
+
 - **`apps/api/tests/migrations/test_migrations.py`**: 13 test suites
   - TestExtensions: All 6 extensions installed
   - TestEnumTypes: All 13 enums with correct values
@@ -148,12 +164,15 @@ All notable changes to SV-OS will be documented in this file.
   - TestMigrationRoundTrip: Upgrade/downgrade round-trip (slow)
 
 #### Added Migration Documentation
+
 - **`database/migrations/README.md`**: Strategy, extension docs, index justification, FTS docs, seed docs, testing guide
 
 #### Modified Code
+
 - **`docker-compose.yml`**: Removed schema.sql init script (migrations now managed by Alembic)
 
 #### Documentation Updated
+
 - `.ai/DATABASE_STATUS.md`: Full rewrite with Phase 2.5 status
 - `.ai/PROJECT_STATE.md`: Updated to Phase 2.5 complete
 - `.ai/PROJECT_MEMORY.md`: Added migration conventions and patterns
@@ -165,6 +184,7 @@ All notable changes to SV-OS will be documented in this file.
 - `docs/DATABASE.md`: Updated with new tables, views, indexes
 
 #### Verified
+
 - Migration 0001 (extensions) creates 6 extensions successfully
 - Migration 0002 (schema) creates 20 tables, 13 enums, all constraints
 - Downgrade fully reverses both migrations
@@ -180,12 +200,14 @@ All notable changes to SV-OS will be documented in this file.
 ### Phase 2.7: Repository & Unit of Work Layer
 
 #### Added Code — Repository Layer
+
 - **`apps/api/app/repositories/errors.py`**: Repository exception hierarchy — `RepositoryError`, `EntityNotFoundError`, `DuplicateEntityError`, `ConcurrentModificationError`, `DatabaseConnectionError`, `QueryError`
 - **`apps/api/app/repositories/query_helpers.py`**: `QueryBuilder[T]` fluent API, `PageResult[T]`, `CursorPageResult[T]`, `FilterCondition` with 10 operators, `SortDirection` constants
 - **`apps/api/app/repositories/unit_of_work.py`**: `UnitOfWork` class with 16 repository accessors (context manager + manual commit/rollback), `unit_of_work()` convenience function
 - **`apps/api/app/repositories/base.py`**: Enhanced `BaseRepository[T]` with `get_by_id`, `get_many`, `get_by_field`, `exists`, `exists_by_id`, `create`, `create_many`, `update`, `upsert`, `delete` (soft/hard), `delete_many`, `restore`, `count`, `count_all`, `paginate`, `paginate_cursor`, `search` (ILIKE), `search_fulltext` (TSVECTOR), `load_related` (batch loading)
 
 #### Added Code — Feature Repositories (15 files)
+
 - **`user.py`**: `UserRepository` — email/username lookup, profile update, login recording, role-based queries, email/username uniqueness checks
 - **`knowledge_node.py`**: `KnowledgeNodeRepository` — slug lookup, type/difficulty filtering, edge/resource counts, popular/trending, full-text search with filters, slug existence check
 - **`knowledge_edge.py`**: `KnowledgeEdgeRepository` — source/target lookups, edge-between queries, batch edge loading, bulk soft-delete
@@ -203,23 +225,27 @@ All notable changes to SV-OS will be documented in this file.
 - **`graph.py`**: `GraphRepository` — neighbor loading (incoming/outgoing), prerequisite/dependent loading, edge type statistics, bulk edge loading for node sets
 
 #### Added Code — Test Scaffolding
+
 - **`apps/api/tests/repositories/test_repository_base.py`**: Fixtures for UoW transaction rollback, CRUD verification, pagination, cursor pagination, search, error handling, graph queries, feature repository smoke tests
 
 #### Modified Code
+
 - **`apps/api/app/repositories/__init__.py`**: 28 exported symbols (all repository classes + errors + query helpers + UoW)
 - **`apps/api/app/repositories/base.py`**: Enhanced with soft-delete, paginate, cursor, search, batch loading, optimistic locking
 - **`apps/api/app/api/deps.py`**: Added `get_uow()` (UnitOfWork), 16 individual repository injectors, updated `get_base_repository`
 
 #### Architecture Decisions
-| Decision | Detail |
-|----------|--------|
-| AD-015 | Repository pattern with Unit of Work transaction management |
-| | Repositories never commit — only flush |
-| | Soft-delete applied to all queries by default |
-| | Error translation layer prevents SQLAlchemy leakage |
-| | QueryBuilder provides composable, type-safe query construction |
+
+| Decision | Detail                                                         |
+| -------- | -------------------------------------------------------------- |
+| AD-015   | Repository pattern with Unit of Work transaction management    |
+|          | Repositories never commit — only flush                         |
+|          | Soft-delete applied to all queries by default                  |
+|          | Error translation layer prevents SQLAlchemy leakage            |
+|          | QueryBuilder provides composable, type-safe query construction |
 
 #### Verified
+
 - ✅ All 21 repository classes import successfully
 - ✅ All 16 dependency injection functions compile
 - ✅ No SQLAlchemy session usage outside repositories
@@ -234,17 +260,20 @@ All notable changes to SV-OS will be documented in this file.
 ### Phase 2.6: API Contract Layer (Pydantic DTOs)
 
 #### Added Code — New Schema Modules
+
 - **`apps/api/app/schemas/skill/`**: 9 DTOs — SkillSummary, SkillDetail, SkillLink, SkillCreate, SkillUpdate, SkillRelationshipSchema, SkillRelationshipCreate, SkillGraph, SkillCategoryCount
 - **`apps/api/app/schemas/tag/`**: 7 DTOs — TagSummary, TagDetail, TagCreate, TagUpdate, NodeTagInfo, NodeTagCreate, TagList
 - **`apps/api/app/schemas/recommendation/`**: 5 DTOs — RecommendationSummary, RecommendationDetail, RecommendationDismiss, RecommendationTypeCount, RecommendationList
 - **`apps/api/app/schemas/audit/`**: 4 DTOs — AuditLogEntry, AuditLogDetail, AuditLogFilter, AuditLogList
 
 #### Modified Code
+
 - **`apps/api/app/schemas/response.py`**: Removed duplicate `ErrorDetail` and `PaginatedData` classes (now imported from common/), added `build_success_response()`/`build_error_response()` with backward-compatible aliases
 - **`apps/api/app/schemas/common/pagination.py`**: Added `SortDirection = Literal['asc', 'desc']` type alias
 - **`apps/api/app/schemas/__init__.py`**: Added 25 new exports (Skill, Tag, Recommendation, Audit DTOs), removed `ResponsePaginatedData` re-export
 
 #### Key Design Decisions
+
 - **No ORM leakage**: All 127 DTOs are pure Pydantic BaseModel classes — no SQLAlchemy model exposure
 - **Multiple representations**: Each entity type has Card, Summary, Detail, Create, and Update DTOs
 - **Pydantic v2 strict validation**: Field validators, regex patterns (`^[a-z0-9]+(?:-[a-z0-9]+)*$`), constrained types
@@ -253,6 +282,7 @@ All notable changes to SV-OS will be documented in this file.
 - **127 total exports** across 10 feature modules + response envelope
 
 #### Documentation Updated
+
 - `.ai/PROJECT_STATE.md`: Updated to Phase 2.6 complete
 - `.ai/API_STATUS.md`: Full schema contract table added
 - `.ai/CHANGELOG.md`: This entry
@@ -260,6 +290,7 @@ All notable changes to SV-OS will be documented in this file.
 - `.ai/HANDOVER.md`: Updated for Phase 2.6 → Phase 2.7 transition
 
 #### Verified
+
 - All schemas import successfully (127 exports)
 - No circular imports
 - No duplicate class names
@@ -272,6 +303,7 @@ All notable changes to SV-OS will be documented in this file.
 ### Phase 2.4: Database Domain Models
 
 #### Added Code
+
 - **`apps/api/app/models/enums.py`**: 14 reusable enum types (NodeType, EdgeType, EdgeDirection, Difficulty, ProgressStatus, DemandLevel, UserRole, ResourceType, Visibility, LearningStatus, RecommendationType, RequirementType, SkillRelationshipType)
 - **`apps/api/app/models/base.py`**: `AppBaseMixin` — shared mixin providing UUID PK, created_at, updated_at, is_deleted (soft-delete), version (optimistic locking)
 - **`apps/api/app/models/user.py`**: `User` model — email, username, display_name, avatar, bio, role, preferences JSONB, is_active, last_login_at. 8 relationship back-references.
@@ -291,10 +323,12 @@ All notable changes to SV-OS will be documented in this file.
 - **`apps/api/app/models/audit_log.py`**: `AuditLog` model — action, entity_type, entity_id, extra_metadata JSONB, ip_address INET.
 
 #### Modified Code
+
 - **`apps/api/app/core/database.py`**: Added naming convention for constraints/indexes on `Base.metadata`.
 - **`apps/api/alembic/env.py`**: Added `from app.models import *` to load all models for Alembic autogenerate.
 
 #### Documentation Updated
+
 - `.ai/DATABASE_STATUS.md`: Rewritten with 20 tables, 14 enums, naming convention, uniqueness constraints
 - `.ai/PROJECT_STATE.md`: Updated to Phase 2.4 complete, added checklist
 - `.ai/PROJECT_MEMORY.md`: Added domain model conventions and key file locations
@@ -305,6 +339,7 @@ All notable changes to SV-OS will be documented in this file.
 - `.ai/HANDOVER.md`: Updated for Phase 2.4 → Phase 2.5 transition
 
 #### Verified
+
 - All 20 SQLAlchemy model classes import without errors
 - All tables register correctly on `Base.metadata` with proper columns
 - No circular imports (TYPE_CHECKING pattern used throughout)
@@ -314,4 +349,5 @@ All notable changes to SV-OS will be documented in this file.
 - Naming convention applied to Base
 
 ## Version 0.4.0 — 2026-06-30
+
 ... [unchanged] ...

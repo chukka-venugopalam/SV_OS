@@ -1,12 +1,14 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+
+import { CommandPaletteWrapper } from './command-palette';
+import { Footer } from './footer';
 import { Sidebar } from './sidebar';
 import { TopNav } from './top-nav';
-import { Footer } from './footer';
-import { CommandPaletteWrapper } from './command-palette';
-import { useUIStore } from '@/stores/ui-store';
+
 import { cn } from '@/lib/cn';
+import { useUIStore } from '@/stores/ui-store';
 
 interface AppShellProps {
   children: ReactNode;

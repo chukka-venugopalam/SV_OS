@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { cn } from './cn';
-import { Button } from './button';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import * as React from 'react';
+
+import { Button } from './button';
+import { cn } from './cn';
 
 interface PaginationProps {
   /** Current active page (1-indexed) */
@@ -25,9 +26,6 @@ export function Pagination({
   maxVisible = 5,
   className,
 }: PaginationProps) {
-  // Don't render if there's only one page
-  if (totalPages <= 1) return null;
-
   const canGoBack = currentPage > 1;
   const canGoForward = currentPage < totalPages;
 

@@ -1,14 +1,9 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
-import { useUIStore } from '@/stores/ui-store';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
+
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut';
+import { useUIStore } from '@/stores/ui-store';
 
 interface CommandContextValue {
   open: boolean;
@@ -57,9 +52,5 @@ export function CommandProvider({ children }: CommandProviderProps) {
     [commandPaletteOpen, setCommandPaletteOpen, toggleCommandPalette],
   );
 
-  return (
-    <CommandContext.Provider value={value}>
-      {children}
-    </CommandContext.Provider>
-  );
+  return <CommandContext.Provider value={value}>{children}</CommandContext.Provider>;
 }

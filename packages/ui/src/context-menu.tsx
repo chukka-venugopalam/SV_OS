@@ -1,5 +1,6 @@
-import * as React from 'react';
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu';
+import * as React from 'react';
+
 import { cn } from './cn';
 
 export const ContextMenu = ContextMenuPrimitive.Root;
@@ -14,7 +15,7 @@ export const ContextMenuContent = React.forwardRef<
     <ContextMenuPrimitive.Content
       ref={ref}
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-md border border-neutral-200 bg-white p-1 shadow-md animate-in fade-in-0 zoom-in-95 dark:border-neutral-700 dark:bg-neutral-900',
+        'animate-in fade-in-0 zoom-in-95 z-50 min-w-[8rem] overflow-hidden rounded-md border border-neutral-200 bg-white p-1 shadow-md dark:border-neutral-700 dark:bg-neutral-900',
         className,
       )}
       {...props}

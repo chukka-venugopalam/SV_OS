@@ -1,27 +1,5 @@
 'use client';
 
-import { useState, useMemo, memo } from 'react';
-import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
-import {
-  Search,
-  SlidersHorizontal,
-  Grid3X3,
-  List,
-  Compass,
-  BookText,
-  Code2,
-  Wrench,
-  Briefcase,
-  FolderGit2,
-  ChevronDown,
-  X,
-  ArrowUpDown,
-  ArrowRight,
-} from 'lucide-react';
-import { useKnowledgeNodes } from '@/hooks/use-knowledge';
-import { Shell } from '@/components/shared/shell';
-import { PageHeader, PageTransition, HoverCard, StaggerGrid } from '@/components/shared';
 import {
   Button,
   Card,
@@ -37,9 +15,30 @@ import {
   EmptyState,
   Pagination,
 } from '@sv-os/ui';
-import { cn, slugToTitle, truncate } from '@/lib';
-import { useDebounce } from '@/hooks/use-debounce';
+import {
+  Search,
+  SlidersHorizontal,
+  Grid3X3,
+  List,
+  Compass,
+  BookText,
+  Code2,
+  Wrench,
+  Briefcase,
+  FolderGit2,
+  X,
+  ArrowRight,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, memo } from 'react';
+
 import { NODE_TYPE_COLORS } from '@/components/graph';
+import { PageHeader, PageTransition } from '@/components/shared';
+import { Shell } from '@/components/shared/shell';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useKnowledgeNodes } from '@/hooks/use-knowledge';
+import { cn, slugToTitle, truncate } from '@/lib';
 import { ROUTES } from '@/lib/constants';
 
 const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;
@@ -62,11 +61,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 function TypeBadge({ type }: { type: string }) {
   return (
-    <Badge
-      variant="secondary"
-      size="sm"
-      className="flex items-center gap-1 capitalize"
-    >
+    <Badge variant="secondary" size="sm" className="flex items-center gap-1 capitalize">
       {typeIcons[type]}
       {type}
     </Badge>
@@ -90,31 +85,42 @@ function DifficultyBadge({ difficulty }: { difficulty: string }) {
 
 // ── Node Card ─────────────────────────────────────────────────────
 
-const NodeCard = memo(function NodeCard({ node }: { node: { id: string; slug: string; title: string; description: string; node_type: string; difficulty: string } }) {
+const NodeCard = memo(function NodeCard({
+  node,
+}: {
+  node: {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    node_type: string;
+    difficulty: string;
+  };
+}) {
   const color = NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)';
 
   return (
     <Link href={`/explore/${node.slug}`}>
-      <Card className="group h-full cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+      <Card className="group h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <CardContent className="flex h-full flex-col p-5">
           <div className="mb-3 flex items-start justify-between">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-white text-sm font-bold"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold text-white"
               style={{ backgroundColor: color }}
             >
               {node.title.charAt(0)}
             </div>
             <TypeBadge type={node.node_type} />
           </div>
-          <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+          <h3 className="group-hover:text-primary-600 dark:group-hover:text-primary-400 mb-1 text-base font-semibold text-neutral-900 transition-colors dark:text-neutral-100">
             {node.title}
           </h3>
-          <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 flex-1">
+          <p className="mb-3 line-clamp-2 flex-1 text-xs text-neutral-500 dark:text-neutral-400">
             {truncate(node.description, 120)}
           </p>
           <div className="flex items-center justify-between">
             <DifficultyBadge difficulty={node.difficulty} />
-            <ArrowRight className="h-4 w-4 text-neutral-300 opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5 dark:text-neutral-600" />
+            <ArrowRight className="h-4 w-4 text-neutral-300 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 dark:text-neutral-600" />
           </div>
         </CardContent>
       </Card>
@@ -124,26 +130,37 @@ const NodeCard = memo(function NodeCard({ node }: { node: { id: string; slug: st
 
 // ── Node Row ──────────────────────────────────────────────────────
 
-const NodeRow = memo(function NodeRow({ node }: { node: { id: string; slug: string; title: string; description: string; node_type: string; difficulty: string } }) {
+const NodeRow = memo(function NodeRow({
+  node,
+}: {
+  node: {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    node_type: string;
+    difficulty: string;
+  };
+}) {
   const color = NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)';
 
   return (
     <Link href={`/explore/${node.slug}`}>
-      <div className="group flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 transition-all hover:shadow-sm hover:border-primary-200 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-primary-700">
+      <div className="hover:border-primary-200 dark:hover:border-primary-700 group flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 transition-all hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white text-sm font-bold"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
           style={{ backgroundColor: color }}
         >
           {node.title.charAt(0)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+            <h3 className="group-hover:text-primary-600 dark:group-hover:text-primary-400 text-sm font-semibold text-neutral-900 transition-colors dark:text-neutral-100">
               {node.title}
             </h3>
             <TypeBadge type={node.node_type} />
           </div>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-1">
+          <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
             {node.description}
           </p>
         </div>
@@ -158,11 +175,11 @@ const NodeRow = memo(function NodeRow({ node }: { node: { id: string; slug: stri
 
 function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+    <span className="bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium">
       {label}
       <button
         onClick={onRemove}
-        className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-primary-200 dark:hover:bg-primary-800"
+        className="hover:bg-primary-200 dark:hover:bg-primary-800 ml-0.5 rounded-full p-0.5 transition-colors"
         aria-label={`Remove ${label} filter`}
       >
         <X className="h-3 w-3" />
@@ -204,218 +221,260 @@ export default function ExplorePage() {
 
   return (
     <PageTransition>
-    <Shell>
-      <PageHeader
-        title="Knowledge Explorer"
-        description="Browse concepts, technologies, careers, and projects"
-        breadcrumbs={[{ label: 'Explore' }]}
-      />
+      <Shell>
+        <PageHeader
+          title="Knowledge Explorer"
+          description="Browse concepts, technologies, careers, and projects"
+          breadcrumbs={[{ label: 'Explore' }]}
+        />
 
-      {/* Search + Controls */}
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
-            <Input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Search concepts, technologies, careers..."
-              className="pl-9"
-              aria-label="Search knowledge nodes"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={showFilters ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="gap-2"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-              {hasActiveFilters && (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-[10px] text-white">
-                  {(nodeType ? 1 : 0) + (difficulty ? 1 : 0)}
-                </span>
-              )}
-            </Button>
-            <div className="flex rounded-lg border border-neutral-300 dark:border-neutral-600">
-              <button
-                onClick={() => setView('grid')}
-                className={cn(
-                  'rounded-l-lg p-2 transition-colors',
-                  view === 'grid' ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300',
-                )}
-                aria-label="Grid view"
-                aria-pressed={view === 'grid'}
+        {/* Search + Controls */}
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
+              <Input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search concepts, technologies, careers..."
+                className="pl-9"
+                aria-label="Search knowledge nodes"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={showFilters ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="gap-2"
               >
-                <Grid3X3 className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setView('list')}
-                className={cn(
-                  'rounded-r-lg p-2 transition-colors',
-                  view === 'list' ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300',
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+                {hasActiveFilters && (
+                  <span className="bg-primary-500 flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white">
+                    {(nodeType ? 1 : 0) + (difficulty ? 1 : 0)}
+                  </span>
                 )}
-                aria-label="List view"
-                aria-pressed={view === 'list'}
-              >
-                <List className="h-4 w-4" />
-              </button>
+              </Button>
+              <div className="flex rounded-lg border border-neutral-300 dark:border-neutral-600">
+                <button
+                  onClick={() => setView('grid')}
+                  className={cn(
+                    'rounded-l-lg p-2 transition-colors',
+                    view === 'grid'
+                      ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100'
+                      : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300',
+                  )}
+                  aria-label="Grid view"
+                  aria-pressed={view === 'grid'}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setView('list')}
+                  className={cn(
+                    'rounded-r-lg p-2 transition-colors',
+                    view === 'list'
+                      ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100'
+                      : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300',
+                  )}
+                  aria-label="List view"
+                  aria-pressed={view === 'list'}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Active Filter Tags */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2">
+              {nodeType && (
+                <FilterTag
+                  label={`Type: ${slugToTitle(nodeType)}`}
+                  onRemove={() => setNodeType('')}
+                />
+              )}
+              {difficulty && (
+                <FilterTag
+                  label={`Difficulty: ${slugToTitle(difficulty)}`}
+                  onRemove={() => setDifficulty('')}
+                />
+              )}
+              {debouncedSearch && (
+                <FilterTag label={`Search: "${debouncedSearch}"`} onRemove={() => setSearch('')} />
+              )}
+              <button
+                onClick={clearFilters}
+                className="text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <Card className="animate-slide-down">
+              <CardContent className="flex flex-wrap items-end gap-4 p-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    Type
+                  </label>
+                  <Select
+                    value={nodeType}
+                    onValueChange={(v) => {
+                      setNodeType(v);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="All types" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All types</SelectItem>
+                      {NODE_TYPES.map((t) => (
+                        <SelectItem key={t} value={t} className="capitalize">
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    Difficulty
+                  </label>
+                  <Select
+                    value={difficulty}
+                    onValueChange={(v) => {
+                      setDifficulty(v);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="All levels" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All levels</SelectItem>
+                      {DIFFICULTIES.map((d) => (
+                        <SelectItem key={d} value={d} className="capitalize">
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    Sort
+                  </label>
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SORT_OPTIONS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Active Filter Tags */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2">
-            {nodeType && (
-              <FilterTag label={`Type: ${slugToTitle(nodeType)}`} onRemove={() => setNodeType('')} />
-            )}
-            {difficulty && (
-              <FilterTag label={`Difficulty: ${slugToTitle(difficulty)}`} onRemove={() => setDifficulty('')} />
-            )}
-            {debouncedSearch && (
-              <FilterTag label={`Search: "${debouncedSearch}"`} onRemove={() => setSearch('')} />
-            )}
-            <button
-              onClick={clearFilters}
-              className="text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
-            >
-              Clear all
-            </button>
-          </div>
-        )}
-
-        {/* Filter Panel */}
-        {showFilters && (
-          <Card className="animate-slide-down">
-            <CardContent className="flex flex-wrap items-end gap-4 p-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Type</label>
-                <Select value={nodeType} onValueChange={(v) => { setNodeType(v); setPage(1); }}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="All types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All types</SelectItem>
-                    {NODE_TYPES.map((t) => (
-                      <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Difficulty</label>
-                <Select value={difficulty} onValueChange={(v) => { setDifficulty(v); setPage(1); }}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="All levels" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All levels</SelectItem>
-                    {DIFFICULTIES.map((d) => (
-                      <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort</label>
-                <Select value={sort} onValueChange={setSort}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SORT_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Results */}
-      {isLoading ? (
-        view === 'grid' ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-5">
-                  <Skeleton className="mb-3 h-10 w-10 rounded-lg" />
-                  <Skeleton className="mb-2 h-5 w-3/4" />
-                  <Skeleton className="mb-3 h-3 w-full" />
-                  <Skeleton className="h-3 w-1/2" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-lg" />
-            ))}
-          </div>
-        )
-      ) : isError ? (
-        <Card>
-          <CardContent className="p-12">
-            <div className="flex flex-col items-center gap-3 text-center">
-              <p className="text-sm text-error-600 dark:text-error-400">Failed to load knowledge nodes</p>
-              <Button variant="outline" size="sm" onClick={() => refetch()}>
-                Try again
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : data && data.items.length > 0 ? (
-        <>
-          <p className="mb-4 text-xs text-neutral-400 dark:text-neutral-500">
-            Showing {data.items.length} of {data.total} nodes
-          </p>
-
-          {view === 'grid' ? (
+        {/* Results */}
+        {isLoading ? (
+          view === 'grid' ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {data.items.map((node) => (
-                <NodeCard key={node.id} node={node} />
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-5">
+                    <Skeleton className="mb-3 h-10 w-10 rounded-lg" />
+                    <Skeleton className="mb-2 h-5 w-3/4" />
+                    <Skeleton className="mb-3 h-3 w-full" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </CardContent>
+                </Card>
               ))}
             </div>
           ) : (
             <div className="space-y-2">
-              {data.items.map((node) => (
-                <NodeRow key={node.id} node={node} />
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-lg" />
               ))}
             </div>
-          )}
+          )
+        ) : isError ? (
+          <Card>
+            <CardContent className="p-12">
+              <div className="flex flex-col items-center gap-3 text-center">
+                <p className="text-error-600 dark:text-error-400 text-sm">
+                  Failed to load knowledge nodes
+                </p>
+                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                  Try again
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : data && data.items.length > 0 ? (
+          <>
+            <p className="mb-4 text-xs text-neutral-400 dark:text-neutral-500">
+              Showing {data.items.length} of {data.total} nodes
+            </p>
 
-          {data.total_pages > 1 && (
-            <div className="mt-8">
-              <Pagination
-                currentPage={data.page}
-                totalPages={data.total_pages}
-                onPageChange={setPage}
+            {view === 'grid' ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {data.items.map((node) => (
+                  <NodeCard key={node.id} node={node} />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {data.items.map((node) => (
+                  <NodeRow key={node.id} node={node} />
+                ))}
+              </div>
+            )}
+
+            {data.total_pages > 1 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={data.page}
+                  totalPages={data.total_pages}
+                  onPageChange={setPage}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <Card>
+            <CardContent className="p-12">
+              <EmptyState
+                icon={<Compass className="h-12 w-12" />}
+                title="No nodes found"
+                description={
+                  debouncedSearch
+                    ? `No results for "${debouncedSearch}"`
+                    : 'No knowledge nodes match your filters'
+                }
+                action={
+                  hasActiveFilters ? { label: 'Clear filters', onClick: clearFilters } : undefined
+                }
               />
-            </div>
-          )}
-        </>
-      ) : (
-        <Card>
-          <CardContent className="p-12">
-            <EmptyState
-              icon={<Compass className="h-12 w-12" />}
-              title="No nodes found"
-              description={debouncedSearch ? `No results for "${debouncedSearch}"` : 'No knowledge nodes match your filters'}
-              action={hasActiveFilters ? { label: 'Clear filters', onClick: clearFilters } : undefined}
-            />
-          </CardContent>
-        </Card>
-      )}
-    </Shell>
+            </CardContent>
+          </Card>
+        )}
+      </Shell>
     </PageTransition>
   );
 }

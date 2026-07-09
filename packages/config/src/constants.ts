@@ -29,7 +29,14 @@ export const AUTH = {
 
 export const DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'expert'] as const;
 
-export const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;
+export const NODE_TYPES = [
+  'subject',
+  'concept',
+  'technology',
+  'tool',
+  'career',
+  'project',
+] as const;
 
 export const EDGE_TYPES = [
   'prerequisite',
@@ -47,12 +54,12 @@ export const EDGE_DIRECTIONS = ['forward', 'bidirectional', 'unidirectional'] as
 export const PROGRESS_STATUSES = ['not_started', 'learning', 'completed', 'mastered'] as const;
 
 export const NODE_COLORS: Record<string, string> = {
-  subject: '#7c3aed',     // Purple
-  concept: '#2563eb',     // Blue
-  technology: '#16a34a',  // Green
-  tool: '#d97706',        // Amber
-  career: '#dc2626',      // Red
-  project: '#db2777',     // Pink
+  subject: '#7c3aed', // Purple
+  concept: '#2563eb', // Blue
+  technology: '#16a34a', // Green
+  tool: '#d97706', // Amber
+  career: '#dc2626', // Red
+  project: '#db2777', // Pink
 } as const;
 
 export const SEARCH_WEIGHTS = {

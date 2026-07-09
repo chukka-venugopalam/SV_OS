@@ -1,5 +1,4 @@
-import type { DefaultEdgeOptions, Node, Edge, ConnectionLineType } from 'reactflow';
-import { MarkerType } from 'reactflow';
+import { MarkerType, type ConnectionLineType, type DefaultEdgeOptions } from 'reactflow';
 
 export const FLOW_CONFIG = {
   /** Default viewport when graph loads */

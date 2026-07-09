@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from './cn';
 
 export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {}

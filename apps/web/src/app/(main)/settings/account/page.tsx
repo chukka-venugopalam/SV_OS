@@ -1,11 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Save, Shield, KeyRound } from 'lucide-react';
-import { useAuth } from '@/providers/auth-provider';
-import { useChangePassword } from '@/hooks/use-auth';
-import { Shell } from '@/components/shared/shell';
 import {
   Card,
   CardContent,
@@ -17,8 +11,15 @@ import {
   Skeleton,
   Badge,
 } from '@sv-os/ui';
-import { useToast } from '@/providers/toast-provider';
+import { ArrowLeft, Save, Shield, KeyRound } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { Shell } from '@/components/shared/shell';
+import { useChangePassword } from '@/hooks/use-auth';
 import { formatDate } from '@/lib/formatters';
+import { useAuth } from '@/providers/auth-provider';
+import { useToast } from '@/providers/toast-provider';
 
 export default function AccountSettingsPage() {
   const { user, isLoading } = useAuth();
@@ -65,19 +66,24 @@ export default function AccountSettingsPage() {
 
   return (
     <Shell maxWidth="2xl">
-      <Link href="/settings" className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300">
+      <Link
+        href="/settings"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+      >
         <ArrowLeft className="h-4 w-4" />
         Back to settings
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-neutral-50">Account Settings</h1>
+      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-neutral-50">
+        Account Settings
+      </h1>
 
       <div className="space-y-4">
         {/* Account Info */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <Shield className="h-4 w-4 text-primary-500" />
+              <Shield className="text-primary-500 h-4 w-4" />
               Account Information
             </CardTitle>
           </CardHeader>
@@ -85,20 +91,30 @@ export default function AccountSettingsPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label className="text-xs text-neutral-500 dark:text-neutral-400">Email</Label>
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{user?.email}</p>
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  {user?.email}
+                </p>
               </div>
               <div>
                 <Label className="text-xs text-neutral-500 dark:text-neutral-400">Username</Label>
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{user?.username}</p>
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  {user?.username}
+                </p>
               </div>
               <div>
                 <Label className="text-xs text-neutral-500 dark:text-neutral-400">Role</Label>
-                <Badge variant="secondary" size="sm" className="capitalize mt-0.5">{user?.role}</Badge>
+                <Badge variant="secondary" size="sm" className="mt-0.5 capitalize">
+                  {user?.role}
+                </Badge>
               </div>
               {user?.created_at && (
                 <div>
-                  <Label className="text-xs text-neutral-500 dark:text-neutral-400">Member since</Label>
-                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{formatDate(user.created_at)}</p>
+                  <Label className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Member since
+                  </Label>
+                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    {formatDate(user.created_at)}
+                  </p>
                 </div>
               )}
             </div>
@@ -109,7 +125,7 @@ export default function AccountSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <KeyRound className="h-4 w-4 text-warning-500" />
+              <KeyRound className="text-warning-500 h-4 w-4" />
               Change Password
             </CardTitle>
           </CardHeader>
@@ -117,15 +133,39 @@ export default function AccountSettingsPage() {
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current password</Label>
-                <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required minLength={8} autoComplete="current-password" />
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="current-password"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New password</Label>
-                <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm new password</Label>
-                <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
               </div>
               <Button type="submit" disabled={isSaving} className="gap-2">
                 <Save className="h-4 w-4" />

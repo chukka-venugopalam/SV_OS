@@ -7,9 +7,10 @@
 
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { progressService } from '@/services/progress';
 import type { UserProgress } from '@sv-os/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { progressService } from '@/services/progress';
 
 // ── Query Key Factory ─────────────────────────────────────────────
 
@@ -22,11 +23,7 @@ export const progressKeys = {
 // ── Hooks ─────────────────────────────────────────────────────────
 
 /** Get the current user's progress entries */
-export function useProgressList(params?: {
-  page?: number;
-  page_size?: number;
-  status?: string;
-}) {
+export function useProgressList(params?: { page?: number; page_size?: number; status?: string }) {
   return useQuery({
     queryKey: progressKeys.list(params),
     queryFn: () => progressService.list(params),

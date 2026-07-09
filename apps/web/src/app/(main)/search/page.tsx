@@ -1,24 +1,5 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {
-  Search,
-  SlidersHorizontal,
-  X,
-  ArrowRight,
-  BookText,
-  Code2,
-  Wrench,
-  Briefcase,
-  FolderGit2,
-  Compass,
-} from 'lucide-react';
-import { useSearch as useSearchHook } from '@/hooks/use-search';
-import { useSearchSuggestions, useTrendingSearches } from '@/hooks/use-search';
-import { Shell } from '@/components/shared/shell';
-import { PageHeader } from '@/components/shared/page-header';
 import {
   Button,
   Card,
@@ -34,9 +15,28 @@ import {
   EmptyState,
   Pagination,
 } from '@sv-os/ui';
-import { cn, slugToTitle, truncate } from '@/lib';
-import { useDebounce } from '@/hooks/use-debounce';
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  ArrowRight,
+  BookText,
+  Code2,
+  Wrench,
+  Briefcase,
+  FolderGit2,
+  Compass,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useMemo, useCallback } from 'react';
+
 import { NODE_TYPE_COLORS } from '@/components/graph';
+import { PageHeader } from '@/components/shared/page-header';
+import { Shell } from '@/components/shared/shell';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useSearch as useSearchHook , useSearchSuggestions, useTrendingSearches } from '@/hooks/use-search';
+import { cn, slugToTitle, truncate } from '@/lib';
 import { ROUTES } from '@/lib/constants';
 
 const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;
@@ -71,10 +71,15 @@ function ResultItem({ node, query }: ResultItemProps) {
   const highlight = useCallback(
     (text: string) => {
       if (!query) return text;
-      const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+      const parts = text.split(
+        new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+      );
       return parts.map((part, i) =>
         part.toLowerCase() === query.toLowerCase() ? (
-          <mark key={i} className="rounded-sm bg-primary-100 px-0.5 text-primary-900 dark:bg-primary-900/40 dark:text-primary-200">
+          <mark
+            key={i}
+            className="bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-200 rounded-sm px-0.5"
+          >
             {part}
           </mark>
         ) : (
@@ -87,7 +92,7 @@ function ResultItem({ node, query }: ResultItemProps) {
 
   return (
     <Link href={`/explore/${node.slug}`}>
-      <div className="group flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 transition-all hover:shadow-sm hover:border-primary-200 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-primary-700">
+      <div className="hover:border-primary-200 dark:hover:border-primary-700 group flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 transition-all hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
           style={{ backgroundColor: color }}
@@ -96,20 +101,32 @@ function ResultItem({ node, query }: ResultItemProps) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+            <h3 className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               {highlight(node.title)}
             </h3>
-            <Badge variant="secondary" size="sm" className="flex items-center gap-1 shrink-0 capitalize">
+            <Badge
+              variant="secondary"
+              size="sm"
+              className="flex shrink-0 items-center gap-1 capitalize"
+            >
               {typeIcons[node.node_type]}
               {node.node_type}
             </Badge>
           </div>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-1">
+          <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
             {highlight(truncate(node.description, 100))}
           </p>
         </div>
         <Badge
-          variant={node.difficulty === 'beginner' ? 'success' : node.difficulty === 'intermediate' ? 'info' : node.difficulty === 'advanced' ? 'warning' : 'danger'}
+          variant={
+            node.difficulty === 'beginner'
+              ? 'success'
+              : node.difficulty === 'intermediate'
+                ? 'info'
+                : node.difficulty === 'advanced'
+                  ? 'warning'
+                  : 'danger'
+          }
           size="sm"
         >
           {slugToTitle(node.difficulty)}
@@ -122,9 +139,13 @@ function ResultItem({ node, query }: ResultItemProps) {
 
 function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+    <span className="bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium">
       {label}
-      <button onClick={onRemove} className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-primary-200 dark:hover:bg-primary-800" aria-label={`Remove ${label} filter`}>
+      <button
+        onClick={onRemove}
+        className="hover:bg-primary-200 dark:hover:bg-primary-800 ml-0.5 rounded-full p-0.5 transition-colors"
+        aria-label={`Remove ${label} filter`}
+      >
         <X className="h-3 w-3" />
       </button>
     </span>
@@ -200,7 +221,7 @@ export default function SearchPage() {
 
         {/* Suggestions dropdown */}
         {suggestions && suggestions.length > 0 && debouncedQuery.length >= 2 && !isLoading && (
-          <Card className="mt-2 animate-slide-down">
+          <Card className="animate-slide-down mt-2">
             <CardContent className="p-2">
               {suggestions.slice(0, 5).map((s) => (
                 <button
@@ -213,7 +234,9 @@ export default function SearchPage() {
                 >
                   <Search className="h-3.5 w-3.5 text-neutral-400" />
                   <span>{s.text}</span>
-                  <Badge variant="secondary" size="sm" className="ml-auto capitalize">{s.type}</Badge>
+                  <Badge variant="secondary" size="sm" className="ml-auto capitalize">
+                    {s.type}
+                  </Badge>
                 </button>
               ))}
             </CardContent>
@@ -227,11 +250,15 @@ export default function SearchPage() {
           variant={showAdvanced ? 'default' : 'outline'}
           size="sm"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="gap-2 w-fit"
+          className="w-fit gap-2"
         >
           <SlidersHorizontal className="h-4 w-4" />
           Filters
-          {hasFilters && <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-[10px] text-white">!</span>}
+          {hasFilters && (
+            <span className="bg-primary-500 flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white">
+              !
+            </span>
+          )}
         </Button>
 
         {data && (
@@ -243,10 +270,23 @@ export default function SearchPage() {
         {/* Active filter tags */}
         {(hasFilters || debouncedQuery) && (
           <div className="flex flex-wrap items-center gap-2">
-            {nodeType && <FilterTag label={`Type: ${slugToTitle(nodeType)}`} onRemove={() => setNodeType('')} />}
-            {difficulty && <FilterTag label={`Difficulty: ${slugToTitle(difficulty)}`} onRemove={() => setDifficulty('')} />}
+            {nodeType && (
+              <FilterTag
+                label={`Type: ${slugToTitle(nodeType)}`}
+                onRemove={() => setNodeType('')}
+              />
+            )}
+            {difficulty && (
+              <FilterTag
+                label={`Difficulty: ${slugToTitle(difficulty)}`}
+                onRemove={() => setDifficulty('')}
+              />
+            )}
             {hasFilters && (
-              <button onClick={clearFilters} className="text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300">
+              <button
+                onClick={clearFilters}
+                className="text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+              >
                 Clear all
               </button>
             )}
@@ -256,29 +296,53 @@ export default function SearchPage() {
 
       {/* Advanced Filters */}
       {showAdvanced && (
-        <Card className="mb-6 animate-slide-down">
+        <Card className="animate-slide-down mb-6">
           <CardContent className="flex flex-wrap items-end gap-4 p-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Type</label>
-              <Select value={nodeType} onValueChange={(v) => { setNodeType(v); setPage(1); }}>
+              <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                Type
+              </label>
+              <Select
+                value={nodeType}
+                onValueChange={(v) => {
+                  setNodeType(v);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">All types</SelectItem>
-                  {NODE_TYPES.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+                  {NODE_TYPES.map((t) => (
+                    <SelectItem key={t} value={t} className="capitalize">
+                      {t}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Difficulty</label>
-              <Select value={difficulty} onValueChange={(v) => { setDifficulty(v); setPage(1); }}>
+              <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                Difficulty
+              </label>
+              <Select
+                value={difficulty}
+                onValueChange={(v) => {
+                  setDifficulty(v);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All levels" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">All levels</SelectItem>
-                  {DIFFICULTIES.map((d) => <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>)}
+                  {DIFFICULTIES.map((d) => (
+                    <SelectItem key={d} value={d} className="capitalize">
+                      {d}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -289,7 +353,9 @@ export default function SearchPage() {
       {/* Trending (shown when no search) */}
       {!debouncedQuery && trending && trending.length > 0 && (
         <div className="mb-6">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Trending searches</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            Trending searches
+          </h3>
           <div className="flex flex-wrap gap-2">
             {trending.map((term) => (
               <button
@@ -310,13 +376,17 @@ export default function SearchPage() {
       {/* Results */}
       {isLoading ? (
         <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
         </div>
       ) : isError ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <p className="mb-3 text-sm text-error-600 dark:text-error-400">Search failed</p>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>Try again</Button>
+            <p className="text-error-600 dark:text-error-400 mb-3 text-sm">Search failed</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Try again
+            </Button>
           </CardContent>
         </Card>
       ) : data && data.nodes.length > 0 ? (
@@ -328,7 +398,11 @@ export default function SearchPage() {
           </div>
           {data.total > PAGE_SIZE && (
             <div className="mt-8">
-              <Pagination currentPage={page} totalPages={Math.ceil(data.total / PAGE_SIZE)} onPageChange={setPage} />
+              <Pagination
+                currentPage={page}
+                totalPages={Math.ceil(data.total / PAGE_SIZE)}
+                onPageChange={setPage}
+              />
             </div>
           )}
         </>

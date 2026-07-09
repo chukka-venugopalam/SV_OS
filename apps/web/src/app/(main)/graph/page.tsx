@@ -1,31 +1,23 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import dynamic from 'next/dynamic';
+import { Badge, Button, Card, CardContent, LoadingState } from '@sv-os/ui';
+import { ArrowLeft, Minimize2 } from 'lucide-react';
+import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
-import {
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  Layers,
-  Info,
-  ArrowLeft,
-} from 'lucide-react';
+import { useMemo } from 'react';
+
+import { NODE_TYPE_COLORS } from '@/components/graph';
 import { useGraphExplore, useGraphStats } from '@/hooks/use-graph';
-import { Shell } from '@/components/shared/shell';
-import { PageHeader } from '@/components/shared/page-header';
 import { useGraph } from '@/providers/graph-provider';
-import { Card, CardContent, Badge, Button, Skeleton, LoadingState } from '@sv-os/ui';
-import { cn } from '@/lib';
-import { FLOW_CONFIG, DEFAULT_EDGE_OPTIONS, NODE_TYPE_COLORS } from '@/components/graph';
+
+export const dynamic = 'force-dynamic';
+
 
 // Dynamically import React Flow to avoid SSR issues
-const ReactFlowGraph = dynamic(
-  () => import('@/components/graph/react-flow-graph'),
-  { ssr: false, loading: () => <LoadingState message="Loading graph..." /> }
-);
+const ReactFlowGraph = dynamicImport(() => import('@/components/graph/react-flow-graph'), {
+  ssr: false,
+  loading: () => <LoadingState message="Loading graph..." />,
+});
 
 export const dynamicParams = true;
 
@@ -74,20 +66,22 @@ export default function GraphPage() {
         <div className="flex-1" />
 
         <div className="hidden items-center gap-1 sm:flex">
-          {Object.entries(nodeTypeCounts).slice(0, 5).map(([type, count]) => (
-            <Badge
-              key={type}
-              variant="secondary"
-              size="sm"
-              className="flex items-center gap-1 capitalize"
-            >
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: NODE_TYPE_COLORS[type] ?? 'var(--color-neutral-400)' }}
-              />
-              {type} {count}
-            </Badge>
-          ))}
+          {Object.entries(nodeTypeCounts)
+            .slice(0, 5)
+            .map(([type, count]) => (
+              <Badge
+                key={type}
+                variant="secondary"
+                size="sm"
+                className="flex items-center gap-1 capitalize"
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: NODE_TYPE_COLORS[type] ?? 'var(--color-neutral-400)' }}
+                />
+                {type} {count}
+              </Badge>
+            ))}
         </div>
       </div>
 
@@ -100,7 +94,7 @@ export default function GraphPage() {
           </div>
         ) : isError ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3">
-            <p className="text-sm text-error-600 dark:text-error-400">Failed to load graph</p>
+            <p className="text-error-600 dark:text-error-400 text-sm">Failed to load graph</p>
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               Retry
             </Button>
@@ -118,15 +112,11 @@ export default function GraphPage() {
 
         {/* Node Detail Panel */}
         {selectedNode && (
-          <div className="absolute right-4 top-4 z-10 w-72 animate-slide-up">
+          <div className="animate-slide-up absolute right-4 top-4 z-10 w-72">
             <Card className="shadow-xl">
               <CardContent className="p-4">
                 <div className="mb-3 flex items-start justify-between">
-                  <Badge
-                    variant="secondary"
-                    size="sm"
-                    className="capitalize"
-                  >
+                  <Badge variant="secondary" size="sm" className="capitalize">
                     {selectedNode.node_type}
                   </Badge>
                   <button
@@ -141,7 +131,7 @@ export default function GraphPage() {
                 <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
                   {selectedNode.title}
                 </h3>
-                <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-3">
+                <p className="mb-3 line-clamp-3 text-xs text-neutral-500 dark:text-neutral-400">
                   {selectedNode.description}
                 </p>
 

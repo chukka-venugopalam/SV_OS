@@ -14,9 +14,11 @@ import ReactFlow, {
   type Node as FlowNode,
   type Edge as FlowEdge,
 } from 'reactflow';
+
 import 'reactflow/dist/style.css';
-import { cn } from '@/lib/cn';
 import { FLOW_CONFIG, DEFAULT_EDGE_OPTIONS, NODE_TYPE_COLORS } from './flow-config';
+
+import { cn } from '@/lib/cn';
 
 // ── Custom Node ───────────────────────────────────────────────────
 
@@ -29,7 +31,7 @@ function KnowledgeNode({ data, selected }: NodeProps) {
       className={cn(
         'group relative rounded-xl border-2 bg-white px-4 py-3 shadow-sm transition-all duration-200 dark:bg-neutral-900',
         selected
-          ? 'border-primary-500 shadow-lg shadow-primary-500/20 dark:border-primary-400'
+          ? 'border-primary-500 shadow-primary-500/20 dark:border-primary-400 shadow-lg'
           : 'border-neutral-200 hover:shadow-md dark:border-neutral-700',
       )}
       style={{ borderColor: selected ? undefined : `${color}40` }}
@@ -53,10 +55,10 @@ function KnowledgeNode({ data, selected }: NodeProps) {
           {data.label?.charAt(0)?.toUpperCase() ?? '?'}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 leading-tight truncate max-w-[140px]">
+          <p className="max-w-[140px] truncate text-sm font-semibold leading-tight text-neutral-900 dark:text-neutral-100">
             {data.label}
           </p>
-          <p className="text-[10px] text-neutral-400 dark:text-neutral-500 capitalize leading-tight">
+          <p className="text-[10px] capitalize leading-tight text-neutral-400 dark:text-neutral-500">
             {typeLabel}
           </p>
         </div>
@@ -152,12 +154,7 @@ function ReactFlowGraphInner({
       attributionPosition="bottom-left"
       className="bg-neutral-50 dark:bg-neutral-950"
     >
-      <Background
-        color="var(--color-neutral-200)"
-        gap={24}
-        size={1}
-        className="dark:opacity-30"
-      />
+      <Background color="var(--color-neutral-200)" gap={24} size={1} className="dark:opacity-30" />
       <Controls
         className="!rounded-lg !border !border-neutral-200 !bg-white !shadow-md dark:!border-neutral-700 dark:!bg-neutral-900"
         showInteractive={false}

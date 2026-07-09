@@ -1,11 +1,12 @@
 'use client';
 
+import { Breadcrumb } from '@sv-os/ui';
+import { ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { memo } from 'react';
+
 import { cn } from '@/lib/cn';
-import { Breadcrumb } from '@sv-os/ui';
-import { ChevronRight, Home } from 'lucide-react';
 
 interface BreadcrumbItem {
   label: string;
@@ -60,7 +61,7 @@ export const PageHeader = memo(function PageHeader({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl dark:text-neutral-50">
             {title}
           </h1>
           {description && (

@@ -5,6 +5,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+
 import { activityService } from '@/services/activity';
 
 // ── Query Key Factory ─────────────────────────────────────────────
@@ -17,10 +18,7 @@ export const activityKeys = {
 // ── Hooks ─────────────────────────────────────────────────────────
 
 /** Get the current user's recent activity feed */
-export function useActivityFeed(params?: {
-  page?: number;
-  page_size?: number;
-}) {
+export function useActivityFeed(params?: { page?: number; page_size?: number }) {
   return useQuery({
     queryKey: activityKeys.feed(params),
     queryFn: () => activityService.getFeed(params),

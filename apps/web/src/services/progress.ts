@@ -4,9 +4,9 @@
  * Provides functions for tracking user learning progress.
  */
 
+import type { UserProgress, ProgressStats , PaginatedResponse } from '@sv-os/types';
+
 import { apiClient } from '@/lib/api-client';
-import type { UserProgress, ProgressStats } from '@sv-os/types';
-import type { PaginatedResponse } from '@sv-os/types';
 
 // ── Service ───────────────────────────────────────────────────────
 
@@ -18,7 +18,9 @@ export const progressService = {
     status?: string;
   }): Promise<PaginatedResponse<UserProgress>> {
     return apiClient
-      .get<PaginatedResponse<UserProgress>>('/progress', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<PaginatedResponse<UserProgress>>('/progress', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 
@@ -36,11 +38,15 @@ export const progressService = {
 
   /** Mark a node as started */
   start(nodeId: string): Promise<UserProgress> {
-    return apiClient.post<UserProgress>('/progress/start', { node_id: nodeId }).then((res) => res.data!);
+    return apiClient
+      .post<UserProgress>('/progress/start', { node_id: nodeId })
+      .then((res) => res.data!);
   },
 
   /** Mark a node as completed */
   complete(nodeId: string): Promise<UserProgress> {
-    return apiClient.post<UserProgress>('/progress/complete', { node_id: nodeId }).then((res) => res.data!);
+    return apiClient
+      .post<UserProgress>('/progress/complete', { node_id: nodeId })
+      .then((res) => res.data!);
   },
 };

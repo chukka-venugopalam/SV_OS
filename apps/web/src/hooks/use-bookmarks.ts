@@ -8,6 +8,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { bookmarkService } from '@/services/bookmarks';
 
 // ── Query Key Factory ─────────────────────────────────────────────
@@ -27,10 +28,7 @@ export const favoriteKeys = {
 // ── Bookmark Hooks ──────────────────────────────────────────────
 
 /** Get the current user's bookmarks */
-export function useBookmarks(params?: {
-  page?: number;
-  page_size?: number;
-}) {
+export function useBookmarks(params?: { page?: number; page_size?: number }) {
   return useQuery({
     queryKey: bookmarkKeys.list(params),
     queryFn: () => bookmarkService.listBookmarks(params),
@@ -64,10 +62,7 @@ export function useIsBookmarked(nodeId: string) {
 // ── Favorite Hooks ──────────────────────────────────────────────
 
 /** Get the current user's favorites */
-export function useFavorites(params?: {
-  page?: number;
-  page_size?: number;
-}) {
+export function useFavorites(params?: { page?: number; page_size?: number }) {
   return useQuery({
     queryKey: favoriteKeys.list(params),
     queryFn: () => bookmarkService.listFavorites(params),

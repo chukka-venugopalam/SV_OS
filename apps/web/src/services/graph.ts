@@ -5,13 +5,9 @@
  * All functions return typed responses via the shared API client.
  */
 
+import type { GraphSubgraph, KnowledgeNode, KnowledgeEdge , PaginatedResponse } from '@sv-os/types';
+
 import { apiClient } from '@/lib/api-client';
-import type {
-  GraphSubgraph,
-  KnowledgeNode,
-  KnowledgeEdge,
-} from '@sv-os/types';
-import type { PaginatedResponse } from '@sv-os/types';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -40,14 +36,18 @@ export const graphService = {
   /** Explore the graph around a center node or retrieve the full graph */
   explore(params?: GraphExploreParams): Promise<GraphSubgraph> {
     return apiClient
-      .get<GraphSubgraph>('/graph/explore', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<GraphSubgraph>('/graph/explore', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 
   /** Find the shortest path between two nodes */
   findPath(params: GraphPathParams): Promise<{ path: KnowledgeNode[]; edges: KnowledgeEdge[] }> {
     return apiClient
-      .get<{ path: KnowledgeNode[]; edges: KnowledgeEdge[] }>('/graph/path', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<{ path: KnowledgeNode[]; edges: KnowledgeEdge[] }>('/graph/path', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 

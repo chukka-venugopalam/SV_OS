@@ -7,10 +7,11 @@
 
 'use client';
 
+import { LoadingSpinner } from '@sv-os/ui';
 import { useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
+
 import { useAuth } from '@/providers/auth-provider';
-import { LoadingSpinner } from '@sv-os/ui';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -66,8 +67,17 @@ export function ProtectedRoute({
   if (requiredRole && user?.role !== requiredRole) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-warning-100 text-warning-600 dark:bg-warning-900/30 dark:text-warning-400">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="bg-warning-100 text-warning-600 dark:bg-warning-900/30 dark:text-warning-400 flex h-12 w-12 items-center justify-center rounded-full">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />

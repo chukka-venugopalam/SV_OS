@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
 interface GraphContextValue {
   viewport: { x: number; y: number; zoom: number };
@@ -38,9 +32,5 @@ export function GraphProvider({ children }: GraphProviderProps) {
     [viewport, selectedNodeId],
   );
 
-  return (
-    <GraphContext.Provider value={value}>
-      {children}
-    </GraphContext.Provider>
-  );
+  return <GraphContext.Provider value={value}>{children}</GraphContext.Provider>;
 }

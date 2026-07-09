@@ -5,8 +5,9 @@
  * projects, and careers.
  */
 
-import { apiClient } from '@/lib/api-client';
 import type { PaginatedResponse } from '@sv-os/types';
+
+import { apiClient } from '@/lib/api-client';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -41,7 +42,9 @@ export const bookmarkService = {
     page_size?: number;
   }): Promise<PaginatedResponse<Bookmark>> {
     return apiClient
-      .get<PaginatedResponse<Bookmark>>('/bookmarks', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<PaginatedResponse<Bookmark>>('/bookmarks', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 
@@ -67,7 +70,9 @@ export const bookmarkService = {
     page_size?: number;
   }): Promise<PaginatedResponse<Favorite>> {
     return apiClient
-      .get<PaginatedResponse<Favorite>>('/favorites', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<PaginatedResponse<Favorite>>('/favorites', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 

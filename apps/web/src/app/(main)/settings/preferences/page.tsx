@@ -1,20 +1,13 @@
 'use client';
 
-import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, Button, Label, Badge, cn } from '@sv-os/ui';
 import { ArrowLeft, Palette, Sun, Moon, Monitor, Type, Eye } from 'lucide-react';
+import Link from 'next/link';
+
+import { Shell } from '@/components/shared/shell';
 import { useTheme } from '@/hooks/use-theme';
 import { useUIStore } from '@/stores/ui-store';
-import { Shell } from '@/components/shared/shell';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Button,
-  Label,
-  Badge,
-  cn,
-} from '@sv-os/ui';
+
 
 export default function PreferencesSettingsPage() {
   const { theme, setTheme, isDark } = useTheme();
@@ -33,7 +26,10 @@ export default function PreferencesSettingsPage() {
 
   return (
     <Shell maxWidth="2xl">
-      <Link href="/settings" className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300">
+      <Link
+        href="/settings"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+      >
         <ArrowLeft className="h-4 w-4" />
         Back to settings
       </Link>
@@ -45,7 +41,7 @@ export default function PreferencesSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <Palette className="h-4 w-4 text-primary-500" />
+              <Palette className="text-primary-500 h-4 w-4" />
               Theme
             </CardTitle>
           </CardHeader>
@@ -74,7 +70,7 @@ export default function PreferencesSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <Type className="h-4 w-4 text-info-500" />
+              <Type className="text-info-500 h-4 w-4" />
               Font Size
             </CardTitle>
           </CardHeader>
@@ -103,15 +99,19 @@ export default function PreferencesSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
-              <Eye className="h-4 w-4 text-warning-500" />
+              <Eye className="text-warning-500 h-4 w-4" />
               Accessibility
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <label className="flex items-center justify-between cursor-pointer">
+            <label className="flex cursor-pointer items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Reduced motion</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">Minimize animations and transitions</p>
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  Reduced motion
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Minimize animations and transitions
+                </p>
               </div>
               <button
                 role="switch"
@@ -122,10 +122,12 @@ export default function PreferencesSettingsPage() {
                   reducedMotion ? 'bg-primary-500' : 'bg-neutral-300 dark:bg-neutral-600',
                 )}
               >
-                <span className={cn(
-                  'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                  reducedMotion ? 'translate-x-6' : 'translate-x-1',
-                )} />
+                <span
+                  className={cn(
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    reducedMotion ? 'translate-x-6' : 'translate-x-1',
+                  )}
+                />
               </button>
             </label>
           </CardContent>

@@ -36,15 +36,7 @@ export {
   formatFileSize,
 } from './number';
 
-export {
-  isNullish,
-  isEmptyObject,
-  omit,
-  pick,
-  deepMerge,
-  clone,
-  get,
-} from './object';
+export { isNullish, isEmptyObject, omit, pick, deepMerge, clone, get } from './object';
 
 export {
   groupBy,
@@ -58,10 +50,4 @@ export {
   difference,
 } from './array';
 
-export {
-  debounce,
-  throttle,
-  memoize,
-  once,
-  noop,
-} from './function';
+export { debounce, throttle, memoize, once, noop } from './function';

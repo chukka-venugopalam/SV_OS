@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
+
 import { useReducedMotion } from '@/hooks/use-media-query';
 import { cn } from '@/lib/cn';
 
@@ -128,7 +129,11 @@ export function HoverCard({ children, className, as = 'div', href }: HoverCardPr
 
   if (reduced) {
     const Tag = as;
-    return <Tag className={className} href={href}>{children}</Tag>;
+    return (
+      <Tag className={className} href={href}>
+        {children}
+      </Tag>
+    );
   }
 
   if (as === 'a') {

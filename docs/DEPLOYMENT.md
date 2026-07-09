@@ -22,12 +22,12 @@ This document covers deployment of SV-OS to production environments.
 
 ### Deployment Options
 
-| Component | Recommended | Alternative |
-|---|---|---|
-| Frontend | **Vercel** | Cloudflare Pages, Netlify |
-| Backend | **Render (Web Service)** | Railway, Fly.io, DigitalOcean |
-| Database | **Supabase** (managed Postgres) | Neon, AWS RDS, Render Postgres |
-| Auth | **Built-in JWT** | Supabase Auth (swappable) |
+| Component | Recommended                     | Alternative                    |
+| --------- | ------------------------------- | ------------------------------ |
+| Frontend  | **Vercel**                      | Cloudflare Pages, Netlify      |
+| Backend   | **Render (Web Service)**        | Railway, Fly.io, DigitalOcean  |
+| Database  | **Supabase** (managed Postgres) | Neon, AWS RDS, Render Postgres |
+| Auth      | **Built-in JWT**                | Supabase Auth (swappable)      |
 
 ## Prerequisites
 
@@ -86,24 +86,24 @@ bash ../../database/scripts/seed.sh
 2. Connect your GitHub repository
 3. Configure the service:
 
-| Setting | Value |
-|---|---|
-| **Name** | `sv-os-api` |
-| **Environment** | `Python` |
-| **Build Command** | `pip install uv && uv pip install --system -r apps/api/pyproject.toml` |
-| **Start Command** | `cd apps/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
-| **Root Directory** | (leave blank — use monorepo root) |
+| Setting            | Value                                                                  |
+| ------------------ | ---------------------------------------------------------------------- |
+| **Name**           | `sv-os-api`                                                            |
+| **Environment**    | `Python`                                                               |
+| **Build Command**  | `pip install uv && uv pip install --system -r apps/api/pyproject.toml` |
+| **Start Command**  | `cd apps/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT`      |
+| **Root Directory** | (leave blank — use monorepo root)                                      |
 
 4. Add environment variables:
 
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | `postgresql+asyncpg://...` (Supabase connection string) |
-| `SECRET_KEY` | Generate with: `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
-| `ENVIRONMENT` | `production` |
-| `CORS_ORIGINS` | `https://your-app.vercel.app` |
-| `LOG_LEVEL` | `INFO` |
-| `API_RATE_LIMIT` | `100` |
+| Variable         | Value                                                                         |
+| ---------------- | ----------------------------------------------------------------------------- |
+| `DATABASE_URL`   | `postgresql+asyncpg://...` (Supabase connection string)                       |
+| `SECRET_KEY`     | Generate with: `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
+| `ENVIRONMENT`    | `production`                                                                  |
+| `CORS_ORIGINS`   | `https://your-app.vercel.app`                                                 |
+| `LOG_LEVEL`      | `INFO`                                                                        |
+| `API_RATE_LIMIT` | `100`                                                                         |
 
 ### Health Check
 
@@ -120,21 +120,21 @@ Render will ping `/api/v1/health` automatically. Configure a health check path i
 3. Import your GitHub repository
 4. Configure:
 
-| Setting | Value |
-|---|---|
-| **Framework Preset** | `Next.js` |
-| **Root Directory** | `apps/web` |
-| **Build Command** | `pnpm build` |
-| **Output Directory** | `.next` |
+| Setting              | Value        |
+| -------------------- | ------------ |
+| **Framework Preset** | `Next.js`    |
+| **Root Directory**   | `apps/web`   |
+| **Build Command**    | `pnpm build` |
+| **Output Directory** | `.next`      |
 
 5. Add environment variables:
 
-| Variable | Value |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | `https://sv-os-api.onrender.com` |
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key |
-| `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` |
+| Variable                        | Value                            |
+| ------------------------------- | -------------------------------- |
+| `NEXT_PUBLIC_API_URL`           | `https://sv-os-api.onrender.com` |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL        |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key           |
+| `NEXT_PUBLIC_APP_URL`           | `https://your-app.vercel.app`    |
 
 ### Monorepo Settings
 
@@ -218,29 +218,29 @@ curl https://sv-os-api.onrender.com/api/v1/health/ready
 
 ### Backend (`apps/api/.env`)
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `DATABASE_URL` | ✅ | — | PostgreSQL async connection string |
-| `SECRET_KEY` | ✅ | `change-me-in-production` | JWT signing secret (min 32 chars) |
-| `ENVIRONMENT` | ❌ | `development` | `development`, `staging`, `production`, `test` |
-| `CORS_ORIGINS` | ❌ | `http://localhost:3000` | Comma-separated allowed origins |
-| `LOG_LEVEL` | ❌ | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
-| `SUPABASE_URL` | ❌ | — | Supabase project URL |
-| `SUPABASE_SERVICE_KEY` | ❌ | — | Supabase service role key |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | ❌ | `60` | JWT access token TTL |
-| `REFRESH_TOKEN_EXPIRE_DAYS` | ❌ | `7` | JWT refresh token TTL |
-| `API_RATE_LIMIT` | ❌ | `100` | Requests per minute (authenticated) |
-| `API_RATE_LIMIT_ANON` | ❌ | `20` | Requests per minute (anonymous) |
-| `ROOT_PATH` | ❌ | — | Path prefix behind reverse proxy |
+| Variable                      | Required | Default                   | Description                                    |
+| ----------------------------- | -------- | ------------------------- | ---------------------------------------------- |
+| `DATABASE_URL`                | ✅       | —                         | PostgreSQL async connection string             |
+| `SECRET_KEY`                  | ✅       | `change-me-in-production` | JWT signing secret (min 32 chars)              |
+| `ENVIRONMENT`                 | ❌       | `development`             | `development`, `staging`, `production`, `test` |
+| `CORS_ORIGINS`                | ❌       | `http://localhost:3000`   | Comma-separated allowed origins                |
+| `LOG_LEVEL`                   | ❌       | `INFO`                    | `DEBUG`, `INFO`, `WARNING`, `ERROR`            |
+| `SUPABASE_URL`                | ❌       | —                         | Supabase project URL                           |
+| `SUPABASE_SERVICE_KEY`        | ❌       | —                         | Supabase service role key                      |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | ❌       | `60`                      | JWT access token TTL                           |
+| `REFRESH_TOKEN_EXPIRE_DAYS`   | ❌       | `7`                       | JWT refresh token TTL                          |
+| `API_RATE_LIMIT`              | ❌       | `100`                     | Requests per minute (authenticated)            |
+| `API_RATE_LIMIT_ANON`         | ❌       | `20`                      | Requests per minute (anonymous)                |
+| `ROOT_PATH`                   | ❌       | —                         | Path prefix behind reverse proxy               |
 
 ### Frontend (`apps/web/.env.local`)
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_URL` | ✅ | `http://localhost:8000` | Backend API URL |
-| `NEXT_PUBLIC_SUPABASE_URL` | ❌ | — | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ❌ | — | Supabase anon key |
-| `NEXT_PUBLIC_APP_URL` | ❌ | `http://localhost:3000` | App URL for redirects |
+| Variable                        | Required | Default                 | Description           |
+| ------------------------------- | -------- | ----------------------- | --------------------- |
+| `NEXT_PUBLIC_API_URL`           | ✅       | `http://localhost:8000` | Backend API URL       |
+| `NEXT_PUBLIC_SUPABASE_URL`      | ❌       | —                       | Supabase project URL  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ❌       | —                       | Supabase anon key     |
+| `NEXT_PUBLIC_APP_URL`           | ❌       | `http://localhost:3000` | App URL for redirects |
 
 ---
 
@@ -249,6 +249,7 @@ curl https://sv-os-api.onrender.com/api/v1/health/ready
 ### Backend won't start
 
 Check the logs for:
+
 - Database connection issues — verify `DATABASE_URL` is correct
 - Missing migrations — run `alembic upgrade head`
 - Port conflicts — ensure port 8000 is available

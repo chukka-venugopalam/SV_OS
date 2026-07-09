@@ -10,7 +10,9 @@
     "./constants": "./src/constants.ts",
     "./env": "./src/env.ts"
   },
-  "files": ["src/**"],
+  "files": [
+    "src/**"
+  ],
   "devDependencies": {
     "@sv-os/tsconfig": "workspace:*",
     "typescript": "^5.8.3"

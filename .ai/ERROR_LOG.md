@@ -1,10 +1,10 @@
 # Error Log
 
-| Timestamp | Command | Error | Files | Root Cause | Fix | Status |
-|-----------|---------|-------|-------|------------|-----|--------|
-| 2026-06-29 | pnpm typecheck | Turborepo v2 pipeline syntax | turbo.json | `pipeline` renamed to `tasks` in v2 | Changed `pipeline` to `tasks` | Resolved |
-| 2026-06-29 | pip install -e ".[dev]" | setuptools.build_meta 'flat-layout' failure | apps/api/pyproject.toml | `setuptools.backends._legacy` not supported; flat layout can't find packages | Changed build backend and added `[tool.setuptools.packages.find]` | Resolved |
-| 2026-06-29 | pnpm typecheck | Cannot find module 'clsx' and 'tailwind-merge' | packages/ui/src/cn.ts | Missing dependencies in @sv-os/ui package | Added clsx and tailwind-merge to ui package.json | Resolved |
-| 2026-06-29 | pnpm typecheck | Cannot find name 'KnowledgeNode' | packages/types/src/career.ts, project.ts | Missing import for KnowledgeNode type | Added import from ./graph | Resolved |
-| 2026-06-29 | pnpm typecheck | ApiError 'override' modifier | apps/web/src/lib/api.ts | `message` in constructor overrides Error.message | Made message a plain parameter (removed readonly) | Resolved |
-| 2026-06-29 | pnpm typecheck | Headers type incompatibility | apps/web/src/lib/api.ts | Spread of customHeaders with Record<string, string> | Changed to Object.assign | Resolved |
+| Timestamp  | Command                 | Error                                          | Files                                    | Root Cause                                                                   | Fix                                                               | Status   |
+| ---------- | ----------------------- | ---------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------- |
+| 2026-06-29 | pnpm typecheck          | Turborepo v2 pipeline syntax                   | turbo.json                               | `pipeline` renamed to `tasks` in v2                                          | Changed `pipeline` to `tasks`                                     | Resolved |
+| 2026-06-29 | pip install -e ".[dev]" | setuptools.build_meta 'flat-layout' failure    | apps/api/pyproject.toml                  | `setuptools.backends._legacy` not supported; flat layout can't find packages | Changed build backend and added `[tool.setuptools.packages.find]` | Resolved |
+| 2026-06-29 | pnpm typecheck          | Cannot find module 'clsx' and 'tailwind-merge' | packages/ui/src/cn.ts                    | Missing dependencies in @sv-os/ui package                                    | Added clsx and tailwind-merge to ui package.json                  | Resolved |
+| 2026-06-29 | pnpm typecheck          | Cannot find name 'KnowledgeNode'               | packages/types/src/career.ts, project.ts | Missing import for KnowledgeNode type                                        | Added import from ./graph                                         | Resolved |
+| 2026-06-29 | pnpm typecheck          | ApiError 'override' modifier                   | apps/web/src/lib/api.ts                  | `message` in constructor overrides Error.message                             | Made message a plain parameter (removed readonly)                 | Resolved |
+| 2026-06-29 | pnpm typecheck          | Headers type incompatibility                   | apps/web/src/lib/api.ts                  | Spread of customHeaders with Record<string, string>                          | Changed to Object.assign                                          | Resolved |

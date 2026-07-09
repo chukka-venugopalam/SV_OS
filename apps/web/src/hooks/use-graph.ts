@@ -8,6 +8,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+
 import { graphService, type GraphExploreParams, type GraphPathParams } from '@/services/graph';
 
 // ── Query Key Factory ─────────────────────────────────────────────

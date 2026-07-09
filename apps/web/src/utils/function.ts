@@ -32,9 +32,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
 }
 
 /** Create a memoized function with a single argument */
-export function memoize<TArg, TResult>(
-  fn: (arg: TArg) => TResult,
-): (arg: TArg) => TResult {
+export function memoize<TArg, TResult>(fn: (arg: TArg) => TResult): (arg: TArg) => TResult {
   const cache = new Map<TArg, TResult>();
   return (arg: TArg) => {
     if (cache.has(arg)) {

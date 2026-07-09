@@ -29,13 +29,10 @@ export interface ActivityFeedResponse {
 
 export const activityService = {
   /** Get the current user's recent activity feed */
-  getFeed(params?: {
-    page?: number;
-    page_size?: number;
-  }): Promise<ActivityFeedResponse> {
+  getFeed(params?: { page?: number; page_size?: number }): Promise<ActivityFeedResponse> {
     return apiClient
       .get<ActivityFeedResponse>('/activity/feed', {
-        params: params as Record<string, string | number | boolean | undefined>,
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
       })
       .then((res) => res.data!);
   },

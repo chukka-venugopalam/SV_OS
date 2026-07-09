@@ -32,23 +32,28 @@ sv-os/
 ## Key Patterns
 
 ### Clean Architecture (Backend)
+
 ```
 Routes (api/v1/) → Services → Repositories → Database
   ↑ HTTP layer    ↑ Business logic  ↑ Data access  ↑ PostgreSQL
 ```
 
 ### State Management (Frontend)
+
 - **Server State**: TanStack React Query
 - **Client State**: Zustand
 - **Form State**: React Hook Form + Zod
 
 ### Graph Model
+
 - **Pattern**: Adjacency list (relational, not Neo4j)
 - **Traversal**: Recursive CTEs with depth limit of 10
 - **Edge directions**: forward, bidirectional, unidirectional
 
 ### Response Format
+
 Every API endpoint returns:
+
 ```json
 {
   "success": true,
@@ -62,9 +67,9 @@ Every API endpoint returns:
 
 ## Deployment
 
-| Component | Platform |
-|-----------|----------|
-| Frontend | Vercel |
-| Backend | Render / Docker |
-| Database | Supabase / Docker |
-| Auth | Supabase Auth |
+| Component | Platform          |
+| --------- | ----------------- |
+| Frontend  | Vercel            |
+| Backend   | Render / Docker   |
+| Database  | Supabase / Docker |
+| Auth      | Supabase Auth     |

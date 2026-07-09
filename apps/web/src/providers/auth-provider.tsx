@@ -8,20 +8,10 @@
 
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  useCurrentUser,
-  useLogin,
-  useSignup,
-  authKeys,
-} from '@/hooks/use-auth';
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+
+import { useCurrentUser, useLogin, useSignup, authKeys } from '@/hooks/use-auth';
 import { authClient, type UserProfile } from '@/lib/auth-client';
 
 // ── Context ───────────────────────────────────────────────────────
@@ -62,12 +52,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
 
   // Current user query
-  const {
-    data: user,
-    isLoading,
-    isError,
-    error,
-  } = useCurrentUser();
+  const { data: user, isLoading, isError, error } = useCurrentUser();
 
   // Login mutation
   const loginMutation = useLogin();

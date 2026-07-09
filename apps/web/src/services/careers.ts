@@ -4,13 +4,9 @@
  * Provides functions for interacting with career endpoints.
  */
 
+import type { Career, CareerWithRequirements, KnowledgeNode , PaginatedResponse } from '@sv-os/types';
+
 import { apiClient } from '@/lib/api-client';
-import type {
-  Career,
-  CareerWithRequirements,
-  KnowledgeNode,
-} from '@sv-os/types';
-import type { PaginatedResponse } from '@sv-os/types';
 
 // ── Service ───────────────────────────────────────────────────────
 
@@ -23,7 +19,9 @@ export const careerService = {
     demand?: string;
   }): Promise<PaginatedResponse<Career>> {
     return apiClient
-      .get<PaginatedResponse<Career>>('/careers', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<PaginatedResponse<Career>>('/careers', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 
@@ -39,7 +37,9 @@ export const careerService = {
     bonus: KnowledgeNode[];
   }> {
     return apiClient
-      .get<{ required: KnowledgeNode[]; recommended: KnowledgeNode[]; bonus: KnowledgeNode[] }>(`/careers/${slug}/roadmap`)
+      .get<{ required: KnowledgeNode[]; recommended: KnowledgeNode[]; bonus: KnowledgeNode[] }>(
+        `/careers/${slug}/roadmap`,
+      )
       .then((res) => res.data!);
   },
 

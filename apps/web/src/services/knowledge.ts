@@ -4,9 +4,9 @@
  * Provides functions for interacting with knowledge node endpoints.
  */
 
+import type { KnowledgeNode, LearningResource , PaginatedResponse } from '@sv-os/types';
+
 import { apiClient } from '@/lib/api-client';
-import type { KnowledgeNode, LearningResource } from '@sv-os/types';
-import type { PaginatedResponse } from '@sv-os/types';
 
 // ── Service ───────────────────────────────────────────────────────
 
@@ -20,7 +20,9 @@ export const knowledgeService = {
     search?: string;
   }): Promise<PaginatedResponse<KnowledgeNode>> {
     return apiClient
-      .get<PaginatedResponse<KnowledgeNode>>('/nodes', { params: params as Record<string, string | number | boolean | undefined> })
+      .get<PaginatedResponse<KnowledgeNode>>('/nodes', {
+        params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
       .then((res) => res.data!);
   },
 

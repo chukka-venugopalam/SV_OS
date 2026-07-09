@@ -3,10 +3,7 @@
  */
 
 /** Group an array of objects by a key */
-export function groupBy<T>(
-  array: T[],
-  keyFn: (item: T) => string,
-): Record<string, T[]> {
+export function groupBy<T>(array: T[], keyFn: (item: T) => string): Record<string, T[]> {
   return array.reduce(
     (acc, item) => {
       const key = keyFn(item);
@@ -54,9 +51,7 @@ export function sortBy<T>(
 
 /** Toggle an item in an array (add if not present, remove if present) */
 export function toggleItem<T>(array: T[], item: T): T[] {
-  return array.includes(item)
-    ? array.filter((i) => i !== item)
-    : [...array, item];
+  return array.includes(item) ? array.filter((i) => i !== item) : [...array, item];
 }
 
 /** Move an element in an array from one index to another */

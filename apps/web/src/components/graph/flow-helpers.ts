@@ -1,7 +1,12 @@
 import type { Node, Edge } from 'reactflow';
 
 /** Calculate a bounding box for a set of nodes */
-export function getNodesBounds(nodes: Node[]): { x: number; y: number; width: number; height: number } {
+export function getNodesBounds(nodes: Node[]): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
   if (nodes.length === 0) {
     return { x: 0, y: 0, width: 0, height: 0 };
   }

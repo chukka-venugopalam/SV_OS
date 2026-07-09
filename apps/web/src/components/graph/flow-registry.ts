@@ -1,4 +1,5 @@
 import type { NodeTypes, EdgeTypes } from 'reactflow';
+
 import { CUSTOM_NODE_TYPES, CUSTOM_EDGE_TYPES } from './flow-config';
 
 /**

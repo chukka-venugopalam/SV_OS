@@ -1,7 +1,20 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Button,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Skeleton,
+  EmptyState,
+  ErrorState,
+} from '@sv-os/ui';
 import {
   ArrowLeft,
   BookOpen,
@@ -18,28 +31,28 @@ import {
   Globe,
   Github,
 } from 'lucide-react';
-import { useKnowledgeNode, useNodePrerequisites, useRelatedNodes, useNodeResources, useNodeCareers } from '@/hooks/use-knowledge';
-import { useIsBookmarked, useToggleBookmark, useIsFavorited, useAddFavorite } from '@/hooks/use-bookmarks';
-import { useAuth } from '@/providers/auth-provider';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
+import { NODE_TYPE_COLORS } from '@/components/graph';
 import { Shell } from '@/components/shared/shell';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  Button,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  Skeleton,
-  EmptyState,
-  LoadingState,
-  ErrorState,
-} from '@sv-os/ui';
+  useIsBookmarked,
+  useToggleBookmark,
+  useIsFavorited,
+  useAddFavorite,
+} from '@/hooks/use-bookmarks';
+import {
+  useKnowledgeNode,
+  useNodePrerequisites,
+  useRelatedNodes,
+  useNodeResources,
+  useNodeCareers,
+} from '@/hooks/use-knowledge';
 import { cn, slugToTitle } from '@/lib';
-import { NODE_TYPE_COLORS } from '@/components/graph';
+import { useAuth } from '@/providers/auth-provider';
+
+
 
 const resourceIcons: Record<string, React.ReactNode> = {
   video: <Youtube className="h-4 w-4" />,
@@ -124,7 +137,7 @@ export default function KnowledgeNodeDetailPage() {
             {node.title.charAt(0)}
           </div>
           <div>
-            <Badge variant="secondary" size="sm" className="capitalize mb-1">
+            <Badge variant="secondary" size="sm" className="mb-1 capitalize">
               {node.node_type}
             </Badge>
             <Badge variant={difficultyColors[node.difficulty] ?? 'secondary'} size="sm">
@@ -136,7 +149,7 @@ export default function KnowledgeNodeDetailPage() {
         <h1 className="mb-3 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
           {node.title}
         </h1>
-        <p className="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
+        <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
           {node.description}
         </p>
 
@@ -176,21 +189,27 @@ export default function KnowledgeNodeDetailPage() {
             <Layers className="h-4 w-4" />
             Prerequisites
             {prerequisites && prerequisites.length > 0 && (
-              <Badge variant="secondary" size="sm">{prerequisites.length}</Badge>
+              <Badge variant="secondary" size="sm">
+                {prerequisites.length}
+              </Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="related" className="gap-2">
             <Link2 className="h-4 w-4" />
             Related
             {related && related.length > 0 && (
-              <Badge variant="secondary" size="sm">{related.length}</Badge>
+              <Badge variant="secondary" size="sm">
+                {related.length}
+              </Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="resources" className="gap-2">
             <GraduationCap className="h-4 w-4" />
             Resources
             {resources && resources.length > 0 && (
-              <Badge variant="secondary" size="sm">{resources.length}</Badge>
+              <Badge variant="secondary" size="sm">
+                {resources.length}
+              </Badge>
             )}
           </TabsTrigger>
           {careers?.careers && careers.careers.length > 0 && (
@@ -203,13 +222,15 @@ export default function KnowledgeNodeDetailPage() {
 
         <TabsContent value="details" className="mt-6">
           <Card>
-            <CardContent className="prose prose-neutral max-w-none p-6 dark:prose-invert">
+            <CardContent className="prose prose-neutral dark:prose-invert max-w-none p-6">
               {node.content ? (
-                <div className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed whitespace-pre-line">
+                <div className="whitespace-pre-line text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                   {node.content}
                 </div>
               ) : (
-                <p className="text-sm text-neutral-400 dark:text-neutral-500">No additional details available for this node.</p>
+                <p className="text-sm text-neutral-400 dark:text-neutral-500">
+                  No additional details available for this node.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -223,10 +244,12 @@ export default function KnowledgeNodeDetailPage() {
                 <dl className="grid grid-cols-2 gap-2 text-sm">
                   {Object.entries(node.metadata as Record<string, unknown>).map(([key, value]) => (
                     <div key={key}>
-                      <dt className="text-xs font-medium text-neutral-500 dark:text-neutral-400 capitalize">
+                      <dt className="text-xs font-medium capitalize text-neutral-500 dark:text-neutral-400">
                         {key.replace(/_/g, ' ')}
                       </dt>
-                      <dd className="text-neutral-900 dark:text-neutral-100">{String(value ?? '')}</dd>
+                      <dd className="text-neutral-900 dark:text-neutral-100">
+                        {String(value ?? '')}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -244,15 +267,18 @@ export default function KnowledgeNodeDetailPage() {
                     <CardContent className="flex items-center gap-3 p-4">
                       <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-                        style={{ backgroundColor: NODE_TYPE_COLORS[prereq.node_type] ?? 'var(--color-neutral-400)' }}
+                        style={{
+                          backgroundColor:
+                            NODE_TYPE_COLORS[prereq.node_type] ?? 'var(--color-neutral-400)',
+                        }}
                       >
                         {prereq.title.charAt(0)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate transition-colors">
+                        <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 transition-colors dark:text-neutral-100">
                           {prereq.title}
                         </p>
-                        <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">
+                        <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">
                           {slugToTitle(prereq.node_type)} · {slugToTitle(prereq.difficulty)}
                         </p>
                       </div>
@@ -280,15 +306,18 @@ export default function KnowledgeNodeDetailPage() {
                     <CardContent className="flex items-center gap-3 p-4">
                       <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-                        style={{ backgroundColor: NODE_TYPE_COLORS[rel.node_type] ?? 'var(--color-neutral-400)' }}
+                        style={{
+                          backgroundColor:
+                            NODE_TYPE_COLORS[rel.node_type] ?? 'var(--color-neutral-400)',
+                        }}
                       >
                         {rel.title.charAt(0)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate transition-colors">
+                        <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 transition-colors dark:text-neutral-100">
                           {rel.title}
                         </p>
-                        <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">
+                        <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">
                           {slugToTitle(rel.node_type)} · {slugToTitle(rel.difficulty)}
                         </p>
                       </div>
@@ -320,12 +349,12 @@ export default function KnowledgeNodeDetailPage() {
                 >
                   <Card className="group cursor-pointer transition-all hover:shadow-md">
                     <CardContent className="flex items-start gap-4 p-4">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400">
+                      <div className="bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
                         {resourceIcons[resource.resource_type] ?? <Globe className="h-4 w-4" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors truncate">
+                          <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 transition-colors dark:text-neutral-100">
                             {resource.title}
                           </p>
                           <Badge variant="secondary" size="sm" className="shrink-0 capitalize">
@@ -333,7 +362,7 @@ export default function KnowledgeNodeDetailPage() {
                           </Badge>
                         </div>
                         {resource.description && (
-                          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2">
+                          <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
                             {resource.description}
                           </p>
                         )}
@@ -345,7 +374,9 @@ export default function KnowledgeNodeDetailPage() {
                             </span>
                           )}
                           {resource.is_free && (
-                            <Badge variant="success" size="sm">Free</Badge>
+                            <Badge variant="success" size="sm">
+                              Free
+                            </Badge>
                           )}
                           <span className="flex items-center gap-1">
                             <ExternalLink className="h-3 w-3" />
@@ -374,11 +405,11 @@ export default function KnowledgeNodeDetailPage() {
                 <Link key={career.id} href={`/careers/${career.id}`}>
                   <Card className="group cursor-pointer transition-all hover:shadow-md">
                     <CardContent className="flex items-center gap-3 p-4">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400">
+                      <div className="bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400 flex h-9 w-9 items-center justify-center rounded-lg">
                         <ArrowRight className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate transition-colors">
+                        <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 transition-colors dark:text-neutral-100">
                           {career.title}
                         </p>
                         <p className="text-xs text-neutral-400 dark:text-neutral-500">

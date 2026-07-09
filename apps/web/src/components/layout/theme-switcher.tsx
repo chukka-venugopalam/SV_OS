@@ -1,9 +1,10 @@
 'use client';
 
-import { Sun, Moon } from 'lucide-react';
 import { Button } from '@sv-os/ui';
-import { useTheme } from '@/hooks/use-theme';
+import { Sun, Moon } from 'lucide-react';
+
 import { useMounted } from '@/hooks/use-mounted';
+import { useTheme } from '@/hooks/use-theme';
 
 export function ThemeSwitcher() {
   const { isDark, toggleTheme } = useTheme();

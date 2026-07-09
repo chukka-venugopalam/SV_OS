@@ -1,5 +1,6 @@
-import * as React from 'react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
+import * as React from 'react';
+
 import { cn } from './cn';
 
 export const Accordion = AccordionPrimitive.Root;
@@ -24,7 +25,7 @@ export const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        'flex flex-1 items-center justify-between py-4 text-sm font-medium text-neutral-900 transition-all hover:text-primary-600 dark:text-neutral-100 dark:hover:text-primary-400 [&[data-state=open]>svg]:rotate-180',
+        'hover:text-primary-600 dark:hover:text-primary-400 flex flex-1 items-center justify-between py-4 text-sm font-medium text-neutral-900 transition-all dark:text-neutral-100 [&[data-state=open]>svg]:rotate-180',
         className,
       )}
       {...props}
@@ -56,7 +57,7 @@ export const AccordionContent = React.forwardRef<
   <AccordionPrimitive.Content
     ref={ref}
     className={cn(
-      'overflow-hidden text-sm text-neutral-500 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down dark:text-neutral-400',
+      'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm text-neutral-500 dark:text-neutral-400',
       className,
     )}
     {...props}

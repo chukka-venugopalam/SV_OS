@@ -51,12 +51,12 @@ pnpm test
 
 Copy `.env.local.example` to `.env.local`:
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_URL` | Yes | `http://localhost:8000` | Backend API URL |
-| `NEXT_PUBLIC_SUPABASE_URL` | No | — | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No | — | Supabase anon key |
-| `NEXT_PUBLIC_APP_URL` | No | `http://localhost:3000` | App URL for redirects |
+| Variable                        | Required | Default                 | Description           |
+| ------------------------------- | -------- | ----------------------- | --------------------- |
+| `NEXT_PUBLIC_API_URL`           | Yes      | `http://localhost:8000` | Backend API URL       |
+| `NEXT_PUBLIC_SUPABASE_URL`      | No       | —                       | Supabase project URL  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No       | —                       | Supabase anon key     |
+| `NEXT_PUBLIC_APP_URL`           | No       | `http://localhost:3000` | App URL for redirects |
 
 ## Project Structure
 

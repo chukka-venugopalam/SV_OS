@@ -1,16 +1,12 @@
 'use client';
 
-import Link from 'next/link';
-import {
-  User,
-  Palette,
-  Shield,
-  Bell,
-  ChevronRight,
-} from 'lucide-react';
-import { Shell } from '@/components/shared/shell';
-import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent } from '@sv-os/ui';
+import { User, Palette, Shield, Bell, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+
+import { PageHeader } from '@/components/shared/page-header';
+import { Shell } from '@/components/shared/shell';
+
 
 const settingsSections = [
   {
@@ -48,9 +44,11 @@ export default function SettingsPage() {
       <div className="space-y-3">
         {settingsSections.map((section) => (
           <Link key={section.href} href={section.href}>
-            <Card className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <Card className="group cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${section.color}`}>
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl ${section.color}`}
+                >
                   {section.icon}
                 </div>
                 <div className="min-w-0 flex-1">

@@ -95,15 +95,15 @@ apps/api/
 
 ## Infrastructure Endpoints
 
-| Endpoint | Method | Purpose | Implemented |
-|----------|--------|---------|-------------|
-| `/api/v1/` | GET | API metadata (name, version, docs link) | ✅ |
-| `/api/v1/health` | GET | Unified health check with dependency status | ✅ |
-| `/api/v1/health/live` | GET | Liveness probe (minimal) | ✅ |
-| `/api/v1/health/ready` | GET | Readiness probe (checks database) | ✅ |
-| `/api/v1/health/checks` | GET | Detailed health check results | ✅ |
-| `/health` | GET | Legacy backward-compatible health | ✅ |
-| `/` | GET | Legacy backward-compatible root | ✅ |
+| Endpoint                | Method | Purpose                                     | Implemented |
+| ----------------------- | ------ | ------------------------------------------- | ----------- |
+| `/api/v1/`              | GET    | API metadata (name, version, docs link)     | ✅          |
+| `/api/v1/health`        | GET    | Unified health check with dependency status | ✅          |
+| `/api/v1/health/live`   | GET    | Liveness probe (minimal)                    | ✅          |
+| `/api/v1/health/ready`  | GET    | Readiness probe (checks database)           | ✅          |
+| `/api/v1/health/checks` | GET    | Detailed health check results               | ✅          |
+| `/health`               | GET    | Legacy backward-compatible health           | ✅          |
+| `/`                     | GET    | Legacy backward-compatible root             | ✅          |
 
 ---
 
@@ -224,6 +224,7 @@ logger.info(
 ## Rate Limiting (Stub)
 
 The `RateLimitMiddleware` is registered but passes all requests through without limiting. The settings define:
+
 - `API_RATE_LIMIT`: 100 req/min (authenticated)
 - `API_RATE_LIMIT_ANON`: 20 req/min (anonymous)
 - `GRAPH_RATE_LIMIT`: 30 req/min (graph endpoints)
@@ -241,4 +242,3 @@ See `database/schema.sql` for the full SQL definitions. The graph uses relationa
 - Cache TTL: 300 seconds (configurable)
 - Cache max size: 1000 entries (configurable)
 - Actual cache implementation pending (Phase 3+)
-

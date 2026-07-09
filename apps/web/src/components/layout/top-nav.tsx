@@ -1,11 +1,13 @@
 'use client';
 
-import Link from 'next/link';
-import { Menu, Search } from 'lucide-react';
 import { Button } from '@sv-os/ui';
+import { Menu, Search } from 'lucide-react';
+import Link from 'next/link';
+
 import { ThemeSwitcher } from './theme-switcher';
-import { useUIStore } from '@/stores/ui-store';
+
 import { useCommand } from '@/providers/command-provider';
+import { useUIStore } from '@/stores/ui-store';
 
 export function TopNav() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
@@ -35,7 +37,7 @@ export function TopNav() {
       {/* Search trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="hidden sm:flex flex-1 max-w-md items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:border-neutral-300 hover:text-neutral-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-500 dark:hover:border-neutral-600"
+        className="hidden max-w-md flex-1 items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:border-neutral-300 hover:text-neutral-500 sm:flex dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-500 dark:hover:border-neutral-600"
         aria-label="Open command palette"
       >
         <Search className="h-4 w-4" />

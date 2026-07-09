@@ -59,105 +59,125 @@ The knowledge graph is stored in **relational tables** (not Neo4j) using an **ad
 
 SV-OS uses **Alembic** for schema management. All changes go through version-controlled migration files.
 
-| Revision | Description |
-|----------|-------------|
-| `0001` | Enable PostgreSQL extensions (uuid-ossp, pgcrypto, pg_trgm, unaccent, btree_gin, btree_gist) |
-| `0002` | Initial schema: 20 tables, 13 enums, indexes, constraints, triggers, views |
+| Revision | Description                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------- |
+| `0001`   | Enable PostgreSQL extensions (uuid-ossp, pgcrypto, pg_trgm, unaccent, btree_gin, btree_gist) |
+| `0002`   | Initial schema: 20 tables, 13 enums, indexes, constraints, triggers, views                   |
 
 See `database/migrations/README.md` for complete migration documentation.
 
 ## Extensions
 
-| Extension | Purpose |
-|-----------|---------|
-| `uuid-ossp` | UUID generation for primary keys |
-| `pgcrypto` | Cryptographic functions for future encryption needs |
-| `pg_trgm` | Trigram text similarity for fuzzy search |
-| `unaccent` | Accent removal for full-text search normalization |
-| `btree_gin` | GIN indexes on scalar columns for composite indexes |
+| Extension    | Purpose                                                         |
+| ------------ | --------------------------------------------------------------- |
+| `uuid-ossp`  | UUID generation for primary keys                                |
+| `pgcrypto`   | Cryptographic functions for future encryption needs             |
+| `pg_trgm`    | Trigram text similarity for fuzzy search                        |
+| `unaccent`   | Accent removal for full-text search normalization               |
+| `btree_gin`  | GIN indexes on scalar columns for composite indexes             |
 | `btree_gist` | GiST indexes on scalar columns for future exclusion constraints |
 
 ## Tables
 
 ### 1. `users` (16 columns)
+
 Registered platform users (learner/admin).
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, DEFAULT gen_random_uuid() | Unique identifier |
-| email | VARCHAR(255) | UNIQUE, NOT NULL | User email |
-| username | VARCHAR(100) | UNIQUE, NOT NULL | Display name |
-| display_name | VARCHAR(200) | nullable | Display name shown in UI |
-| avatar_url | TEXT | nullable | Profile picture URL |
-| bio | TEXT | nullable | Short biography |
-| role | user_role_enum | DEFAULT 'learner' | 'learner', 'admin' |
-| preferences | JSONB | DEFAULT '{}' | User preferences |
-| is_active | BOOLEAN | DEFAULT true | Account status |
-| last_login_at | TIMESTAMPTZ | nullable | Last login timestamp |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() | Creation timestamp |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
-| is_deleted | BOOLEAN | DEFAULT false | Soft-delete flag |
-| version | INTEGER | DEFAULT 1 | Optimistic-locking counter |
+| Column        | Type           | Constraints                   | Description                |
+| ------------- | -------------- | ----------------------------- | -------------------------- |
+| id            | UUID           | PK, DEFAULT gen_random_uuid() | Unique identifier          |
+| email         | VARCHAR(255)   | UNIQUE, NOT NULL              | User email                 |
+| username      | VARCHAR(100)   | UNIQUE, NOT NULL              | Display name               |
+| display_name  | VARCHAR(200)   | nullable                      | Display name shown in UI   |
+| avatar_url    | TEXT           | nullable                      | Profile picture URL        |
+| bio           | TEXT           | nullable                      | Short biography            |
+| role          | user_role_enum | DEFAULT 'learner'             | 'learner', 'admin'         |
+| preferences   | JSONB          | DEFAULT '{}'                  | User preferences           |
+| is_active     | BOOLEAN        | DEFAULT true                  | Account status             |
+| last_login_at | TIMESTAMPTZ    | nullable                      | Last login timestamp       |
+| created_at    | TIMESTAMPTZ    | DEFAULT NOW()                 | Creation timestamp         |
+| updated_at    | TIMESTAMPTZ    | DEFAULT NOW()                 | Last update timestamp      |
+| is_deleted    | BOOLEAN        | DEFAULT false                 | Soft-delete flag           |
+| version       | INTEGER        | DEFAULT 1                     | Optimistic-locking counter |
 
 ### 2. `knowledge_nodes` (18 columns)
+
 Central knowledge graph entity. All node types (subjects, concepts, technologies, tools) are stored in this single table and discriminated by `node_type`.
 
 Key columns: `slug` (UNIQUE), `title`, `description`, `content`, `node_type`, `difficulty`, `search_vector` (TSVECTOR with GIN index), `is_published`.
 
 ### 3. `knowledge_edges` (12 columns)
+
 Directed, typed relationships between knowledge nodes. Supports graph traversal via recursive CTEs.
 
 Unique constraint: `(source_node_id, target_node_id, relationship_type)`. Check constraint: `source_node_id != target_node_id`.
 
 ### 4. `careers` (15 columns)
+
 Professional career paths with market demand tracking.
 
 ### 5. `career_requirements` (9 columns)
+
 Many-to-many join: Career → KnowledgeNode with requirement type (required/recommended/bonus).
 
 ### 6. `projects` (15 columns)
+
 Hands-on build exercises with tech_stack array.
 
 ### 7. `project_requirements` (9 columns)
+
 Many-to-many join: Project → KnowledgeNode with requirement type.
 
 ### 8. `learning_resources` (14 columns)
+
 External learning materials (videos, articles, courses, books) linked to knowledge nodes.
 
 ### 9. `learning_paths` (14 columns)
+
 Curated, ordered sequences of knowledge nodes. Node membership stored as JSONB `node_order` array.
 
 ### 10. `learning_sessions` (12 columns)
+
 Single study session tracking for a user on a knowledge node.
 
 ### 11. `skills` (10 columns)
+
 Discrete measurable abilities across categories (Programming Language, Web, DevOps, Database, Cloud, AI/ML, Security, Soft Skill).
 
 ### 12. `skill_relationships` (9 columns)
+
 Directed relationships between skills (prerequisite, builds_upon, complement, specialization, alternative).
 
 ### 13. `user_progress` (13 columns)
+
 User learning status lifecycle on a knowledge node (not_started → learning → completed → mastered).
 
 ### 14. `bookmarks` (8 columns)
+
 User-saved knowledge nodes for quick access. Each (user, node) pair is unique.
 
 ### 15. `favorites` (7 columns)
+
 User-liked knowledge nodes used as recommendation signals.
 
 ### 16. `search_history` (9 columns)
+
 User search query records for analytics and personalisation.
 
 ### 17. `activity_logs` (11 columns)
+
 Immutable audit trail for system events. User ID uses ON DELETE SET NULL to preserve logs.
 
 ### 18. `recommendations` (12 columns)
+
 Personalised content suggestions generated by the recommendation engine (future phase).
 
 ### 19. `tags` (7 columns)
+
 Free-form categorisation labels. Name is unique.
 
 ### 20. `node_tags` (7 columns)
+
 Many-to-many join: Tag → KnowledgeNode with unique constraint on (node_id, tag_id).
 
 ---
@@ -165,6 +185,7 @@ Many-to-many join: Tag → KnowledgeNode with unique constraint on (node_id, tag
 ## Enumerations (13)
 
 ### node_type_enum
+
 ```sql
 CREATE TYPE node_type_enum AS ENUM (
     'subject', 'concept', 'technology', 'tool', 'career', 'project'
@@ -172,6 +193,7 @@ CREATE TYPE node_type_enum AS ENUM (
 ```
 
 ### edge_type_enum
+
 ```sql
 CREATE TYPE edge_type_enum AS ENUM (
     'prerequisite', 'depends_on', 'uses', 'enables', 'part_of',
@@ -180,6 +202,7 @@ CREATE TYPE edge_type_enum AS ENUM (
 ```
 
 ### edge_direction_enum
+
 ```sql
 CREATE TYPE edge_direction_enum AS ENUM (
     'forward', 'bidirectional', 'unidirectional'
@@ -187,6 +210,7 @@ CREATE TYPE edge_direction_enum AS ENUM (
 ```
 
 ### difficulty_enum
+
 ```sql
 CREATE TYPE difficulty_enum AS ENUM (
     'beginner', 'intermediate', 'advanced', 'expert'
@@ -194,6 +218,7 @@ CREATE TYPE difficulty_enum AS ENUM (
 ```
 
 ### Other enums
+
 - `progress_enum`: not_started, learning, completed, mastered
 - `demand_enum`: declining, stable, growing, high_demand
 - `user_role_enum`: learner, admin
@@ -213,17 +238,20 @@ Total indexes: 30 across all 20 tables. Every index is justified for specific qu
 ### Key Index Groups
 
 **Graph Traversal**
+
 - `knowledge_edges(source_node_id)` — outgoing edges
-- `knowledge_edges(target_node_id)` — incoming edges  
+- `knowledge_edges(target_node_id)` — incoming edges
 - `knowledge_edges(source_node_id, target_node_id)` — composite graph traversal
 - `knowledge_edges(relationship_type)` — filter by edge type
 - `skill_relationships(source_skill_id)` — outgoing skill relationships
 - `skill_relationships(target_skill_id)` — incoming skill relationships
 
 **Full-Text Search**
+
 - `knowledge_nodes.search_vector` (GIN) — full-text search
 
 **Filtered Queries**
+
 - `knowledge_nodes(is_published)` — published nodes only
 - `knowledge_nodes(node_type)` — filter by type
 - `knowledge_nodes(difficulty)` — filter by difficulty
@@ -232,6 +260,7 @@ Total indexes: 30 across all 20 tables. Every index is justified for specific qu
 - `careers(demand_level)` — filter by demand
 
 **User Data Lookup**
+
 - `user_progress(user_id)` — user dashboard
 - `user_progress(status)` — filter by progress status
 - `bookmarks(user_id)` — user bookmarks
@@ -241,12 +270,14 @@ Total indexes: 30 across all 20 tables. Every index is justified for specific qu
 - `learning_sessions(user_id)` — sessions per user
 
 **Audit Trail**
+
 - `activity_logs(user_id)` — actions by user
 - `activity_logs(action)` — filter by action type
 - `activity_logs(entity_type, entity_id)` — entity lookup
 - `activity_logs(created_at DESC)` — time-ordered queries
 
 ### Indexes Avoided
+
 - JSONB GIN indexes on metadata columns — premature without query profiling
 - Composite (node_type, is_published) — bitmap scan combining single-column indexes is sufficient
 - Unique constraint columns (email, username, slug) — PostgreSQL auto-creates index from unique constraint
@@ -284,6 +315,7 @@ CREATE INDEX ix_knowledge_nodes_search_vector
 Weighting: Title (A) > Description (B) > Content (C). Language: English.
 
 Query pattern:
+
 ```sql
 SELECT title, slug, node_type,
     ts_rank(search_vector, query) AS rank
@@ -299,9 +331,11 @@ LIMIT 20;
 ## Views
 
 ### v_node_statistics
+
 Node with prerequisite count, unlock count, and resource count.
 
 ### v_user_progress_summary
+
 User progress aggregated counts (total, not_started, learning, completed, mastered) and total time spent.
 
 ---
@@ -373,16 +407,16 @@ ORDER BY order_index, title;
 
 See `database/seeds/` for 9 seed files covering foundational reference data:
 
-| File | Records | Description |
-|------|---------|-------------|
-| `01_subjects.sql` | 12 | Top-level academic subjects |
-| `02_concepts.sql` | 30 | Core CS concepts |
-| `03_technologies.sql` | 17 | Technologies and frameworks |
-| `04_careers.sql` | 9 | Professional career paths |
-| `05_projects.sql` | 10 | Hands-on build exercises |
-| `06_edges.sql` | ~70 | Knowledge graph relationships |
-| `07_learning_resources.sql` | 28 | External learning materials |
-| `08_skills.sql` | 44 | Skills across 7 categories |
-| `09_tags.sql` | 30 | Free-form categorisation labels |
+| File                        | Records | Description                     |
+| --------------------------- | ------- | ------------------------------- |
+| `01_subjects.sql`           | 12      | Top-level academic subjects     |
+| `02_concepts.sql`           | 30      | Core CS concepts                |
+| `03_technologies.sql`       | 17      | Technologies and frameworks     |
+| `04_careers.sql`            | 9       | Professional career paths       |
+| `05_projects.sql`           | 10      | Hands-on build exercises        |
+| `06_edges.sql`              | ~70     | Knowledge graph relationships   |
+| `07_learning_resources.sql` | 28      | External learning materials     |
+| `08_skills.sql`             | 44      | Skills across 7 categories      |
+| `09_tags.sql`               | 30      | Free-form categorisation labels |
 
 Load via: `./database/scripts/seed.sh`

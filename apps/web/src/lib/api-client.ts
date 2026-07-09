@@ -102,10 +102,7 @@ export function storeTokens(accessToken: string, refreshToken: string): void {
   }
 }
 
-async function request<T>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<ApiResponse<T>> {
+async function request<T>(path: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
   const { body, params, headers: customHeaders, skipAuth, ...rest } = options;
 
   const queryString = params

@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from './cn';
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
@@ -8,10 +9,7 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 export function Table({ className, wrapperClassName, ...props }: TableProps) {
   return (
     <div className={cn('w-full overflow-auto', wrapperClassName)}>
-      <table
-        className={cn('w-full caption-bottom text-sm', className)}
-        {...props}
-      />
+      <table className={cn('w-full caption-bottom text-sm', className)} {...props} />
     </div>
   );
 }
@@ -31,16 +29,10 @@ export function TableHeader({
   );
 }
 
-export function TableBody({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLTableSectionElement>) {
+export function TableBody({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <tbody
-      className={cn(
-        'divide-y divide-neutral-200 dark:divide-neutral-700',
-        className,
-      )}
+      className={cn('divide-y divide-neutral-200 dark:divide-neutral-700', className)}
       {...props}
     />
   );
@@ -61,10 +53,7 @@ export function TableFooter({
   );
 }
 
-export function TableRow({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLTableRowElement>) {
+export function TableRow({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
       className={cn(
@@ -76,10 +65,7 @@ export function TableRow({
   );
 }
 
-export function TableHead({
-  className,
-  ...props
-}: React.ThHTMLAttributes<HTMLTableCellElement>) {
+export function TableHead({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
       className={cn(
@@ -99,16 +85,7 @@ export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElem
 }
 
 export function TableCell({ className, isAction, ...props }: TableCellProps) {
-  return (
-    <td
-      className={cn(
-        'p-4 align-middle',
-        isAction && 'w-12',
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <td className={cn('p-4 align-middle', isAction && 'w-12', className)} {...props} />;
 }
 
 export function TableCaption({
@@ -117,10 +94,7 @@ export function TableCaption({
 }: React.HTMLAttributes<HTMLTableCaptionElement>) {
   return (
     <caption
-      className={cn(
-        'mt-4 text-sm text-neutral-500 dark:text-neutral-400',
-        className,
-      )}
+      className={cn('mt-4 text-sm text-neutral-500 dark:text-neutral-400', className)}
       {...props}
     />
   );

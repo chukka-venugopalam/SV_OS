@@ -8,6 +8,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+
 import { careerService } from '@/services/careers';
 
 // ── Query Key Factory ─────────────────────────────────────────────

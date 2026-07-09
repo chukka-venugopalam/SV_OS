@@ -1,6 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
+
 import { cn } from '@/lib/cn';
 
 interface SearchBarProps {
@@ -27,7 +28,7 @@ export function SearchBar({
         onChange={(e) => onChange?.(e.target.value)}
         onFocus={onFocus}
         placeholder={placeholder}
-        className="h-10 w-full rounded-lg border border-neutral-300 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+        className="focus-visible:ring-primary-500 h-10 w-full rounded-lg border border-neutral-300 bg-white pl-10 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:placeholder:text-neutral-500"
         aria-label="Search"
       />
     </div>

@@ -35,8 +35,7 @@ export const useUIStore = create<UIState>((set) => ({
   // Command palette
   commandPaletteOpen: false,
   setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
-  toggleCommandPalette: () =>
-    set((state) => ({ commandPaletteOpen: !state.commandPaletteOpen })),
+  toggleCommandPalette: () => set((state) => ({ commandPaletteOpen: !state.commandPaletteOpen })),
 
   // Navigation
   mobileNavOpen: false,

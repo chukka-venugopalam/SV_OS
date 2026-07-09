@@ -37,9 +37,13 @@ interface EnvConfig {
 // ── Env Proxy ─────────────────────────────────────────────────────
 
 function createEnv(): EnvConfig {
-  const env = typeof process !== 'undefined' ? process.env : ({} as Record<string, string | undefined>);
+  const env =
+    typeof process !== 'undefined' ? process.env : ({} as Record<string, string | undefined>);
 
-  const vars: Record<keyof EnvConfig, { value: string | undefined; required: boolean; fallback?: string }> = {
+  const vars: Record<
+    keyof EnvConfig,
+    { value: string | undefined; required: boolean; fallback?: string }
+  > = {
     NEXT_PUBLIC_API_URL: {
       value: env.NEXT_PUBLIC_API_URL,
       required: true,
@@ -82,7 +86,7 @@ function createEnv(): EnvConfig {
   // Build the config object
   const config = {} as EnvConfig;
   for (const [key, cfg] of Object.entries(vars)) {
-    (config as Record<string, string>)[key] = cfg.value ?? cfg.fallback ?? '';
+    (config as unknown as Record<string, string>)[key] = cfg.value ?? cfg.fallback ?? '';
   }
 
   return config;

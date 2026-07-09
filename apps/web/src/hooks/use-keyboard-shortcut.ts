@@ -16,11 +16,16 @@ function matchesModifiers(event: KeyboardEvent, modifiers?: Modifier[]): boolean
 
   return modifiers.every((mod) => {
     switch (mod) {
-      case 'ctrl': return event.ctrlKey;
-      case 'meta': return event.metaKey;
-      case 'shift': return event.shiftKey;
-      case 'alt': return event.altKey;
-      default: return false;
+      case 'ctrl':
+        return event.ctrlKey;
+      case 'meta':
+        return event.metaKey;
+      case 'shift':
+        return event.shiftKey;
+      case 'alt':
+        return event.altKey;
+      default:
+        return false;
     }
   });
 }
@@ -46,6 +51,5 @@ export function useKeyboardShortcut(shortcuts: Shortcut | Shortcut[]): void {
 
     window.addEventListener('keydown', listener);
     return () => window.removeEventListener('keydown', listener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shortcutsArray]);
 }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from './cn';
 
 interface BreadcrumbItem {
@@ -11,16 +12,14 @@ interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   separator?: React.ReactNode;
 }
 
-export function Breadcrumb({
-  items,
-  separator = '/',
-  className,
-  ...props
-}: BreadcrumbProps) {
+export function Breadcrumb({ items, separator = '/', className, ...props }: BreadcrumbProps) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn('flex items-center gap-1 text-sm text-neutral-500 dark:text-neutral-400', className)}
+      className={cn(
+        'flex items-center gap-1 text-sm text-neutral-500 dark:text-neutral-400',
+        className,
+      )}
       {...props}
     >
       {items.map((item, index) => {
@@ -41,9 +40,7 @@ export function Breadcrumb({
               </a>
             ) : (
               <span
-                className={cn(
-                  isLast && 'font-medium text-neutral-900 dark:text-neutral-100',
-                )}
+                className={cn(isLast && 'font-medium text-neutral-900 dark:text-neutral-100')}
                 aria-current={isLast ? 'page' : undefined}
               >
                 {item.label}

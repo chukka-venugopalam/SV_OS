@@ -92,9 +92,8 @@ export interface FilterConfig<T = string> {
 // ── Deep Partial ──────────────────────────────────────────────────
 
 /** Make all properties (including nested) optional */
-export type DeepPartial<T> = T extends Record<string, unknown>
-  ? { [P in keyof T]?: DeepPartial<T[P]> }
-  : T;
+export type DeepPartial<T> =
+  T extends Record<string, unknown> ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
 /** Make specific keys required */
 export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;

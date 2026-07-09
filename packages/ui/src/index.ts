@@ -32,26 +32,11 @@ export {
   DialogDescription,
 } from './dialog';
 
-export {
-  Popover,
-  PopoverTrigger,
-  PopoverClose,
-  PopoverContent,
-} from './popover';
+export { Popover, PopoverTrigger, PopoverClose, PopoverContent } from './popover';
 
-export {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from './tooltip';
+export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 
-export {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from './tabs';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 
 export {
   DropdownMenu,
@@ -63,12 +48,7 @@ export {
   DropdownMenuGroup,
 } from './dropdown-menu';
 
-export {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from './accordion';
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
 
 export {
   Select,
@@ -95,11 +75,7 @@ export type { TableCellProps } from './table';
 
 export { Pagination } from './pagination';
 
-export {
-  HoverCard,
-  HoverCardTrigger,
-  HoverCardContent,
-} from './hover-card';
+export { HoverCard, HoverCardTrigger, HoverCardContent } from './hover-card';
 
 export {
   ContextMenu,

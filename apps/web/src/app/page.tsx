@@ -2,19 +2,19 @@ export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-sm font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
-          <span className="h-2 w-2 rounded-full bg-primary-500" />
+        <div className="bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300 mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
+          <span className="bg-primary-500 h-2 w-2 rounded-full" />
           Phase 2.1 — Foundation Complete
         </div>
 
-        <h1 className="mb-4 text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 sm:text-5xl">
+        <h1 className="mb-4 text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl dark:text-neutral-50">
           Silicon Valley
           <span className="text-primary-600 dark:text-primary-400"> Learning OS</span>
         </h1>
 
         <p className="mb-8 text-lg text-neutral-600 dark:text-neutral-400">
-          Google Maps for Computer Science Learning.
-          An interactive knowledge graph that maps concepts, technologies, projects, and careers.
+          Google Maps for Computer Science Learning. An interactive knowledge graph that maps
+          concepts, technologies, projects, and careers.
         </p>
 
         <div className="grid gap-4 sm:grid-cols-3">

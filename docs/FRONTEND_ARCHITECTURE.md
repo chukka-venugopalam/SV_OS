@@ -14,12 +14,12 @@ The UI follows an Apple-quality design system: minimal, elegant, dark mode first
 
 Default to Server Components. Only add `'use client'` when browser APIs, state, or interactivity are needed.
 
-| Layer | Server Component | Client Component |
-|-------|-----------------|-----------------|
-| Data fetching | Direct server-side fetch or React Query prefetch | React Query from client |
-| Rendering | SSR/SSG at request/build time | CSR in browser |
-| State | None (static) | Zustand / React Query / RHF |
-| Examples | Landing, Node detail, Career list, Search results | Knowledge Graph, SearchBar, Progress, Forms |
+| Layer         | Server Component                                  | Client Component                            |
+| ------------- | ------------------------------------------------- | ------------------------------------------- |
+| Data fetching | Direct server-side fetch or React Query prefetch  | React Query from client                     |
+| Rendering     | SSR/SSG at request/build time                     | CSR in browser                              |
+| State         | None (static)                                     | Zustand / React Query / RHF                 |
+| Examples      | Landing, Node detail, Career list, Search results | Knowledge Graph, SearchBar, Progress, Forms |
 
 ### 2. State Management Triad
 
@@ -50,17 +50,17 @@ Mutations (create, update, delete) use Next.js Server Actions where the form liv
 import { z } from 'zod';
 
 const bookmarkSchema = z.object({
-    nodeId: z.string().uuid(),
-    notes: z.string().max(500).optional(),
+  nodeId: z.string().uuid(),
+  notes: z.string().max(500).optional(),
 });
 
 export async function addBookmark(formData: FormData) {
-    const validated = bookmarkSchema.parse({
-        nodeId: formData.get('nodeId'),
-        notes: formData.get('notes'),
-    });
-    // ... database mutation
-    revalidatePath('/bookmarks');
+  const validated = bookmarkSchema.parse({
+    nodeId: formData.get('nodeId'),
+    notes: formData.get('notes'),
+  });
+  // ... database mutation
+  revalidatePath('/bookmarks');
 }
 ```
 
@@ -84,14 +84,14 @@ export default function NodePage({ params }: { params: { slug: string } }) {
 ```typescript
 // Frontend Zod schema mirrors backend Pydantic schema
 const nodeSchema = z.object({
-    id: z.string().uuid(),
-    slug: z.string(),
-    title: z.string(),
-    description: z.string(),
-    node_type: z.enum(['subject', 'concept', 'technology', 'tool', 'career', 'project']),
-    difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'expert']),
-    estimated_minutes: z.number(),
-    prerequisites: z.array(z.object({ slug: z.string(), title: z.string() })),
+  id: z.string().uuid(),
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  node_type: z.enum(['subject', 'concept', 'technology', 'tool', 'career', 'project']),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'expert']),
+  estimated_minutes: z.number(),
+  prerequisites: z.array(z.object({ slug: z.string(), title: z.string() })),
 });
 
 type Node = z.infer<typeof nodeSchema>; // Automatic TypeScript type
@@ -194,18 +194,18 @@ Node Panel opens with prefetched data
 import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            staleTime: 5 * 60 * 1000,        // 5 minutes
-            gcTime: 10 * 60 * 1000,           // 10 minutes
-            retry: 2,
-            refetchOnWindowFocus: false,
-            refetchOnMount: false,
-        },
-        mutations: {
-            retry: 0,
-        },
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
     },
+    mutations: {
+      retry: 0,
+    },
+  },
 });
 ```
 
@@ -213,36 +213,36 @@ export const queryClient = new QueryClient({
 
 ```typescript
 export const queryKeys = {
-    nodes: {
-        all: ['nodes'] as const,
-        list: (filters: NodeFilters) => ['nodes', 'list', filters] as const,
-        detail: (slug: string) => ['nodes', 'detail', slug] as const,
-        prerequisites: (slug: string) => ['nodes', 'prerequisites', slug] as const,
-        unlocks: (slug: string) => ['nodes', 'unlocks', slug] as const,
-    },
-    graph: {
-        subgraph: (nodeId: string, depth: number) => ['graph', 'subgraph', nodeId, depth] as const,
-        path: (source: string, target: string) => ['graph', 'path', source, target] as const,
-    },
-    careers: {
-        all: ['careers'] as const,
-        detail: (slug: string) => ['careers', 'detail', slug] as const,
-        roadmap: (slug: string) => ['careers', 'roadmap', slug] as const,
-    },
-    projects: {
-        all: ['projects'] as const,
-        detail: (slug: string) => ['projects', 'detail', slug] as const,
-    },
-    progress: {
-        all: ['progress'] as const,
-        stats: ['progress', 'stats'] as const,
-    },
-    bookmarks: {
-        all: ['bookmarks'] as const,
-    },
-    search: {
-        results: (query: string, filters: SearchFilters) => ['search', query, filters] as const,
-    },
+  nodes: {
+    all: ['nodes'] as const,
+    list: (filters: NodeFilters) => ['nodes', 'list', filters] as const,
+    detail: (slug: string) => ['nodes', 'detail', slug] as const,
+    prerequisites: (slug: string) => ['nodes', 'prerequisites', slug] as const,
+    unlocks: (slug: string) => ['nodes', 'unlocks', slug] as const,
+  },
+  graph: {
+    subgraph: (nodeId: string, depth: number) => ['graph', 'subgraph', nodeId, depth] as const,
+    path: (source: string, target: string) => ['graph', 'path', source, target] as const,
+  },
+  careers: {
+    all: ['careers'] as const,
+    detail: (slug: string) => ['careers', 'detail', slug] as const,
+    roadmap: (slug: string) => ['careers', 'roadmap', slug] as const,
+  },
+  projects: {
+    all: ['projects'] as const,
+    detail: (slug: string) => ['projects', 'detail', slug] as const,
+  },
+  progress: {
+    all: ['progress'] as const,
+    stats: ['progress', 'stats'] as const,
+  },
+  bookmarks: {
+    all: ['bookmarks'] as const,
+  },
+  search: {
+    results: (query: string, filters: SearchFilters) => ['search', query, filters] as const,
+  },
 };
 ```
 
@@ -251,41 +251,44 @@ export const queryKeys = {
 ```typescript
 // hooks/useNodeDetails.ts
 export function useNodeDetails(slug: string) {
-    return useQuery({
-        queryKey: queryKeys.nodes.detail(slug),
-        queryFn: () => nodeService.getNodeDetails(slug),
-        enabled: !!slug,
-    });
+  return useQuery({
+    queryKey: queryKeys.nodes.detail(slug),
+    queryFn: () => nodeService.getNodeDetails(slug),
+    enabled: !!slug,
+  });
 }
 
 // hooks/useBookmarks.ts
 export function useBookmarks() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const { data: bookmarks } = useQuery({
-        queryKey: queryKeys.bookmarks.all,
-        queryFn: () => bookmarkService.list(),
-    });
+  const { data: bookmarks } = useQuery({
+    queryKey: queryKeys.bookmarks.all,
+    queryFn: () => bookmarkService.list(),
+  });
 
-    const addBookmark = useMutation({
-        mutationFn: (nodeId: string) => bookmarkService.add(nodeId),
-        onMutate: async (nodeId) => {
-            // Optimistic update
-            await queryClient.cancelQueries({ queryKey: queryKeys.bookmarks.all });
-            const previous = queryClient.getQueryData(queryKeys.bookmarks.all);
-            queryClient.setQueryData(queryKeys.bookmarks.all, (old) => [...(old || []), { nodeId, optimistic: true }]);
-            return { previous };
-        },
-        onError: (err, nodeId, context) => {
-            // Rollback on error
-            queryClient.setQueryData(queryKeys.bookmarks.all, context?.previous);
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all });
-        },
-    });
+  const addBookmark = useMutation({
+    mutationFn: (nodeId: string) => bookmarkService.add(nodeId),
+    onMutate: async (nodeId) => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey: queryKeys.bookmarks.all });
+      const previous = queryClient.getQueryData(queryKeys.bookmarks.all);
+      queryClient.setQueryData(queryKeys.bookmarks.all, (old) => [
+        ...(old || []),
+        { nodeId, optimistic: true },
+      ]);
+      return { previous };
+    },
+    onError: (err, nodeId, context) => {
+      // Rollback on error
+      queryClient.setQueryData(queryKeys.bookmarks.all, context?.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all });
+    },
+  });
 
-    return { bookmarks, addBookmark };
+  return { bookmarks, addBookmark };
 }
 ```
 
@@ -296,66 +299,66 @@ export function useBookmarks() {
 ```typescript
 // stores/graph-store.ts
 interface GraphState {
-    selectedNodeId: string | null;
-    viewport: { x: number; y: number; zoom: number };
-    activeFilters: {
-        nodeTypes: NodeType[];
-        difficulty: Difficulty[];
-    };
-    // Actions
-    selectNode: (id: string | null) => void;
-    setViewport: (viewport: { x: number; y: number; zoom: number }) => void;
-    toggleFilter: (type: 'nodeTypes' | 'difficulty', value: string) => void;
-    resetFilters: () => void;
+  selectedNodeId: string | null;
+  viewport: { x: number; y: number; zoom: number };
+  activeFilters: {
+    nodeTypes: NodeType[];
+    difficulty: Difficulty[];
+  };
+  // Actions
+  selectNode: (id: string | null) => void;
+  setViewport: (viewport: { x: number; y: number; zoom: number }) => void;
+  toggleFilter: (type: 'nodeTypes' | 'difficulty', value: string) => void;
+  resetFilters: () => void;
 }
 
 export const useGraphStore = create<GraphState>()(
-    persist(
-        (set) => ({
-            selectedNodeId: null,
-            viewport: { x: 0, y: 0, zoom: 1 },
-            activeFilters: { nodeTypes: [], difficulty: [] },
+  persist(
+    (set) => ({
+      selectedNodeId: null,
+      viewport: { x: 0, y: 0, zoom: 1 },
+      activeFilters: { nodeTypes: [], difficulty: [] },
 
-            selectNode: (id) => set({ selectedNodeId: id }),
-            setViewport: (viewport) => set({ viewport }),
-            toggleFilter: (type, value) =>
-                set((state) => ({
-                    activeFilters: {
-                        ...state.activeFilters,
-                        [type]: state.activeFilters[type].includes(value as any)
-                            ? state.activeFilters[type].filter((v) => v !== value)
-                            : [...state.activeFilters[type], value as any],
-                    },
-                })),
-            resetFilters: () => set({ activeFilters: { nodeTypes: [], difficulty: [] } }),
-        }),
-        {
-            name: 'graph-store',
-            partialize: (state) => ({ viewport: state.viewport, activeFilters: state.activeFilters }),
-        }
-    )
+      selectNode: (id) => set({ selectedNodeId: id }),
+      setViewport: (viewport) => set({ viewport }),
+      toggleFilter: (type, value) =>
+        set((state) => ({
+          activeFilters: {
+            ...state.activeFilters,
+            [type]: state.activeFilters[type].includes(value as any)
+              ? state.activeFilters[type].filter((v) => v !== value)
+              : [...state.activeFilters[type], value as any],
+          },
+        })),
+      resetFilters: () => set({ activeFilters: { nodeTypes: [], difficulty: [] } }),
+    }),
+    {
+      name: 'graph-store',
+      partialize: (state) => ({ viewport: state.viewport, activeFilters: state.activeFilters }),
+    },
+  ),
 );
 ```
 
 ```typescript
 // stores/ui-store.ts
 interface UIState {
-    sidebarOpen: boolean;
-    theme: 'dark' | 'light' | 'system';
-    toggleSidebar: () => void;
-    setTheme: (theme: 'dark' | 'light' | 'system') => void;
+  sidebarOpen: boolean;
+  theme: 'dark' | 'light' | 'system';
+  toggleSidebar: () => void;
+  setTheme: (theme: 'dark' | 'light' | 'system') => void;
 }
 
 export const useUIStore = create<UIState>()(
-    persist(
-        (set) => ({
-            sidebarOpen: true,
-            theme: 'dark',
-            toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-            setTheme: (theme) => set({ theme }),
-        }),
-        { name: 'ui-store' }
-    )
+  persist(
+    (set) => ({
+      sidebarOpen: true,
+      theme: 'dark',
+      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+      setTheme: (theme) => set({ theme }),
+    }),
+    { name: 'ui-store' },
+  ),
 );
 ```
 
@@ -501,6 +504,7 @@ colors: {
 ## Performance
 
 ### Dynamic Imports
+
 ```typescript
 const KnowledgeGraph = dynamic(
     () => import('@/components/graph/KnowledgeGraph'),
@@ -512,13 +516,15 @@ const KnowledgeGraph = dynamic(
 ```
 
 ### React.memo
+
 ```typescript
 const MemoizedGraphNode = memo(CustomNode, (prev, next) => {
-    return prev.data === next.data && prev.selected === next.selected;
+  return prev.data === next.data && prev.selected === next.selected;
 });
 ```
 
 ### Image Optimization
+
 ```typescript
 import Image from 'next/image';
 <Image src="/hero.png" alt="SV-OS" width={1200} height={800} priority />
@@ -549,12 +555,12 @@ import Image from 'next/image';
 
 ```typescript
 export const metadata: Metadata = {
+  title: 'Python Basics - SV-OS',
+  description: 'Learn Python programming fundamentals with interactive visualizations',
+  openGraph: {
     title: 'Python Basics - SV-OS',
-    description: 'Learn Python programming fundamentals with interactive visualizations',
-    openGraph: {
-        title: 'Python Basics - SV-OS',
-        description: 'Interactive Python learning path',
-        type: 'article',
-    },
+    description: 'Interactive Python learning path',
+    type: 'article',
+  },
 };
 ```

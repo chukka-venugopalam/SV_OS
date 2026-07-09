@@ -1,12 +1,15 @@
 # Dependency Map
 
 ## Monorepo Structure
+
 ... [unchanged] ...
 
 ## Turborepo Pipeline
+
 ... [unchanged] ...
 
 ## Frontend (apps/web) Dependency Tree
+
 ... [unchanged] ...
 
 ## Backend (apps/api) Model Dependency Tree (Phase 2.4)
@@ -71,10 +74,13 @@ models/
 ```
 
 ### Circular Import Protection
+
 All models use `from __future__ import annotations` and `TYPE_CHECKING` guards for forward references:
+
 - `user.py` references 8 other models under TYPE_CHECKING
 - `knowledge_node.py` references 7 other models under TYPE_CHECKING
 - No runtime circular imports at model loading time (verified)
 
 ## External Library Dependencies
+
 ... [unchanged] ...

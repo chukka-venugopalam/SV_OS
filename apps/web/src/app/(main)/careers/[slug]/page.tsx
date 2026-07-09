@@ -1,29 +1,11 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import {
-  ArrowLeft,
-  Briefcase,
-  TrendingUp,
-  DollarSign,
-  CheckCircle2,
-  BookOpen,
-  Star,
-  Award,
-  ArrowRight,
-  Users,
-  Clock,
-} from 'lucide-react';
-import { useCareer, useCareerRoadmap } from '@/hooks/use-careers';
-import { Shell } from '@/components/shared/shell';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   Badge,
-  Button,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -32,8 +14,22 @@ import {
   EmptyState,
   ErrorState,
 } from '@sv-os/ui';
-import { slugToTitle } from '@/lib';
+import {
+  ArrowLeft,
+  Briefcase,
+  DollarSign,
+  CheckCircle2,
+  BookOpen,
+  Star,
+  ArrowRight,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
 import { NODE_TYPE_COLORS } from '@/components/graph';
+import { Shell } from '@/components/shared/shell';
+import { useCareer, useCareerRoadmap } from '@/hooks/use-careers';
+import { slugToTitle } from '@/lib';
 
 const demandColors: Record<string, 'success' | 'warning' | 'info' | 'danger'> = {
   growing: 'success',
@@ -42,11 +38,7 @@ const demandColors: Record<string, 'success' | 'warning' | 'info' | 'danger'> = 
   declining: 'danger',
 };
 
-const requirementLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  required: { label: 'Required', icon: <CheckCircle2 className="h-4 w-4" />, color: 'text-error-500' },
-  recommended: { label: 'Recommended', icon: <BookOpen className="h-4 w-4" />, color: 'text-info-500' },
-  bonus: { label: 'Bonus', icon: <Star className="h-4 w-4" />, color: 'text-warning-500' },
-};
+
 
 export default function CareerDetailPage() {
   const params = useParams();
@@ -63,7 +55,9 @@ export default function CareerDetailPage() {
           <Skeleton className="h-12 w-2/3" />
           <Skeleton className="h-4 w-1/2" />
           <div className="grid gap-4 sm:grid-cols-3">
-            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-24 rounded-xl" />
+            ))}
           </div>
         </div>
       </Shell>
@@ -73,7 +67,10 @@ export default function CareerDetailPage() {
   if (isError || !career) {
     return (
       <Shell>
-        <ErrorState title="Career not found" message="This career path doesn't exist or has been removed." />
+        <ErrorState
+          title="Career not found"
+          message="This career path doesn't exist or has been removed."
+        />
       </Shell>
     );
   }
@@ -90,21 +87,31 @@ export default function CareerDetailPage() {
 
       <div className="mb-8">
         <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400">
+          <div className="bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400 flex h-12 w-12 items-center justify-center rounded-xl">
             <Briefcase className="h-6 w-6" />
           </div>
-          <Badge variant={demandColors[career.demand] ?? 'secondary'} size="sm" className="capitalize">
+          <Badge
+            variant={demandColors[career.demand] ?? 'secondary'}
+            size="sm"
+            className="capitalize"
+          >
             {career.demand.replace(/_/g, ' ')}
           </Badge>
         </div>
 
-        <h1 className="mb-3 text-3xl font-bold text-neutral-900 dark:text-neutral-50">{career.title}</h1>
-        <p className="mb-4 text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">{career.description}</p>
+        <h1 className="mb-3 text-3xl font-bold text-neutral-900 dark:text-neutral-50">
+          {career.title}
+        </h1>
+        <p className="mb-4 text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
+          {career.description}
+        </p>
 
         {career.salary_range && (
           <div className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <DollarSign className="h-4 w-4 text-success-500" />
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">{career.salary_range}</span>
+            <DollarSign className="text-success-500 h-4 w-4" />
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+              {career.salary_range}
+            </span>
             <span className="text-neutral-400 dark:text-neutral-500">/year</span>
           </div>
         )}
@@ -114,7 +121,7 @@ export default function CareerDetailPage() {
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-error-50 text-error-600 dark:bg-error-950/30 dark:text-error-400">
+            <div className="bg-error-50 text-error-600 dark:bg-error-950/30 dark:text-error-400 flex h-10 w-10 items-center justify-center rounded-lg">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
@@ -127,7 +134,7 @@ export default function CareerDetailPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info-50 text-info-600 dark:bg-info-950/30 dark:text-info-400">
+            <div className="bg-info-50 text-info-600 dark:bg-info-950/30 dark:text-info-400 flex h-10 w-10 items-center justify-center rounded-lg">
               <BookOpen className="h-5 w-5" />
             </div>
             <div>
@@ -140,7 +147,7 @@ export default function CareerDetailPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning-50 text-warning-600 dark:bg-warning-950/30 dark:text-warning-400">
+            <div className="bg-warning-50 text-warning-600 dark:bg-warning-950/30 dark:text-warning-400 flex h-10 w-10 items-center justify-center rounded-lg">
               <Star className="h-5 w-5" />
             </div>
             <div>
@@ -159,17 +166,23 @@ export default function CareerDetailPage() {
           <TabsTrigger value="required" className="gap-2">
             <CheckCircle2 className="h-4 w-4" />
             Required
-            <Badge variant="secondary" size="sm">{roadmap?.required.length ?? 0}</Badge>
+            <Badge variant="secondary" size="sm">
+              {roadmap?.required.length ?? 0}
+            </Badge>
           </TabsTrigger>
           <TabsTrigger value="recommended" className="gap-2">
             <BookOpen className="h-4 w-4" />
             Recommended
-            <Badge variant="secondary" size="sm">{roadmap?.recommended.length ?? 0}</Badge>
+            <Badge variant="secondary" size="sm">
+              {roadmap?.recommended.length ?? 0}
+            </Badge>
           </TabsTrigger>
           <TabsTrigger value="bonus" className="gap-2">
             <Star className="h-4 w-4" />
             Bonus
-            <Badge variant="secondary" size="sm">{roadmap?.bonus.length ?? 0}</Badge>
+            <Badge variant="secondary" size="sm">
+              {roadmap?.bonus.length ?? 0}
+            </Badge>
           </TabsTrigger>
         </TabsList>
 
@@ -183,15 +196,18 @@ export default function CareerDetailPage() {
                       <CardContent className="flex items-center gap-3 p-4">
                         <div
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-                          style={{ backgroundColor: NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)' }}
+                          style={{
+                            backgroundColor:
+                              NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)',
+                          }}
                         >
                           {node.title.charAt(0)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate transition-colors">
+                          <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 transition-colors dark:text-neutral-100">
                             {node.title}
                           </p>
-                          <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">
+                          <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">
                             {slugToTitle(node.node_type)} · {slugToTitle(node.difficulty)}
                           </p>
                         </div>
@@ -222,7 +238,7 @@ export default function CareerDetailPage() {
             <dl className="grid grid-cols-2 gap-3 text-sm">
               {Object.entries(career.metadata as Record<string, string>).map(([key, value]) => (
                 <div key={key}>
-                  <dt className="text-xs font-medium text-neutral-500 dark:text-neutral-400 capitalize">
+                  <dt className="text-xs font-medium capitalize text-neutral-500 dark:text-neutral-400">
                     {key.replace(/_/g, ' ')}
                   </dt>
                   <dd className="text-neutral-900 dark:text-neutral-100">{String(value)}</dd>

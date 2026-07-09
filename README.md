@@ -27,13 +27,13 @@ SV-OS is an interactive visual operating system that maps Computer Science conce
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| 🗺️ **Knowledge Graph** | Interactive graph visualization of 100+ connected CS concepts |
-| 🧭 **Career Navigator** | Personalized learning roadmaps for 9+ CS careers |
-| 📊 **Progress Tracking** | Track learning status across all concepts |
-| 🔍 **Full-Text Search** | Search across all nodes with ranked results |
-| 🌙 **Dark Mode** | Beautiful dark-first design system |
+| Feature                  | Description                                                   |
+| ------------------------ | ------------------------------------------------------------- |
+| 🗺️ **Knowledge Graph**   | Interactive graph visualization of 100+ connected CS concepts |
+| 🧭 **Career Navigator**  | Personalized learning roadmaps for 9+ CS careers              |
+| 📊 **Progress Tracking** | Track learning status across all concepts                     |
+| 🔍 **Full-Text Search**  | Search across all nodes with ranked results                   |
+| 🌙 **Dark Mode**         | Beautiful dark-first design system                            |
 
 ---
 
@@ -140,47 +140,47 @@ Open [http://localhost:3000](http://localhost:3000) for the app and [http://loca
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps |
-| `pnpm build` | Build all apps |
-| `pnpm lint` | Lint all apps |
+| Command          | Description              |
+| ---------------- | ------------------------ |
+| `pnpm dev`       | Start all apps           |
+| `pnpm build`     | Build all apps           |
+| `pnpm lint`      | Lint all apps            |
 | `pnpm typecheck` | TypeScript type checking |
-| `pnpm test` | Run all tests |
-| `pnpm format` | Format all files |
+| `pnpm test`      | Run all tests            |
+| `pnpm format`    | Format all files         |
 
 ### Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Framework | Next.js 15 (App Router) | React framework with SSR |
-| Styling | Tailwind CSS v4 | Utility-first CSS |
-| UI | shadcn/ui + Radix | Accessible component primitives |
-| Server State | TanStack React Query | API data caching & sync |
-| Client State | Zustand | UI state management |
-| Forms | React Hook Form + Zod | Typed form validation |
-| Graph | React Flow | Knowledge graph visualization |
-| Animation | Framer Motion | Micro-interactions & transitions |
-| Backend | FastAPI | Async Python REST API |
-| ORM | SQLAlchemy 2.0 (async) | Database access |
-| Database | PostgreSQL 16 | Primary data store |
-| Auth | Supabase Auth | Authentication & RLS |
+| Layer        | Technology              | Purpose                          |
+| ------------ | ----------------------- | -------------------------------- |
+| Framework    | Next.js 15 (App Router) | React framework with SSR         |
+| Styling      | Tailwind CSS v4         | Utility-first CSS                |
+| UI           | shadcn/ui + Radix       | Accessible component primitives  |
+| Server State | TanStack React Query    | API data caching & sync          |
+| Client State | Zustand                 | UI state management              |
+| Forms        | React Hook Form + Zod   | Typed form validation            |
+| Graph        | React Flow              | Knowledge graph visualization    |
+| Animation    | Framer Motion           | Micro-interactions & transitions |
+| Backend      | FastAPI                 | Async Python REST API            |
+| ORM          | SQLAlchemy 2.0 (async)  | Database access                  |
+| Database     | PostgreSQL 16           | Primary data store               |
+| Auth         | Supabase Auth           | Authentication & RLS             |
 
 ---
 
 ## 📚 Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Architecture](docs/Architecture.md) | System architecture overview |
-| [Development](docs/Development.md) | Development patterns & conventions |
-| [Setup Guide](docs/Setup.md) | Local development setup |
-| [Contributing](docs/Contributing.md) | Contribution guidelines |
-| [Coding Standards](docs/CodingStandards.md) | Code style & conventions |
-| [Folder Structure](docs/FolderStructure.md) | Complete directory tree |
-| [Monorepo Guide](docs/MonorepoGuide.md) | Turborepo & pnpm usage |
-| [Database](docs/DATABASE.md) | Schema design & relationships |
-| [API](docs/API.md) | REST API reference |
+| Document                                    | Description                        |
+| ------------------------------------------- | ---------------------------------- |
+| [Architecture](docs/Architecture.md)        | System architecture overview       |
+| [Development](docs/Development.md)          | Development patterns & conventions |
+| [Setup Guide](docs/Setup.md)                | Local development setup            |
+| [Contributing](docs/Contributing.md)        | Contribution guidelines            |
+| [Coding Standards](docs/CodingStandards.md) | Code style & conventions           |
+| [Folder Structure](docs/FolderStructure.md) | Complete directory tree            |
+| [Monorepo Guide](docs/MonorepoGuide.md)     | Turborepo & pnpm usage             |
+| [Database](docs/DATABASE.md)                | Schema design & relationships      |
+| [API](docs/API.md)                          | REST API reference                 |
 
 ---
 
@@ -188,14 +188,14 @@ Open [http://localhost:3000](http://localhost:3000) for the app and [http://loca
 
 ### Node Types
 
-| Type | Description | Color |
-|------|-------------|-------|
-| Subject | Academic discipline | 🟣 Purple |
-| Concept | Core CS concept | 🔵 Blue |
-| Technology | Language, framework, tool | 🟢 Green |
-| Tool | Development tool | 🟡 Amber |
-| Career | Job role | 🔴 Red |
-| Project | Real-world project | 🩷 Pink |
+| Type       | Description               | Color     |
+| ---------- | ------------------------- | --------- |
+| Subject    | Academic discipline       | 🟣 Purple |
+| Concept    | Core CS concept           | 🔵 Blue   |
+| Technology | Language, framework, tool | 🟢 Green  |
+| Tool       | Development tool          | 🟡 Amber  |
+| Career     | Job role                  | 🔴 Red    |
+| Project    | Real-world project        | 🩷 Pink   |
 
 ### Edge Types
 

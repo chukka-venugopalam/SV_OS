@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+
 import { cn } from './cn';
 
 interface CommandItem {
@@ -32,9 +33,7 @@ export function CommandPalette({
   const filtered = React.useMemo(
     () =>
       query
-        ? items.filter((item) =>
-            item.label.toLowerCase().includes(query.toLowerCase()),
-          )
+        ? items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))
         : items,
     [items, query],
   );
@@ -89,7 +88,7 @@ export function CommandPalette({
 
       {/* Palette */}
       <div
-        className="fixed left-1/2 top-[15%] z-50 w-full max-w-lg -translate-x-1/2 animate-slide-up"
+        className="animate-slide-up fixed left-1/2 top-[15%] z-50 w-full max-w-lg -translate-x-1/2"
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
@@ -97,8 +96,20 @@ export function CommandPalette({
         <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
           {/* Input */}
           <div className="flex items-center gap-3 border-b border-neutral-200 px-4 dark:border-neutral-700">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" aria-hidden="true">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
             <input
               ref={inputRef}
@@ -113,7 +124,7 @@ export function CommandPalette({
           </div>
 
           {/* Results */}
-          <div className="max-h-64 overflow-y-auto p-2 scrollbar-thin" role="listbox">
+          <div className="scrollbar-thin max-h-64 overflow-y-auto p-2" role="listbox">
             {filtered.length === 0 ? (
               <p className="py-4 text-center text-sm text-neutral-400 dark:text-neutral-500">
                 No results found.

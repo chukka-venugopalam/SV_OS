@@ -1,5 +1,6 @@
-import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import * as React from 'react';
+
 import { cn } from './cn';
 
 export const Dialog = DialogPrimitive.Root;
@@ -14,7 +15,7 @@ export const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out',
+      'data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out fixed inset-0 z-50 bg-black/50 backdrop-blur-sm',
       className,
     )}
     {...props}
@@ -32,7 +33,7 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-200 bg-white p-6 shadow-lg animate-in fade-in-0 zoom-in-95 dark:border-neutral-700 dark:bg-neutral-900',
+        'animate-in fade-in-0 zoom-in-95 fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-200 bg-white p-6 shadow-lg dark:border-neutral-700 dark:bg-neutral-900',
         className,
       )}
       {...props}
@@ -54,7 +55,10 @@ export const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight text-neutral-900 dark:text-neutral-100', className)}
+    className={cn(
+      'text-lg font-semibold leading-none tracking-tight text-neutral-900 dark:text-neutral-100',
+      className,
+    )}
     {...props}
   />
 ));

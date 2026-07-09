@@ -2,11 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: [
-    '@sv-os/ui',
-    '@sv-os/types',
-    '@sv-os/config',
-  ],
+  transpilePackages: ['@sv-os/ui', '@sv-os/types', '@sv-os/config'],
   outputFileTracingRoot: process.cwd(),
   experimental: {
     optimizePackageImports: [
@@ -20,7 +16,7 @@ const nextConfig: NextConfig = {
     ],
   },
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: false,

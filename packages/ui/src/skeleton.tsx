@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from './cn';
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {

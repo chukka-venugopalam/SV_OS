@@ -1,11 +1,13 @@
 # SV-OS Project State
 
 ## Current Development Phase
+
 **Phase 3.2 — Complete** (Repository Cleanup & Deployment Preparation)
 
 ## Completed Features
 
 ### Phase 3.2 (Repository Cleanup & Deployment Preparation) ✅
+
 - [x] Audited entire repository for unused/duplicate/placeholder files
 - [x] Removed dead code (`apps/web/src/lib/api.ts`)
 - [x] Removed duplicate docs (`docs/FolderStructure.md`)
@@ -23,6 +25,7 @@
 ### Phase 3 (Application Services + Auth + API + Frontend Integration) ✅
 
 #### Application Services (13 service classes)
+
 - [x] `AuthService` — JWT access/refresh tokens, bcrypt password hashing, register, login, refresh, change password, role-based auth
 - [x] `UserService` — Profile CRUD, dashboard
 - [x] `KnowledgeNodeService` — Node CRUD, search, prerequisites, neighbors, resources, related careers
@@ -38,6 +41,7 @@
 - [x] `RecommendationService` (stub) — Get recommendations, popular nodes, dismiss
 
 #### Authentication (JWT-based)
+
 - [x] JWT access tokens (HS256, configurable expiry)
 - [x] JWT refresh tokens (long-lived, configurable)
 - [x] bcrypt password hashing via passlib
@@ -47,6 +51,7 @@
 - [x] Rate limiting structure (config values in settings)
 
 #### REST API (12 endpoint modules, ~48 endpoints)
+
 - [x] Auth: register, login, refresh, me, update me, change password, logout
 - [x] Nodes: list, search, popular, get by slug, prerequisites, related, resources, careers
 - [x] Graph: explore, path, statistics, prerequisite chain
@@ -61,6 +66,7 @@
 - [x] Recommendations: list, popular, dismiss
 
 #### Frontend Integration
+
 - [x] Enhanced API client with automatic token refresh
 - [x] Auth client (login, signup, refresh, profile, logout)
 - [x] React Query hooks (useCurrentUser, useLogin, useSignup, useLogout, useUpdateProfile, useChangePassword)
@@ -71,10 +77,12 @@
 - [x] Auth event system (auth:login / auth:logout events)
 
 #### Testing
+
 - [x] AuthService tests: password hashing, registration, login, JWT, token refresh, password change, authorization (29 test cases)
 - [x] Test scaffolding for service layer
 
 #### Verification
+
 - [x] All 13 backend service classes import successfully
 - [x] All 12 backend endpoint modules import successfully
 - [x] Main router imports all endpoint routers
@@ -83,15 +91,18 @@
 - [x] pnpm install succeeds
 
 ## Remaining Features
+
 - [ ] Phase 4: Deployment, CI/CD, production environments
 - [ ] Phase 5+: Business logic, Graph, Knowledge pages, Career explorer, etc.
 
 ## Files Created (Phase 3.2)
+
 - `apps/web/README.md` — Frontend app documentation
 - `apps/api/README.md` — Backend API documentation
 - `docs/DEPLOYMENT.md` — Comprehensive deployment guide
 
 ## Files Removed (Phase 3.2)
+
 - `apps/web/src/lib/api.ts` — Dead code (superseded by `api-client.ts`)
 - `docs/FolderStructure.md` — Duplicate of `docs/FOLDER_STRUCTURE.md`
 - `apps/web/src/components/ui/.gitkeep` — Empty directory (all UI in `packages/ui`)
@@ -101,6 +112,7 @@
 - `docker/.gitkeep` — Empty placeholder directory
 
 ## Files Modified (Phase 3.2)
+
 - `apps/web/src/lib/index.ts` — Removed broken `api` export
 - `apps/web/.env.local.example` — Replaced `[BLOCKED]` with proper template
 - `.ai/HANDOVER.md` — Removed reference to deleted `api.ts`
@@ -109,6 +121,7 @@
 - `.ai/SESSION_NOTES.md` — Session 10 entry
 
 ## Estimated Completion
+
 Phase 2.5: 100%
 Phase 2.6: 100%
 Phase 2.7: 100%

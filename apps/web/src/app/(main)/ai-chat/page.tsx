@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
+import { Button, Skeleton } from '@sv-os/ui';
 import {
   Send,
   Bot,
@@ -9,15 +10,9 @@ import {
   Sparkles,
   Plus,
   MessageSquare,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
   StopCircle,
   Copy,
   Check,
-  Trash2,
-  Edit3,
-  Clock,
   BookOpen,
   Lightbulb,
   GraduationCap,
@@ -29,13 +24,12 @@ import {
   PanelLeft,
   X,
 } from 'lucide-react';
-import { useAuth } from '@/providers/auth-provider';
+import Link from 'next/link';
+import { useState, useRef, useEffect, useCallback } from 'react';
+
+import { PageTransition } from '@/components/shared/animations';
 import { apiClient } from '@/lib/api-client';
 import { cn } from '@/lib/cn';
-import { formatRelativeTime } from '@/lib/formatters';
-import { Button, Card, CardContent, Badge, Skeleton, Tooltip } from '@sv-os/ui';
-import { PageTransition } from '@/components/shared/animations';
-import { Shell } from '@/components/shared/shell';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -89,7 +83,6 @@ const SESSION_TYPES = [
 // ── AI Chat Page ──────────────────────────────────────────────────
 
 export default function AIChatPage() {
-  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -266,9 +259,7 @@ export default function AIChatPage() {
               accumulatedContent += event.content;
               setMessages((prev) =>
                 prev.map((msg) =>
-                  msg.id === tempAssistantId
-                    ? { ...msg, content: accumulatedContent }
-                    : msg,
+                  msg.id === tempAssistantId ? { ...msg, content: accumulatedContent } : msg,
                 ),
               );
             } else if (event.type === 'done') {
@@ -319,8 +310,8 @@ export default function AIChatPage() {
 
   // ── Render ──────────────────────────────────────────────────────
 
-  const currentSessionConfig = SESSION_TYPES.find((s) => s.value === sessionType)
-    ?? SESSION_TYPES[0];
+  const currentSessionConfig =
+    SESSION_TYPES.find((s) => s.value === sessionType) ?? SESSION_TYPES[0];
   const SessionIcon = currentSessionConfig.icon;
 
   return (
@@ -381,7 +372,7 @@ export default function AIChatPage() {
                       }}
                       className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                     >
-                      <X className="h-3.5 w-3.5 text-neutral-400 hover:text-danger-500" />
+                      <X className="hover:text-danger-500 h-3.5 w-3.5 text-neutral-400" />
                     </button>
                   </button>
                 ))}
@@ -418,7 +409,7 @@ export default function AIChatPage() {
                 </Button>
               )}
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950/30 dark:text-primary-400">
+                <div className="bg-primary-50 text-primary-600 dark:bg-primary-950/30 dark:text-primary-400 flex h-8 w-8 items-center justify-center rounded-lg">
                   <Bot className="h-4 w-4" />
                 </div>
                 <div>
@@ -486,7 +477,7 @@ export default function AIChatPage() {
               <div className="flex h-full items-center justify-center">
                 <div className="max-w-md space-y-6 text-center">
                   <div className="flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg">
+                    <div className="from-primary-500 to-primary-600 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg">
                       <Sparkles className="h-8 w-8 text-white" />
                     </div>
                   </div>
@@ -506,13 +497,9 @@ export default function AIChatPage() {
                       }}
                       className="rounded-lg border border-neutral-200 p-3 text-left text-sm transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     >
-                      <GraduationCap className="mb-1 h-4 w-4 text-info-500" />
-                      <p className="font-medium text-neutral-700 dark:text-neutral-300">
-                        Tutor me
-                      </p>
-                      <p className="text-xs text-neutral-400">
-                        Explain concepts and detect gaps
-                      </p>
+                      <GraduationCap className="text-info-500 mb-1 h-4 w-4" />
+                      <p className="font-medium text-neutral-700 dark:text-neutral-300">Tutor me</p>
+                      <p className="text-xs text-neutral-400">Explain concepts and detect gaps</p>
                     </button>
                     <button
                       onClick={() => {
@@ -521,13 +508,11 @@ export default function AIChatPage() {
                       }}
                       className="rounded-lg border border-neutral-200 p-3 text-left text-sm transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     >
-                      <Lightbulb className="mb-1 h-4 w-4 text-warning-500" />
+                      <Lightbulb className="text-warning-500 mb-1 h-4 w-4" />
                       <p className="font-medium text-neutral-700 dark:text-neutral-300">
                         Plan learning
                       </p>
-                      <p className="text-xs text-neutral-400">
-                        Generate a personalized schedule
-                      </p>
+                      <p className="text-xs text-neutral-400">Generate a personalized schedule</p>
                     </button>
                     <button
                       onClick={() => {
@@ -536,13 +521,11 @@ export default function AIChatPage() {
                       }}
                       className="rounded-lg border border-neutral-200 p-3 text-left text-sm transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     >
-                      <Briefcase className="mb-1 h-4 w-4 text-success-500" />
+                      <Briefcase className="text-success-500 mb-1 h-4 w-4" />
                       <p className="font-medium text-neutral-700 dark:text-neutral-300">
                         Career advice
                       </p>
-                      <p className="text-xs text-neutral-400">
-                        Analyse skills and readiness
-                      </p>
+                      <p className="text-xs text-neutral-400">Analyse skills and readiness</p>
                     </button>
                     <button
                       onClick={() => {
@@ -551,13 +534,11 @@ export default function AIChatPage() {
                       }}
                       className="rounded-lg border border-neutral-200 p-3 text-left text-sm transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     >
-                      <FolderGit2 className="mb-1 h-4 w-4 text-graph-subject" />
+                      <FolderGit2 className="text-graph-subject mb-1 h-4 w-4" />
                       <p className="font-medium text-neutral-700 dark:text-neutral-300">
                         Project help
                       </p>
-                      <p className="text-xs text-neutral-400">
-                        Get project roadmaps and guidance
-                      </p>
+                      <p className="text-xs text-neutral-400">Get project roadmaps and guidance</p>
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
@@ -568,13 +549,9 @@ export default function AIChatPage() {
                       }}
                       className="rounded-lg border border-neutral-200 p-3 text-left text-sm transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     >
-                      <HelpCircle className="mb-1 h-4 w-4 text-danger-500" />
-                      <p className="font-medium text-neutral-700 dark:text-neutral-300">
-                        Quiz me
-                      </p>
-                      <p className="text-xs text-neutral-400">
-                        Generate practice questions
-                      </p>
+                      <HelpCircle className="text-danger-500 mb-1 h-4 w-4" />
+                      <p className="font-medium text-neutral-700 dark:text-neutral-300">Quiz me</p>
+                      <p className="text-xs text-neutral-400">Generate practice questions</p>
                     </button>
                   </div>
                 </div>
@@ -597,7 +574,7 @@ export default function AIChatPage() {
                     >
                       <div className="flex items-center gap-2">
                         {msg.role === 'assistant' && (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400">
+                          <div className="bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400 flex h-6 w-6 items-center justify-center rounded-full">
                             <Bot className="h-3.5 w-3.5" />
                           </div>
                         )}
@@ -612,12 +589,21 @@ export default function AIChatPage() {
                         >
                           {msg.content === '' && isStreaming ? (
                             <span className="inline-flex gap-1">
-                              <span className="h-2 w-2 animate-bounce rounded-full bg-primary-400" style={{ animationDelay: '0ms' }} />
-                              <span className="h-2 w-2 animate-bounce rounded-full bg-primary-400" style={{ animationDelay: '150ms' }} />
-                              <span className="h-2 w-2 animate-bounce rounded-full bg-primary-400" style={{ animationDelay: '300ms' }} />
+                              <span
+                                className="bg-primary-400 h-2 w-2 animate-bounce rounded-full"
+                                style={{ animationDelay: '0ms' }}
+                              />
+                              <span
+                                className="bg-primary-400 h-2 w-2 animate-bounce rounded-full"
+                                style={{ animationDelay: '150ms' }}
+                              />
+                              <span
+                                className="bg-primary-400 h-2 w-2 animate-bounce rounded-full"
+                                style={{ animationDelay: '300ms' }}
+                              />
                             </span>
                           ) : (
-                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                            <div className="prose prose-sm dark:prose-invert max-w-none">
                               {renderMarkdown(msg.content)}
                             </div>
                           )}
@@ -638,15 +624,13 @@ export default function AIChatPage() {
                             title="Copy response"
                           >
                             {copiedId === msg.id ? (
-                              <Check className="h-3 w-3 text-success-500" />
+                              <Check className="text-success-500 h-3 w-3" />
                             ) : (
                               <Copy className="h-3 w-3" />
                             )}
                           </button>
                           {msg.model_used && (
-                            <span className="text-[10px] text-neutral-400">
-                              {msg.model_used}
-                            </span>
+                            <span className="text-[10px] text-neutral-400">{msg.model_used}</span>
                           )}
                         </div>
                       )}
@@ -694,7 +678,7 @@ export default function AIChatPage() {
                 )}
 
                 {error && (
-                  <div className="rounded-lg bg-danger-50 p-3 text-sm text-danger-700 dark:bg-danger-950/30 dark:text-danger-400">
+                  <div className="bg-danger-50 text-danger-700 dark:bg-danger-950/30 dark:text-danger-400 rounded-lg p-3 text-sm">
                     {error}
                   </div>
                 )}
@@ -715,14 +699,14 @@ export default function AIChatPage() {
                   onKeyDown={handleKeyDown}
                   placeholder="Ask anything about your learning journey..."
                   rows={1}
-                  className="flex-1 resize-none rounded-xl border border-neutral-300 bg-white px-4 py-3 pr-12 text-sm outline-none transition-colors placeholder:text-neutral-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-primary-400"
+                  className="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-400 flex-1 resize-none rounded-xl border border-neutral-300 bg-white px-4 py-3 pr-12 text-sm outline-none transition-colors placeholder:text-neutral-400 focus:ring-1 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
                   style={{ minHeight: '2.75rem', maxHeight: '8rem' }}
                   disabled={isStreaming}
                 />
                 {isStreaming ? (
                   <button
                     onClick={stopGeneration}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-danger-500 text-white transition-colors hover:bg-danger-600"
+                    className="bg-danger-500 hover:bg-danger-600 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white transition-colors"
                     title="Stop generation"
                   >
                     <StopCircle className="h-5 w-5" />
@@ -734,7 +718,7 @@ export default function AIChatPage() {
                     className={cn(
                       'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors',
                       input.trim()
-                        ? 'bg-primary-500 text-white hover:bg-primary-600'
+                        ? 'bg-primary-500 hover:bg-primary-600 text-white'
                         : 'bg-neutral-200 text-neutral-400 dark:bg-neutral-700',
                     )}
                     title="Send message"
@@ -744,7 +728,8 @@ export default function AIChatPage() {
                 )}
               </div>
               <p className="mt-2 text-center text-[10px] text-neutral-400">
-                AI responses are generated by {process.env.NEXT_PUBLIC_AI_PROVIDER ?? 'AI'} and may not be accurate. Verify important information.
+                AI responses are generated by {process.env.NEXT_PUBLIC_AI_PROVIDER ?? 'AI'} and may
+                not be accurate. Verify important information.
               </p>
             </div>
           </div>
@@ -763,7 +748,6 @@ function renderMarkdown(content: string): React.ReactNode {
   const elements: React.ReactNode[] = [];
   let inCodeBlock = false;
   let codeBlockContent = '';
-  let codeBlockLang = '';
   let inList = false;
   let listItems: React.ReactNode[] = [];
 
@@ -772,16 +756,17 @@ function renderMarkdown(content: string): React.ReactNode {
     if (line.trimStart().startsWith('```')) {
       if (inCodeBlock) {
         elements.push(
-          <pre key={idx} className="my-2 overflow-x-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-100 dark:bg-neutral-950">
+          <pre
+            key={idx}
+            className="my-2 overflow-x-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-100 dark:bg-neutral-950"
+          >
             <code>{codeBlockContent}</code>
           </pre>,
         );
         codeBlockContent = '';
-        codeBlockLang = '';
         inCodeBlock = false;
       } else {
         inCodeBlock = true;
-        codeBlockLang = line.trim().slice(3).trim();
       }
       return;
     }
@@ -794,7 +779,10 @@ function renderMarkdown(content: string): React.ReactNode {
     // Headers
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={idx} className="mt-4 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3
+          key={idx}
+          className="mb-2 mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+        >
           {line.slice(4)}
         </h3>,
       );
@@ -802,7 +790,10 @@ function renderMarkdown(content: string): React.ReactNode {
     }
     if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={idx} className="mt-4 mb-2 text-base font-bold text-neutral-900 dark:text-neutral-100">
+        <h2
+          key={idx}
+          className="mb-2 mt-4 text-base font-bold text-neutral-900 dark:text-neutral-100"
+        >
           {line.slice(3)}
         </h2>,
       );
@@ -810,7 +801,10 @@ function renderMarkdown(content: string): React.ReactNode {
     }
     if (line.startsWith('# ')) {
       elements.push(
-        <h1 key={idx} className="mt-4 mb-2 text-lg font-bold text-neutral-900 dark:text-neutral-100">
+        <h1
+          key={idx}
+          className="mb-2 mt-4 text-lg font-bold text-neutral-900 dark:text-neutral-100"
+        >
           {line.slice(2)}
         </h1>,
       );
@@ -835,7 +829,7 @@ function renderMarkdown(content: string): React.ReactNode {
     if (inList && !line.match(/^[\s]*[-*]\s/) && !line.match(/^\d+\.\s/)) {
       if (listItems.length > 0) {
         elements.push(
-          <ul key={`ul-${idx}`} className="my-2 list-disc pl-5 space-y-1">
+          <ul key={`ul-${idx}`} className="my-2 list-disc space-y-1 pl-5">
             {listItems}
           </ul>,
         );
@@ -848,7 +842,7 @@ function renderMarkdown(content: string): React.ReactNode {
     if (!line.trim()) {
       if (listItems.length > 0) {
         elements.push(
-          <ul key={`ul-${idx}`} className="my-2 list-disc pl-5 space-y-1">
+          <ul key={`ul-${idx}`} className="my-2 list-disc space-y-1 pl-5">
             {listItems}
           </ul>,
         );
@@ -862,10 +856,17 @@ function renderMarkdown(content: string): React.ReactNode {
     // Bold text
     const rendered = line
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/`([^`]+)`/g, '<code class="rounded bg-neutral-200 px-1 py-0.5 text-xs dark:bg-neutral-700">$1</code>');
+      .replace(
+        /`([^`]+)`/g,
+        '<code class="rounded bg-neutral-200 px-1 py-0.5 text-xs dark:bg-neutral-700">$1</code>',
+      );
 
     elements.push(
-      <p key={idx} className="text-sm text-neutral-700 dark:text-neutral-300" dangerouslySetInnerHTML={{ __html: rendered }} />,
+      <p
+        key={idx}
+        className="text-sm text-neutral-700 dark:text-neutral-300"
+        dangerouslySetInnerHTML={{ __html: rendered }}
+      />,
     );
   };
 
@@ -874,7 +875,7 @@ function renderMarkdown(content: string): React.ReactNode {
   // Flush remaining list
   if (inList && listItems.length > 0) {
     elements.push(
-      <ul key="ul-final" className="my-2 list-disc pl-5 space-y-1">
+      <ul key="ul-final" className="my-2 list-disc space-y-1 pl-5">
         {listItems}
       </ul>,
     );
@@ -883,7 +884,10 @@ function renderMarkdown(content: string): React.ReactNode {
   // Flush remaining code block
   if (inCodeBlock && codeBlockContent) {
     elements.push(
-      <pre key="code-final" className="my-2 overflow-x-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-100">
+      <pre
+        key="code-final"
+        className="my-2 overflow-x-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-100"
+      >
         <code>{codeBlockContent}</code>
       </pre>,
     );

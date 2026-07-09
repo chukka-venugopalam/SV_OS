@@ -1,10 +1,11 @@
+import { TooltipProvider } from '@sv-os/ui';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import { AuthProvider, ThemeProvider } from '@/providers';
-import { ReactQueryProvider } from '@/providers/react-query-provider';
-import { TooltipProvider } from '@sv-os/ui';
-import { SkipNavigation } from '@/components/shared/skip-nav';
+
 import { ErrorBoundary } from '@/components/shared/error-boundary';
+import { SkipNavigation } from '@/components/shared/skip-nav';
+import { AuthProvider, ThemeProvider, CommandProvider, ModalProvider, ToastProvider, GraphProvider } from '@/providers';
+import { ReactQueryProvider } from '@/providers/react-query-provider';
 import './globals.css';
 
 const inter = Inter({
@@ -26,13 +27,7 @@ export const metadata: Metadata = {
   },
   description:
     'An interactive knowledge graph that maps Computer Science concepts, technologies, projects, and careers. Learn what to study next and why.',
-  keywords: [
-    'computer science',
-    'knowledge graph',
-    'learning',
-    'programming',
-    'career roadmap',
-  ],
+  keywords: ['computer science', 'knowledge graph', 'learning', 'programming', 'career roadmap'],
   authors: [{ name: 'SV-OS Team' }],
   openGraph: {
     title: 'SV-OS — Silicon Valley Learning OS',
@@ -49,17 +44,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-      >
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <ReactQueryProvider>
             <AuthProvider>
               <TooltipProvider>
-                <SkipNavigation />
-                <ErrorBoundary>
-                  {children}
-                </ErrorBoundary>
+                <ToastProvider>
+                  <ModalProvider>
+                    <CommandProvider>
+                      <GraphProvider>
+                        <SkipNavigation />
+                        <ErrorBoundary>{children}</ErrorBoundary>
+                      </GraphProvider>
+                    </CommandProvider>
+                  </ModalProvider>
+                </ToastProvider>
               </TooltipProvider>
             </AuthProvider>
           </ReactQueryProvider>

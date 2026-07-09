@@ -22,16 +22,16 @@ sv-os/
 
 ## Key Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in dev mode |
-| `pnpm dev:web` | Start only the web app |
-| `pnpm dev:api` | Start only the API |
-| `pnpm build` | Build all apps |
-| `pnpm lint` | Lint all apps |
-| `pnpm typecheck` | TypeScript type checking |
-| `pnpm test` | Run all tests |
-| `pnpm format` | Format all files |
+| Command          | Description                |
+| ---------------- | -------------------------- |
+| `pnpm dev`       | Start all apps in dev mode |
+| `pnpm dev:web`   | Start only the web app     |
+| `pnpm dev:api`   | Start only the API         |
+| `pnpm build`     | Build all apps             |
+| `pnpm lint`      | Lint all apps              |
+| `pnpm typecheck` | TypeScript type checking   |
+| `pnpm test`      | Run all tests              |
+| `pnpm format`    | Format all files           |
 
 ## Adding Dependencies
 

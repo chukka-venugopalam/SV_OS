@@ -1,18 +1,5 @@
 'use client';
 
-import { useState, memo } from 'react';
-import Link from 'next/link';
-import {
-  FolderGit2,
-  Search,
-  ArrowRight,
-  Github,
-  Globe,
-  Clock,
-} from 'lucide-react';
-import { useProjects } from '@/hooks/use-projects';
-import { Shell } from '@/components/shared/shell';
-import { PageHeader } from '@/components/shared/page-header';
 import {
   Button,
   Card,
@@ -28,7 +15,14 @@ import {
   EmptyState,
   Pagination,
 } from '@sv-os/ui';
+import { FolderGit2, Search, ArrowRight, Github, Globe, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { useState, memo } from 'react';
+
+import { PageHeader } from '@/components/shared/page-header';
+import { Shell } from '@/components/shared/shell';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useProjects } from '@/hooks/use-projects';
 import { slugToTitle } from '@/lib';
 
 const difficultyColors: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
@@ -38,31 +32,49 @@ const difficultyColors: Record<string, 'success' | 'info' | 'warning' | 'danger'
   expert: 'danger',
 };
 
-const ProjectCard = memo(function ProjectCard({ project }: { project: { id: string; slug: string; title: string; description: string; difficulty: string; tech_stack: string[]; estimated_time: string; github_url: string | null; demo_url: string | null } }) {
+const ProjectCard = memo(function ProjectCard({
+  project,
+}: {
+  project: {
+    id: string;
+    slug: string;
+    title: string;
+    description: string;
+    difficulty: string;
+    tech_stack: string[];
+    estimated_time: string;
+    github_url: string | null;
+    demo_url: string | null;
+  };
+}) {
   return (
     <Link href={`/projects/${project.slug}`}>
-      <Card className="group h-full cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+      <Card className="group h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <CardContent className="flex h-full flex-col p-5">
           <div className="mb-3 flex items-start justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-project-50 text-project-600 dark:bg-project-950/30 dark:text-project-400">
+            <div className="bg-project-50 text-project-600 dark:bg-project-950/30 dark:text-project-400 flex h-10 w-10 items-center justify-center rounded-lg">
               <FolderGit2 className="h-5 w-5" />
             </div>
             <Badge variant={difficultyColors[project.difficulty] ?? 'secondary'} size="sm">
               {slugToTitle(project.difficulty)}
             </Badge>
           </div>
-          <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+          <h3 className="group-hover:text-primary-600 dark:group-hover:text-primary-400 mb-1 text-base font-semibold text-neutral-900 transition-colors dark:text-neutral-100">
             {project.title}
           </h3>
-          <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 flex-1">
+          <p className="mb-3 line-clamp-2 flex-1 text-xs text-neutral-500 dark:text-neutral-400">
             {project.description}
           </p>
           <div className="mb-3 flex flex-wrap gap-1.5">
             {project.tech_stack.slice(0, 4).map((tech) => (
-              <Badge key={tech} variant="outline" size="sm">{tech}</Badge>
+              <Badge key={tech} variant="outline" size="sm">
+                {tech}
+              </Badge>
             ))}
             {project.tech_stack.length > 4 && (
-              <Badge variant="secondary" size="sm">+{project.tech_stack.length - 4}</Badge>
+              <Badge variant="secondary" size="sm">
+                +{project.tech_stack.length - 4}
+              </Badge>
             )}
           </div>
           <div className="flex items-center justify-between text-xs text-neutral-400 dark:text-neutral-500">
@@ -109,13 +121,22 @@ export default function ProjectsPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
           <Input
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search projects..."
             className="pl-9"
             aria-label="Search projects"
           />
         </div>
-        <Select value={difficulty} onValueChange={(v) => { setDifficulty(v); setPage(1); }}>
+        <Select
+          value={difficulty}
+          onValueChange={(v) => {
+            setDifficulty(v);
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="All levels" />
           </SelectTrigger>
@@ -145,13 +166,19 @@ export default function ProjectsPage() {
       ) : isError ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <p className="text-sm text-error-600 dark:text-error-400 mb-3">Failed to load projects</p>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>Retry</Button>
+            <p className="text-error-600 dark:text-error-400 mb-3 text-sm">
+              Failed to load projects
+            </p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
           </CardContent>
         </Card>
       ) : data && data.items.length > 0 ? (
         <>
-          <p className="mb-4 text-xs text-neutral-400 dark:text-neutral-500">{data.total} projects found</p>
+          <p className="mb-4 text-xs text-neutral-400 dark:text-neutral-500">
+            {data.total} projects found
+          </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((project) => (
               <ProjectCard key={project.id} project={project} />
@@ -159,7 +186,11 @@ export default function ProjectsPage() {
           </div>
           {data.total_pages > 1 && (
             <div className="mt-8">
-              <Pagination currentPage={data.page} totalPages={data.total_pages} onPageChange={setPage} />
+              <Pagination
+                currentPage={data.page}
+                totalPages={data.total_pages}
+                onPageChange={setPage}
+              />
             </div>
           )}
         </>
@@ -169,8 +200,23 @@ export default function ProjectsPage() {
             <EmptyState
               icon={<FolderGit2 className="h-12 w-12" />}
               title="No projects found"
-              description={debouncedSearch ? `No projects matching "${debouncedSearch}"` : 'No projects available yet'}
-              action={search || difficulty ? { label: 'Clear filters', onClick: () => { setSearch(''); setDifficulty(''); setPage(1); } } : undefined}
+              description={
+                debouncedSearch
+                  ? `No projects matching "${debouncedSearch}"`
+                  : 'No projects available yet'
+              }
+              action={
+                search || difficulty
+                  ? {
+                      label: 'Clear filters',
+                      onClick: () => {
+                        setSearch('');
+                        setDifficulty('');
+                        setPage(1);
+                      },
+                    }
+                  : undefined
+              }
             />
           </CardContent>
         </Card>

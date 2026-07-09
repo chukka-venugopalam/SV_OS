@@ -8,7 +8,7 @@ services:
     container_name: sv-os-db
     restart: always
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: svos
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -16,7 +16,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U svos -d svos"]
+      test: ['CMD-SHELL', 'pg_isready -U svos -d svos']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
     container_name: sv-os-api
     restart: always
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       DATABASE_URL: postgresql+asyncpg://svos:${POSTGRES_PASSWORD}@postgres:5432/svos
       SUPABASE_URL: ${SUPABASE_URL}
@@ -48,7 +48,7 @@ services:
     container_name: sv-os-web
     restart: always
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       NEXT_PUBLIC_API_URL: http://api:8000
       NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
