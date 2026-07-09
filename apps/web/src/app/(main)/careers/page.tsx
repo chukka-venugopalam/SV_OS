@@ -79,7 +79,7 @@ const CareerCard = memo(function CareerCard({ career }: { career: { id: string; 
       </Card>
     </Link>
   );
-}
+});
 
 export default function CareersPage() {
   const [search, setSearch] = useState('');

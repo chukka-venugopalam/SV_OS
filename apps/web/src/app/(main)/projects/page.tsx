@@ -81,7 +81,7 @@ const ProjectCard = memo(function ProjectCard({ project }: { project: { id: stri
       </Card>
     </Link>
   );
-}
+});
 
 export default function ProjectsPage() {
   const [search, setSearch] = useState('');

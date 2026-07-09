@@ -120,7 +120,7 @@ const NodeCard = memo(function NodeCard({ node }: { node: { id: string; slug: st
       </Card>
     </Link>
   );
-}
+});
 
 // ── Node Row ──────────────────────────────────────────────────────
 
@@ -152,7 +152,7 @@ const NodeRow = memo(function NodeRow({ node }: { node: { id: string; slug: stri
       </div>
     </Link>
   );
-}
+});
 
 // ── Active Filter Tags ────────────────────────────────────────────
 
@@ -416,5 +416,6 @@ export default function ExplorePage() {
         </Card>
       )}
     </Shell>
+    </PageTransition>
   );
 }
