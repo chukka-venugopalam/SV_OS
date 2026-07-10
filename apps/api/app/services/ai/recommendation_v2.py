@@ -81,7 +81,7 @@ class RecommendationV2:
                 completed_ids=completed_ids,
                 bookmarked_ids=bookmarked_ids,
                 weak_topics=weak_topics,
-                _career_goals=career_goals,
+                career_goals=career_goals,
                 recent_searches=recent_searches,
                 learning_velocity=learning_velocity,
                 all_nodes=all_nodes,
@@ -106,14 +106,14 @@ class RecommendationV2:
     async def _score_node_v2(
         self,
         node,
-        _user_id: UUID,
+        user_id: UUID,  # noqa: ARG002
         completed_ids: set[UUID],
         bookmarked_ids: set[UUID],
         weak_topics: list[dict],
-        _career_goals: list,
+        career_goals: list,  # noqa: ARG002
         recent_searches: list,
         learning_velocity: float,
-        _all_nodes: list,
+        all_nodes: list,  # noqa: ARG002
     ) -> tuple[float, dict]:
         """Compute V2 composite score with full breakdown."""
 

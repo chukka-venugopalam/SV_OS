@@ -56,7 +56,7 @@ class LearningPathGenerator:
         goal_node_id: UUID,
         user_id: UUID | None = None,
         difficulty: str | None = None,
-        _estimated_hours: int | None = None,
+        estimated_hours: int | None = None,  # noqa: ARG002
     ) -> dict:
         """Generate a dynamic learning path toward a goal.
 

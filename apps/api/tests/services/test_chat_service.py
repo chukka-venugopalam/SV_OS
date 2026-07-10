@@ -146,7 +146,7 @@ class TestChatService:
         """Chat stream yields token events."""
         service = self._make_service(mock_uow, mock_provider)
 
-        async def mock_stream(_messages=None, _temperature=0.7, _max_tokens=2048):
+        async def mock_stream(messages, temperature=0.7, max_tokens=2048):  # noqa: ARG001
             yield 'Hello'
             yield ' world'
 

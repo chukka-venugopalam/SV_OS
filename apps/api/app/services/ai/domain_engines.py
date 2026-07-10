@@ -286,12 +286,12 @@ class QuizEngine:
 
     async def generate_quiz(
         self,
-        _user_id: UUID,
+        user_id: UUID,  # noqa: ARG002
         topic: str,
         quiz_type: str = 'mcq',
         difficulty: str = 'intermediate',
         question_count: int = 5,
-        _node_slug: str | None = None,
+        node_slug: str | None = None,  # noqa: ARG002
     ) -> dict:
         rag = await self._rag.search(topic, top_k=3, expand_graph=False)
 

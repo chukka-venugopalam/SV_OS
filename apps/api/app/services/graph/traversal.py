@@ -260,7 +260,7 @@ class GraphTraversalService:
     async def neighbors_at_depth(
         self,
         node_id: UUID,
-        _depth: int = 1,
+        depth: int = 1,  # noqa: ARG002
         relationship_type: str | None = None,
     ) -> dict:
         """Get all neighbors of a node at the given depth.
