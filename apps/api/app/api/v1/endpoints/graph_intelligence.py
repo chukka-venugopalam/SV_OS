@@ -353,20 +353,15 @@ async def get_progress_analysis(
 
     intelligence = ProgressIntelligence(uow)
 
-    # Run all analyses in parallel
-    import asyncio
-
-    next_node_task = intelligence.next_best_node(user_id)
-    missing_task = intelligence.missing_prerequisites(user_id)
-    weak_task = intelligence.weak_topics(user_id)
-    forecast_task = intelligence.completion_forecast(user_id)
-
-    next_node, missing, weak, forecast = await asyncio.gather(
-        next_node_task,
-        missing_task,
-        weak_task,
-        forecast_task,
-    )
+    # Run analyses sequentially -- each method shares the same UnitOfWork
+    # (and therefore the same AsyncSession/asyncpg connection).  asyncpg
+    # does NOT support concurrent queries on a single connection, so
+    # asyncio.gather on these coroutines would raise:
+    #   InterfaceError: cannot perform operation: another operation is in progress
+    next_node = await intelligence.next_best_node(user_id)
+    missing = await intelligence.missing_prerequisites(user_id)
+    weak = await intelligence.weak_topics(user_id)
+    forecast = await intelligence.completion_forecast(user_id)
 
     return build_success_response(
         data={
