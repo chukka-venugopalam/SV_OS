@@ -32,9 +32,9 @@ class FavoriteRepository(BaseRepository[Favorite]):
         return await self.paginate(
             page=page,
             per_page=per_page,
-            filters={"user_id": user_id},
-            sort_field="created_at",
-            sort_direction="desc",
+            filters={'user_id': user_id},
+            sort_field='created_at',
+            sort_direction='desc',
         )
 
     async def find_by_user_and_node(
@@ -53,7 +53,7 @@ class FavoriteRepository(BaseRepository[Favorite]):
 
     async def count_by_user(self, user_id: UUID) -> int:
         """Count how many favorites a user has."""
-        return await self.count(filters={"user_id": user_id})
+        return await self.count(filters={'user_id': user_id})
 
     async def is_favorited(self, user_id: UUID, node_id: UUID) -> bool:
         """Check whether a user has favorited a specific node."""

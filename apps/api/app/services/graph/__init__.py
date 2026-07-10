@@ -8,12 +8,12 @@ This package contains the advanced graph operations for the knowledge graph:
 
 from __future__ import annotations
 
-from app.services.graph.traversal import GraphTraversalService
 from app.services.graph.analytics import GraphAnalyticsService
+from app.services.graph.traversal import GraphTraversalService
 from app.services.legacy_graph import GraphService
 
 __all__ = [
-    "GraphService",
-    "GraphTraversalService",
-    "GraphAnalyticsService",
+    'GraphAnalyticsService',
+    'GraphService',
+    'GraphTraversalService',
 ]

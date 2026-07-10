@@ -1,5 +1,3 @@
-import { Skeleton } from '@sv-os/ui';
-
 export default function LoadingPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">

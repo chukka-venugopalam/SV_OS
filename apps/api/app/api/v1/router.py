@@ -6,7 +6,8 @@ standard health endpoints required by orchestration platforms.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 from structlog.stdlib import get_logger
@@ -14,7 +15,6 @@ from structlog.stdlib import get_logger
 from app.api.deps import get_settings
 from app.core.config import Settings
 from app.core.database import check_database_connection
-from app.schemas.response import error_response, success_response
 from app.telemetry.health import HealthChecker, HealthStatus
 
 logger = get_logger(__name__)
@@ -39,7 +39,7 @@ def _request_id(request: Request) -> str | None:
 @router.get('/health', tags=['infrastructure'])
 async def health(
     request: Request,
-    settings: Settings = Depends(get_settings),
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> dict:
     """Unified health check — returns the overall application status.
 
@@ -65,7 +65,7 @@ async def health(
             },
         },
         'errors': None,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'timestamp': datetime.now(UTC).isoformat(),
         'request_id': _request_id(request),
     }
 
@@ -81,7 +81,7 @@ async def liveness(request: Request) -> dict:
         'message': 'Alive',
         'data': {'status': 'alive'},
         'errors': None,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'timestamp': datetime.now(UTC).isoformat(),
         'request_id': _request_id(request),
     }
 
@@ -100,7 +100,7 @@ async def readiness(request: Request) -> dict:
             'message': 'Ready',
             'data': {'status': 'ready', 'database': 'connected'},
             'errors': None,
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'request_id': _request_id(request),
         }
 
@@ -109,7 +109,7 @@ async def readiness(request: Request) -> dict:
         'message': 'Not ready',
         'data': {'status': 'not_ready', 'database': 'disconnected'},
         'errors': None,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'timestamp': datetime.now(UTC).isoformat(),
         'request_id': _request_id(request),
     }
 
@@ -135,7 +135,7 @@ async def health_checks(request: Request) -> dict:
             },
         },
         'errors': None,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'timestamp': datetime.now(UTC).isoformat(),
         'request_id': _request_id(request),
     }
 
@@ -146,7 +146,7 @@ async def health_checks(request: Request) -> dict:
 @router.get('/', tags=['infrastructure'])
 async def root(
     request: Request,
-    settings: Settings = Depends(get_settings),
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> dict:
     """API root — returns metadata about the API."""
     return {
@@ -161,13 +161,13 @@ async def root(
             'api_version': 'v1',
         },
         'errors': None,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'timestamp': datetime.now(UTC).isoformat(),
         'request_id': _request_id(request),
     }
 
 
-# ── Business route imports (Phase 3) ─────────────────────────────
-from app.api.v1.endpoints import (
+# ── Business route imports (kept here to avoid circular imports) ─
+from app.api.v1.endpoints import (  # noqa: E402
     activity,
     ai,
     ai_chat,
@@ -178,7 +178,6 @@ from app.api.v1.endpoints import (
     graph,
     graph_intelligence,
     learning_paths,
-    nodes,
     progress,
     projects,
     recommendations,
@@ -204,7 +203,6 @@ router.include_router(skills.router, prefix='/skills', tags=['skills'])
 
 
 # ── Register health checks ─────────────────────────────────────────
-
-from app.core.database import get_database_health
+from app.core.database import get_database_health  # noqa: E402
 
 health_checker.register('database', get_database_health)

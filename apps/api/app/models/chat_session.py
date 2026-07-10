@@ -7,12 +7,12 @@ chat_messages: Individual messages within a conversation.
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -30,29 +30,44 @@ class ChatSession(AppBaseMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
     )
     title: Mapped[str] = mapped_column(
-        String(300), nullable=False, default='New Conversation',
+        String(300),
+        nullable=False,
+        default='New Conversation',
     )
     session_type: Mapped[str] = mapped_column(
-        String(50), nullable=False, default='chat',
+        String(50),
+        nullable=False,
+        default='chat',
         comment='chat, tutor, planner, career_mentor, project_mentor, quiz, explain',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
     )
     message_count: Mapped[int] = mapped_column(
-        Integer, default=0, server_default=text('0'), nullable=False,
+        Integer,
+        default=0,
+        server_default=text('0'),
+        nullable=False,
     )
     is_archived: Mapped[bool] = mapped_column(
-        Boolean, default=False, server_default=text('false'), nullable=False,
+        Boolean,
+        default=False,
+        server_default=text('false'),
+        nullable=False,
     )
 
-    user: Mapped['User'] = relationship('User', back_populates='chat_sessions')
-    messages: Mapped[list['ChatMessage']] = relationship(
-        'ChatMessage', back_populates='session',
+    user: Mapped[User] = relationship('User', back_populates='chat_sessions')
+    messages: Mapped[list[ChatMessage]] = relationship(
+        'ChatMessage',
+        back_populates='session',
         cascade='all, delete-orphan',
         order_by='ChatMessage.created_at',
     )
@@ -66,30 +81,43 @@ class ChatMessage(AppBaseMixin, Base):
     session_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('chat_sessions.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
     )
     role: Mapped[str] = mapped_column(
-        String(20), nullable=False,
+        String(20),
+        nullable=False,
         comment='user, assistant, system',
     )
     content: Mapped[str] = mapped_column(
-        Text, nullable=False,
+        Text,
+        nullable=False,
     )
     content_type: Mapped[str] = mapped_column(
-        String(50), nullable=False, default='text',
+        String(50),
+        nullable=False,
+        default='text',
         comment='text, markdown, quiz, plan, project, career',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
     )
     token_count: Mapped[int] = mapped_column(
-        Integer, default=0, server_default=text('0'), nullable=False,
+        Integer,
+        default=0,
+        server_default=text('0'),
+        nullable=False,
     )
-    model_used: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True,
+    model_used: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
     )
 
-    session: Mapped['ChatSession'] = relationship(
-        'ChatSession', back_populates='messages',
+    session: Mapped[ChatSession] = relationship(
+        'ChatSession',
+        back_populates='messages',
     )

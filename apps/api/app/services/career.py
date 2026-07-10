@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from uuid import UUID
-
 from structlog.stdlib import get_logger
 
 from app.models.career import Career
 from app.repositories import UnitOfWork
-from app.repositories.errors import EntityNotFoundError
 from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
@@ -44,13 +41,19 @@ class CareerService:
 
         grouped = {'required': [], 'recommended': [], 'bonus': []}
         for req in requirements:
-            type_key = req.requirement_type.value if hasattr(req.requirement_type, 'value') else str(req.requirement_type)
+            type_key = (
+                req.requirement_type.value
+                if hasattr(req.requirement_type, 'value')
+                else str(req.requirement_type)
+            )
             if type_key in grouped:
-                grouped[type_key].append({
-                    'id': req.id,
-                    'node_id': req.node_id,
-                    'order_index': req.order_index,
-                })
+                grouped[type_key].append(
+                    {
+                        'id': req.id,
+                        'node_id': req.node_id,
+                        'order_index': req.order_index,
+                    }
+                )
 
         return {
             'career': career,

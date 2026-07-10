@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, select
 
 from app.models.knowledge_node import KnowledgeNode
 from app.repositories.base import BaseRepository
@@ -97,7 +97,7 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
 
     async def count_edges(self, node_id: UUID) -> int:
         """Count total edges (incoming + outgoing) for a node."""
-        from sqlalchemy import func, select
+        from sqlalchemy import select
 
         from app.models.knowledge_edge import KnowledgeEdge
 
@@ -117,7 +117,7 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
 
     async def count_resources(self, node_id: UUID) -> int:
         """Count learning resources for a node."""
-        from sqlalchemy import func, select
+        from sqlalchemy import select
 
         from app.models.learning_resource import LearningResource
 
@@ -174,7 +174,6 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
         per_page: int = 20,
     ) -> PageResult[KnowledgeNode]:
         """Full-text search across knowledge nodes with optional filters."""
-        from sqlalchemy import func, or_
 
         if not query:
             filters: dict[str, Any] = {'is_published': True}

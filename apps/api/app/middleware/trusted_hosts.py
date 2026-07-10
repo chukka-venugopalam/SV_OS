@@ -25,15 +25,12 @@ class TrustedHostsMiddleware(BaseHTTPMiddleware):
         self.allowed_hosts: list[str] = allowed_hosts or []
         self.environment = environment
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         host: str = request.headers.get('Host', '').split(':')[0].lower()
 
         # Development: allow localhost and 127.0.0.1 implicitly
-        if self.environment == 'development':
-            if host in ('localhost', '127.0.0.1', '0.0.0.0'):
-                return await call_next(request)
+        if self.environment == 'development' and host in ('localhost', '127.0.0.1', '0.0.0.0'):
+            return await call_next(request)
 
         # Production: check against allowed list
         if self.allowed_hosts and host not in self.allowed_hosts:

@@ -52,7 +52,7 @@ class ConcurrentModificationError(RepositoryError):
         self.expected_version = expected_version
         super().__init__(
             message=f'{entity_name} id={entity_id!r} was modified by another transaction '
-                    f'(expected version={expected_version})',
+            f'(expected version={expected_version})',
             detail={
                 'entity_name': entity_name,
                 'entity_id': str(entity_id),

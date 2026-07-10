@@ -13,7 +13,7 @@ the schema clean and extensible.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
@@ -24,14 +24,14 @@ from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, NodeType, pg_enum
 
 if TYPE_CHECKING:
+    from app.models.bookmark import Bookmark
+    from app.models.career import CareerRequirement
+    from app.models.favorite import Favorite
     from app.models.knowledge_edge import KnowledgeEdge
     from app.models.learning_resource import LearningResource
+    from app.models.project import ProjectRequirement
     from app.models.tag import NodeTag
     from app.models.user_progress import UserProgress
-    from app.models.bookmark import Bookmark
-    from app.models.favorite import Favorite
-    from app.models.career import CareerRequirement
-    from app.models.project import ProjectRequirement
 
 
 class KnowledgeNode(AppBaseMixin, Base):
@@ -45,69 +45,91 @@ class KnowledgeNode(AppBaseMixin, Base):
     __tablename__ = 'knowledge_nodes'
 
     slug: Mapped[str] = mapped_column(
-        String(200), unique=True, nullable=False, index=True,
+        String(200),
+        unique=True,
+        nullable=False,
+        index=True,
         comment='URL-safe unique identifier (e.g. "python-basics")',
     )
     title: Mapped[str] = mapped_column(
-        String(300), nullable=False,
+        String(300),
+        nullable=False,
         comment='Human-readable title of the node',
     )
     description: Mapped[str] = mapped_column(
-        Text, nullable=False,
+        Text,
+        nullable=False,
         comment='Short description / abstract of the node',
     )
-    content: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    content: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='Full rich-text / Markdown content body',
     )
     node_type: Mapped[NodeType] = mapped_column(
-        pg_enum(NodeType, "node_type_enum"),
-        nullable=False, index=True,
+        pg_enum(NodeType, 'node_type_enum'),
+        nullable=False,
+        index=True,
         comment='Discriminator — subject, concept, technology, or tool',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
-        pg_enum(Difficulty, "difficulty_enum"),
-        default=Difficulty.BEGINNER, server_default=text("'beginner'"),
-        nullable=False, index=True,
+        pg_enum(Difficulty, 'difficulty_enum'),
+        default=Difficulty.BEGINNER,
+        server_default=text("'beginner'"),
+        nullable=False,
+        index=True,
         comment='Educational difficulty level',
     )
     estimated_minutes: Mapped[int] = mapped_column(
-        Integer, default=30, server_default=text('30'),
+        Integer,
+        default=30,
+        server_default=text('30'),
         nullable=False,
         comment='Estimated time to learn / complete in minutes',
     )
-    icon: Mapped[Optional[str]] = mapped_column(
-        String(50), nullable=True,
+    icon: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
         comment='Icon identifier (Lucide / custom icon name)',
     )
-    color: Mapped[Optional[str]] = mapped_column(
-        String(7), nullable=True,
+    color: Mapped[str | None] = mapped_column(
+        String(7),
+        nullable=True,
         comment='Hex colour code for UI display (e.g. "#3B82F6")',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Arbitrary metadata JSON blob for extensibility',
     )
-    search_vector: Mapped[Optional[str]] = mapped_column(
-        TSVECTOR, nullable=True,
+    search_vector: Mapped[str | None] = mapped_column(
+        TSVECTOR,
+        nullable=True,
         comment='PostgreSQL full-text search vector (auto-populated by trigger)',
     )
     view_count: Mapped[int] = mapped_column(
-        Integer, default=0, server_default=text('0'),
+        Integer,
+        default=0,
+        server_default=text('0'),
         nullable=False,
         comment='Total page-view counter',
     )
     is_published: Mapped[bool] = mapped_column(
-        Boolean, default=True, server_default=text('true'),
-        nullable=False, index=True,
+        Boolean,
+        default=True,
+        server_default=text('true'),
+        nullable=False,
+        index=True,
         comment='Whether the node is publicly visible',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
     # Edges (source — outgoing)
-    outgoing_edges: Mapped[list['KnowledgeEdge']] = relationship(
+    outgoing_edges: Mapped[list[KnowledgeEdge]] = relationship(
         'KnowledgeEdge',
         foreign_keys='KnowledgeEdge.source_node_id',
         back_populates='source_node',
@@ -115,44 +137,48 @@ class KnowledgeNode(AppBaseMixin, Base):
     )
 
     # Edges (target — incoming)
-    incoming_edges: Mapped[list['KnowledgeEdge']] = relationship(
+    incoming_edges: Mapped[list[KnowledgeEdge]] = relationship(
         'KnowledgeEdge',
         foreign_keys='KnowledgeEdge.target_node_id',
         back_populates='target_node',
         cascade='all, delete-orphan',
     )
 
-    resources: Mapped[list['LearningResource']] = relationship(
-        'LearningResource', back_populates='node',
+    resources: Mapped[list[LearningResource]] = relationship(
+        'LearningResource',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
-    progress_records: Mapped[list['UserProgress']] = relationship(
-        'UserProgress', back_populates='node',
+    progress_records: Mapped[list[UserProgress]] = relationship(
+        'UserProgress',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
-    bookmarks: Mapped[list['Bookmark']] = relationship(
-        'Bookmark', back_populates='node',
+    bookmarks: Mapped[list[Bookmark]] = relationship(
+        'Bookmark',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
-    favorites: Mapped[list['Favorite']] = relationship(
-        'Favorite', back_populates='node',
+    favorites: Mapped[list[Favorite]] = relationship(
+        'Favorite',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
-    node_tags: Mapped[list['NodeTag']] = relationship(
-        'NodeTag', back_populates='node',
+    node_tags: Mapped[list[NodeTag]] = relationship(
+        'NodeTag',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
-    career_requirements: Mapped[list['CareerRequirement']] = relationship(
-        'CareerRequirement', back_populates='node',
+    career_requirements: Mapped[list[CareerRequirement]] = relationship(
+        'CareerRequirement',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
-    project_requirements: Mapped[list['ProjectRequirement']] = relationship(
-        'ProjectRequirement', back_populates='node',
+    project_requirements: Mapped[list[ProjectRequirement]] = relationship(
+        'ProjectRequirement',
+        back_populates='node',
         cascade='all, delete-orphan',
     )
 
     def __repr__(self) -> str:
-        return (
-            f'<KnowledgeNode id={self.id!r} slug={self.slug!r} '
-            f'type={self.node_type.value}>'
-        )
+        return f'<KnowledgeNode id={self.id!r} slug={self.slug!r} type={self.node_type.value}>'

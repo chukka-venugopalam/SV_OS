@@ -9,7 +9,6 @@ Provides:
 
 from __future__ import annotations
 
-import math
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -97,9 +96,11 @@ class SimilarityService:
                     continue
                 neighbor_node = await self._uow.knowledge_nodes.get_by_id(nid)
                 if neighbor_node:
-                    ntype = neighbor_node.node_type.value if hasattr(
-                        neighbor_node.node_type, 'value'
-                    ) else neighbor_node.node_type
+                    ntype = (
+                        neighbor_node.node_type.value
+                        if hasattr(neighbor_node.node_type, 'value')
+                        else neighbor_node.node_type
+                    )
 
                     if nid not in candidates:
                         candidates[nid] = {
@@ -114,7 +115,7 @@ class SimilarityService:
 
         # 3. Compute composite scores
         scored = []
-        for nid, data in candidates.items():
+        for _nid, data in candidates.items():
             composite = (
                 data.get('semantic_score', 0.0) * 0.40
                 + data['graph_score'] * 0.35
@@ -129,16 +130,18 @@ class SimilarityService:
             if data['type_score'] > 0.7:
                 reasons.append('Same type category')
 
-            scored.append({
-                'node': data['node'],
-                'score': round(composite, 4),
-                'signals': {
-                    'semantic': round(data.get('semantic_score', 0.0), 4),
-                    'graph': round(data['graph_score'], 4),
-                    'type': round(data['type_score'], 4),
-                },
-                'reasons': reasons[:2],  # Top 2 reasons
-            })
+            scored.append(
+                {
+                    'node': data['node'],
+                    'score': round(composite, 4),
+                    'signals': {
+                        'semantic': round(data.get('semantic_score', 0.0), 4),
+                        'graph': round(data['graph_score'], 4),
+                        'type': round(data['type_score'], 4),
+                    },
+                    'reasons': reasons[:2],  # Top 2 reasons
+                }
+            )
 
         scored.sort(key=lambda x: x['score'], reverse=True)
         return scored[:limit]
@@ -151,7 +154,9 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description[:200] if node.description else '',
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
         'estimated_minutes': node.estimated_minutes,
         'icon': node.icon,
         'color': node.color,

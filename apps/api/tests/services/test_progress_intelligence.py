@@ -6,16 +6,16 @@ logic without requiring a database.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, PropertyMock
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
 
 from app.services.progress_intelligence import ProgressIntelligence
 
-
 # ── Fixtures ───────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_uow():
@@ -34,9 +34,14 @@ def intelligence(mock_uow):
     return ProgressIntelligence(mock_uow)
 
 
-def _make_node(node_id=None, title="Test Node", slug="test-node",
-               description="A test node", node_type="concept",
-               difficulty="beginner"):
+def _make_node(
+    node_id=None,
+    title='Test Node',
+    slug='test-node',
+    description='A test node',
+    node_type='concept',
+    difficulty='beginner',
+):
     """Helper to create a mock node."""
     node = MagicMock()
     node.id = node_id or uuid4()
@@ -59,6 +64,7 @@ def _make_node(node_id=None, title="Test Node", slug="test-node",
 
 # ── Next Best Node Tests ───────────────────────────────────────────
 
+
 class TestNextBestNode:
     """Test next_best_node."""
 
@@ -75,10 +81,10 @@ class TestNextBestNode:
         result = await intelligence.next_best_node(user_id=uuid4())
 
         if result:
-            assert "node" in result
-            assert "score" in result
-            assert "reasons" in result
-            assert str(node.id) == result["node"]["id"]
+            assert 'node' in result
+            assert 'score' in result
+            assert 'reasons' in result
+            assert str(node.id) == result['node']['id']
 
     @pytest.mark.asyncio
     async def test_next_best_node_no_completed(self, intelligence, mock_uow):
@@ -99,6 +105,7 @@ class TestNextBestNode:
 
 # ── Missing Prerequisites Tests ────────────────────────────────────
 
+
 class TestMissingPrerequisites:
     """Test missing_prerequisites."""
 
@@ -107,16 +114,17 @@ class TestMissingPrerequisites:
         """Test returns missing prereqs for a specific goal."""
         node_id = uuid4()
         prereq_id = uuid4()
-        prereq = _make_node(prereq_id, title="Missing Prerequisite")
+        prereq = _make_node(prereq_id, title='Missing Prerequisite')
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[prereq])
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
 
         result = await intelligence.missing_prerequisites(
-            user_id=uuid4(), goal_node_id=node_id,
+            user_id=uuid4(),
+            goal_node_id=node_id,
         )
 
         assert len(result) >= 1
-        assert any(n["id"] == str(prereq_id) for n in result)
+        assert any(n['id'] == str(prereq_id) for n in result)
 
     @pytest.mark.asyncio
     async def test_missing_prereqs_all_completed(self, intelligence, mock_uow):
@@ -130,7 +138,8 @@ class TestMissingPrerequisites:
         )
 
         result = await intelligence.missing_prerequisites(
-            user_id=uuid4(), goal_node_id=node_id,
+            user_id=uuid4(),
+            goal_node_id=node_id,
         )
 
         assert result == []
@@ -150,6 +159,7 @@ class TestMissingPrerequisites:
 
 # ── Weak Topics Tests ──────────────────────────────────────────────
 
+
 class TestWeakTopics:
     """Test weak_topics."""
 
@@ -166,12 +176,12 @@ class TestWeakTopics:
     async def test_weak_topics_identifies_stale(self, intelligence, mock_uow):
         """Test identifies stale topics (in learning > 7 days)."""
         node_id = uuid4()
-        node = _make_node(node_id, title="Stale Concept")
+        node = _make_node(node_id, title='Stale Concept')
 
         stale_progress = MagicMock()
         stale_progress.node_id = node_id
-        stale_progress.status = "learning"
-        stale_progress.updated_at = datetime.now(timezone.utc) - timedelta(days=14)
+        stale_progress.status = 'learning'
+        stale_progress.updated_at = datetime.now(UTC) - timedelta(days=14)
 
         mock_uow.user_progress.find_by_user = AsyncMock(
             return_value=MagicMock(items=[stale_progress])
@@ -181,16 +191,16 @@ class TestWeakTopics:
         result = await intelligence.weak_topics(user_id=uuid4())
 
         assert len(result) >= 1
-        assert result[0]["node"]["title"] == "Stale Concept"
-        assert result[0]["weakness_score"] > 0
+        assert result[0]['node']['title'] == 'Stale Concept'
+        assert result[0]['weakness_score'] > 0
 
     @pytest.mark.asyncio
     async def test_weak_topics_filters_recent(self, intelligence, mock_uow):
         """Test recently updated nodes are not marked as weak."""
         fresh_progress = MagicMock()
         fresh_progress.node_id = uuid4()
-        fresh_progress.status = "learning"
-        fresh_progress.updated_at = datetime.now(timezone.utc) - timedelta(hours=1)
+        fresh_progress.status = 'learning'
+        fresh_progress.updated_at = datetime.now(UTC) - timedelta(hours=1)
 
         mock_uow.user_progress.find_by_user = AsyncMock(
             return_value=MagicMock(items=[fresh_progress])
@@ -204,6 +214,7 @@ class TestWeakTopics:
 
 # ── Estimated Completion Tests ─────────────────────────────────────
 
+
 class TestEstimatedCompletion:
     """Test estimated_completion."""
 
@@ -212,21 +223,22 @@ class TestEstimatedCompletion:
         """Test returns completion estimate with metrics."""
         node_id = uuid4()
         prereq_id = uuid4()
-        prereq = _make_node(prereq_id, difficulty="intermediate")
+        prereq = _make_node(prereq_id, difficulty='intermediate')
 
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[prereq])
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
 
         result = await intelligence.estimated_completion(
-            user_id=uuid4(), goal_node_id=node_id,
+            user_id=uuid4(),
+            goal_node_id=node_id,
         )
 
-        assert "goal_node_id" in result
-        assert "missing_prerequisites" in result
-        assert result["missing_prerequisites"] >= 1
-        assert "estimated_minutes" in result
-        assert "estimated_hours" in result
-        assert "estimated_days" in result
+        assert 'goal_node_id' in result
+        assert 'missing_prerequisites' in result
+        assert result['missing_prerequisites'] >= 1
+        assert 'estimated_minutes' in result
+        assert 'estimated_hours' in result
+        assert 'estimated_days' in result
 
     @pytest.mark.asyncio
     async def test_estimated_completion_no_missing(self, intelligence, mock_uow):
@@ -236,15 +248,17 @@ class TestEstimatedCompletion:
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
 
         result = await intelligence.estimated_completion(
-            user_id=uuid4(), goal_node_id=node_id,
+            user_id=uuid4(),
+            goal_node_id=node_id,
         )
 
-        assert result["missing_prerequisites"] == 0
+        assert result['missing_prerequisites'] == 0
         # No missing prereqs means 0 estimated minutes
-        assert result["estimated_minutes"] == 0
+        assert result['estimated_minutes'] == 0
 
 
 # ── Completion Forecast Tests ──────────────────────────────────────
+
 
 class TestCompletionForecast:
     """Test completion_forecast."""
@@ -252,9 +266,9 @@ class TestCompletionForecast:
     @pytest.mark.asyncio
     async def test_forecast_returns_comprehensive_stats(self, intelligence, mock_uow):
         """Test forecast returns all expected fields."""
-        mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[
-            _make_node(uuid4()) for _ in range(10)
-        ])
+        mock_uow.knowledge_nodes.find_published = AsyncMock(
+            return_value=[_make_node(uuid4()) for _ in range(10)]
+        )
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
         mock_uow.bookmarks.find_by_user = AsyncMock(return_value=[])
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
@@ -262,26 +276,27 @@ class TestCompletionForecast:
 
         result = await intelligence.completion_forecast(user_id=uuid4())
 
-        assert "total_nodes" in result
-        assert "completed_nodes" in result
-        assert "remaining_nodes" in result
-        assert "completion_percentage" in result
-        assert "user_pace_minutes_per_node" in result
-        assert "estimated_days_to_completion" in result
-        assert "next_recommendations" in result
+        assert 'total_nodes' in result
+        assert 'completed_nodes' in result
+        assert 'remaining_nodes' in result
+        assert 'completion_percentage' in result
+        assert 'user_pace_minutes_per_node' in result
+        assert 'estimated_days_to_completion' in result
+        assert 'next_recommendations' in result
 
     @pytest.mark.asyncio
     async def test_forecast_with_some_completed(self, intelligence, mock_uow):
         """Test forecast reflects some progress."""
-        mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[
-            _make_node(uuid4()) for _ in range(10)
-        ])
+        mock_uow.knowledge_nodes.find_published = AsyncMock(
+            return_value=[_make_node(uuid4()) for _ in range(10)]
+        )
         mock_uow.user_progress.find_by_user = AsyncMock(
-            return_value=MagicMock(items=[
-                MagicMock(node_id=uuid4(), status="completed",
-                          updated_at=datetime.now(timezone.utc))
-                for _ in range(3)
-            ])
+            return_value=MagicMock(
+                items=[
+                    MagicMock(node_id=uuid4(), status='completed', updated_at=datetime.now(UTC))
+                    for _ in range(3)
+                ]
+            )
         )
         mock_uow.bookmarks.find_by_user = AsyncMock(return_value=[])
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
@@ -289,5 +304,5 @@ class TestCompletionForecast:
 
         result = await intelligence.completion_forecast(user_id=uuid4())
 
-        assert result["completed_nodes"] >= 0
-        assert result["total_nodes"] == 10
+        assert result['completed_nodes'] >= 0
+        assert result['total_nodes'] == 10

@@ -25,8 +25,13 @@ class Diagnostics:
         warnings: list[str] = []
 
         # Environment
-        if settings.ENVIRONMENT == 'production' and settings.SECRET_KEY == 'change-me-in-production':
-            warnings.append('SECRET_KEY is still set to the default value — change it in production.')
+        if (
+            settings.ENVIRONMENT == 'production'
+            and settings.SECRET_KEY == 'change-me-in-production'
+        ):
+            warnings.append(
+                'SECRET_KEY is still set to the default value — change it in production.'
+            )
 
         # Database URL
         if 'localhost' in settings.DATABASE_URL and settings.ENVIRONMENT == 'production':
@@ -34,7 +39,9 @@ class Diagnostics:
 
         # CORS
         if '*' in settings.CORS_ORIGINS and settings.ENVIRONMENT == 'production':
-            warnings.append('CORS allows all origins (*) in production — restrict to specific domains.')
+            warnings.append(
+                'CORS allows all origins (*) in production — restrict to specific domains.'
+            )
 
         # Log warnings
         for warning in warnings:

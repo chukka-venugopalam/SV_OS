@@ -48,7 +48,9 @@ class RecommendationDetail(BaseModel):
     recommendation_type: RecommendationType = Field(description='Category of the recommendation')
     score: float | None = Field(default=None, ge=0.0, le=1.0, description='Relevance score')
     reason: str | None = Field(default=None, description='Human-readable explanation')
-    metadata: dict = Field(default_factory=dict, description='Engine metadata (signals, model version)')
+    metadata: dict = Field(
+        default_factory=dict, description='Engine metadata (signals, model version)'
+    )
     is_dismissed: bool = Field(default=False, description='Whether the user dismissed this')
     created_at: datetime = Field(description='When the recommendation was generated')
     updated_at: datetime = Field(description='When the recommendation was last updated')

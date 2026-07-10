@@ -12,13 +12,13 @@ Endpoints:
 
 from __future__ import annotations
 
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from structlog.stdlib import get_logger
 
 from app.api.deps import (
-    get_current_user_id,
     get_optional_user_id,
     get_uow,
     require_admin,
@@ -42,8 +42,8 @@ router = APIRouter()
 @router.get('/knowledge/{slug}/similar')
 async def get_similar_concepts(
     slug: str,
-    limit: int = Query(10, ge=1, le=50, description='Number of results'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=50, description='Number of results')] = 10,
 ) -> dict:
     """Find semantically similar concepts to a given knowledge node."""
     node = await uow.knowledge_nodes.find_by_slug(slug)
@@ -69,9 +69,9 @@ async def get_similar_concepts(
 
 @router.get('/recommendations/personalized')
 async def get_personalized_recommendations(
-    limit: int = Query(20, ge=1, le=50, description='Number of recommendations'),
-    user_id: UUID = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    user_id: Annotated[UUID, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=50, description='Number of recommendations')] = 20,
 ) -> dict:
     """Get personalised recommendations with score breakdowns (V2)."""
     if not user_id:
@@ -96,10 +96,10 @@ async def get_personalized_recommendations(
 
 @router.get('/search/semantic')
 async def semantic_search(
-    query: str = Query(..., min_length=1, description='Search query'),
-    limit: int = Query(20, ge=1, le=100, description='Number of results'),
-    threshold: float = Query(0.0, ge=0.0, le=1.0, description='Minimum similarity'),
-    uow: UnitOfWork = Depends(get_uow),
+    query: Annotated[str, Query(min_length=1, description='Search query')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=100, description='Number of results')] = 20,
+    threshold: Annotated[float, Query(ge=0.0, le=1.0, description='Minimum similarity')] = 0.0,
 ) -> dict:
     """Search knowledge nodes using semantic similarity."""
     # Generate embedding for query
@@ -127,13 +127,13 @@ async def semantic_search(
 
 @router.get('/search/hybrid')
 async def hybrid_search(
-    query: str = Query(..., min_length=1, description='Search query'),
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    node_type: str | None = Query(None, description='Filter by node type'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    user_id: UUID | None = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    query: Annotated[str, Query(min_length=1, description='Search query')],
+    user_id: Annotated[UUID | None, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
+    node_type: Annotated[str | None, Query(description='Filter by node type')] = None,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
 ) -> dict:
     """Multi-signal hybrid search (keyword + semantic + graph + popularity)."""
     # Generate query embedding
@@ -166,8 +166,8 @@ async def hybrid_search(
 
 @router.post('/ai/reindex')
 async def reindex_all(
-    uow: UnitOfWork = Depends(get_uow),
-    _admin=Depends(require_admin),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _admin: Annotated[Any, Depends(require_admin)],
 ) -> dict:
     """Re-index all published knowledge nodes with embeddings.
 
@@ -183,9 +183,9 @@ async def reindex_all(
 
 @router.post('/ai/embed')
 async def embed_node(
-    node_id: UUID = Query(..., description='Node ID to embed'),
-    uow: UnitOfWork = Depends(get_uow),
-    _admin=Depends(require_admin),
+    node_id: Annotated[UUID, Query(..., description='Node ID to embed')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _admin: Annotated[Any, Depends(require_admin)],
 ) -> dict:
     """Generate embedding for a specific knowledge node.
 

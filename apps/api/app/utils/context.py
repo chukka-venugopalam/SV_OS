@@ -5,13 +5,12 @@ from __future__ import annotations
 import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @asynccontextmanager
-async def DatabaseTransaction(
+async def database_transaction(
     session: AsyncSession,
 ) -> AsyncGenerator[AsyncSession, None]:
     """Context manager wrapping a database session with commit/rollback.

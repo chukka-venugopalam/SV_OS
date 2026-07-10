@@ -1,15 +1,16 @@
 """User profile, bookmark, favorite, history, and dashboard DTOs."""
 
-from app.schemas.user.profile import (
-    UserProfile,
-    UserSettings,
-    ProfileUpdate,
-    UserSummary,
-)
 from app.schemas.user.bookmark import (
     BookmarkCreate,
     BookmarkDetail,
     BookmarkList,
+)
+from app.schemas.user.dashboard import (
+    DashboardRecommendation,
+    DashboardSummary,
+    InProgressItem,
+    RecentActivity,
+    UserStatistics,
 )
 from app.schemas.user.favorite import (
     FavoriteCreate,
@@ -18,34 +19,33 @@ from app.schemas.user.favorite import (
 )
 from app.schemas.user.history import (
     LearningHistoryItem,
-    SearchHistoryItem,
     SearchHistoryCreate,
+    SearchHistoryItem,
 )
-from app.schemas.user.dashboard import (
-    DashboardSummary,
-    UserStatistics,
-    RecentActivity,
-    InProgressItem,
-    DashboardRecommendation,
+from app.schemas.user.profile import (
+    ProfileUpdate,
+    UserProfile,
+    UserSettings,
+    UserSummary,
 )
 
 __all__ = [
-    'UserProfile',
-    'UserSettings',
-    'ProfileUpdate',
-    'UserSummary',
     'BookmarkCreate',
     'BookmarkDetail',
     'BookmarkList',
+    'DashboardRecommendation',
+    'DashboardSummary',
     'FavoriteCreate',
     'FavoriteDetail',
     'FavoriteList',
-    'LearningHistoryItem',
-    'SearchHistoryItem',
-    'SearchHistoryCreate',
-    'DashboardSummary',
-    'UserStatistics',
-    'RecentActivity',
     'InProgressItem',
-    'DashboardRecommendation',
+    'LearningHistoryItem',
+    'ProfileUpdate',
+    'RecentActivity',
+    'SearchHistoryCreate',
+    'SearchHistoryItem',
+    'UserProfile',
+    'UserSettings',
+    'UserStatistics',
+    'UserSummary',
 ]

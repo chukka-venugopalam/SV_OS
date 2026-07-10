@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -20,11 +21,11 @@ router = APIRouter()
 
 @router.get('')
 async def list_skills(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    category: str | None = Query(None, description='Filter by category'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
+    category: Annotated[str | None, Query(description='Filter by category')] = None,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
 ) -> dict:
     """List skills with optional filtering."""
     service = SkillService(uow)
@@ -48,7 +49,7 @@ async def list_skills(
 
 @router.get('/categories')
 async def get_categories(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get all distinct skill categories with counts."""
     service = SkillService(uow)
@@ -63,14 +64,14 @@ async def get_categories(
 @router.get('/{skill_id}')
 async def get_skill(
     skill_id: UUID,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get a skill by ID."""
     service = SkillService(uow)
     try:
         skill = await service.get_by_id(skill_id)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Skill not found')
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Skill not found') from e
     return success_response(
         data=_skill_to_dict(skill),
         message='Skill retrieved',
@@ -80,7 +81,7 @@ async def get_skill(
 @router.get('/{skill_id}/relationships')
 async def get_skill_relationships(
     skill_id: UUID,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get all relationships for a skill."""
     service = SkillService(uow)
@@ -88,8 +89,8 @@ async def get_skill_relationships(
         # Verify skill exists
         await service.get_by_id(skill_id)
         relationships = await service.get_relationships(skill_id)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Skill not found')
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Skill not found') from e
     return success_response(
         data=relationships,
         message='Skill relationships retrieved',

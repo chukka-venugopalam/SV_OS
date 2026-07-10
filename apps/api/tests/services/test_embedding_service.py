@@ -161,9 +161,9 @@ class TestCacheStats:
         """Test cache stats reflect operations."""
         service = EmbeddingService(provider=mock_provider)
 
-        await service.embed('first')     # miss
-        await service.embed('first')     # hit
-        await service.embed('second')    # miss
+        await service.embed('first')  # miss
+        await service.embed('first')  # hit
+        await service.embed('second')  # miss
 
         stats = await service.get_cache_stats()
 
@@ -241,13 +241,17 @@ class TestProviderSelection:
     async def test_default_provider_is_openai(self):
         """Test default creates OpenAI provider."""
         import os
+
         original = os.environ.get('AI_EMBEDDING_PROVIDER')
         if 'AI_EMBEDDING_PROVIDER' in os.environ:
             del os.environ['AI_EMBEDDING_PROVIDER']
 
         service = EmbeddingService()
         # Default should be OpenAI
-        assert 'openai' in service.provider.model_name.lower() or service.provider.model_name.startswith('text-embedding')
+        assert (
+            'openai' in service.provider.model_name.lower()
+            or service.provider.model_name.startswith('text-embedding')
+        )
 
         if original:
             os.environ['AI_EMBEDDING_PROVIDER'] = original

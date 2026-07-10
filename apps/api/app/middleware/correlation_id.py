@@ -26,13 +26,8 @@ class CorrelationIDMiddleware(BaseHTTPMiddleware):
     structured logging context.
     """
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
-        correlation_id: str = (
-            request.headers.get('X-Correlation-ID')
-            or str(uuid4())
-        )
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        correlation_id: str = request.headers.get('X-Correlation-ID') or str(uuid4())
         request.state.correlation_id = correlation_id
 
         # Re-bind logging context so correlation_id is included

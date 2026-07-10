@@ -13,7 +13,7 @@ the SQLAlchemy model class::
 
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID
 
 from sqlalchemy import Select, func, or_, select
@@ -37,7 +37,7 @@ from app.repositories.query_helpers import (
 ModelT = TypeVar('ModelT', bound=Base)
 
 
-class BaseRepository(Generic[ModelT]):
+class BaseRepository[ModelT: Base]:
     """Generic repository providing common database operations.
 
     Subclasses must set ``model`` to the SQLAlchemy model class.
@@ -285,7 +285,9 @@ class BaseRepository(Generic[ModelT]):
             expected_version = data.pop('version', None)
             if expected_version is not None and instance.version != expected_version:
                 raise ConcurrentModificationError(
-                    self.model.__name__, id, expected_version=expected_version,
+                    self.model.__name__,
+                    id,
+                    expected_version=expected_version,
                 )
             data['version'] = getattr(instance, 'version', 0) + 1
 
@@ -296,7 +298,7 @@ class BaseRepository(Generic[ModelT]):
             await self.session.flush()
             await self.session.refresh(instance)
         except Exception as exc:
-            self._raise_on_duplicate(exc, data, operation='update')
+            self._raise_on_duplicate(exc, data, _operation='update')
             raise RepositoryError(
                 message=f'Failed to update {self.model.__name__} id={id}: {exc}',
                 detail={'original_error': str(exc), 'data': self._sanitize_data(data)},
@@ -311,8 +313,8 @@ class BaseRepository(Generic[ModelT]):
         ``constraints + data``.
         """
         existing = await self.get_by_field(
-            field=list(constraints.keys())[0],
-            value=list(constraints.values())[0],
+            field=next(iter(constraints.keys())),
+            value=next(iter(constraints.values())),
         )
         if existing:
             return await self.update(existing.id, **data)
@@ -339,7 +341,7 @@ class BaseRepository(Generic[ModelT]):
             await self.session.delete(instance)
         else:
             if hasattr(instance, 'is_deleted'):
-                setattr(instance, 'is_deleted', True)
+                instance.is_deleted = True
             else:
                 await self.session.delete(instance)
 
@@ -374,7 +376,7 @@ class BaseRepository(Generic[ModelT]):
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
             for instance in instances:
-                setattr(instance, 'is_deleted', True)
+                instance.is_deleted = True
 
         try:
             await self.session.flush()
@@ -396,12 +398,12 @@ class BaseRepository(Generic[ModelT]):
             raise EntityNotFoundError(self.model.__name__, id)
 
         if hasattr(instance, 'is_deleted'):
-            if not getattr(instance, 'is_deleted'):
+            if not instance.is_deleted:
                 raise RepositoryError(
                     message=f'{self.model.__name__} id={id} is not deleted',
                     detail={'entity_name': self.model.__name__, 'entity_id': str(id)},
                 )
-            setattr(instance, 'is_deleted', False)
+            instance.is_deleted = False
 
         try:
             await self.session.flush()
@@ -650,18 +652,14 @@ class BaseRepository(Generic[ModelT]):
         if not instances:
             return instances
 
-        ids = [getattr(i, 'id') for i in instances]
+        ids = [i.id for i in instances]
         relation = getattr(self.model, relation_name, None)
         if relation is None:
             raise RepositoryError(
                 f'Model {self.model.__name__} has no relationship named {relation_name}',
             )
 
-        stmt = (
-            select(self.model)
-            .options(selectinload(relation))
-            .where(self.model.id.in_(ids))
-        )
+        stmt = select(self.model).options(selectinload(relation)).where(self.model.id.in_(ids))
         result = await self.session.execute(stmt)
         _ = list(result.scalars().all())  # Triggers eager loading
 
@@ -672,16 +670,13 @@ class BaseRepository(Generic[ModelT]):
     def _is_deleted(self, instance: ModelT) -> bool:
         """Check whether a model instance is soft-deleted."""
         if hasattr(instance, 'is_deleted'):
-            return bool(getattr(instance, 'is_deleted'))
+            return bool(instance.is_deleted)
         return False
 
     def _guess_search_fields(self) -> list[str]:
         """Guess text-searchable fields by common naming patterns."""
         candidates = ['title', 'name', 'description', 'slug', 'content']
-        return [
-            f for f in candidates
-            if hasattr(self.model, f)
-        ]
+        return [f for f in candidates if hasattr(self.model, f)]
 
     def _sanitize_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """Remove sensitive fields from data for error reporting."""
@@ -692,11 +687,15 @@ class BaseRepository(Generic[ModelT]):
         self,
         exc: Exception,
         data: dict[str, Any],
-        operation: str = 'create',
+        _operation: str = 'create',
     ) -> None:
         """Check if the exception is a duplicate-key violation and raise accordingly."""
         exc_str = str(exc).lower()
-        if 'unique constraint' in exc_str or 'duplicate key' in exc_str or 'unique violation' in exc_str:
+        if (
+            'unique constraint' in exc_str
+            or 'duplicate key' in exc_str
+            or 'unique violation' in exc_str
+        ):
             raise DuplicateEntityError(
                 entity_name=self.model.__name__,
                 fields=self._sanitize_data(data),

@@ -13,16 +13,16 @@ from app.services.ai.providers.ollama import OllamaEmbeddingProvider
 from app.services.ai.providers.openai import OpenAIEmbeddingProvider
 
 __all__ = [
-    'EmbeddingProvider',
-    'EmbeddingResult',
-    'OpenAIEmbeddingProvider',
-    'OllamaEmbeddingProvider',
-    'GeminiEmbeddingProvider',
-    'LLMProvider',
-    'LLMMessage',
-    'LLMResponse',
-    'OpenAIChatProvider',
     'AnthropicChatProvider',
     'DeepSeekChatProvider',
+    'EmbeddingProvider',
+    'EmbeddingResult',
+    'GeminiEmbeddingProvider',
+    'LLMMessage',
+    'LLMProvider',
+    'LLMResponse',
     'OllamaChatProvider',
+    'OllamaEmbeddingProvider',
+    'OpenAIChatProvider',
+    'OpenAIEmbeddingProvider',
 ]

@@ -14,9 +14,8 @@ Signal functions:
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
-from uuid import UUID
 
 from app.repositories import UnitOfWork
 
@@ -64,11 +63,13 @@ class RankingService:
         Returns:
             self for chaining.
         """
-        self._signals.append({
-            'name': name,
-            'function': function,
-            'weight': weight,
-        })
+        self._signals.append(
+            {
+                'name': name,
+                'function': function,
+                'weight': weight,
+            }
+        )
         return self
 
     async def rank(
@@ -95,11 +96,9 @@ class RankingService:
         # Normalize weights to sum to 1.0
         total_weight = sum(s['weight'] for s in self._signals)
         if total_weight == 0:
-            normalized = [s | {'weight': 1.0 / len(self._signals)}
-                         for s in self._signals]
+            normalized = [s | {'weight': 1.0 / len(self._signals)} for s in self._signals]
         else:
-            normalized = [s | {'weight': s['weight'] / total_weight}
-                         for s in self._signals]
+            normalized = [s | {'weight': s['weight'] / total_weight} for s in self._signals]
 
         results: list[RankedResult] = []
         for candidate in candidates:
@@ -121,11 +120,13 @@ class RankingService:
                 or (candidate.get('id') if isinstance(candidate, dict) else '')
             )
 
-            results.append(RankedResult(
-                node_id=node_id,
-                score=round(composite, 4),
-                signals=signals,
-            ))
+            results.append(
+                RankedResult(
+                    node_id=node_id,
+                    score=round(composite, 4),
+                    signals=signals,
+                )
+            )
 
         results.sort(key=lambda r: r.score, reverse=True)
 
@@ -142,9 +143,11 @@ class RankingService:
         max_view_count: int = 1000,
     ) -> SignalFunction:
         """Create a popularity signal function."""
-        def signal(node, context) -> float:
+
+        def signal(node, _context) -> float:
             views = getattr(node, view_count_field, 0) or 0
             return min(views / max_view_count, 1.0)
+
         return signal
 
     @staticmethod
@@ -153,9 +156,8 @@ class RankingService:
     ) -> SignalFunction:
         """Create a difficulty preference signal."""
         preferred = preferred or ['beginner', 'intermediate']
-        order = {'beginner': 0, 'intermediate': 1, 'advanced': 2, 'expert': 3}
 
-        def signal(node, context) -> float:
+        def signal(node, _context) -> float:
             diff = getattr(node, 'difficulty', None)
             if diff is None:
                 return 0.3
@@ -163,6 +165,7 @@ class RankingService:
             if diff_str.lower() in preferred:
                 return 0.8
             return 0.3
+
         return signal
 
     @staticmethod
@@ -170,6 +173,7 @@ class RankingService:
         query_embedding: list[float] | None = None,
     ) -> SignalFunction:
         """Create a semantic similarity signal."""
+
         def signal(node, context) -> float:
             emb = query_embedding or context.get('query_embedding')
             if not emb:
@@ -178,10 +182,11 @@ class RankingService:
             node_emb = metadata.get('embedding')
             if not node_emb:
                 return 0.0
-            dot = sum(a * b for a, b in zip(emb, node_emb))
+            dot = sum(a * b for a, b in zip(emb, node_emb, strict=False))
             norm_a = math.sqrt(sum(a * a for a in emb))
             norm_b = math.sqrt(sum(b * b for b in node_emb))
             if norm_a == 0 or norm_b == 0:
                 return 0.0
             return dot / (norm_a * norm_b)
+
         return signal

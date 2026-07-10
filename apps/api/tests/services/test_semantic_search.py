@@ -26,9 +26,15 @@ def search_service(mock_uow):
     return SemanticSearchService(mock_uow)
 
 
-def _make_node(node_id=None, title='Test', slug='test',
-               description='A test node', node_type='concept',
-               difficulty='beginner', embedding=None):
+def _make_node(
+    node_id=None,
+    title='Test',
+    slug='test',
+    description='A test node',
+    node_type='concept',
+    difficulty='beginner',
+    embedding=None,
+):
     node = MagicMock()
     node.id = node_id or uuid4()
     node.title = title
@@ -90,9 +96,11 @@ class TestSemanticSearch:
     @pytest.mark.asyncio
     async def test_search_empty_results(self, search_service, mock_uow):
         """Test search returns empty when no nodes have embeddings."""
-        mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[
-            _make_node(uuid4(), 'Node 1', 'node-1'),
-        ])
+        mock_uow.knowledge_nodes.find_published = AsyncMock(
+            return_value=[
+                _make_node(uuid4(), 'Node 1', 'node-1'),
+            ]
+        )
 
         results = await search_service.search(
             query_embedding=[0.1, 0.2, 0.3],
@@ -105,8 +113,7 @@ class TestSemanticSearch:
     async def test_search_finds_similar(self, search_service, mock_uow):
         """Test search finds nodes with similar embeddings."""
         target_id = uuid4()
-        node = _make_node(target_id, 'Target Node', 'target',
-                          embedding=[0.9, 0.1, 0.0])
+        node = _make_node(target_id, 'Target Node', 'target', embedding=[0.9, 0.1, 0.0])
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
 
@@ -122,8 +129,7 @@ class TestSemanticSearch:
     @pytest.mark.asyncio
     async def test_search_with_threshold(self, search_service, mock_uow):
         """Test threshold filters low-similarity results."""
-        node = _make_node(uuid4(), 'Node', 'node',
-                          embedding=[0.0, 0.0, 1.0])  # Orthogonal to query
+        node = _make_node(uuid4(), 'Node', 'node', embedding=[0.0, 0.0, 1.0])  # Orthogonal to query
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
 
@@ -139,8 +145,7 @@ class TestSemanticSearch:
     async def test_search_excludes_nodes(self, search_service, mock_uow):
         """Test search excludes specified node IDs."""
         excluded_id = uuid4()
-        node = _make_node(excluded_id, 'Excluded', 'excluded',
-                          embedding=[0.9, 0.1, 0.0])
+        node = _make_node(excluded_id, 'Excluded', 'excluded', embedding=[0.9, 0.1, 0.0])
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
 
@@ -155,10 +160,8 @@ class TestSemanticSearch:
     @pytest.mark.asyncio
     async def test_search_ranking(self, search_service, mock_uow):
         """Test results are ranked by similarity descending."""
-        node_a = _make_node(uuid4(), 'Node A', 'node-a',
-                            embedding=[0.9, 0.0, 0.0])
-        node_b = _make_node(uuid4(), 'Node B', 'node-b',
-                            embedding=[0.5, 0.0, 0.0])
+        node_a = _make_node(uuid4(), 'Node A', 'node-a', embedding=[0.9, 0.0, 0.0])
+        node_b = _make_node(uuid4(), 'Node B', 'node-b', embedding=[0.5, 0.0, 0.0])
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node_a, node_b])
 
@@ -197,10 +200,8 @@ class TestFindSimilarToNode:
     async def test_find_similar_excludes_source(self, search_service, mock_uow):
         """Test source node is excluded from results."""
         source_id = uuid4()
-        source = _make_node(source_id, 'Source', 'source',
-                            embedding=[0.9, 0.0, 0.0])
-        other = _make_node(uuid4(), 'Other', 'other',
-                           embedding=[0.85, 0.0, 0.0])
+        source = _make_node(source_id, 'Source', 'source', embedding=[0.9, 0.0, 0.0])
+        other = _make_node(uuid4(), 'Other', 'other', embedding=[0.85, 0.0, 0.0])
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=source)
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[source, other])
@@ -216,7 +217,7 @@ class TestSimilarityMatrix:
     """Test compute_similarity_matrix."""
 
     @pytest.mark.asyncio
-    async def test_empty_matrix(self, search_service, mock_uow):
+    async def test_empty_matrix(self, search_service, mock_uow):  # noqa: ARG002
         """Test empty node list returns empty."""
         results = await search_service.compute_similarity_matrix([])
         assert results == []

@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from app.models.learning_resource import LearningResource
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class LearningResourceRepository(BaseRepository[LearningResource]):
@@ -87,7 +87,6 @@ class LearningResourceRepository(BaseRepository[LearningResource]):
         """Find all resources belonging to any of the given node IDs."""
         if not node_ids:
             return []
-        from sqlalchemy import select
 
         stmt = (
             select(LearningResource)

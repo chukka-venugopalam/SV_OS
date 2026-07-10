@@ -34,7 +34,7 @@ class RecommendationService:
     async def get_for_user(
         self,
         user_id: UUID,
-        recommendation_type: str | None = None,
+        _recommendation_type: str | None = None,
         page: int = 1,
         per_page: int = 20,
     ) -> PageResult:

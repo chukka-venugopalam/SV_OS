@@ -25,7 +25,6 @@ from app.repositories.audit_log import AuditLogRepository
 from app.repositories.base import BaseRepository
 from app.repositories.bookmark import BookmarkRepository
 from app.repositories.career import CareerRepository
-from app.repositories.favorite import FavoriteRepository
 from app.repositories.errors import (
     ConcurrentModificationError,
     DatabaseConnectionError,
@@ -34,6 +33,7 @@ from app.repositories.errors import (
     QueryError,
     RepositoryError,
 )
+from app.repositories.favorite import FavoriteRepository
 from app.repositories.graph import GraphRepository
 from app.repositories.knowledge_edge import KnowledgeEdgeRepository
 from app.repositories.knowledge_node import KnowledgeNodeRepository
@@ -56,41 +56,41 @@ from app.repositories.user import UserRepository
 from app.repositories.user_progress import UserProgressRepository
 
 __all__ = [
+    'AuditLogRepository',
     # Base
     'BaseRepository',
-    # Errors
-    'RepositoryError',
-    'EntityNotFoundError',
-    'DuplicateEntityError',
+    'BookmarkRepository',
+    'CareerRepository',
     'ConcurrentModificationError',
+    'CursorPageResult',
     'DatabaseConnectionError',
-    'QueryError',
+    'DuplicateEntityError',
+    'EntityNotFoundError',
+    'FavoriteRepository',
+    'FavoriteRepository',
+    'FilterCondition',
+    'GraphRepository',
+    'KnowledgeEdgeRepository',
+    'KnowledgeNodeRepository',
+    'LearningPathRepository',
+    'LearningResourceRepository',
+    'LearningSessionRepository',
     # Query Helpers
     'PageResult',
-    'CursorPageResult',
-    'FilterCondition',
+    'ProjectRepository',
     'QueryBuilder',
+    'QueryError',
+    'RecommendationRepository',
+    # Errors
+    'RepositoryError',
+    'SearchHistoryRepository',
+    'SkillRepository',
     'SortDirection',
+    'TagRepository',
     # Unit of Work
     'UnitOfWork',
-    'unit_of_work',
+    'UserProgressRepository',
     # Feature Repositories
     'UserRepository',
-    'KnowledgeNodeRepository',
-    'FavoriteRepository',
-    'KnowledgeEdgeRepository',
-    'CareerRepository',
-    'ProjectRepository',
-    'SkillRepository',
-    'LearningPathRepository',
-    'LearningSessionRepository',
-    'LearningResourceRepository',
-    'UserProgressRepository',
-    'BookmarkRepository',
-    'FavoriteRepository',
-    'RecommendationRepository',
-    'TagRepository',
-    'SearchHistoryRepository',
-    'AuditLogRepository',
-    'GraphRepository',
+    'unit_of_work',
 ]

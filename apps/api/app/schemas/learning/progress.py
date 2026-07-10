@@ -46,6 +46,7 @@ class ProgressStatistics(BaseModel):
     mastered: int = Field(ge=0, description='Nodes mastered')
     total_time_minutes: int = Field(ge=0, description='Total learning time across all nodes')
     completion_percentage: float = Field(
-        ge=0.0, le=100.0,
+        ge=0.0,
+        le=100.0,
         description='Overall completion percentage (completed + mastered)',
     )

@@ -31,7 +31,7 @@ class LearningPathService:
         self,
         page: int = 1,
         per_page: int = 20,
-        difficulty: str | None = None,
+        _difficulty: str | None = None,
     ) -> PageResult[LearningPath]:
         """List published learning paths with optional difficulty filter."""
         return await self._uow.learning_paths.find_published(

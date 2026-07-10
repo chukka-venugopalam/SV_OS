@@ -79,9 +79,15 @@ class CareerCreate(BaseModel):
     )
     title: str = Field(description='Career title', max_length=300, min_length=1)
     description: str = Field(description='Detailed career description', max_length=10000)
-    demand_level: DemandLevel = Field(default=DemandLevel.GROWING, description='Market demand trend')
-    average_salary: str | None = Field(default=None, max_length=100, description='Salary range display string')
-    required_experience: str | None = Field(default=None, max_length=50, description='Experience level needed')
+    demand_level: DemandLevel = Field(
+        default=DemandLevel.GROWING, description='Market demand trend'
+    )
+    average_salary: str | None = Field(
+        default=None, max_length=100, description='Salary range display string'
+    )
+    required_experience: str | None = Field(
+        default=None, max_length=50, description='Experience level needed'
+    )
     icon: str | None = Field(default=None, max_length=50, description='UI icon identifier')
     color: str | None = Field(default=None, max_length=7, description='Hex colour for UI')
     metadata: dict = Field(default_factory=dict, description='Arbitrary metadata')

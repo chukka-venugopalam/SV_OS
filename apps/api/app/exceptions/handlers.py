@@ -16,7 +16,7 @@ All exception handlers return responses in the standard API format:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -24,7 +24,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from structlog.stdlib import get_logger
 
-from app.exceptions.base import AppException, ErrorDetail
+from app.exceptions.base import AppError, ErrorDetail
 from app.repositories.errors import (
     DuplicateEntityError,
     EntityNotFoundError,
@@ -41,7 +41,7 @@ def _request_id(request: Request) -> str | None:
 
 def _now_utc() -> str:
     """Return current UTC timestamp as ISO 8601 string."""
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _error_response(
@@ -54,18 +54,14 @@ def _error_response(
         'success': False,
         'message': message,
         'data': None,
-        'errors': (
-            [{'field': e.field, 'message': e.message} for e in errors]
-            if errors
-            else None
-        ),
+        'errors': ([{'field': e.field, 'message': e.message} for e in errors] if errors else None),
         'timestamp': _now_utc(),
         'request_id': request_id,
     }
 
 
-async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
-    """Handler for all custom ``AppException`` subclasses."""
+async def app_exception_handler(request: Request, exc: AppError) -> JSONResponse:
+    """Handler for all custom ``AppError`` subclasses."""
     logger.warning(
         'app_exception',
         message=exc.message,
@@ -110,9 +106,7 @@ async def validation_exception_handler(
     )
 
 
-async def http_exception_handler(
-    request: Request, exc: StarletteHTTPException
-) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     """Handler for Starlette HTTP exceptions (e.g. 405 Method Not Allowed)."""
     logger.warning(
         'http_exception',
@@ -129,9 +123,7 @@ async def http_exception_handler(
     )
 
 
-async def repository_error_handler(
-    request: Request, exc: RepositoryError
-) -> JSONResponse:
+async def repository_error_handler(request: Request, exc: RepositoryError) -> JSONResponse:
     """Handler for repository-layer errors.
 
     Maps known repository errors to appropriate HTTP status codes:
@@ -187,7 +179,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     Must be called during application initialisation, *after* middleware
     has been added so that ``request.state.request_id`` is available.
     """
-    app.add_exception_handler(AppException, app_exception_handler)
+    app.add_exception_handler(AppError, app_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(RepositoryError, repository_error_handler)

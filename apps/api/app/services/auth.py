@@ -7,7 +7,7 @@ without changing the service interface.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -16,11 +16,11 @@ from passlib.context import CryptContext
 from structlog.stdlib import get_logger
 
 from app.core.config import settings
-from app.exceptions.base import AppException
+from app.exceptions.base import AppError
 from app.models.enums import UserRole
 from app.models.user import User
 from app.repositories import UnitOfWork
-from app.repositories.errors import DuplicateEntityError, EntityNotFoundError, RepositoryError
+from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
 
 logger = get_logger(__name__)
 
@@ -28,14 +28,14 @@ logger = get_logger(__name__)
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-class AuthenticationError(AppException):
+class AuthenticationError(AppError):
     """Raised when authentication fails (invalid credentials, expired token, etc.)."""
 
     def __init__(self, message: str = 'Authentication failed') -> None:
         super().__init__(message=message, status_code=401)
 
 
-class AuthorizationError(AppException):
+class AuthorizationError(AppError):
     """Raised when the user lacks permission for an action."""
 
     def __init__(self, message: str = 'Not authorized') -> None:
@@ -83,8 +83,8 @@ class AuthService:
     def _create_token(self, data: dict[str, Any], expires_delta: timedelta) -> str:
         """Create a JWT token with the given payload and expiration."""
         to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + expires_delta
-        to_encode.update({'exp': expire, 'iat': datetime.now(timezone.utc)})
+        expire = datetime.now(UTC) + expires_delta
+        to_encode.update({'exp': expire, 'iat': datetime.now(UTC)})
         return jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
 
     def create_access_token(self, user_id: UUID, role: str = 'learner') -> tuple[str, datetime]:
@@ -93,7 +93,7 @@ class AuthService:
         Returns a tuple of ``(token, expires_at)``.
         """
         expires_delta = timedelta(minutes=self._access_token_expire_minutes)
-        expires_at = datetime.now(timezone.utc) + expires_delta
+        expires_at = datetime.now(UTC) + expires_delta
         token = self._create_token(
             {'sub': str(user_id), 'role': role, 'type': 'access'},
             expires_delta,
@@ -210,7 +210,7 @@ class AuthService:
             raise AuthenticationError('Invalid email or password')
 
         # Record login
-        user.last_login_at = datetime.now(timezone.utc)
+        user.last_login_at = datetime.now(UTC)
         await self._uow.flush()
 
         # Generate tokens

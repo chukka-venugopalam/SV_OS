@@ -22,7 +22,9 @@ class LearningSessionUpdate(BaseModel):
 
     status: LearningStatus | None = Field(default=None, description='New session status')
     ended_at: datetime | None = Field(default=None, description='When the session ended')
-    duration_minutes: int | None = Field(default=None, ge=1, le=9999, description='Minutes spent studying')
+    duration_minutes: int | None = Field(
+        default=None, ge=1, le=9999, description='Minutes spent studying'
+    )
     notes: str | None = Field(default=None, max_length=5000, description='Session notes')
 
 

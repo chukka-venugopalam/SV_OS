@@ -3,8 +3,6 @@
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Input,
   Label,
@@ -12,7 +10,7 @@ import {
   Avatar,
   Skeleton,
 } from '@sv-os/ui';
-import { ArrowLeft, Save, User } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 

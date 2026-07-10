@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -20,10 +21,10 @@ router = APIRouter()
 
 @router.get('')
 async def list_bookmarks(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
 ) -> dict:
     """List bookmarks for the authenticated user."""
     service = BookmarkService(uow)
@@ -47,8 +48,8 @@ async def list_bookmarks(
 @router.post('/{node_id}')
 async def toggle_bookmark(
     node_id: UUID,
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Toggle a bookmark on a knowledge node."""
     service = BookmarkService(uow)
@@ -57,8 +58,8 @@ async def toggle_bookmark(
             user_id=current_user_id,
             node_id=node_id,
         )
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Node not found')
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Node not found') from e
 
     return success_response(
         data={
@@ -72,8 +73,8 @@ async def toggle_bookmark(
 @router.get('/{node_id}')
 async def is_bookmarked(
     node_id: UUID,
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Check if a node is bookmarked by the authenticated user."""
     service = BookmarkService(uow)

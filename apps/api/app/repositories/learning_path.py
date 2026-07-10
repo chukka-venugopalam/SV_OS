@@ -1,4 +1,7 @@
-"""LearningPath repository — persistence operations for ``LearningPath`` and ``LearningSession`` models."""
+"""
+LearningPath repository — persistence operations
+for ``LearningPath`` and ``LearningSession`` models.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +12,7 @@ from sqlalchemy import func, select
 
 from app.models.learning_path import LearningPath, LearningSession
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class LearningPathRepository(BaseRepository[LearningPath]):
@@ -120,12 +123,9 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
 
     async def total_time_for_user(self, user_id: UUID) -> int:
         """Sum total learning minutes across all completed sessions for a user."""
-        stmt = (
-            select(func.coalesce(func.sum(LearningSession.duration_minutes), 0))
-            .where(
-                LearningSession.user_id == user_id,
-                LearningSession.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(func.coalesce(func.sum(LearningSession.duration_minutes), 0)).where(
+            LearningSession.user_id == user_id,
+            LearningSession.is_deleted == False,  # noqa: E712
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0

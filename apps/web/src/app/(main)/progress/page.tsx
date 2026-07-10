@@ -6,13 +6,7 @@ import {
   CardHeader,
   CardTitle,
   Badge,
-  Button,
   Progress,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
   Skeleton,
   EmptyState,
 } from '@sv-os/ui';
@@ -21,19 +15,16 @@ import {
   BookOpen,
   CheckCircle2,
   Award,
-  Flame,
-  Target,
   TrendingUp,
   Clock,
   PlayCircle,
   Trophy,
 } from 'lucide-react';
 
-import { NODE_TYPE_COLORS } from '@/components/graph';
 import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 import { useGraphStats } from '@/hooks/use-graph';
-import { useProgressStats, useProgressList, useUpdateProgress } from '@/hooks/use-progress';
+import { useProgressStats, useProgressList } from '@/hooks/use-progress';
 import { cn, slugToTitle } from '@/lib';
 
 function StatCard({
@@ -89,7 +80,6 @@ export default function ProgressPage() {
   const { data: stats, isLoading: statsLoading } = useProgressStats();
   const { data: progressList, isLoading: listLoading } = useProgressList({ page_size: 50 });
   const { data: graphStats } = useGraphStats();
-  const updateProgress = useUpdateProgress();
 
   const totalNodes = graphStats?.total_nodes ?? 0;
   const completionRate = stats ? Math.round(stats.completion_percentage) : 0;

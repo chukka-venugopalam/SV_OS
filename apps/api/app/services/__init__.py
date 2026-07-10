@@ -6,7 +6,19 @@ models and produce Pydantic DTOs for the API layer.
 """
 
 from app.services.activity_feed import ActivityFeedService
-from app.services.auth import AuthService, AuthenticationError, AuthorizationError
+
+# AI services
+from app.services.ai import (
+    EmbeddingService,
+    HybridSearchService,
+    ProviderType,
+    RankedResult,
+    RankingService,
+    RecommendationV2,
+    SemanticSearchService,
+    SimilarityService,
+)
+from app.services.auth import AuthenticationError, AuthorizationError, AuthService
 from app.services.bookmark import BookmarkService
 from app.services.career import CareerService
 from app.services.favorite import FavoriteService
@@ -25,46 +37,34 @@ from app.services.search import SearchService
 from app.services.skill import SkillService
 from app.services.user import UserService
 
-# AI services
-from app.services.ai import (
-    EmbeddingService,
-    ProviderType,
-    SemanticSearchService,
-    HybridSearchService,
-    RankingService,
-    RankedResult,
-    RecommendationV2,
-    SimilarityService,
-)
-
 __all__ = [
+    'ActivityFeedService',
     'AuthService',
     'AuthenticationError',
     'AuthorizationError',
-    'UserService',
-    'KnowledgeNodeService',
+    'BookmarkService',
+    'CareerService',
+    'EmbeddingService',
+    'FavoriteService',
+    'GraphAnalyticsService',
     'GraphService',
     'GraphTraversalService',
-    'GraphAnalyticsService',
-    'CareerService',
-    'ProjectService',
-    'SkillService',
-    'LearningPathService',
-    'LearningPathGenerator',
-    'ProgressService',
-    'ProgressIntelligence',
-    'BookmarkService',
-    'FavoriteService',
-    'RecommendationService',
-    'RecommendationEngine',
-    'SearchService',
-    'ActivityFeedService',
-    'EmbeddingService',
-    'ProviderType',
-    'SemanticSearchService',
     'HybridSearchService',
-    'RankingService',
+    'KnowledgeNodeService',
+    'LearningPathGenerator',
+    'LearningPathService',
+    'ProgressIntelligence',
+    'ProgressService',
+    'ProjectService',
+    'ProviderType',
     'RankedResult',
+    'RankingService',
+    'RecommendationEngine',
+    'RecommendationService',
     'RecommendationV2',
+    'SearchService',
+    'SemanticSearchService',
     'SimilarityService',
+    'SkillService',
+    'UserService',
 ]

@@ -15,16 +15,16 @@ graph.  It provides:
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import Settings, settings as app_settings
-from app.core.database import async_session_factory as _async_session_factory
+from app.core.config import Settings
+from app.core.config import settings as app_settings
 from app.core.database import get_db_session as _get_db_session
 from app.repositories import (
     AuditLogRepository,
@@ -46,7 +46,6 @@ from app.repositories import (
     UserProgressRepository,
     UserRepository,
 )
-from app.services.auth import AuthService
 from app.services.activity_feed import ActivityFeedService
 from app.services.ai import (
     EmbeddingService,
@@ -55,9 +54,10 @@ from app.services.ai import (
     SemanticSearchService,
     SimilarityService,
 )
+from app.services.auth import AuthService
 from app.services.favorite import FavoriteService
-from app.services.graph.traversal import GraphTraversalService
 from app.services.graph.analytics import GraphAnalyticsService
+from app.services.graph.traversal import GraphTraversalService
 from app.services.learning_path_generator import LearningPathGenerator
 from app.services.progress_intelligence import ProgressIntelligence
 from app.services.recommendation_engine import RecommendationEngine
@@ -112,8 +112,9 @@ def get_settings() -> Settings:
 
 # ── Unit of Work ────────────────────────────────────────────────────
 
+
 async def get_uow(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AsyncGenerator[UnitOfWork, None]:
     """Provide a request-scoped Unit of Work.
 
@@ -131,119 +132,119 @@ async def get_uow(
 
 
 def get_user_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserRepository:
     """Provide a ``UserRepository`` instance."""
     return UserRepository(db)
 
 
 def get_node_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> KnowledgeNodeRepository:
     """Provide a ``KnowledgeNodeRepository`` instance."""
     return KnowledgeNodeRepository(db)
 
 
 def get_edge_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> KnowledgeEdgeRepository:
     """Provide a ``KnowledgeEdgeRepository`` instance."""
     return KnowledgeEdgeRepository(db)
 
 
 def get_career_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> CareerRepository:
     """Provide a ``CareerRepository`` instance."""
     return CareerRepository(db)
 
 
 def get_project_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> ProjectRepository:
     """Provide a ``ProjectRepository`` instance."""
     return ProjectRepository(db)
 
 
 def get_skill_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> SkillRepository:
     """Provide a ``SkillRepository`` instance."""
     return SkillRepository(db)
 
 
 def get_learning_path_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> LearningPathRepository:
     """Provide a ``LearningPathRepository`` instance."""
     return LearningPathRepository(db)
 
 
 def get_learning_session_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> LearningSessionRepository:
     """Provide a ``LearningSessionRepository`` instance."""
     return LearningSessionRepository(db)
 
 
 def get_learning_resource_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> LearningResourceRepository:
     """Provide a ``LearningResourceRepository`` instance."""
     return LearningResourceRepository(db)
 
 
 def get_progress_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserProgressRepository:
     """Provide a ``UserProgressRepository`` instance."""
     return UserProgressRepository(db)
 
 
 def get_bookmark_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> BookmarkRepository:
     """Provide a ``BookmarkRepository`` instance."""
     return BookmarkRepository(db)
 
 
 def get_recommendation_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> RecommendationRepository:
     """Provide a ``RecommendationRepository`` instance."""
     return RecommendationRepository(db)
 
 
 def get_tag_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TagRepository:
     """Provide a ``TagRepository`` instance."""
     return TagRepository(db)
 
 
 def get_search_history_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> SearchHistoryRepository:
     """Provide a ``SearchHistoryRepository`` instance."""
     return SearchHistoryRepository(db)
 
 
 def get_audit_log_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AuditLogRepository:
     """Provide a ``AuditLogRepository`` instance."""
     return AuditLogRepository(db)
 
 
 def get_graph_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> GraphRepository:
     """Provide a ``GraphRepository`` instance."""
     return GraphRepository(db)
 
 
 def get_base_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> BaseRepository:
     """Provide a generic repository.
 
@@ -261,98 +262,98 @@ def get_base_repository(
 
 
 def get_auth_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> AuthService:
     """Provide an ``AuthService`` instance."""
     return AuthService(uow)
 
 
 def get_user_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> UserService:
     """Provide a ``UserService`` instance."""
     return UserService(uow)
 
 
 def get_favorite_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> FavoriteService:
     """Provide a ``FavoriteService`` instance."""
     return FavoriteService(uow)
 
 
 def get_graph_traversal_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> GraphTraversalService:
     """Provide a ``GraphTraversalService`` instance."""
     return GraphTraversalService(uow)
 
 
 def get_graph_analytics_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> GraphAnalyticsService:
     """Provide a ``GraphAnalyticsService`` instance."""
     return GraphAnalyticsService(uow)
 
 
 def get_recommendation_engine(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> RecommendationEngine:
     """Provide a ``RecommendationEngine`` instance."""
     return RecommendationEngine(uow)
 
 
 def get_learning_path_generator(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> LearningPathGenerator:
     """Provide a ``LearningPathGenerator`` instance."""
     return LearningPathGenerator(uow)
 
 
 def get_progress_intelligence(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> ProgressIntelligence:
     """Provide a ``ProgressIntelligence`` instance."""
     return ProgressIntelligence(uow)
 
 
 def get_activity_feed_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> ActivityFeedService:
     """Provide an ``ActivityFeedService`` instance."""
     return ActivityFeedService(uow)
 
 
 def get_embedding_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> EmbeddingService:
     """Provide an ``EmbeddingService`` instance."""
     return EmbeddingService(uow=uow)
 
 
 def get_semantic_search_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> SemanticSearchService:
     """Provide a ``SemanticSearchService`` instance."""
     return SemanticSearchService(uow)
 
 
 def get_hybrid_search_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> HybridSearchService:
     """Provide a ``HybridSearchService`` instance."""
     return HybridSearchService(uow)
 
 
 def get_recommendation_v2(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> RecommendationV2:
     """Provide a ``RecommendationV2`` instance."""
     return RecommendationV2(uow)
 
 
 def get_similarity_service(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> SimilarityService:
     """Provide a ``SimilarityService`` instance."""
     return SimilarityService(uow)
@@ -362,7 +363,7 @@ def get_similarity_service(
 
 
 async def get_current_user_id_from_token(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme),
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security_scheme)],
 ) -> UUID | None:
     """Extract and validate the current user ID from the JWT access token.
 
@@ -371,7 +372,6 @@ async def get_current_user_id_from_token(
     if credentials is None or not credentials.credentials:
         return None
 
-    from app.services.auth import AuthService
     from app.core.config import settings
 
     try:
@@ -392,7 +392,7 @@ async def get_current_user_id_from_token(
 
 
 async def get_current_user_id(
-    user_id: UUID | None = Depends(get_current_user_id_from_token),
+    user_id: Annotated[UUID | None, Depends(get_current_user_id_from_token)],
 ) -> UUID:
     """Require a valid authenticated user and return their UUID.
 
@@ -400,6 +400,7 @@ async def get_current_user_id(
     """
     if user_id is None:
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Not authenticated',
@@ -409,7 +410,7 @@ async def get_current_user_id(
 
 
 async def get_optional_user_id(
-    user_id: UUID | None = Depends(get_current_user_id_from_token),
+    user_id: Annotated[UUID | None, Depends(get_current_user_id_from_token)],
 ) -> UUID | None:
     """Get the current user ID or ``None`` if not authenticated.
 
@@ -419,18 +420,18 @@ async def get_optional_user_id(
 
 
 async def get_current_user(
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> Any:
     """Get the full current user model from the database.
 
     Raises ``HTTPException(401)`` if not authenticated.
     """
-    from app.repositories.errors import EntityNotFoundError
 
     user = await uow.users.get_by_id(current_user_id)
     if not user or not user.is_active:
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='User not found or inactive',
@@ -439,7 +440,7 @@ async def get_current_user(
 
 
 async def require_admin(
-    user: Any = Depends(get_current_user),
+    user: Annotated[Any, Depends(get_current_user)],
 ) -> Any:
     """Require the current user to have the ``admin`` role.
 
@@ -449,6 +450,7 @@ async def require_admin(
     role_value = role.value if hasattr(role, 'value') else str(role) if role else ''
     if role_value != 'admin':
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Admin access required',

@@ -10,7 +10,7 @@ from sqlalchemy import select
 from app.models.project import Project, ProjectRequirement
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class ProjectRepository(BaseRepository[Project]):

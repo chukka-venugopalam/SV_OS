@@ -7,11 +7,12 @@ phase) and stored here for fast retrieval and personalisation.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Float, ForeignKey, String, Text, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy import Float, ForeignKey, Text, text
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -19,8 +20,8 @@ from app.models.base import AppBaseMixin
 from app.models.enums import RecommendationType, pg_enum
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.knowledge_node import KnowledgeNode
+    from app.models.user import User
 
 
 class Recommendation(AppBaseMixin, Base):
@@ -36,45 +37,55 @@ class Recommendation(AppBaseMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Target user ID',
     )
     node_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('knowledge_nodes.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Recommended knowledge node ID',
     )
     recommendation_type: Mapped[RecommendationType] = mapped_column(
-        pg_enum(RecommendationType, "recommendation_type_enum"),
-        nullable=False, index=True,
+        pg_enum(RecommendationType, 'recommendation_type_enum'),
+        nullable=False,
+        index=True,
         comment='Category of the recommendation',
     )
-    score: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True,
+    score: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
         comment='Relevance score (higher = more relevant)',
     )
-    reason: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    reason: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='Human-readable explanation of why this is recommended',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Engine metadata (e.g. signals used, model version)',
     )
     is_dismissed: Mapped[bool] = mapped_column(
-        default=False, server_default=text('false'),
+        default=False,
+        server_default=text('false'),
         nullable=False,
         comment='Whether the user dismissed this recommendation',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    user: Mapped['User'] = relationship(
-        'User', back_populates='recommendations',
+    user: Mapped[User] = relationship(
+        'User',
+        back_populates='recommendations',
     )
-    node: Mapped['KnowledgeNode'] = relationship(
+    node: Mapped[KnowledgeNode] = relationship(
         'KnowledgeNode',
     )
 

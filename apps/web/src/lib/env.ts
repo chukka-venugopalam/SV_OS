@@ -9,21 +9,6 @@
  *   console.log(env.NEXT_PUBLIC_API_URL);
  */
 
-// ── Validation Error ──────────────────────────────────────────────
-
-class EnvValidationError extends Error {
-  constructor(missingVars: string[]) {
-    super(
-      `Missing required environment variables:\n${missingVars
-        .map((v) => `  • ${v}`)
-        .join('\n')}\n\n` +
-        `Create a .env.local file in apps/web/ with these values. ` +
-        `See .env.example for reference.`,
-    );
-    this.name = 'EnvValidationError';
-  }
-}
-
 // ── Env Configuration ─────────────────────────────────────────────
 
 interface EnvConfig {

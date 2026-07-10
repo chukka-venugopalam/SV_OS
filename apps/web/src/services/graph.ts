@@ -5,7 +5,7 @@
  * All functions return typed responses via the shared API client.
  */
 
-import type { GraphSubgraph, KnowledgeNode, KnowledgeEdge , PaginatedResponse } from '@sv-os/types';
+import type { GraphSubgraph, KnowledgeNode, KnowledgeEdge } from '@sv-os/types';
 
 import { apiClient } from '@/lib/api-client';
 

@@ -18,7 +18,9 @@ class TagSummary(BaseModel):
 
     id: UUID = Field(description='Unique tag identifier')
     name: str = Field(description='Tag name (lowercase, hyphenated)', max_length=100)
-    description: str | None = Field(default=None, description='Optional description of the tag intent')
+    description: str | None = Field(
+        default=None, description='Optional description of the tag intent'
+    )
     node_count: int = Field(default=0, ge=0, description='Number of nodes with this tag')
 
 
@@ -27,7 +29,9 @@ class TagDetail(BaseModel):
 
     id: UUID = Field(description='Unique tag identifier')
     name: str = Field(description='Tag name (lowercase, hyphenated)', max_length=100)
-    description: str | None = Field(default=None, description='Optional description of the tag intent')
+    description: str | None = Field(
+        default=None, description='Optional description of the tag intent'
+    )
     created_at: datetime = Field(description='When the tag was created')
     updated_at: datetime = Field(description='When the tag was last updated')
 

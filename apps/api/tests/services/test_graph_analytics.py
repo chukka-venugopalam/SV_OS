@@ -6,15 +6,15 @@ analytics algorithm correctness without requiring a database.
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, PropertyMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
 
 from app.services.graph.analytics import GraphAnalyticsService
 
-
 # ── Fixtures ───────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_uow():
@@ -34,6 +34,7 @@ def analytics_service(mock_uow):
 
 
 # ── Degree Centrality Tests ────────────────────────────────────────
+
 
 class TestDegreeCentrality:
     """Test degree_centrality."""
@@ -55,13 +56,13 @@ class TestDegreeCentrality:
         """Test degree centrality returns properly formatted results."""
         row1 = MagicMock()
         row1.id = uuid4()
-        row1.title = "Node A"
-        row1.slug = "node-a"
+        row1.title = 'Node A'
+        row1.slug = 'node-a'
         type_mock = MagicMock()
-        type_mock.value = "concept"
+        type_mock.value = 'concept'
         row1.node_type = type_mock
         diff_mock = MagicMock()
-        diff_mock.value = "beginner"
+        diff_mock.value = 'beginner'
         row1.difficulty = diff_mock
         row1.total_connections = 10
 
@@ -72,11 +73,12 @@ class TestDegreeCentrality:
         result = await analytics_service.degree_centrality(limit=5)
 
         assert len(result) == 1
-        assert result[0]["title"] == "Node A"
-        assert result[0]["total_connections"] == 10
+        assert result[0]['title'] == 'Node A'
+        assert result[0]['total_connections'] == 10
 
 
 # ── Isolated Nodes Tests ──────────────────────────────────────────
+
 
 class TestIsolatedNodes:
     """Test isolated_nodes."""
@@ -106,6 +108,7 @@ class TestIsolatedNodes:
 
 # ── Prerequisite Bottlenecks Tests ─────────────────────────────────
 
+
 class TestPrerequisiteBottlenecks:
     """Test prerequisite_bottlenecks."""
 
@@ -126,13 +129,13 @@ class TestPrerequisiteBottlenecks:
         """Test bottleneck results include dependent_count."""
         row1 = MagicMock()
         row1.id = uuid4()
-        row1.title = "Bottleneck Node"
-        row1.slug = "bottleneck-node"
+        row1.title = 'Bottleneck Node'
+        row1.slug = 'bottleneck-node'
         type_mock = MagicMock()
-        type_mock.value = "concept"
+        type_mock.value = 'concept'
         row1.node_type = type_mock
         diff_mock = MagicMock()
-        diff_mock.value = "advanced"
+        diff_mock.value = 'advanced'
         row1.difficulty = diff_mock
         row1.dependent_count = 15
 
@@ -143,10 +146,11 @@ class TestPrerequisiteBottlenecks:
         result = await analytics_service.prerequisite_bottlenecks(limit=5)
 
         assert len(result) == 1
-        assert result[0]["dependent_count"] == 15
+        assert result[0]['dependent_count'] == 15
 
 
 # ── Concept Depth Tests ────────────────────────────────────────────
+
 
 class TestConceptDepth:
     """Test concept_depth_distribution."""
@@ -159,10 +163,10 @@ class TestConceptDepth:
 
         result = await analytics_service.concept_depth_distribution()
 
-        assert result["min_depth"] == 0
-        assert result["max_depth"] == 0
-        assert result["avg_depth"] == 0.0
-        assert result["root_node_count"] == 0
+        assert result['min_depth'] == 0
+        assert result['max_depth'] == 0
+        assert result['avg_depth'] == 0.0
+        assert result['root_node_count'] == 0
 
     @pytest.mark.asyncio
     async def test_concept_depth_with_roots(self, analytics_service, mock_uow):
@@ -175,11 +179,12 @@ class TestConceptDepth:
 
         result = await analytics_service.concept_depth_distribution()
 
-        assert result["root_node_count"] >= 1
-        assert isinstance(result["distribution"], dict)
+        assert result['root_node_count'] >= 1
+        assert isinstance(result['distribution'], dict)
 
 
 # ── Graph Density Tests ────────────────────────────────────────────
+
 
 class TestGraphDensity:
     """Test graph_density."""
@@ -192,8 +197,8 @@ class TestGraphDensity:
 
         result = await analytics_service.graph_density()
 
-        assert result["total_nodes"] == 1
-        assert result["density"] == 0.0
+        assert result['total_nodes'] == 1
+        assert result['density'] == 0.0
 
     @pytest.mark.asyncio
     async def test_density_two_nodes_one_edge(self, analytics_service, mock_uow):
@@ -203,10 +208,10 @@ class TestGraphDensity:
 
         result = await analytics_service.graph_density()
 
-        assert result["total_nodes"] == 2
-        assert result["total_edges"] == 1
+        assert result['total_nodes'] == 2
+        assert result['total_edges'] == 1
         # density = (2 * 1) / (2 * 1) = 1.0
-        assert result["density"] == 1.0
+        assert result['density'] == 1.0
 
     @pytest.mark.asyncio
     async def test_density_sparse_graph(self, analytics_service, mock_uow):
@@ -216,14 +221,15 @@ class TestGraphDensity:
 
         result = await analytics_service.graph_density()
 
-        assert result["total_nodes"] == 10
-        assert result["total_edges"] == 5
+        assert result['total_nodes'] == 10
+        assert result['total_edges'] == 5
         # density = (2 * 5) / (10 * 9) = 10/90 = 0.111111
-        assert result["density"] == pytest.approx(0.111111, rel=1e-3)
-        assert result["max_possible_edges"] == 45
+        assert result['density'] == pytest.approx(0.111111, rel=1e-3)
+        assert result['max_possible_edges'] == 45
 
 
 # ── Branching Factor Tests ─────────────────────────────────────────
+
 
 class TestBranchingFactor:
     """Test average_branching_factor."""
@@ -241,11 +247,12 @@ class TestBranchingFactor:
 
         result = await analytics_service.average_branching_factor()
 
-        assert "avg_branching_factor" in result
-        assert "histogram" in result
+        assert 'avg_branching_factor' in result
+        assert 'histogram' in result
 
 
 # ── Graph Statistics Tests ─────────────────────────────────────────
+
 
 class TestGraphStatistics:
     """Test graph_statistics (combined metrics)."""
@@ -265,12 +272,12 @@ class TestGraphStatistics:
 
         result = await analytics_service.graph_statistics()
 
-        assert "total_nodes" in result
-        assert "total_edges" in result
-        assert "graph_density" in result
-        assert "avg_branching_factor" in result
-        assert "branching_histogram" in result
-        assert "depth" in result
-        assert "min" in result["depth"]
-        assert "max" in result["depth"]
-        assert "avg" in result["depth"]
+        assert 'total_nodes' in result
+        assert 'total_edges' in result
+        assert 'graph_density' in result
+        assert 'avg_branching_factor' in result
+        assert 'branching_histogram' in result
+        assert 'depth' in result
+        assert 'min' in result['depth']
+        assert 'max' in result['depth']
+        assert 'avg' in result['depth']

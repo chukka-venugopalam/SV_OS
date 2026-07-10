@@ -15,7 +15,7 @@ from structlog.stdlib import get_logger
 from app.repositories import UnitOfWork
 from app.services.ai.chat_service import ChatService
 from app.services.ai.context_engine import ContextEngine
-from app.services.ai.providers.llm_base import LLMMessage, LLMResponse
+from app.services.ai.providers.llm_base import LLMMessage
 from app.services.ai.rag_engine import RAGEngine
 
 logger = get_logger(__name__)
@@ -43,20 +43,21 @@ class TutorEngine:
         style: str | None = None,
     ) -> dict:
         context = await self._context.build_context(
-            user_id=user_id, node_slug=node_slug,
+            user_id=user_id,
+            node_slug=node_slug,
         )
         rag = await self._rag.search(message, top_k=5, expand_graph=True, user_id=user_id)
 
         prompt_parts = [
             'You are an expert tutor in the SV-OS learning platform.',
             f'User difficulty level: {difficulty}.',
-            style and f'Explanation style: {style}.' or '',
+            (style and f'Explanation style: {style}.') or '',
             '',
             '## Your Role',
             '- Explain concepts clearly with examples and analogies.',
             '- Detect and address missing prerequisites.',
             '- Suggest related topics the user should explore next.',
-            '- Adapt explanations to the user\'s level.',
+            "- Adapt explanations to the user's level.",
             '- Generate practical examples and summaries.',
             '- Use markdown for code blocks with language tags.',
             '',
@@ -66,11 +67,15 @@ class TutorEngine:
             n = context['knowledge_graph']['current_node']
             prompt_parts.append(f'## Current Topic: {n["title"]}')
             if context['knowledge_graph'].get('prerequisites'):
-                prereqs = ', '.join(p['title'] for p in context['knowledge_graph']['prerequisites'][:5])
+                prereqs = ', '.join(
+                    p['title'] for p in context['knowledge_graph']['prerequisites'][:5]
+                )
                 prompt_parts.append(f'Prerequisites: {prereqs}')
 
         if context.get('user_progress', {}).get('weak_topics'):
-            prompt_parts.append(f'Weak areas: {", ".join(context["user_progress"]["weak_topics"][:3])}')
+            prompt_parts.append(
+                f'Weak areas: {", ".join(context["user_progress"]["weak_topics"][:3])}'
+            )
 
         # Use the chat service with a custom system prompt
         llm = self._chat._provider
@@ -116,7 +121,8 @@ class LearningPlanner:
         hours_per_week: float = 5.0,
     ) -> dict:
         context = await self._context.build_context(
-            user_id=user_id, include_progress=True,
+            user_id=user_id,
+            include_progress=True,
         )
 
         prompt = f"""You are an expert learning planner for SV-OS.
@@ -153,7 +159,7 @@ Format as a structured markdown plan with clear sections.
                 'Break this down into a daily schedule',
                 'What projects can I build along the way?',
                 'How much time should I allocate daily?',
-                'What\'s the most efficient learning path?',
+                "What's the most efficient learning path?",
             ],
         }
 
@@ -178,8 +184,12 @@ class CareerMentor:
         if target_career_slug:
             career = await self._uow.careers.find_by_slug(target_career_slug)
             if career:
-                prereqs = await self._uow.graph.load_prerequisites(career.id)
-                career_info = f'Target Career: {career.title}\nDescription: {career.description}\nDemand: {getattr(career, "demand", "N/A")}\n'
+                await self._uow.graph.load_prerequisites(career.id)
+                career_info = (
+                    f'Target Career: {career.title}\n'
+                    f'Description: {career.description}\n'
+                    f'Demand: {getattr(career, "demand", "N/A")}\n'
+                )
 
         prompt = f"""You are an expert career mentor in the SV-OS learning platform.
 
@@ -209,7 +219,7 @@ Provide career guidance with:
                 'What skills am I missing for this career?',
                 'What projects should I build?',
                 'How long will it take to transition?',
-                'What\'s the job market like?',
+                "What's the job market like?",
             ],
         }
 
@@ -276,18 +286,17 @@ class QuizEngine:
 
     async def generate_quiz(
         self,
-        user_id: UUID,
+        _user_id: UUID,
         topic: str,
         quiz_type: str = 'mcq',
         difficulty: str = 'intermediate',
         question_count: int = 5,
-        node_slug: str | None = None,
+        _node_slug: str | None = None,
     ) -> dict:
         rag = await self._rag.search(topic, top_k=3, expand_graph=False)
 
         context_text = '\n'.join(
-            f'- {r["node"]["title"]}: {r["node"]["description"][:200]}'
-            for r in rag
+            f'- {r["node"]["title"]}: {r["node"]["description"][:200]}' for r in rag
         )
 
         prompt = f"""You are an expert quiz generator for the SV-OS learning platform.
@@ -344,15 +353,16 @@ Return ONLY valid JSON, no other text.
 
     async def _parse_quiz_fallback(self, content: str) -> list:
         """Fallback parsing if JSON extraction fails."""
-        import re
         questions = []
         blocks = content.split('\n\n')
         for block in blocks[:10]:
             if '?' in block:
-                questions.append({
-                    'question': block.strip()[:200],
-                    'options': [],
-                    'correct_answer': '',
-                    'explanation': '',
-                })
+                questions.append(
+                    {
+                        'question': block.strip()[:200],
+                        'options': [],
+                        'correct_answer': '',
+                        'explanation': '',
+                    }
+                )
         return questions[:10]

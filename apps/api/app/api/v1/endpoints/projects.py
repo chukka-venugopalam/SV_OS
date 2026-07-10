@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from structlog.stdlib import get_logger
 
@@ -18,10 +20,10 @@ router = APIRouter()
 
 @router.get('')
 async def list_projects(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
 ) -> dict:
     """List published projects with optional difficulty filter."""
     service = ProjectService(uow)
@@ -45,14 +47,14 @@ async def list_projects(
 @router.get('/{slug}')
 async def get_project(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get a project by slug."""
     service = ProjectService(uow)
     try:
         project = await service.get_by_slug(slug)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Project not found')
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Project not found') from e
     return success_response(
         data=_project_to_dict(project),
         message='Project retrieved',
@@ -62,14 +64,14 @@ async def get_project(
 @router.get('/{slug}/requirements')
 async def get_project_requirements(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get knowledge node requirements for a project."""
     service = ProjectService(uow)
     try:
         requirements = await service.get_requirements(slug)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Project not found')
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Project not found') from e
     return success_response(
         data={'items': requirements},
         message='Project requirements retrieved',

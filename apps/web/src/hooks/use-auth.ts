@@ -10,8 +10,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
-import { apiClient } from '@/lib/api-client';
-import { authClient, type UserProfile } from '@/lib/auth-client';
+import { authClient } from '@/lib/auth-client';
 
 // ── Query Key Factory ─────────────────────────────────────────────
 

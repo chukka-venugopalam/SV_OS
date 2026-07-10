@@ -8,8 +8,8 @@ implement this interface, allowing the AI chat service to be provider-agnostic.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
-from typing import AsyncGenerator
 
 
 @dataclass

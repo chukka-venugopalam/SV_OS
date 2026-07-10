@@ -1,9 +1,7 @@
 'use client';
 
-import { Breadcrumb } from '@sv-os/ui';
 import { ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { memo } from 'react';
 
 import { cn } from '@/lib/cn';

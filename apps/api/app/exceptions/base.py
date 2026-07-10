@@ -1,13 +1,14 @@
-"""Base exception hierarchy for the SV-OS API.
+"""
+Base exception hierarchy for the SV-OS API.
 
-Every custom exception extends ``AppException``, which carries
+Every custom exception extends ``AppError``, which carries
 a human-readable ``message``, an HTTP ``status_code``, and an
 optional list of ``errors`` (field-level error details).
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(kw_only=True)
@@ -18,7 +19,7 @@ class ErrorDetail:
     field: str | None = None
 
 
-class AppException(Exception):
+class AppError(Exception):
     """Base exception for all application-level errors."""
 
     def __init__(
@@ -33,7 +34,7 @@ class AppException(Exception):
         super().__init__(self.message)
 
 
-class NotFoundError(AppException):
+class NotFoundError(AppError):
     """Raised when a requested resource does not exist."""
 
     def __init__(
@@ -44,7 +45,7 @@ class NotFoundError(AppException):
         super().__init__(message=message, status_code=404, errors=errors)
 
 
-class ConflictError(AppException):
+class ConflictError(AppError):
     """Raised when a resource already exists (duplicate)."""
 
     def __init__(
@@ -55,7 +56,7 @@ class ConflictError(AppException):
         super().__init__(message=message, status_code=409, errors=errors)
 
 
-class ValidationError(AppException):
+class ValidationError(AppError):
     """Raised when request data fails validation."""
 
     def __init__(
@@ -66,7 +67,7 @@ class ValidationError(AppException):
         super().__init__(message=message, status_code=422, errors=errors)
 
 
-class UnauthorizedError(AppException):
+class UnauthorizedError(AppError):
     """Raised when authentication is required but missing or invalid."""
 
     def __init__(
@@ -77,7 +78,7 @@ class UnauthorizedError(AppException):
         super().__init__(message=message, status_code=401, errors=errors)
 
 
-class ForbiddenError(AppException):
+class ForbiddenError(AppError):
     """Raised when the authenticated user lacks permission."""
 
     def __init__(
@@ -88,7 +89,7 @@ class ForbiddenError(AppException):
         super().__init__(message=message, status_code=403, errors=errors)
 
 
-class RateLimitedError(AppException):
+class RateLimitedError(AppError):
     """Raised when the client has exceeded the rate limit."""
 
     def __init__(
@@ -99,7 +100,7 @@ class RateLimitedError(AppException):
         super().__init__(message=message, status_code=429, errors=errors)
 
 
-class InternalError(AppException):
+class InternalError(AppError):
     """Raised for unexpected server-side errors (no stack trace leak)."""
 
     def __init__(
@@ -110,7 +111,7 @@ class InternalError(AppException):
         super().__init__(message=message, status_code=500, errors=errors)
 
 
-class ServiceUnavailableError(AppException):
+class ServiceUnavailableError(AppError):
     """Raised when a downstream dependency is unavailable."""
 
     def __init__(

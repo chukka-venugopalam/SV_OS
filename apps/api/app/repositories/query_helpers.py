@@ -9,11 +9,10 @@ than executing queries.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Generic, Protocol, TypeVar
-from uuid import UUID
+from dataclasses import dataclass
+from typing import Any, TypeVar
 
-from sqlalchemy import ColumnElement, Select, UnaryExpression, and_, desc, func, or_, select, text
+from sqlalchemy import ColumnElement, Select, UnaryExpression, and_, desc, func, select
 from sqlalchemy.orm import DeclarativeBase
 
 from app.repositories.errors import QueryError
@@ -34,7 +33,7 @@ class SortDirection:
 
 
 @dataclass
-class PageResult(Generic[ModelT]):
+class PageResult[ModelT: DeclarativeBase]:
     """A page of results with total count metadata."""
 
     items: list[ModelT]
@@ -56,7 +55,7 @@ class PageResult(Generic[ModelT]):
 
 
 @dataclass
-class CursorPageResult(Generic[ModelT]):
+class CursorPageResult[ModelT: DeclarativeBase]:
     """A cursor-based page of results."""
 
     items: list[ModelT]
@@ -93,7 +92,7 @@ FILTER_OPERATOR_MAP: dict[str, str] = {
 # ── Query Builder ──────────────────────────────────────────────────
 
 
-class QueryBuilder(Generic[ModelT]):
+class QueryBuilder[ModelT: DeclarativeBase]:
     """Fluent builder for constructing SQLAlchemy SELECT queries.
 
     Usage::
@@ -172,7 +171,9 @@ class QueryBuilder(Generic[ModelT]):
         column = getattr(self.model, field, None)
         if column is None:
             raise QueryError(f'Unknown sort field: {field}')
-        order_expr: UnaryExpression = desc(column) if direction == SortDirection.DESC else column.asc()  # type: ignore[assignment]
+        order_expr: UnaryExpression = (
+            desc(column) if direction == SortDirection.DESC else column.asc()
+        )  # type: ignore[assignment]
         self._order_by.append(order_expr)
         return self
 
@@ -201,7 +202,7 @@ class QueryBuilder(Generic[ModelT]):
     def active(self) -> QueryBuilder[ModelT]:
         """Filter for non-deleted records (soft-delete)."""
         if hasattr(self.model, 'is_deleted'):
-            self._filters.append(getattr(self.model, 'is_deleted') == False)  # noqa: E712
+            self._filters.append(self.model.is_deleted == False)  # noqa: E712
         return self
 
     def build(self) -> Select:
@@ -228,7 +229,7 @@ class QueryBuilder(Generic[ModelT]):
 # ── Helper Functions ───────────────────────────────────────────────
 
 
-def build_pagination_query(
+def build_pagination_query[ModelT: DeclarativeBase](
     model: type[ModelT],
     filters: dict[str, Any] | None = None,
     sort_field: str | None = None,
@@ -255,7 +256,7 @@ def build_pagination_query(
     return builder.build(), builder.build_count()
 
 
-async def paginate_query(
+async def paginate_query[ModelT: DeclarativeBase](
     model: type[ModelT],
     filters: dict[str, Any] | None = None,
     sort_field: str | None = None,

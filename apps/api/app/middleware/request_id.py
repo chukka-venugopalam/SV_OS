@@ -28,13 +28,8 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
     ID (correlation ID is handled by ``CorrelationIDMiddleware``).
     """
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
-        request_id: str = (
-            request.headers.get('X-Request-ID')
-            or str(uuid4())
-        )
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        request_id: str = request.headers.get('X-Request-ID') or str(uuid4())
         request.state.request_id = request_id
 
         # Initialise logging context with request_id (correlation_id

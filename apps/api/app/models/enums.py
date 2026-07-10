@@ -19,7 +19,7 @@ native enum columns.
     registered with asyncpg, every value is treated as a plain string
     and sent as-is to PostgreSQL.
 
-    The trade‑off is that ``asyncpg`` returns the raw string on
+    The trade-off is that ``asyncpg`` returns the raw string on
     read-back.  SQLAlchemy's ``result_processor`` / ``process_result_value``
     are **not called** for native PostgreSQL enums because ``asyncpg``
     handles all result conversion at the driver level via registered
@@ -36,7 +36,8 @@ from __future__ import annotations
 import enum
 from typing import Any
 
-from sqlalchemy import Enum as SAEnum, event
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy import event
 from sqlalchemy.orm import ColumnProperty, Mapper
 from sqlalchemy.orm.attributes import instance_state
 
@@ -86,12 +87,12 @@ class PgEnum(SAEnum):
             create_type=False,
         )
 
-    # ── Bind (Python value → database parameter) ───────────────────
+    # Bind (Python value to database parameter)─
 
     def process_bind_param(
         self,
         value: Any,
-        dialect: Any,
+        _dialect: Any,
     ) -> str | None:
         """Convert a Python value to the database string.
 
@@ -153,14 +154,14 @@ def _convert_pgenum_instance(instance: Any) -> None:
         if not isinstance(value, str):
             continue
 
-        try:
+        from contextlib import suppress
+
+        with suppress(ValueError, KeyError):
             setattr(instance, attr.key, enum_cls(value))
-        except (ValueError, KeyError):
-            pass  # Leave the raw string if conversion fails
 
 
 @event.listens_for(Mapper, 'load')
-def _convert_pgenum_on_load(mapper: Mapper, context: Any, target: Any) -> None:
+def _convert_pgenum_on_load(_mapper: Mapper, _context: Any, target: Any) -> None:
     """``Mapper.load`` (``InstanceEvents.load``) — fires for every
     ORM-mapped instance loaded from the database across all mappers.
     Delegates to ``_convert_pgenum_instance`` which promotes string
@@ -169,7 +170,7 @@ def _convert_pgenum_on_load(mapper: Mapper, context: Any, target: Any) -> None:
     _convert_pgenum_instance(target)
 
 
-class NodeType(str, enum.Enum):
+class NodeType(enum.StrEnum):
     """Discriminator for the type of a knowledge node."""
 
     SUBJECT = 'subject'
@@ -180,7 +181,7 @@ class NodeType(str, enum.Enum):
     PROJECT = 'project'
 
 
-class EdgeType(str, enum.Enum):
+class EdgeType(enum.StrEnum):
     """Semantic type of a directed edge in the knowledge graph."""
 
     PREREQUISITE = 'prerequisite'
@@ -193,7 +194,7 @@ class EdgeType(str, enum.Enum):
     REQUIRES = 'requires'
 
 
-class EdgeDirection(str, enum.Enum):
+class EdgeDirection(enum.StrEnum):
     """Directionality of a graph edge."""
 
     FORWARD = 'forward'
@@ -201,7 +202,7 @@ class EdgeDirection(str, enum.Enum):
     UNIDIRECTIONAL = 'unidirectional'
 
 
-class Difficulty(str, enum.Enum):
+class Difficulty(enum.StrEnum):
     """Educational difficulty / complexity level."""
 
     BEGINNER = 'beginner'
@@ -210,7 +211,7 @@ class Difficulty(str, enum.Enum):
     EXPERT = 'expert'
 
 
-class ProgressStatus(str, enum.Enum):
+class ProgressStatus(enum.StrEnum):
     """Status of a user's progress on a knowledge node."""
 
     NOT_STARTED = 'not_started'
@@ -219,7 +220,7 @@ class ProgressStatus(str, enum.Enum):
     MASTERED = 'mastered'
 
 
-class DemandLevel(str, enum.Enum):
+class DemandLevel(enum.StrEnum):
     """Market demand trend for a career."""
 
     DECLINING = 'declining'
@@ -228,14 +229,14 @@ class DemandLevel(str, enum.Enum):
     HIGH_DEMAND = 'high_demand'
 
 
-class UserRole(str, enum.Enum):
+class UserRole(enum.StrEnum):
     """Authorization role assigned to a user."""
 
     LEARNER = 'learner'
     ADMIN = 'admin'
 
 
-class ResourceType(str, enum.Enum):
+class ResourceType(enum.StrEnum):
     """Category of an external learning resource."""
 
     VIDEO = 'video'
@@ -248,7 +249,7 @@ class ResourceType(str, enum.Enum):
     INTERACTIVE = 'interactive'
 
 
-class Visibility(str, enum.Enum):
+class Visibility(enum.StrEnum):
     """Visibility scope for user-generated content."""
 
     PUBLIC = 'public'
@@ -256,7 +257,7 @@ class Visibility(str, enum.Enum):
     SHARED = 'shared'
 
 
-class LearningStatus(str, enum.Enum):
+class LearningStatus(enum.StrEnum):
     """Status of a learning session."""
 
     ACTIVE = 'active'
@@ -265,7 +266,7 @@ class LearningStatus(str, enum.Enum):
     ABANDONED = 'abandoned'
 
 
-class RecommendationType(str, enum.Enum):
+class RecommendationType(enum.StrEnum):
     """Category of a recommendation."""
 
     CAREER_PATH = 'career_path'
@@ -276,7 +277,7 @@ class RecommendationType(str, enum.Enum):
     NEXT_STEP = 'next_step'
 
 
-class RequirementType(str, enum.Enum):
+class RequirementType(enum.StrEnum):
     """How strongly a node is required for a career or project."""
 
     REQUIRED = 'required'
@@ -284,7 +285,7 @@ class RequirementType(str, enum.Enum):
     BONUS = 'bonus'
 
 
-class SkillRelationshipType(str, enum.Enum):
+class SkillRelationshipType(enum.StrEnum):
     """Semantic relationship between two skills."""
 
     PREREQUISITE = 'prerequisite'

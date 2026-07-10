@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 from app.models.skill import Skill, SkillRelationship
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import FilterCondition, PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class SkillRepository(BaseRepository[Skill]):
@@ -63,10 +63,15 @@ class SkillRepository(BaseRepository[Skill]):
 
     async def list_categories(self) -> list[str]:
         """Get the distinct list of skill categories."""
-        stmt = select(Skill.category).where(
-            Skill.category.isnot(None),
-            Skill.is_deleted == False,  # noqa: E712
-        ).distinct().order_by(Skill.category)
+        stmt = (
+            select(Skill.category)
+            .where(
+                Skill.category.isnot(None),
+                Skill.is_deleted == False,  # noqa: E712
+            )
+            .distinct()
+            .order_by(Skill.category)
+        )
         result = await self.session.execute(stmt)
         return [row[0] for row in result.all() if row[0]]
 
@@ -82,10 +87,7 @@ class SkillRepository(BaseRepository[Skill]):
             .order_by(Skill.category)
         )
         result = await self.session.execute(stmt)
-        return [
-            {'category': row[0], 'count': row[1]}
-            for row in result.all()
-        ]
+        return [{'category': row[0], 'count': row[1]} for row in result.all()]
 
     # ── Skill Relationships ────────────────────────────────────────
 
@@ -157,13 +159,10 @@ class SkillRepository(BaseRepository[Skill]):
         """Get all relationships among a given set of skills."""
         if not skill_ids:
             return []
-        stmt = (
-            select(SkillRelationship)
-            .where(
-                SkillRelationship.source_skill_id.in_(skill_ids),
-                SkillRelationship.target_skill_id.in_(skill_ids),
-                SkillRelationship.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(SkillRelationship).where(
+            SkillRelationship.source_skill_id.in_(skill_ids),
+            SkillRelationship.target_skill_id.in_(skill_ids),
+            SkillRelationship.is_deleted == False,  # noqa: E712
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

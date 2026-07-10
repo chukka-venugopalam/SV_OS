@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import or_, select
 
 from app.models.user import User
 from app.repositories.base import BaseRepository
-from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
+from app.repositories.errors import EntityNotFoundError
 from app.repositories.query_helpers import PageResult, SortDirection
 
 

@@ -25,14 +25,14 @@ logger = get_logger(__name__)
 
 # Average learning time per node by difficulty (minutes)
 ESTIMATED_MINUTES: dict[str, int] = {
-    "beginner": 30,
-    "intermediate": 60,
-    "advanced": 120,
-    "expert": 180,
+    'beginner': 30,
+    'intermediate': 60,
+    'advanced': 120,
+    'expert': 180,
 }
 
 # Default difficulty progression
-DIFFICULTY_ORDER = {"beginner": 0, "intermediate": 1, "advanced": 2, "expert": 3}
+DIFFICULTY_ORDER = {'beginner': 0, 'intermediate': 1, 'advanced': 2, 'expert': 3}
 
 # Milestone sizes (number of nodes per milestone)
 MILESTONE_SIZE = 5
@@ -56,7 +56,7 @@ class LearningPathGenerator:
         goal_node_id: UUID,
         user_id: UUID | None = None,
         difficulty: str | None = None,
-        estimated_hours: int | None = None,
+        _estimated_hours: int | None = None,
     ) -> dict:
         """Generate a dynamic learning path toward a goal.
 
@@ -72,7 +72,7 @@ class LearningPathGenerator:
         """
         goal_node = await self._uow.knowledge_nodes.get_by_id(goal_node_id)
         if not goal_node:
-            return {"error": "Goal node not found"}
+            return {'error': 'Goal node not found'}
 
         # 1. Compute the full prerequisite chain
         prereq_ids = await self._build_prerequisite_set(goal_node_id)
@@ -96,11 +96,15 @@ class LearningPathGenerator:
         if difficulty:
             diff_idx = DIFFICULTY_ORDER.get(difficulty, 1)
             ordered = [
-                n for n in ordered
+                n
+                for n in ordered
                 if DIFFICULTY_ORDER.get(
-                    n.difficulty.value if hasattr(n.difficulty, "value") else str(n.difficulty).lower(),
+                    n.difficulty.value
+                    if hasattr(n.difficulty, 'value')
+                    else str(n.difficulty).lower(),
                     0,
-                ) <= diff_idx
+                )
+                <= diff_idx
             ]
 
         # 5. Group into milestones
@@ -109,7 +113,7 @@ class LearningPathGenerator:
         # 6. Calculate stats
         total_estimated_minutes = sum(
             ESTIMATED_MINUTES.get(
-                n.difficulty.value if hasattr(n.difficulty, "value") else str(n.difficulty).lower(),
+                n.difficulty.value if hasattr(n.difficulty, 'value') else str(n.difficulty).lower(),
                 45,
             )
             for n in ordered
@@ -120,34 +124,34 @@ class LearningPathGenerator:
             completion_pct = len(completed_ids) / len(prereq_nodes) * 100
 
         return {
-            "goal": {
-                "id": str(goal_node.id),
-                "title": goal_node.title,
-                "slug": goal_node.slug,
-                "node_type": goal_node.node_type.value if hasattr(goal_node.node_type, "value") else goal_node.node_type,
+            'goal': {
+                'id': str(goal_node.id),
+                'title': goal_node.title,
+                'slug': goal_node.slug,
+                'node_type': goal_node.node_type.value
+                if hasattr(goal_node.node_type, 'value')
+                else goal_node.node_type,
             },
-            "milestones": milestones,
-            "stats": {
-                "total_nodes": len(prereq_nodes),
-                "remaining_nodes": len(ordered),
-                "completed_nodes": len(completed_ids),
-                "completion_percentage": round(completion_pct, 1),
-                "estimated_minutes": total_estimated_minutes,
-                "estimated_hours": round(total_estimated_minutes / 60, 1),
+            'milestones': milestones,
+            'stats': {
+                'total_nodes': len(prereq_nodes),
+                'remaining_nodes': len(ordered),
+                'completed_nodes': len(completed_ids),
+                'completion_percentage': round(completion_pct, 1),
+                'estimated_minutes': total_estimated_minutes,
+                'estimated_hours': round(total_estimated_minutes / 60, 1),
             },
-            "prerequisites": {
-                "required": [_node_to_dict(n) for n in ordered],
-                "completed": len(completed_ids),
-                "missing": len(ordered),
+            'prerequisites': {
+                'required': [_node_to_dict(n) for n in ordered],
+                'completed': len(completed_ids),
+                'missing': len(ordered),
             },
         }
 
     # ── Prerequisite Set Building ─────────────────────────────────
     # Time: O(V + E)  |  Space: O(V)
 
-    async def _build_prerequisite_set(
-        self, node_id: UUID, max_depth: int = 10
-    ) -> list[UUID]:
+    async def _build_prerequisite_set(self, node_id: UUID, max_depth: int = 10) -> list[UUID]:
         """Build an ordered set of all prerequisite node IDs."""
         from collections import deque
 
@@ -181,9 +185,7 @@ class LearningPathGenerator:
     # ── Topological Sort by Depth ─────────────────────────────────
     # Time: O(V log V)  |  Space: O(V)
 
-    async def _topological_sort(
-        self, nodes: list, goal_node_id: UUID
-    ) -> list:
+    async def _topological_sort(self, nodes: list, _goal_node_id: UUID) -> list:
         """Topologically sort nodes by prerequisite depth."""
         depth_map: dict[UUID, int] = {}
 
@@ -193,7 +195,7 @@ class LearningPathGenerator:
         # Sort by: depth (ascending), then difficulty (ascending)
         def sort_key(n):
             depth = depth_map.get(n.id, 0)
-            diff = n.difficulty.value if hasattr(n.difficulty, "value") else str(n.difficulty)
+            diff = n.difficulty.value if hasattr(n.difficulty, 'value') else str(n.difficulty)
             diff_idx = DIFFICULTY_ORDER.get(diff.lower(), 0)
             return (depth, diff_idx)
 
@@ -231,20 +233,24 @@ class LearningPathGenerator:
             chunk = ordered_nodes[i : i + MILESTONE_SIZE]
             estimated_minutes = sum(
                 ESTIMATED_MINUTES.get(
-                    n.difficulty.value if hasattr(n.difficulty, "value") else str(n.difficulty).lower(),
+                    n.difficulty.value
+                    if hasattr(n.difficulty, 'value')
+                    else str(n.difficulty).lower(),
                     45,
                 )
                 for n in chunk
             )
 
-            milestones.append({
-                "level": len(milestones) + 1,
-                "title": f"Milestone {len(milestones) + 1}",
-                "node_count": len(chunk),
-                "estimated_minutes": estimated_minutes,
-                "estimated_hours": round(estimated_minutes / 60, 1),
-                "nodes": [_node_to_dict(n) for n in chunk],
-            })
+            milestones.append(
+                {
+                    'level': len(milestones) + 1,
+                    'title': f'Milestone {len(milestones) + 1}',
+                    'node_count': len(chunk),
+                    'estimated_minutes': estimated_minutes,
+                    'estimated_hours': round(estimated_minutes / 60, 1),
+                    'nodes': [_node_to_dict(n) for n in chunk],
+                }
+            )
 
         return milestones
 
@@ -252,14 +258,14 @@ class LearningPathGenerator:
 
     async def _get_completed_ids(self, user_id: UUID) -> set[UUID]:
         completed = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status="completed",
+            user_id=user_id,
+            status='completed',
         )
         mastered = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status="mastered",
+            user_id=user_id,
+            status='mastered',
         )
-        return {p.node_id for p in completed.items if p} | {
-            p.node_id for p in mastered.items if p
-        }
+        return {p.node_id for p in completed.items if p} | {p.node_id for p in mastered.items if p}
 
 
 # ── Helper ─────────────────────────────────────────────────────────
@@ -267,14 +273,18 @@ class LearningPathGenerator:
 
 def _node_to_dict(node) -> dict:
     return {
-        "id": str(node.id),
-        "slug": node.slug,
-        "title": node.title,
-        "description": node.description,
-        "node_type": node.node_type.value if hasattr(node.node_type, "value") else node.node_type,
-        "difficulty": node.difficulty.value if hasattr(node.difficulty, "value") else node.difficulty,
-        "estimated_minutes": ESTIMATED_MINUTES.get(
-            node.difficulty.value if hasattr(node.difficulty, "value") else str(node.difficulty).lower(),
+        'id': str(node.id),
+        'slug': node.slug,
+        'title': node.title,
+        'description': node.description,
+        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
+        'estimated_minutes': ESTIMATED_MINUTES.get(
+            node.difficulty.value
+            if hasattr(node.difficulty, 'value')
+            else str(node.difficulty).lower(),
             45,
         ),
     }

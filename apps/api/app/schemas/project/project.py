@@ -63,8 +63,12 @@ class ProjectCreate(BaseModel):
     )
     title: str = Field(description='Project title', max_length=300, min_length=1)
     description: str = Field(description='Detailed project description', max_length=10000)
-    difficulty: Difficulty = Field(default=Difficulty.INTERMEDIATE, description='Project difficulty level')
-    estimated_hours: int = Field(default=10, ge=1, le=9999, description='Estimated time to complete')
+    difficulty: Difficulty = Field(
+        default=Difficulty.INTERMEDIATE, description='Project difficulty level'
+    )
+    estimated_hours: int = Field(
+        default=10, ge=1, le=9999, description='Estimated time to complete'
+    )
     tech_stack: list[str] = Field(default_factory=list, description='Technologies used')
     icon: str | None = Field(default=None, max_length=50, description='UI icon identifier')
     color: str | None = Field(default=None, max_length=7, description='Hex colour for UI')

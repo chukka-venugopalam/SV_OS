@@ -6,11 +6,7 @@ from uuid import UUID
 
 from structlog.stdlib import get_logger
 
-from app.models.knowledge_node import KnowledgeNode
-from app.models.user_progress import UserProgress
 from app.repositories import UnitOfWork
-from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
 
@@ -86,7 +82,7 @@ class ProgressService:
 
         # Get all node data for dashboard support
         all_nodes = await self._uow.knowledge_nodes.count()
-        all_progress = await self._uow.user_progress.find_by_user(user_id=user_id)
+        await self._uow.user_progress.find_by_user(user_id=user_id)
 
         return {
             'by_status': by_status,
@@ -114,8 +110,12 @@ def _progress_with_node(progress, node) -> dict:
     if node:
         result['node_slug'] = node.slug
         result['node_title'] = node.title
-        result['node_type'] = node.node_type.value if hasattr(node.node_type, 'value') else str(node.node_type)
-        result['difficulty'] = node.difficulty.value if hasattr(node.difficulty, 'value') else str(node.difficulty)
+        result['node_type'] = (
+            node.node_type.value if hasattr(node.node_type, 'value') else str(node.node_type)
+        )
+        result['difficulty'] = (
+            node.difficulty.value if hasattr(node.difficulty, 'value') else str(node.difficulty)
+        )
         result['estimated_minutes'] = node.estimated_minutes
         result['icon'] = node.icon
         result['color'] = node.color

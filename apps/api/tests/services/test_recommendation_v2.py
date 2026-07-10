@@ -6,6 +6,7 @@ edge cases using mocked repositories.
 
 from __future__ import annotations
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -30,9 +31,15 @@ def engine(mock_uow):
     return RecommendationV2(mock_uow)
 
 
-def _make_node(node_id=None, title='Test', slug='test',
-               node_type='concept', difficulty='beginner',
-               view_count=10, estimated_minutes=30):
+def _make_node(
+    node_id=None,
+    title='Test',
+    slug='test',
+    node_type='concept',
+    difficulty='beginner',
+    view_count=10,
+    estimated_minutes=30,
+):
     node = MagicMock()
     node.id = node_id or uuid4()
     node.title = title
@@ -70,7 +77,7 @@ class TestPersonalizedRecommendations:
     @pytest.mark.asyncio
     async def test_all_nodes_completed(self, engine, mock_uow):
         """Test returns empty when all nodes completed."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         node_id = uuid4()
         node = _make_node(node_id)
@@ -78,7 +85,7 @@ class TestPersonalizedRecommendations:
         completed_progress = MagicMock()
         completed_progress.node_id = node_id
         completed_progress.status = 'completed'
-        completed_progress.updated_at = datetime.now(timezone.utc)
+        completed_progress.updated_at = datetime.now(UTC)
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
         mock_uow.user_progress.find_by_user = AsyncMock(
@@ -130,10 +137,14 @@ class TestPersonalizedRecommendations:
         if result:
             breakdown = result[0]['breakdown']
             expected_signals = [
-                'prerequisite_completion', 'weak_topic_reinforcement',
-                'bookmark_affinity', 'graph_distance',
-                'semantic_similarity', 'difficulty_match',
-                'estimated_time_match', 'recent_search_relevance',
+                'prerequisite_completion',
+                'weak_topic_reinforcement',
+                'bookmark_affinity',
+                'graph_distance',
+                'semantic_similarity',
+                'difficulty_match',
+                'estimated_time_match',
+                'recent_search_relevance',
                 'learning_velocity',
             ]
             for signal in expected_signals:
@@ -142,8 +153,7 @@ class TestPersonalizedRecommendations:
     @pytest.mark.asyncio
     async def test_limit_respects_count(self, engine, mock_uow):
         """Test limit restricts number of results."""
-        nodes = [_make_node(uuid4(), f'Node {i}', f'node-{i}')
-                for i in range(10)]
+        nodes = [_make_node(uuid4(), f'Node {i}', f'node-{i}') for i in range(10)]
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=nodes)
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
@@ -161,7 +171,7 @@ class TestScoringSignals:
     """Test individual scoring signals."""
 
     @pytest.mark.asyncio
-    async def test_weak_topic_score(self, engine, mock_uow):
+    async def test_weak_topic_score(self, engine, mock_uow):  # noqa: ARG002
         """Test weak topic scoring."""
         node_id = uuid4()
         node = _make_node(node_id, 'Weak Topic', 'weak')
@@ -177,7 +187,7 @@ class TestScoringSignals:
         assert score == 0.0
 
     @pytest.mark.asyncio
-    async def test_bookmark_affinity(self, engine, mock_uow):
+    async def test_bookmark_affinity(self, engine, mock_uow):  # noqa: ARG002
         """Test bookmark affinity with many bookmarks."""
         node = _make_node(node_type='concept')
         score = engine._bookmark_affinity_score(node, {uuid4(), uuid4(), uuid4()})
@@ -202,7 +212,7 @@ class TestScoringSignals:
         assert score == 0.3
 
     @pytest.mark.asyncio
-    async def test_recent_search_score(self, engine, mock_uow):
+    async def test_recent_search_score(self, engine, mock_uow):  # noqa: ARG002
         """Test recent search matching."""
         node = _make_node(title='Python Programming', slug='python')
         score = engine._recent_search_score(node, ['python', 'data science'])
@@ -244,11 +254,19 @@ class TestReasonBuilding:
 
     def test_empty_breakdown(self, engine):
         """Test empty breakdown returns no reasons."""
-        breakdown = {k: 0.0 for k in [
-            'prerequisite_completion', 'weak_topic_reinforcement',
-            'bookmark_affinity', 'graph_distance', 'semantic_similarity',
-            'difficulty_match', 'estimated_time_match',
-            'recent_search_relevance', 'learning_velocity',
-        ]}
+        breakdown = {
+            k: 0.0
+            for k in [
+                'prerequisite_completion',
+                'weak_topic_reinforcement',
+                'bookmark_affinity',
+                'graph_distance',
+                'semantic_similarity',
+                'difficulty_match',
+                'estimated_time_match',
+                'recent_search_relevance',
+                'learning_velocity',
+            ]
+        }
         reasons = engine._build_reasons(breakdown)
         assert reasons == []

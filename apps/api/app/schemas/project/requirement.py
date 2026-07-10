@@ -22,6 +22,10 @@ class RequiredSkill(BaseModel):
     """A skill required for a project with optional proficiency level."""
 
     name: str = Field(description='Skill name', max_length=200)
-    category: str | None = Field(default=None, description='Skill category', examples=['Programming Language'])
+    category: str | None = Field(
+        default=None, description='Skill category', examples=['Programming Language']
+    )
     difficulty: Difficulty = Field(description='Required proficiency level')
-    is_essential: bool = Field(default=True, description='Whether this skill is essential or optional')
+    is_essential: bool = Field(
+        default=True, description='Whether this skill is essential or optional'
+    )

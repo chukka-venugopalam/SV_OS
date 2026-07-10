@@ -12,8 +12,7 @@ pagination to support different query patterns:
 
 from __future__ import annotations
 
-from typing import Generic, Literal, TypeVar
-from uuid import UUID
+from typing import Literal, TypeVar
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -107,7 +106,7 @@ class PageParams(BaseModel):
         return (self.page - 1) * self.per_page
 
 
-class PageResponse(BaseModel, Generic[T]):
+class PageResponse[T](BaseModel):
     """Offset-based paginated response wrapper.
 
     Wraps a list of items with pagination metadata so clients can
@@ -158,7 +157,7 @@ class CursorParams(BaseModel):
     )
 
 
-class CursorResponse(BaseModel, Generic[T]):
+class CursorResponse[T](BaseModel):
     """Cursor-based paginated response wrapper.
 
     The client passes ``next_cursor`` in the next request to fetch
@@ -179,7 +178,7 @@ class CursorResponse(BaseModel, Generic[T]):
 # ── Convenience wrappers ───────────────────────────────────────────
 
 
-class PaginatedData(BaseModel, Generic[T]):
+class PaginatedData[T](BaseModel):
     """Union-style wrapper for paginated responses.
 
     Automatically selects offset or cursor pagination based on input.

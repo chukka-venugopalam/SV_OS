@@ -13,8 +13,8 @@ import pytest
 
 from app.services.recommendation_engine import RecommendationEngine
 
-
 # ── Fixtures ───────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_uow():
@@ -34,9 +34,16 @@ def engine(mock_uow):
     return RecommendationEngine(mock_uow)
 
 
-def _make_node(node_id=None, title="Test Node", slug="test-node",
-               description="A test node", node_type="concept",
-               difficulty="beginner", view_count=10, edge_count=5):
+def _make_node(
+    node_id=None,
+    title='Test Node',
+    slug='test-node',
+    description='A test node',
+    node_type='concept',
+    difficulty='beginner',
+    view_count=10,
+    edge_count=5,
+):
     """Helper to create a mock node."""
     node = MagicMock()
     node.id = node_id or uuid4()
@@ -58,6 +65,7 @@ def _make_node(node_id=None, title="Test Node", slug="test-node",
 
 
 # ── Empty State Tests ──────────────────────────────────────────────
+
 
 class TestEmptyStates:
     """Test edge cases with no data."""
@@ -86,13 +94,15 @@ class TestEmptyStates:
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
 
         result = await engine.get_recommendations(
-            user_id=uuid4(), exclude_completed=True,
+            user_id=uuid4(),
+            exclude_completed=True,
         )
 
         assert result == []
 
 
 # ── Scoring Tests ──────────────────────────────────────────────────
+
 
 class TestScoring:
     """Test scoring logic."""
@@ -106,9 +116,11 @@ class TestScoring:
         prereq_node = _make_node(prereq_id)
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
-        mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(
-            items=[MagicMock(node_id=prereq_id)]  # Completed this prereq
-        ))
+        mock_uow.user_progress.find_by_user = AsyncMock(
+            return_value=MagicMock(
+                items=[MagicMock(node_id=prereq_id)]  # Completed this prereq
+            )
+        )
         mock_uow.bookmarks.find_by_user = AsyncMock(return_value=[])
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[prereq_node])
         mock_uow.graph.load_edges_for_nodes = AsyncMock(return_value=[])
@@ -116,9 +128,9 @@ class TestScoring:
         result = await engine.get_recommendations(user_id=uuid4(), limit=10)
 
         if result:
-            assert result[0]["score"] > 0
-            assert "reasons" in result[0]
-            assert "node" in result[0]
+            assert result[0]['score'] > 0
+            assert 'reasons' in result[0]
+            assert 'node' in result[0]
 
     @pytest.mark.asyncio
     async def test_popular_node_gets_score_boost(self, engine, mock_uow):
@@ -126,9 +138,12 @@ class TestScoring:
         popular_node = _make_node(uuid4(), view_count=200, edge_count=100)
         unpopular_node = _make_node(uuid4(), view_count=1, edge_count=0)
 
-        mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[
-            popular_node, unpopular_node,
-        ])
+        mock_uow.knowledge_nodes.find_published = AsyncMock(
+            return_value=[
+                popular_node,
+                unpopular_node,
+            ]
+        )
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
         mock_uow.bookmarks.find_by_user = AsyncMock(return_value=[])
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
@@ -138,11 +153,12 @@ class TestScoring:
 
         assert len(result) == 2
         # Popular node should be ranked first
-        popular_ids = [r["node"]["id"] for r in result]
+        popular_ids = [r['node']['id'] for r in result]
         assert str(popular_node.id) in popular_ids
 
 
 # ── Career Recommendation Tests ────────────────────────────────────
+
 
 class TestCareerRecommendations:
     """Test get_recommended_careers."""
@@ -152,9 +168,12 @@ class TestCareerRecommendations:
         """Test returns empty list when no careers match."""
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
         mock_uow.careers.find_published = AsyncMock(return_value=[])
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            "incoming": [], "outgoing": [],
-        })
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'incoming': [],
+                'outgoing': [],
+            }
+        )
 
         result = await engine.get_recommended_careers(user_id=uuid4())
 
@@ -168,47 +187,52 @@ class TestCareerRecommendations:
 
         career = MagicMock()
         career.id = career_id
-        career.title = "Data Scientist"
-        career.slug = "data-scientist"
-        career.description = "Works with data"
-        career.salary_range = "$100k-$150k"
+        career.title = 'Data Scientist'
+        career.slug = 'data-scientist'
+        career.description = 'Works with data'
+        career.salary_range = '$100k-$150k'
         demand_mock = MagicMock()
-        demand_mock.value = "growing"
+        demand_mock.value = 'growing'
         career.demand = demand_mock
 
-        mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(
-            items=[MagicMock(node_id=completed_node_id)]
-        ))
+        mock_uow.user_progress.find_by_user = AsyncMock(
+            return_value=MagicMock(items=[MagicMock(node_id=completed_node_id)])
+        )
         mock_uow.careers.find_published = AsyncMock(return_value=[career])
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            "incoming": [MagicMock(id=completed_node_id)],
-            "outgoing": [],
-        })
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'incoming': [MagicMock(id=completed_node_id)],
+                'outgoing': [],
+            }
+        )
 
         result = await engine.get_recommended_careers(user_id=uuid4())
 
         assert len(result) == 1
-        assert result[0]["career"]["title"] == "Data Scientist"
-        assert result[0]["match_score"] > 0
+        assert result[0]['career']['title'] == 'Data Scientist'
+        assert result[0]['match_score'] > 0
 
     @pytest.mark.asyncio
     async def test_career_no_required_nodes(self, engine, mock_uow):
         """Test careers with no required nodes are skipped."""
         career = MagicMock()
         career.id = uuid4()
-        career.title = "Empty Career"
-        career.slug = "empty-career"
-        career.description = "No requirements"
+        career.title = 'Empty Career'
+        career.slug = 'empty-career'
+        career.description = 'No requirements'
         career.salary_range = None
         demand_mock = MagicMock()
-        demand_mock.value = "stable"
+        demand_mock.value = 'stable'
         career.demand = demand_mock
 
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
         mock_uow.careers.find_published = AsyncMock(return_value=[career])
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            "incoming": [], "outgoing": [],
-        })
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'incoming': [],
+                'outgoing': [],
+            }
+        )
 
         result = await engine.get_recommended_careers(user_id=uuid4())
 
@@ -216,6 +240,7 @@ class TestCareerRecommendations:
 
 
 # ── Next Best Node Tests ───────────────────────────────────────────
+
 
 class TestNextBestNode:
     """Test get_next_best_nodes."""

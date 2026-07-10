@@ -25,7 +25,9 @@ class SignupRequest(BaseModel):
     """Request body for user registration."""
 
     email: EmailStr = Field(description='Email address')
-    username: str = Field(description='Public username', min_length=3, max_length=100, pattern=r'^[a-zA-Z0-9_]+$')
+    username: str = Field(
+        description='Public username', min_length=3, max_length=100, pattern=r'^[a-zA-Z0-9_]+$'
+    )
     password: str = Field(description='Password', min_length=8, max_length=128)
     display_name: str | None = Field(default=None, description='Display name', max_length=200)
 

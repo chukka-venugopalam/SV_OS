@@ -8,11 +8,12 @@ semantic type and direction.  Prerequisite edges are just
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, Float, ForeignKey, Text, UniqueConstraint, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -37,7 +38,9 @@ class KnowledgeEdge(AppBaseMixin, Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'source_node_id', 'target_node_id', 'relationship_type',
+            'source_node_id',
+            'target_node_id',
+            'relationship_type',
             name='uq_edge_source_target_type',
         ),
         CheckConstraint(
@@ -49,51 +52,61 @@ class KnowledgeEdge(AppBaseMixin, Base):
     source_node_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('knowledge_nodes.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Source / parent node ID',
     )
     target_node_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('knowledge_nodes.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Target / child node ID',
     )
     relationship_type: Mapped[EdgeType] = mapped_column(
-        pg_enum(EdgeType, "edge_type_enum"),
-        nullable=False, index=True,
+        pg_enum(EdgeType, 'edge_type_enum'),
+        nullable=False,
+        index=True,
         comment='Semantic type of the relationship',
     )
     direction: Mapped[EdgeDirection] = mapped_column(
-        pg_enum(EdgeDirection, "edge_direction_enum"),
+        pg_enum(EdgeDirection, 'edge_direction_enum'),
         default=EdgeDirection.FORWARD,
         server_default=text("'forward'"),
         nullable=False,
         comment='Directionality of the edge',
     )
     description: Mapped[str] = mapped_column(
-        Text, default='', server_default=text("''"),
+        Text,
+        default='',
+        server_default=text("''"),
         nullable=False,
         comment='Human-readable description of the relationship',
     )
     weight: Mapped[float] = mapped_column(
-        Float, default=1.0, server_default=text('1.0'),
+        Float,
+        default=1.0,
+        server_default=text('1.0'),
         nullable=False,
         comment='Numeric weight for ranking / scoring traversals',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Arbitrary metadata JSON blob for extensibility',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    source_node: Mapped['KnowledgeNode'] = relationship(
+    source_node: Mapped[KnowledgeNode] = relationship(
         'KnowledgeNode',
         foreign_keys=[source_node_id],
         back_populates='outgoing_edges',
     )
-    target_node: Mapped['KnowledgeNode'] = relationship(
+    target_node: Mapped[KnowledgeNode] = relationship(
         'KnowledgeNode',
         foreign_keys=[target_node_id],
         back_populates='incoming_edges',

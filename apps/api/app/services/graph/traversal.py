@@ -56,11 +56,13 @@ class GraphTraversalService:
             current_id, depth, parent_id = queue.popleft()
 
             if depth > 0:
-                result.append({
-                    "node_id": str(current_id),
-                    "depth": depth,
-                    "parent_id": str(parent_id) if parent_id else None,
-                })
+                result.append(
+                    {
+                        'node_id': str(current_id),
+                        'depth': depth,
+                        'parent_id': str(parent_id) if parent_id else None,
+                    }
+                )
 
             if depth >= max_depth:
                 continue
@@ -99,10 +101,12 @@ class GraphTraversalService:
             current_id, depth = stack.pop()
 
             if depth > 0:
-                result.append({
-                    "node_id": str(current_id),
-                    "depth": depth,
-                })
+                result.append(
+                    {
+                        'node_id': str(current_id),
+                        'depth': depth,
+                    }
+                )
 
             if depth >= max_depth:
                 continue
@@ -148,9 +152,9 @@ class GraphTraversalService:
 
             # Include the incoming edge that brought us here
             if incoming_edge:
-                path = path + [{"node_id": str(current_id), "edge": _edge_to_dict(incoming_edge)}]
+                path = [*path, {'node_id': str(current_id), 'edge': _edge_to_dict(incoming_edge)}]
             else:
-                path = path + [{"node_id": str(current_id), "edge": None}]
+                path = [*path, {'node_id': str(current_id), 'edge': None}]
 
             if current_id == target_id and len(path) > 1:
                 return path
@@ -256,7 +260,7 @@ class GraphTraversalService:
     async def neighbors_at_depth(
         self,
         node_id: UUID,
-        depth: int = 1,
+        _depth: int = 1,
         relationship_type: str | None = None,
     ) -> dict:
         """Get all neighbors of a node at the given depth.
@@ -275,10 +279,10 @@ class GraphTraversalService:
         edge_type_counts = await self._graph_repo.load_edge_types_for_node(node_id)
 
         return {
-            "outgoing": [_node_to_dict(n) for n in all_neighbors.get("outgoing", [])],
-            "incoming": [_node_to_dict(n) for n in all_neighbors.get("incoming", [])],
-            "edges": [_edge_to_dict(e) for e in edges],
-            "edge_type_counts": edge_type_counts,
+            'outgoing': [_node_to_dict(n) for n in all_neighbors.get('outgoing', [])],
+            'incoming': [_node_to_dict(n) for n in all_neighbors.get('incoming', [])],
+            'edges': [_edge_to_dict(e) for e in edges],
+            'edge_type_counts': edge_type_counts,
         }
 
     # ── Subgraph Extraction ────────────────────────────────────────
@@ -332,10 +336,10 @@ class GraphTraversalService:
                 nodes.append(_node_to_dict(node))
 
         return {
-            "nodes": nodes,
-            "edges": edges,
-            "center_node_id": str(center_node_id),
-            "depth": depth,
+            'nodes': nodes,
+            'edges': edges,
+            'center_node_id': str(center_node_id),
+            'depth': depth,
         }
 
 
@@ -344,22 +348,28 @@ class GraphTraversalService:
 
 def _node_to_dict(node) -> dict:
     return {
-        "id": str(node.id),
-        "slug": node.slug,
-        "title": node.title,
-        "description": node.description,
-        "node_type": node.node_type.value if hasattr(node.node_type, "value") else node.node_type,
-        "difficulty": node.difficulty.value if hasattr(node.difficulty, "value") else node.difficulty,
-        "icon": getattr(node, "icon", None),
-        "color": getattr(node, "color", None),
+        'id': str(node.id),
+        'slug': node.slug,
+        'title': node.title,
+        'description': node.description,
+        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
+        'icon': getattr(node, 'icon', None),
+        'color': getattr(node, 'color', None),
     }
 
 
 def _edge_to_dict(edge) -> dict:
     return {
-        "id": str(edge.id),
-        "source_id": str(edge.source_node_id),
-        "target_id": str(edge.target_node_id),
-        "relationship_type": edge.relationship_type.value if hasattr(edge.relationship_type, "value") else edge.relationship_type,
-        "direction": edge.direction.value if hasattr(edge.direction, "value") else getattr(edge, "direction", "forward"),
+        'id': str(edge.id),
+        'source_id': str(edge.source_node_id),
+        'target_id': str(edge.target_node_id),
+        'relationship_type': edge.relationship_type.value
+        if hasattr(edge.relationship_type, 'value')
+        else edge.relationship_type,
+        'direction': edge.direction.value
+        if hasattr(edge.direction, 'value')
+        else getattr(edge, 'direction', 'forward'),
     }

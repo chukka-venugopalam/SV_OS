@@ -91,13 +91,9 @@ class HybridSearchService:
         for node in nodes:
             # Apply filters
             if filters:
-                if filters.get('node_type') and (
-                    node.node_type.value != filters['node_type']
-                ):
+                if filters.get('node_type') and (node.node_type.value != filters['node_type']):
                     continue
-                if filters.get('difficulty') and (
-                    node.difficulty.value != filters['difficulty']
-                ):
+                if filters.get('difficulty') and (node.difficulty.value != filters['difficulty']):
                     continue
 
             keyword_score = self._keyword_score(query, node)
@@ -115,26 +111,31 @@ class HybridSearchService:
             )
 
             if composite > 0:
-                scored.append((composite, {
-                    'node': _node_to_dict(node),
-                    'score': round(composite, 4),
-                    'signals': {
-                        'keyword': round(keyword_score, 4),
-                        'semantic': round(semantic_score, 4),
-                        'graph': round(graph_score, 4),
-                        'popularity': round(popularity_score, 4),
-                        'difficulty': round(difficulty_score, 4),
-                    },
-                    'is_in_progress': node.id in user_progress_ids,
-                    'is_bookmarked': node.id in user_bookmark_ids,
-                }))
+                scored.append(
+                    (
+                        composite,
+                        {
+                            'node': _node_to_dict(node),
+                            'score': round(composite, 4),
+                            'signals': {
+                                'keyword': round(keyword_score, 4),
+                                'semantic': round(semantic_score, 4),
+                                'graph': round(graph_score, 4),
+                                'popularity': round(popularity_score, 4),
+                                'difficulty': round(difficulty_score, 4),
+                            },
+                            'is_in_progress': node.id in user_progress_ids,
+                            'is_bookmarked': node.id in user_bookmark_ids,
+                        },
+                    )
+                )
 
         scored.sort(key=lambda x: x[0], reverse=True)
 
         # Paginate
         total = len(scored)
         offset = (page - 1) * per_page
-        items = [item for _, item in scored[offset:offset + per_page]]
+        items = [item for _, item in scored[offset : offset + per_page]]
         total_pages = max(1, (total + per_page - 1) // per_page) if total else 1
 
         return {
@@ -175,9 +176,7 @@ class HybridSearchService:
 
         return min(score, 1.0)
 
-    def _semantic_score(
-        self, query_embedding: list[float] | None, node
-    ) -> float:
+    def _semantic_score(self, query_embedding: list[float] | None, node) -> float:
         """Semantic similarity score based on embeddings."""
         if not query_embedding:
             return 0.0
@@ -189,9 +188,7 @@ class HybridSearchService:
 
         return self._cosine_similarity(query_embedding, node_embedding)
 
-    async def _graph_score(
-        self, node, completed_ids: set[UUID]
-    ) -> float:
+    async def _graph_score(self, node, completed_ids: set[UUID]) -> float:
         """Graph proximity score. Higher when close to completed nodes."""
         if not completed_ids:
             return 0.0
@@ -200,8 +197,7 @@ class HybridSearchService:
             node_ids=[node.id],
         )
         connected_to_completed = any(
-            e.source_node_id in completed_ids or e.target_node_id in completed_ids
-            for e in edges
+            e.source_node_id in completed_ids or e.target_node_id in completed_ids for e in edges
         )
 
         return 0.8 if connected_to_completed else 0.2
@@ -236,13 +232,11 @@ class HybridSearchService:
             return 0.1
         return 0.3
 
-    def _cosine_similarity(
-        self, vec_a: list[float], vec_b: list[float]
-    ) -> float:
+    def _cosine_similarity(self, vec_a: list[float], vec_b: list[float]) -> float:
         """Compute cosine similarity between two vectors."""
         if not vec_a or not vec_b:
             return 0.0
-        dot = sum(a * b for a, b in zip(vec_a, vec_b))
+        dot = sum(a * b for a, b in zip(vec_a, vec_b, strict=False))
         norm_a = math.sqrt(sum(a * a for a in vec_a))
         norm_b = math.sqrt(sum(b * b for b in vec_b))
         if norm_a == 0 or norm_b == 0:
@@ -259,14 +253,14 @@ class HybridSearchService:
 
     async def _get_completed_ids(self, user_id: UUID) -> set[UUID]:
         completed = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status='completed',
+            user_id=user_id,
+            status='completed',
         )
         mastered = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status='mastered',
+            user_id=user_id,
+            status='mastered',
         )
-        return {p.node_id for p in completed.items if p} | {
-            p.node_id for p in mastered.items if p
-        }
+        return {p.node_id for p in completed.items if p} | {p.node_id for p in mastered.items if p}
 
 
 def _node_to_dict(node) -> dict:
@@ -276,7 +270,9 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
         'estimated_minutes': node.estimated_minutes,
         'icon': node.icon,
         'color': node.color,

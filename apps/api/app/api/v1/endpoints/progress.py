@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_uow
@@ -19,11 +20,11 @@ router = APIRouter()
 
 @router.get('')
 async def list_progress(
-    status: str | None = Query(None, description='Filter by status'),
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    status: Annotated[str | None, Query(description='Filter by status')] = None,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
 ) -> dict:
     """List progress records for the authenticated user with node details."""
     service = ProgressService(uow)
@@ -41,8 +42,8 @@ async def list_progress(
 
 @router.get('/stats')
 async def get_progress_stats(
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get aggregated progress statistics for the authenticated user."""
     service = ProgressService(uow)
@@ -56,11 +57,13 @@ async def get_progress_stats(
 @router.put('/{node_id}')
 async def update_progress(
     node_id: UUID,
-    status: str | None = Query(None, description='New progress status'),
-    time_spent_minutes: int | None = Query(None, ge=0, description='Additional time spent'),
-    notes: str | None = Query(None, description='Personal notes'),
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    status: Annotated[str | None, Query(description='New progress status')] = None,
+    time_spent_minutes: Annotated[
+        int | None, Query(ge=0, description='Additional time spent')
+    ] = None,
+    notes: Annotated[str | None, Query(description='Personal notes')] = None,
 ) -> dict:
     """Create or update progress for a knowledge node."""
     service = ProgressService(uow)
@@ -80,8 +83,8 @@ async def update_progress(
 @router.post('/{node_id}/start')
 async def start_node(
     node_id: UUID,
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Mark a node as 'learning' for the authenticated user."""
     service = ProgressService(uow)
@@ -99,8 +102,8 @@ async def start_node(
 @router.post('/{node_id}/complete')
 async def complete_node(
     node_id: UUID,
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Mark a node as 'completed' for the authenticated user."""
     service = ProgressService(uow)

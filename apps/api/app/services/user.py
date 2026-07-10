@@ -12,7 +12,7 @@ from structlog.stdlib import get_logger
 
 from app.models.user import User
 from app.repositories import UnitOfWork
-from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
+from app.repositories.errors import EntityNotFoundError
 
 logger = get_logger(__name__)
 
@@ -113,17 +113,23 @@ class UserService:
             if not p:
                 continue
             node = node_map.get(p.node_id)
-            enriched_progress.append({
-                'node_id': str(p.node_id),
-                'node_slug': node.slug if node else None,
-                'node_title': node.title if node else None,
-                'node_type': node.node_type.value if node and hasattr(node.node_type, 'value') else None,
-                'difficulty': node.difficulty.value if node and hasattr(node.difficulty, 'value') else None,
-                'estimated_minutes': node.estimated_minutes if node else None,
-                'status': p.status.value if hasattr(p.status, 'value') else p.status,
-                'time_spent_minutes': p.time_spent_minutes,
-                'updated_at': p.updated_at.isoformat() if p.updated_at else None,
-            })
+            enriched_progress.append(
+                {
+                    'node_id': str(p.node_id),
+                    'node_slug': node.slug if node else None,
+                    'node_title': node.title if node else None,
+                    'node_type': node.node_type.value
+                    if node and hasattr(node.node_type, 'value')
+                    else None,
+                    'difficulty': node.difficulty.value
+                    if node and hasattr(node.difficulty, 'value')
+                    else None,
+                    'estimated_minutes': node.estimated_minutes if node else None,
+                    'status': p.status.value if hasattr(p.status, 'value') else p.status,
+                    'time_spent_minutes': p.time_spent_minutes,
+                    'updated_at': p.updated_at.isoformat() if p.updated_at else None,
+                }
+            )
 
         # Recent activity (last 10 progress records)
         recent_progress = await self._uow.user_progress.find_by_user(
@@ -142,14 +148,20 @@ class UserService:
             if not p:
                 continue
             node = recent_node_map.get(p.node_id)
-            enriched_recent.append({
-                'node_slug': node.slug if node else None,
-                'node_title': node.title if node else None,
-                'status': p.status.value if hasattr(p.status, 'value') else p.status,
-                'node_type': node.node_type.value if node and hasattr(node.node_type, 'value') else None,
-                'difficulty': node.difficulty.value if node and hasattr(node.difficulty, 'value') else None,
-                'updated_at': p.updated_at.isoformat() if p.updated_at else None,
-            })
+            enriched_recent.append(
+                {
+                    'node_slug': node.slug if node else None,
+                    'node_title': node.title if node else None,
+                    'status': p.status.value if hasattr(p.status, 'value') else p.status,
+                    'node_type': node.node_type.value
+                    if node and hasattr(node.node_type, 'value')
+                    else None,
+                    'difficulty': node.difficulty.value
+                    if node and hasattr(node.difficulty, 'value')
+                    else None,
+                    'updated_at': p.updated_at.isoformat() if p.updated_at else None,
+                }
+            )
 
         # Learning time stats
         learning_time = await self._uow.learning_sessions.total_time_for_user(user_id)

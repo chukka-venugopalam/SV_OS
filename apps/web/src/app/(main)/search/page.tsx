@@ -29,14 +29,14 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import { NODE_TYPE_COLORS } from '@/components/graph';
 import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSearch as useSearchHook , useSearchSuggestions, useTrendingSearches } from '@/hooks/use-search';
-import { cn, slugToTitle, truncate } from '@/lib';
+import { slugToTitle, truncate } from '@/lib';
 import { ROUTES } from '@/lib/constants';
 
 const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;

@@ -30,7 +30,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useState, memo } from 'react';
 
 import { NODE_TYPE_COLORS } from '@/components/graph';
@@ -39,7 +39,6 @@ import { Shell } from '@/components/shared/shell';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useKnowledgeNodes } from '@/hooks/use-knowledge';
 import { cn, slugToTitle, truncate } from '@/lib';
-import { ROUTES } from '@/lib/constants';
 
 const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;
 const DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'expert'] as const;
@@ -189,7 +188,6 @@ function FilterTag({ label, onRemove }: { label: string; onRemove: () => void })
 }
 
 export default function ExplorePage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get('search') ?? '');

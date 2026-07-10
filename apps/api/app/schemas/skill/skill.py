@@ -54,7 +54,9 @@ class SkillDetail(BaseModel):
 
     # Relationship counts
     prerequisite_count: int = Field(default=0, ge=0, description='Number of prerequisite skills')
-    dependent_count: int = Field(default=0, ge=0, description='Number of skills that build upon this one')
+    dependent_count: int = Field(
+        default=0, ge=0, description='Number of skills that build upon this one'
+    )
     related_count: int = Field(default=0, ge=0, description='Number of related skills')
 
 
@@ -64,7 +66,9 @@ class SkillCreate(BaseModel):
     name: str = Field(description='Unique skill name', max_length=200, min_length=1)
     description: str | None = Field(default=None, description='Short description', max_length=5000)
     category: str | None = Field(default=None, description='Skill category', max_length=100)
-    difficulty: Difficulty = Field(default=Difficulty.BEGINNER, description='Typical difficulty level')
+    difficulty: Difficulty = Field(
+        default=Difficulty.BEGINNER, description='Typical difficulty level'
+    )
     metadata: dict = Field(default_factory=dict, description='Arbitrary metadata')
 
 
@@ -92,8 +96,12 @@ class SkillRelationshipSchema(BaseModel):
     target_skill_id: UUID = Field(description='Target / dependent skill ID')
     source_skill_name: str = Field(description='Source skill name', max_length=200)
     target_skill_name: str = Field(description='Target skill name', max_length=200)
-    relationship_type: SkillRelationshipType = Field(description='Semantic type of the relationship')
-    weight: float | None = Field(default=None, ge=0.0, le=1.0, description='Optional strength weight')
+    relationship_type: SkillRelationshipType = Field(
+        description='Semantic type of the relationship'
+    )
+    weight: float | None = Field(
+        default=None, ge=0.0, le=1.0, description='Optional strength weight'
+    )
 
 
 class SkillRelationshipCreate(BaseModel):
@@ -101,8 +109,12 @@ class SkillRelationshipCreate(BaseModel):
 
     source_skill_id: UUID = Field(description='Source / prerequisite skill ID')
     target_skill_id: UUID = Field(description='Target / dependent skill ID')
-    relationship_type: SkillRelationshipType = Field(description='Semantic type of the relationship')
-    weight: float | None = Field(default=None, ge=0.0, le=1.0, description='Optional strength weight')
+    relationship_type: SkillRelationshipType = Field(
+        description='Semantic type of the relationship'
+    )
+    weight: float | None = Field(
+        default=None, ge=0.0, le=1.0, description='Optional strength weight'
+    )
 
 
 class SkillCategoryCount(BaseModel):

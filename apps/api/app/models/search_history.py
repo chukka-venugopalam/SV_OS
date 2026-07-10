@@ -6,11 +6,12 @@ Maps to the ``search_history`` table.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Integer, String, Text, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy import ForeignKey, Integer, Text, text
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -32,32 +33,36 @@ class SearchHistory(AppBaseMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='User who performed the search',
     )
     query: Mapped[str] = mapped_column(
-        Text, nullable=False,
+        Text,
+        nullable=False,
         comment='Raw search query text',
     )
     filters: Mapped[dict] = mapped_column(
-        JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Filters applied during the search (e.g. type, difficulty)',
     )
     results_count: Mapped[int] = mapped_column(
-        Integer, default=0, server_default=text('0'),
+        Integer,
+        default=0,
+        server_default=text('0'),
         nullable=False,
         comment='Number of results returned',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    user: Mapped['User'] = relationship(
-        'User', back_populates='search_history',
+    user: Mapped[User] = relationship(
+        'User',
+        back_populates='search_history',
     )
 
     def __repr__(self) -> str:
-        return (
-            f'<SearchHistory id={self.id!r} '
-            f'query={self.query!r} user={self.user_id!r}>'
-        )
+        return f'<SearchHistory id={self.id!r} query={self.query!r} user={self.user_id!r}>'

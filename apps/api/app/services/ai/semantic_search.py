@@ -73,10 +73,15 @@ class SemanticSearchService:
             if similarity < threshold:
                 continue
 
-            scored.append((similarity, {
-                'node': _node_to_dict(node),
-                'similarity': round(similarity, 4),
-            }))
+            scored.append(
+                (
+                    similarity,
+                    {
+                        'node': _node_to_dict(node),
+                        'similarity': round(similarity, 4),
+                    },
+                )
+            )
 
         # Sort by similarity descending
         scored.sort(key=lambda x: x[0], reverse=True)
@@ -125,9 +130,7 @@ class SemanticSearchService:
 
     # ── Cosine Similarity ──────────────────────────────────────────
 
-    def _cosine_similarity(
-        self, vec_a: list[float], vec_b: list[float]
-    ) -> float:
+    def _cosine_similarity(self, vec_a: list[float], vec_b: list[float]) -> float:
         """Compute cosine similarity between two vectors.
 
         Returns a value between 0 and 1 (higher = more similar).
@@ -135,7 +138,7 @@ class SemanticSearchService:
         if not vec_a or not vec_b:
             return 0.0
 
-        dot_product = sum(a * b for a, b in zip(vec_a, vec_b))
+        dot_product = sum(a * b for a, b in zip(vec_a, vec_b, strict=False))
         norm_a = math.sqrt(sum(a * a for a in vec_a))
         norm_b = math.sqrt(sum(b * b for b in vec_b))
 
@@ -144,9 +147,7 @@ class SemanticSearchService:
 
         return dot_product / (norm_a * norm_b)
 
-    async def compute_similarity_matrix(
-        self, node_ids: list[UUID]
-    ) -> list[dict]:
+    async def compute_similarity_matrix(self, node_ids: list[UUID]) -> list[dict]:
         """Compute a pairwise similarity matrix for a set of nodes.
 
         Returns a list of ``{node_a, node_b, similarity}`` entries
@@ -169,11 +170,13 @@ class SemanticSearchService:
             for j in range(i + 1, len(ids)):
                 sim = self._cosine_similarity(embeddings[ids[i]], embeddings[ids[j]])
                 if sim > 0.3:
-                    pairs.append({
-                        'node_a': str(ids[i]),
-                        'node_b': str(ids[j]),
-                        'similarity': round(sim, 4),
-                    })
+                    pairs.append(
+                        {
+                            'node_a': str(ids[i]),
+                            'node_b': str(ids[j]),
+                            'similarity': round(sim, 4),
+                        }
+                    )
 
         pairs.sort(key=lambda x: x['similarity'], reverse=True)
         return pairs
@@ -186,7 +189,9 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
         'estimated_minutes': node.estimated_minutes,
         'icon': node.icon,
         'color': node.color,

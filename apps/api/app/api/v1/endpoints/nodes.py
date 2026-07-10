@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_optional_user_id, get_uow
 from app.repositories import UnitOfWork
-from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
-from app.repositories.query_helpers import SortDirection
-from app.schemas.knowledge.node import KnowledgeNodeCreate, KnowledgeNodeUpdate
+from app.repositories.errors import EntityNotFoundError
 from app.schemas.response import success_response
 from app.services.knowledge_node import KnowledgeNodeService
 
@@ -22,13 +21,13 @@ router = APIRouter()
 
 @router.get('/search', tags=['knowledge-nodes'])
 async def search_nodes(
-    q: str = Query('', description='Search query'),
-    node_type: str | None = Query(None, description='Filter by node type'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    current_user_id: UUID | None = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID | None, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    q: Annotated[str, Query(description='Search query')] = '',
+    node_type: Annotated[str | None, Query(description='Filter by node type')] = None,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
 ) -> dict:
     """Full-text search across knowledge nodes."""
     from app.services.search import SearchService
@@ -56,13 +55,13 @@ async def search_nodes(
 
 @router.get('')
 async def list_nodes(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    node_type: str | None = Query(None, description='Filter by node type'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    sort_by: str = Query('title', description='Sort field'),
-    sort_dir: str = Query('asc', description='Sort direction (asc/desc)'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
+    node_type: Annotated[str | None, Query(description='Filter by node type')] = None,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
+    sort_by: Annotated[str, Query(description='Sort field')] = 'title',
+    sort_dir: Annotated[str, Query(description='Sort direction (asc/desc)')] = 'asc',
 ) -> dict:
     """List published knowledge nodes with optional filtering."""
     service = KnowledgeNodeService(uow)
@@ -88,9 +87,9 @@ async def list_nodes(
 
 @router.get('/popular')
 async def get_popular(
-    limit: int = Query(10, ge=1, le=50, description='Number of results'),
-    node_type: str | None = Query(None, description='Filter by node type'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=50, description='Number of results')] = 10,
+    node_type: Annotated[str | None, Query(description='Filter by node type')] = None,
 ) -> dict:
     """Get the most-viewed knowledge nodes."""
     service = KnowledgeNodeService(uow)
@@ -104,7 +103,7 @@ async def get_popular(
 @router.get('/{slug}')
 async def get_node(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get a knowledge node by slug."""
     service = KnowledgeNodeService(uow)
@@ -112,9 +111,8 @@ async def get_node(
         node = await service.get_by_slug(slug)
         # Increment view count
         await service.increment_view(slug)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Node not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Node not found') from e
     return success_response(
         data=_node_to_dict(node),
         message='Node retrieved',
@@ -124,16 +122,15 @@ async def get_node(
 @router.get('/{slug}/prerequisites')
 async def get_prerequisites(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get prerequisites for a knowledge node."""
     service = KnowledgeNodeService(uow)
     try:
         node = await service.get_by_slug(slug)
         prereqs = await service.get_prerequisites(node.id)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Node not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Node not found') from e
     return success_response(
         data={'items': [_node_to_dict(n) for n in prereqs]},
         message='Prerequisites retrieved',
@@ -143,16 +140,15 @@ async def get_prerequisites(
 @router.get('/{slug}/related')
 async def get_related(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get related nodes (neighbors) for a knowledge node."""
     service = KnowledgeNodeService(uow)
     try:
         node = await service.get_by_slug(slug)
         neighbors = await service.get_neighbors(node.id)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Node not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Node not found') from e
     return success_response(
         data={
             'outgoing': [_node_to_dict(n) for n in neighbors.get('outgoing', [])],
@@ -165,18 +161,17 @@ async def get_related(
 @router.get('/{slug}/resources')
 async def get_node_resources(
     slug: str,
-    page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> dict:
     """Get learning resources for a knowledge node."""
     service = KnowledgeNodeService(uow)
     try:
         node = await service.get_by_slug(slug)
         result = await service.get_resources(node.id, page=page, per_page=per_page)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Node not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Node not found') from e
     return success_response(
         data={
             'items': [_resource_to_dict(r) for r in result.items],
@@ -191,16 +186,15 @@ async def get_node_resources(
 @router.get('/{slug}/careers')
 async def get_node_careers(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get careers that require this knowledge node."""
     service = KnowledgeNodeService(uow)
     try:
         node = await service.get_by_slug(slug)
         careers = await service.get_related_careers(node.id)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Node not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Node not found') from e
     return success_response(
         data={'items': [_career_to_dict(c) for c in careers]},
         message='Related careers retrieved',
@@ -218,7 +212,9 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
         'estimated_minutes': node.estimated_minutes,
         'icon': node.icon,
         'color': node.color,
@@ -234,7 +230,9 @@ def _resource_to_dict(r) -> dict:
         'id': str(r.id),
         'title': r.title,
         'url': r.url,
-        'resource_type': r.resource_type.value if hasattr(r.resource_type, 'value') else r.resource_type,
+        'resource_type': r.resource_type.value
+        if hasattr(r.resource_type, 'value')
+        else r.resource_type,
         'platform': r.platform,
         'is_free': r.is_free,
     }
@@ -246,5 +244,7 @@ def _career_to_dict(c) -> dict:
         'slug': c.slug,
         'title': c.title,
         'description': c.description,
-        'demand_level': c.demand_level.value if hasattr(c.demand_level, 'value') else c.demand_level,
+        'demand_level': c.demand_level.value
+        if hasattr(c.demand_level, 'value')
+        else c.demand_level,
     }

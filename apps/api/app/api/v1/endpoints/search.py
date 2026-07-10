@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_optional_user_id, get_uow
@@ -19,13 +20,13 @@ router = APIRouter()
 
 @router.get('')
 async def search(
-    q: str = Query('', min_length=1, description='Search query'),
-    node_type: str | None = Query(None, description='Filter by node type'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    current_user_id: UUID | None = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID | None, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    q: Annotated[str, Query(min_length=1, description='Search query')] = '',
+    node_type: Annotated[str | None, Query(description='Filter by node type')] = None,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
 ) -> dict:
     """Full-text search across knowledge nodes with optional filters."""
     if not q.strip():
@@ -57,9 +58,9 @@ async def search(
 
 @router.get('/suggestions')
 async def get_suggestions(
-    q: str = Query('', min_length=1, description='Partial query for suggestions'),
-    limit: int = Query(10, ge=1, le=20, description='Number of suggestions'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    q: Annotated[str, Query(min_length=1, description='Partial query for suggestions')] = '',
+    limit: Annotated[int, Query(ge=1, le=20, description='Number of suggestions')] = 10,
 ) -> dict:
     """Get autocomplete suggestions based on partial query."""
     if not q.strip():
@@ -75,10 +76,10 @@ async def get_suggestions(
 
 @router.get('/history')
 async def get_search_history(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
 ) -> dict:
     """Get search history for the authenticated user."""
     service = SearchService(uow)
@@ -101,8 +102,8 @@ async def get_search_history(
 
 @router.delete('/history')
 async def clear_search_history(
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Clear all search history for the authenticated user."""
     service = SearchService(uow)
@@ -115,8 +116,8 @@ async def clear_search_history(
 
 @router.get('/trending')
 async def get_trending(
-    limit: int = Query(10, ge=1, le=50, description='Number of trending queries'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=50, description='Number of trending queries')] = 10,
 ) -> dict:
     """Get trending search queries across all users."""
     service = SearchService(uow)
@@ -134,7 +135,9 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
     }
 
 

@@ -14,8 +14,7 @@ Manages:
 from __future__ import annotations
 
 import os
-import re
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from uuid import UUID, uuid4
 
 from structlog.stdlib import get_logger
@@ -55,6 +54,7 @@ class ChatService:
             return DeepSeekChatProvider()
         elif provider == 'ollama':
             from app.services.ai.providers.llm_ollama import OllamaChatProvider
+
             return OllamaChatProvider()
         return OpenAIChatProvider()
 
@@ -83,7 +83,7 @@ class ChatService:
 
         # Save user message
         user_msg = await self._save_message(session.id, 'user', message)
-        user_msg_id = user_msg.id if hasattr(user_msg, 'id') else uuid4()
+        user_msg.id if hasattr(user_msg, 'id') else uuid4()
 
         # Build context and RAG
         context = await self._context_engine.build_context(user_id=user_id)
@@ -107,7 +107,9 @@ class ChatService:
 
         # Save assistant message
         assistant_msg = await self._save_message(
-            session.id, 'assistant', response.content,
+            session.id,
+            'assistant',
+            response.content,
             model_used=response.model,
             token_count=response.usage.get('total_tokens', 0),
         )
@@ -136,7 +138,9 @@ class ChatService:
                 'content_type': 'markdown',
                 'token_count': response.usage.get('total_tokens', 0),
                 'model_used': response.model,
-                'created_at': assistant_msg.created_at.isoformat() if getattr(assistant_msg, 'created_at', None) else None,
+                'created_at': assistant_msg.created_at.isoformat()
+                if getattr(assistant_msg, 'created_at', None)
+                else None,
             },
             'suggestions': suggestions,
             'citations': self._format_citations(rag_results),
@@ -169,21 +173,28 @@ class ChatService:
 
         # Build messages
         llm_messages = self._build_messages(
-            session=session, user_message=message,
-            context=context, rag_results=rag_results, prefs=prefs,
+            session=session,
+            user_message=message,
+            context=context,
+            rag_results=rag_results,
+            prefs=prefs,
         )
 
         # Stream the response
         full_content = ''
         async for token in self._provider.chat_stream(
-            messages=llm_messages, temperature=temp, max_tokens=max_tokens,
+            messages=llm_messages,
+            temperature=temp,
+            max_tokens=max_tokens,
         ):
             full_content += token
-            yield f'data: {{\"type\":\"token\",\"content\":\"{self._escape_json(token)}\"}}\n\n'
+            yield f'data: {{"type":"token","content":"{self._escape_json(token)}"}}\n\n'
 
         # Save assistant message
-        assistant = await self._save_message(
-            session.id, 'assistant', full_content,
+        await self._save_message(
+            session.id,
+            'assistant',
+            full_content,
             model_used=self._provider.model_name,
         )
 
@@ -202,6 +213,7 @@ class ChatService:
 
         # Send completion event
         import json
+
         done_data = {
             'type': 'done',
             'session_id': str(session.id),
@@ -213,8 +225,12 @@ class ChatService:
     # ── Message Building ───────────────────────────────────────────
 
     def _build_messages(
-        self, session, user_message: str, context: dict,
-        rag_results: list, prefs: dict,
+        self,
+        session,
+        user_message: str,
+        context: dict,
+        rag_results: list,
+        prefs: dict,
     ) -> list[LLMMessage]:
         """Build the LLM message array with system prompt, context, and history."""
         messages = []
@@ -225,7 +241,7 @@ class ChatService:
 
         # Conversation history (last N messages)
         history = list(session.messages) if hasattr(session, 'messages') else []
-        for msg in history[-MAX_HISTORY_MESSAGES * 2:]:
+        for msg in history[-MAX_HISTORY_MESSAGES * 2 :]:
             if msg.role in ('user', 'assistant'):
                 messages.append(LLMMessage(role=msg.role, content=msg.content))
 
@@ -235,7 +251,10 @@ class ChatService:
         return messages
 
     def _build_system_prompt(
-        self, context: dict, rag_results: list, prefs: dict,
+        self,
+        context: dict,
+        rag_results: list,
+        prefs: dict,
     ) -> str:
         """Build the system prompt with injected context."""
         style = prefs.get('explanation_style', 'balanced')
@@ -249,7 +268,7 @@ class ChatService:
 
         parts = [
             'You are SV-OS, an AI-native Learning Operating System.',
-            'You have deep knowledge of the user\'s learning journey.',
+            "You have deep knowledge of the user's learning journey.",
             '',
             style_guide,
             '',
@@ -261,19 +280,23 @@ class ChatService:
             n = kg['current_node']
             parts.append(f'- Current topic: {n["title"]} ({n["difficulty"]}, {n["node_type"]})')
         if kg.get('prerequisites'):
-            parts.append(f'- Prerequisites: {", ".join(n["title"] for n in kg["prerequisites"][:5])}')
+            parts.append(
+                f'- Prerequisites: {", ".join(n["title"] for n in kg["prerequisites"][:5])}'
+            )
         if kg.get('related_nodes'):
             parts.append(f'- Related: {", ".join(n["title"] for n in kg["related_nodes"][:5])}')
 
         up = context.get('user_progress', {})
         if up:
-            parts.extend([
-                '',
-                '## User Progress',
-                f'- Overall: {up.get("completion_percentage", 0)}% complete',
-                f'- Completed: {up.get("completed_nodes", 0)} nodes',
-                f'- Remaining: {up.get("remaining_nodes", 0)} nodes',
-            ])
+            parts.extend(
+                [
+                    '',
+                    '## User Progress',
+                    f'- Overall: {up.get("completion_percentage", 0)}% complete',
+                    f'- Completed: {up.get("completed_nodes", 0)} nodes',
+                    f'- Remaining: {up.get("remaining_nodes", 0)} nodes',
+                ]
+            )
             if up.get('weak_topics'):
                 parts.append(f'- Areas needing review: {", ".join(up["weak_topics"][:3])}')
             if up.get('next_recommended_node'):
@@ -289,22 +312,27 @@ class ChatService:
         if context.get('career'):
             parts.extend(['', '## Career Goals', f'- {", ".join(context["career"][:3])}'])
 
-        parts.extend([
-            '',
-            '## Response Guidelines',
-            '- Use markdown formatting.',
-            '- Cite knowledge graph topics by slug: `[Topic](/slug)`.',
-            '- Suggest 2-3 follow-up questions at the end.',
-            '- Be concise but thorough.',
-            '- If referencing a knowledge node, mention its slug.',
-        ])
+        parts.extend(
+            [
+                '',
+                '## Response Guidelines',
+                '- Use markdown formatting.',
+                '- Cite knowledge graph topics by slug: `[Topic](/slug)`.',
+                '- Suggest 2-3 follow-up questions at the end.',
+                '- Be concise but thorough.',
+                '- If referencing a knowledge node, mention its slug.',
+            ]
+        )
 
         return '\n'.join(parts)
 
     # ── Session Management ─────────────────────────────────────────
 
     async def _get_or_create_session(
-        self, user_id: UUID, session_id: UUID | None, session_type: str,
+        self,
+        user_id: UUID,
+        session_id: UUID | None,
+        session_type: str,
     ) -> ChatSession:
         if session_id:
             session = await self._uow.session.get(ChatSession, session_id)
@@ -313,10 +341,13 @@ class ChatService:
         return await self._create_session(user_id, session_type)
 
     async def _create_session(
-        self, user_id: UUID, session_type: str,
+        self,
+        user_id: UUID,
+        session_type: str,
     ) -> ChatSession:
         session = ChatSession(
-            user_id=user_id, title='New Conversation',
+            user_id=user_id,
+            title='New Conversation',
             session_type=session_type,
         )
         self._uow.session.add(session)
@@ -325,12 +356,19 @@ class ChatService:
         return session
 
     async def _save_message(
-        self, session_id: UUID, role: str, content: str,
-        model_used: str | None = None, token_count: int = 0,
+        self,
+        session_id: UUID,
+        role: str,
+        content: str,
+        model_used: str | None = None,
+        token_count: int = 0,
     ) -> ChatMessage:
         msg = ChatMessage(
-            session_id=session_id, role=role, content=content,
-            model_used=model_used, token_count=token_count,
+            session_id=session_id,
+            role=role,
+            content=content,
+            model_used=model_used,
+            token_count=token_count,
         )
         self._uow.session.add(msg)
         await self._uow.flush()
@@ -345,7 +383,7 @@ class ChatService:
     async def _remove_last_assistant(self, session_id: UUID) -> None:
         await self._uow.session.execute(
             'DELETE FROM chat_messages WHERE id IN ('
-            'SELECT id FROM chat_messages WHERE session_id = :sid AND role = \'assistant\' '
+            "SELECT id FROM chat_messages WHERE session_id = :sid AND role = 'assistant' "
             'ORDER BY created_at DESC LIMIT 1)',
             {'sid': session_id},
         )
@@ -372,12 +410,18 @@ class ChatService:
                 }
         except Exception:
             pass
-        return {'explanation_style': 'balanced', 'temperature': 0.7,
-                'max_tokens': 2048, 'auto_generate_titles': True,
-                'include_citations': True}
+        return {
+            'explanation_style': 'balanced',
+            'temperature': 0.7,
+            'max_tokens': 2048,
+            'auto_generate_titles': True,
+            'include_citations': True,
+        }
 
     async def _generate_suggestions(
-        self, user_message: str, response: str,
+        self,
+        _user_message: str,
+        response: str,
     ) -> list[str]:
         """Generate follow-up suggestions based on the conversation."""
         suggestions = []
@@ -389,11 +433,15 @@ class ChatService:
                     suggestions.append(suggestion)
                     if len(suggestions) >= 3:
                         break
-        return suggestions[:3] if suggestions else [
-            'Tell me more about this topic',
-            'What should I learn next?',
-            'Give me a practice exercise',
-        ]
+        return (
+            suggestions[:3]
+            if suggestions
+            else [
+                'Tell me more about this topic',
+                'What should I learn next?',
+                'Give me a practice exercise',
+            ]
+        )
 
     async def _generate_title(self, message: str) -> str | None:
         """Generate a short title from the first user message."""
@@ -421,4 +469,10 @@ class ChatService:
 
     def _escape_json(self, s: str) -> str:
         """Escape a string for JSON embedding."""
-        return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+        return (
+            s.replace('\\', '\\\\')
+            .replace('"', '\\"')
+            .replace('\n', '\\n')
+            .replace('\r', '\\r')
+            .replace('\t', '\\t')
+        )

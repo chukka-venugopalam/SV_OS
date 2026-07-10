@@ -8,13 +8,13 @@ session within a path.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from datetime import datetime
-
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -23,8 +23,8 @@ from app.models.enums import Difficulty, LearningStatus, pg_enum
 from app.utils.date_utils import utc_now
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.knowledge_node import KnowledgeNode
+    from app.models.user import User
 
 
 class LearningPath(AppBaseMixin, Base):
@@ -38,38 +38,48 @@ class LearningPath(AppBaseMixin, Base):
     __tablename__ = 'learning_paths'
 
     title: Mapped[str] = mapped_column(
-        String(300), nullable=False,
+        String(300),
+        nullable=False,
         comment='Human-readable path title',
     )
-    description: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='Short description of the learning path',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
-        pg_enum(Difficulty, "difficulty_enum"),
-        default=Difficulty.BEGINNER, server_default=text("'beginner'"),
+        pg_enum(Difficulty, 'difficulty_enum'),
+        default=Difficulty.BEGINNER,
+        server_default=text("'beginner'"),
         nullable=False,
         comment='Overall difficulty of the path',
     )
-    estimated_hours: Mapped[Optional[int]] = mapped_column(
-        Integer, nullable=True,
+    estimated_hours: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
         comment='Estimated total time to complete the path',
     )
-    icon: Mapped[Optional[str]] = mapped_column(
-        String(50), nullable=True,
+    icon: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
         comment='Icon identifier for UI display',
     )
-    color: Mapped[Optional[str]] = mapped_column(
-        String(7), nullable=True,
+    color: Mapped[str | None] = mapped_column(
+        String(7),
+        nullable=True,
         comment='Hex colour for UI display',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Arbitrary metadata JSON blob',
     )
     is_published: Mapped[bool] = mapped_column(
-        default=True, server_default=text('true'),
+        default=True,
+        server_default=text('true'),
         nullable=False,
         comment='Whether the path is publicly visible',
     )
@@ -77,7 +87,9 @@ class LearningPath(AppBaseMixin, Base):
     # ── Node membership via JSONB order (simpler than a join table for MVP) ──
     # In a future phase this could be normalised into a path_nodes table.
     node_order: Mapped[list] = mapped_column(
-        JSONB, default=list, server_default=text("'[]'::jsonb"),
+        JSONB,
+        default=list,
+        server_default=text("'[]'::jsonb"),
         nullable=False,
         comment='Ordered array of node IDs [{node_id: UUID, order: int, optional: bool}]',
     )
@@ -98,44 +110,53 @@ class LearningSession(AppBaseMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='User who studied',
     )
     node_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('knowledge_nodes.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Knowledge node studied',
     )
     status: Mapped[LearningStatus] = mapped_column(
-        pg_enum(LearningStatus, "learning_status_enum"),
-        default=LearningStatus.ACTIVE, server_default=text("'active'"),
+        pg_enum(LearningStatus, 'learning_status_enum'),
+        default=LearningStatus.ACTIVE,
+        server_default=text("'active'"),
         nullable=False,
         comment='Current status of the session',
     )
-    started_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), default=utc_now, nullable=True,
+    started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        default=utc_now,
+        nullable=True,
         comment='When the session started (defaults to creation time)',
     )
-    ended_at: Mapped[Optional[DateTime]] = mapped_column(
-        DateTime(timezone=True), nullable=True,
+    ended_at: Mapped[DateTime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
         comment='When the session ended',
     )
-    duration_minutes: Mapped[Optional[int]] = mapped_column(
-        Integer, nullable=True,
+    duration_minutes: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
         comment='Total active minutes in this session',
     )
-    notes: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    notes: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='User notes taken during the session',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    user: Mapped['User'] = relationship(
-        'User', back_populates='learning_sessions',
+    user: Mapped[User] = relationship(
+        'User',
+        back_populates='learning_sessions',
     )
-    node: Mapped['KnowledgeNode'] = relationship(
+    node: Mapped[KnowledgeNode] = relationship(
         'KnowledgeNode',
         # Deliberately no back_populates — KnowledgeNode does not
         # define a ``learning_sessions`` relationship.  Adding one

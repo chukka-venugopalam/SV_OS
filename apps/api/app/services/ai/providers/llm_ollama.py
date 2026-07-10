@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import httpx
 from structlog.stdlib import get_logger
@@ -65,8 +65,9 @@ class OllamaChatProvider(LLMProvider):
         temperature: float = 0.7,
         max_tokens: int = 2048,
     ) -> AsyncGenerator[str, None]:
-        async with httpx.AsyncClient(timeout=300.0) as client:
-            async with client.stream(
+        async with (
+            httpx.AsyncClient(timeout=300.0) as client,
+            client.stream(
                 'POST',
                 f'{self._base_url}/api/chat',
                 json={
@@ -78,20 +79,21 @@ class OllamaChatProvider(LLMProvider):
                     },
                     'stream': True,
                 },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line:
-                        continue
-                    try:
-                        chunk = json.loads(line)
-                        token = chunk.get('message', {}).get('content', '')
-                        if token:
-                            yield token
-                        if chunk.get('done'):
-                            break
-                    except (json.JSONDecodeError, KeyError):
-                        continue
+            ) as response,
+        ):
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line:
+                    continue
+                try:
+                    chunk = json.loads(line)
+                    token = chunk.get('message', {}).get('content', '')
+                    if token:
+                        yield token
+                    if chunk.get('done'):
+                        break
+                except (json.JSONDecodeError, KeyError):
+                    continue
 
     async def validate_connection(self) -> bool:
         try:

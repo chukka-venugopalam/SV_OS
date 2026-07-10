@@ -13,10 +13,9 @@ avoid N+1 queries.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import Select, func, select, union, literal, text
+from sqlalchemy import text
 from structlog.stdlib import get_logger
 
 from app.repositories import UnitOfWork
@@ -76,7 +75,10 @@ class ActivityFeedService:
                     kn.id AS node_id,
                     kn.slug AS node_slug,
                     up.started_at AS timestamp,
-                    jsonb_build_object('status', up.status, 'time_spent', up.time_spent_minutes) AS metadata
+                    jsonb_build_object(
+                        'status', up.status,
+                        'time_spent', up.time_spent_minutes
+                    ) AS metadata
                 FROM user_progress up
                 JOIN knowledge_nodes kn ON kn.id = up.node_id
                 WHERE up.user_id = :user_id
@@ -94,7 +96,10 @@ class ActivityFeedService:
                     kn.id AS node_id,
                     kn.slug AS node_slug,
                     up.updated_at AS timestamp,
-                    jsonb_build_object('status', up.status, 'time_spent', up.time_spent_minutes) AS metadata
+                    jsonb_build_object(
+                        'status', up.status,
+                        'time_spent', up.time_spent_minutes
+                    ) AS metadata
                 FROM user_progress up
                 JOIN knowledge_nodes kn ON kn.id = up.node_id
                 WHERE up.user_id = :user_id
@@ -111,7 +116,10 @@ class ActivityFeedService:
                     kn.id AS node_id,
                     kn.slug AS node_slug,
                     up.completed_at AS timestamp,
-                    jsonb_build_object('status', 'completed', 'time_spent', up.time_spent_minutes) AS metadata
+                    jsonb_build_object(
+                        'status', 'completed',
+                        'time_spent', up.time_spent_minutes
+                    ) AS metadata
                 FROM user_progress up
                 JOIN knowledge_nodes kn ON kn.id = up.node_id
                 WHERE up.user_id = :user_id
@@ -129,7 +137,10 @@ class ActivityFeedService:
                     kn.id AS node_id,
                     kn.slug AS node_slug,
                     up.mastered_at AS timestamp,
-                    jsonb_build_object('status', 'mastered', 'time_spent', up.time_spent_minutes) AS metadata
+                    jsonb_build_object(
+                        'status', 'mastered',
+                        'time_spent', up.time_spent_minutes
+                    ) AS metadata
                 FROM user_progress up
                 JOIN knowledge_nodes kn ON kn.id = up.node_id
                 WHERE up.user_id = :user_id
@@ -190,40 +201,40 @@ class ActivityFeedService:
             ) AS all_activities
         """)
 
-        result = await self._uow.session.execute(
-            count_query, {"user_id": user_id}
-        )
+        result = await self._uow.session.execute(count_query, {'user_id': user_id})
         total = result.scalar() or 0
 
         result = await self._uow.session.execute(
             query,
             {
-                "user_id": user_id,
-                "limit": per_page,
-                "offset": offset,
+                'user_id': user_id,
+                'limit': per_page,
+                'offset': offset,
             },
         )
         rows = result.all()
 
         items = []
         for row in rows:
-            items.append({
-                "id": str(row[0]),
-                "activity_type": row[1],
-                "title": row[2],
-                "description": row[3],
-                "node_id": str(row[4]) if row[4] else None,
-                "node_slug": row[5],
-                "timestamp": row[6].isoformat() if row[6] else None,
-                "metadata": row[7] if row[7] else {},
-            })
+            items.append(
+                {
+                    'id': str(row[0]),
+                    'activity_type': row[1],
+                    'title': row[2],
+                    'description': row[3],
+                    'node_id': str(row[4]) if row[4] else None,
+                    'node_slug': row[5],
+                    'timestamp': row[6].isoformat() if row[6] else None,
+                    'metadata': row[7] if row[7] else {},
+                }
+            )
 
         total_pages = max(1, (total + per_page - 1) // per_page) if total else 1
 
         return {
-            "items": items,
-            "total": total,
-            "page": page,
-            "per_page": per_page,
-            "total_pages": total_pages,
+            'items': items,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': total_pages,
         }

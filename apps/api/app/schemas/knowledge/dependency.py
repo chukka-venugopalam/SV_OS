@@ -45,7 +45,9 @@ class KnowledgeDependency(BaseModel):
         description='Target / dependent node (the one that requires the source)',
     )
     relationship_type: EdgeType = Field(description='Semantic type of the relationship')
-    description: str = Field(default='', description='Human-readable description of the relationship')
+    description: str = Field(
+        default='', description='Human-readable description of the relationship'
+    )
     weight: float = Field(default=1.0, ge=0.0, le=1.0, description='Relationship strength')
 
 

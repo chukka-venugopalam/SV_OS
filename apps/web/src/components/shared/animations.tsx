@@ -3,7 +3,6 @@
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 
 import { useReducedMotion } from '@/hooks/use-media-query';
-import { cn } from '@/lib/cn';
 
 // ── Respect prefers-reduced-motion ────────────────────────────────
 

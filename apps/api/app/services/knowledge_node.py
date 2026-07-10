@@ -12,8 +12,6 @@ from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
 from app.repositories.query_helpers import PageResult
 from app.schemas.knowledge.node import (
     KnowledgeNodeCreate,
-    KnowledgeNodeDetail,
-    KnowledgeNodeSummary,
     KnowledgeNodeUpdate,
 )
 
@@ -79,7 +77,9 @@ class KnowledgeNodeService:
             per_page=per_page,
         )
 
-    async def get_popular(self, limit: int = 10, node_type: str | None = None) -> list[KnowledgeNode]:
+    async def get_popular(
+        self, limit: int = 10, node_type: str | None = None
+    ) -> list[KnowledgeNode]:
         """Get the most-viewed published nodes."""
         return await self._uow.knowledge_nodes.find_popular(
             limit=limit,
@@ -91,7 +91,7 @@ class KnowledgeNodeService:
     async def create(self, data: KnowledgeNodeCreate) -> KnowledgeNode:
         """Create a new knowledge node."""
         if await self._uow.knowledge_nodes.slug_exists(data.slug):
-            raise DuplicateEntityError('KnowledgeNode', {'slug': data.slug})
+            raise DuplicateEntityError('KnowledgeNode', {'slug': data.slug}) from None
 
         node = await self._uow.knowledge_nodes.create(**data.model_dump(exclude_none=True))
         logger.info('node_created', slug=data.slug, node_type=data.node_type)
@@ -105,9 +105,12 @@ class KnowledgeNodeService:
         if not update_data:
             return node
 
-        if 'slug' in update_data and update_data['slug'] != slug:
-            if await self._uow.knowledge_nodes.slug_exists(update_data['slug'], exclude_id=node.id):
-                raise DuplicateEntityError('KnowledgeNode', {'slug': update_data['slug']})
+        if (
+            'slug' in update_data
+            and update_data['slug'] != slug
+            and await self._uow.knowledge_nodes.slug_exists(update_data['slug'], exclude_id=node.id)
+        ):
+            raise DuplicateEntityError('KnowledgeNode', {'slug': update_data['slug']})
 
         updated = await self._uow.knowledge_nodes.update(node.id, **update_data)
         logger.info('node_updated', slug=slug)

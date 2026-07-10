@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import httpx
 from structlog.stdlib import get_logger
@@ -59,9 +59,11 @@ class OpenAIChatProvider(LLMProvider):
         return LLMResponse(
             content=choice['message']['content'],
             model=data['model'],
-            usage={'prompt_tokens': usage.get('prompt_tokens', 0),
-                   'completion_tokens': usage.get('completion_tokens', 0),
-                   'total_tokens': usage.get('total_tokens', 0)},
+            usage={
+                'prompt_tokens': usage.get('prompt_tokens', 0),
+                'completion_tokens': usage.get('completion_tokens', 0),
+                'total_tokens': usage.get('total_tokens', 0),
+            },
             finish_reason=choice.get('finish_reason', 'stop'),
         )
 
@@ -71,8 +73,9 @@ class OpenAIChatProvider(LLMProvider):
         temperature: float = 0.7,
         max_tokens: int = 2048,
     ) -> AsyncGenerator[str, None]:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            async with client.stream(
+        async with (
+            httpx.AsyncClient(timeout=120.0) as client,
+            client.stream(
                 'POST',
                 f'{self._base_url}/chat/completions',
                 headers=self._headers(),
@@ -83,20 +86,21 @@ class OpenAIChatProvider(LLMProvider):
                     'max_tokens': max_tokens,
                     'stream': True,
                 },
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line or line.startswith(':') or line == 'data: [DONE]':
+            ) as response,
+        ):
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line or line.startswith(':') or line == 'data: [DONE]':
+                    continue
+                if line.startswith('data: '):
+                    try:
+                        chunk = json.loads(line[6:])
+                        delta = chunk.get('choices', [{}])[0].get('delta', {})
+                        token = delta.get('content', '')
+                        if token:
+                            yield token
+                    except (json.JSONDecodeError, IndexError, KeyError):
                         continue
-                    if line.startswith('data: '):
-                        try:
-                            chunk = json.loads(line[6:])
-                            delta = chunk.get('choices', [{}])[0].get('delta', {})
-                            token = delta.get('content', '')
-                            if token:
-                                yield token
-                        except (json.JSONDecodeError, IndexError, KeyError):
-                            continue
 
     async def validate_connection(self) -> bool:
         if not self._api_key:

@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 
 from app.models.search_history import SearchHistory
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class SearchHistoryRepository(BaseRepository[SearchHistory]):
@@ -78,8 +78,9 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
         since_days: int = 7,
     ) -> list[dict[str, Any]]:
         """Find trending search queries across all users."""
-        from app.utils.date_utils import utc_now
         from datetime import timedelta
+
+        from app.utils.date_utils import utc_now
 
         since = utc_now() - timedelta(days=since_days)
 
@@ -97,10 +98,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
             .limit(limit)
         )
         result = await self.session.execute(stmt)
-        return [
-            {'query': row[0], 'count': row[1]}
-            for row in result.all()
-        ]
+        return [{'query': row[0], 'count': row[1]} for row in result.all()]
 
     # ── Cleanup ────────────────────────────────────────────────────
 

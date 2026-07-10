@@ -90,21 +90,25 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
 
         embeddings = data.get('embeddings', [])
         results = []
-        for i, vec in enumerate(embeddings):
-            results.append(EmbeddingResult(
-                vector=vec,
-                model=self._model,
-                dimensions=len(vec),
-                tokens_used=data.get('prompt_eval_count', 0) // max(len(texts), 1),
-            ))
+        for _i, vec in enumerate(embeddings):
+            results.append(
+                EmbeddingResult(
+                    vector=vec,
+                    model=self._model,
+                    dimensions=len(vec),
+                    tokens_used=data.get('prompt_eval_count', 0) // max(len(texts), 1),
+                )
+            )
 
         # Pad with zero vectors if response has fewer embeddings than input
         while len(results) < len(texts):
-            results.append(EmbeddingResult(
-                vector=[0.0] * self._dimensions,
-                model=self._model,
-                dimensions=self._dimensions,
-            ))
+            results.append(
+                EmbeddingResult(
+                    vector=[0.0] * self._dimensions,
+                    model=self._model,
+                    dimensions=self._dimensions,
+                )
+            )
 
         return results
 

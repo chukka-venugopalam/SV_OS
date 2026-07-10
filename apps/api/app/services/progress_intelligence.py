@@ -11,7 +11,7 @@ Provides:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -82,16 +82,15 @@ class ProgressIntelligence:
                     missing.append(_node_to_dict(prereq, missing=True))
         else:
             # Check all published nodes
-            from collections import deque
 
             all_nodes = await self._uow.knowledge_nodes.find_published()
             for node in all_nodes:
                 prereqs = await self._uow.graph.load_prerequisites(node.id)
                 for prereq in prereqs:
-                    if prereq.id not in completed_ids:
-                        # Avoid duplicates
-                        if not any(m["id"] == str(prereq.id) for m in missing):
-                            missing.append(_node_to_dict(prereq, missing=True))
+                    if prereq.id not in completed_ids and not any(
+                        m['id'] == str(prereq.id) for m in missing
+                    ):
+                        missing.append(_node_to_dict(prereq, missing=True))
 
         return missing
 
@@ -118,33 +117,35 @@ class ProgressIntelligence:
         )
 
         stale_nodes: list[dict] = []
-        from datetime import timezone as dt_timezone
 
         for progress in all_progress.items:
             if not progress:
                 continue
             # Nodes in 'learning' status for more than 7 days are stale
-            if progress.status == "learning":
+            if progress.status == 'learning':
                 updated_at = progress.updated_at
-                if updated_at:
-                    if isinstance(updated_at, datetime):
-                        if updated_at.tzinfo is None:
-                            updated_at = updated_at.replace(tzinfo=dt_timezone.utc)
-                    else:
-                        updated_at = datetime.fromisoformat(str(updated_at).replace("Z", "+00:00"))
+                if not updated_at:
+                    continue
+                if isinstance(updated_at, datetime):
+                    if updated_at.tzinfo is None:
+                        updated_at = updated_at.replace(tzinfo=UTC)
+                else:
+                    updated_at = datetime.fromisoformat(str(updated_at).replace('Z', '+00:00'))
 
-                    days_since_update = (datetime.now(dt_timezone.utc) - updated_at).days
-                    if days_since_update > 7:
-                        node = await self._uow.knowledge_nodes.get_by_id(progress.node_id)
-                        if node:
-                            stale_nodes.append({
-                                "node": _node_to_dict(node),
-                                "weakness_score": round(min(days_since_update / 30, 1.0), 3),
-                                "reason": f"Started but not updated in {days_since_update} days",
-                            })
+                days_since_update = (datetime.now(UTC) - updated_at).days
+                if days_since_update > 7:
+                    node = await self._uow.knowledge_nodes.get_by_id(progress.node_id)
+                    if node:
+                        stale_nodes.append(
+                            {
+                                'node': _node_to_dict(node),
+                                'weakness_score': round(min(days_since_update / 30, 1.0), 3),
+                                'reason': f'Started but not updated in {days_since_update} days',
+                            }
+                        )
 
         # Sort by weakness score descending
-        stale_nodes.sort(key=lambda x: x["weakness_score"], reverse=True)
+        stale_nodes.sort(key=lambda x: x['weakness_score'], reverse=True)
 
         return stale_nodes[:limit]
 
@@ -178,8 +179,8 @@ class ProgressIntelligence:
         # Estimate total minutes
         total_minutes = 0
         for node_data in missing:
-            difficulty = node_data.get("difficulty", "intermediate")
-            estimated = {"beginner": 30, "intermediate": 60, "advanced": 120, "expert": 180}
+            difficulty = node_data.get('difficulty', 'intermediate')
+            estimated = {'beginner': 30, 'intermediate': 60, 'advanced': 120, 'expert': 180}
             total_minutes += estimated.get(difficulty.lower(), 60)
 
         # Apply user pace multiplier
@@ -190,12 +191,12 @@ class ProgressIntelligence:
             adjusted_minutes = total_minutes
 
         return {
-            "goal_node_id": str(goal_node_id),
-            "missing_prerequisites": len(missing),
-            "estimated_minutes": round(adjusted_minutes),
-            "estimated_hours": round(adjusted_minutes / 60, 1),
-            "estimated_days": round(adjusted_minutes / 60 / 2, 1),  # Assuming 2hr/day
-            "user_historical_pace_minutes_per_node": round(user_pace, 1),
+            'goal_node_id': str(goal_node_id),
+            'missing_prerequisites': len(missing),
+            'estimated_minutes': round(adjusted_minutes),
+            'estimated_hours': round(adjusted_minutes / 60, 1),
+            'estimated_days': round(adjusted_minutes / 60 / 2, 1),  # Assuming 2hr/day
+            'user_historical_pace_minutes_per_node': round(user_pace, 1),
         }
 
     # ── Completion Forecast ───────────────────────────────────────
@@ -229,20 +230,21 @@ class ProgressIntelligence:
         else:
             estimated_days = 0
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         projected_date = now + timedelta(days=estimated_days) if estimated_days > 0 else None
 
         return {
-            "total_nodes": len(all_nodes),
-            "completed_nodes": len(completed_ids),
-            "remaining_nodes": total_remaining,
-            "completion_percentage": round(len(completed_ids) / len(all_nodes) * 100, 1) if all_nodes else 0,
-            "user_pace_minutes_per_node": round(user_pace, 1),
-            "estimated_days_to_completion": round(estimated_days, 1),
-            "projected_completion_date": projected_date.isoformat() if projected_date else None,
-            "next_recommendations": [
-                {"node": r["node"], "score": r["score"]}
-                for r in recommendations
+            'total_nodes': len(all_nodes),
+            'completed_nodes': len(completed_ids),
+            'remaining_nodes': total_remaining,
+            'completion_percentage': round(len(completed_ids) / len(all_nodes) * 100, 1)
+            if all_nodes
+            else 0,
+            'user_pace_minutes_per_node': round(user_pace, 1),
+            'estimated_days_to_completion': round(estimated_days, 1),
+            'projected_completion_date': projected_date.isoformat() if projected_date else None,
+            'next_recommendations': [
+                {'node': r['node'], 'score': r['score']} for r in recommendations
             ],
         }
 
@@ -251,10 +253,12 @@ class ProgressIntelligence:
     async def _get_user_pace(self, user_id: UUID) -> float:
         """Calculate the user's average learning pace (minutes per node)."""
         completed = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status="completed",
+            user_id=user_id,
+            status='completed',
         )
         mastered = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status="mastered",
+            user_id=user_id,
+            status='mastered',
         )
 
         all_done = list(completed.items) + list(mastered.items)
@@ -264,9 +268,11 @@ class ProgressIntelligence:
 
         # Calculate time span between first and last completion
         times = [
-            p.updated_at if isinstance(p.updated_at, datetime)
-            else datetime.fromisoformat(str(p.updated_at).replace("Z", "+00:00"))
-            for p in all_done if p and p.updated_at
+            p.updated_at
+            if isinstance(p.updated_at, datetime)
+            else datetime.fromisoformat(str(p.updated_at).replace('Z', '+00:00'))
+            for p in all_done
+            if p and p.updated_at
         ]
 
         if len(times) < 2:
@@ -285,14 +291,14 @@ class ProgressIntelligence:
 
     async def _get_completed_ids(self, user_id: UUID) -> set[UUID]:
         completed = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status="completed",
+            user_id=user_id,
+            status='completed',
         )
         mastered = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status="mastered",
+            user_id=user_id,
+            status='mastered',
         )
-        return {p.node_id for p in completed.items if p} | {
-            p.node_id for p in mastered.items if p
-        }
+        return {p.node_id for p in completed.items if p} | {p.node_id for p in mastered.items if p}
 
 
 # ── Helper ─────────────────────────────────────────────────────────
@@ -300,13 +306,15 @@ class ProgressIntelligence:
 
 def _node_to_dict(node, missing: bool = False) -> dict:
     result = {
-        "id": str(node.id),
-        "slug": node.slug,
-        "title": node.title,
-        "description": node.description,
-        "node_type": node.node_type.value if hasattr(node.node_type, "value") else node.node_type,
-        "difficulty": node.difficulty.value if hasattr(node.difficulty, "value") else node.difficulty,
+        'id': str(node.id),
+        'slug': node.slug,
+        'title': node.title,
+        'description': node.description,
+        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
     }
     if missing:
-        result["is_missing_prerequisite"] = True
+        result['is_missing_prerequisite'] = True
     return result

@@ -11,7 +11,7 @@ from app.models.career import Career, CareerRequirement
 from app.models.knowledge_node import KnowledgeNode
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class CareerRepository(BaseRepository[Career]):
@@ -128,7 +128,6 @@ class CareerRepository(BaseRepository[Career]):
     async def get_nodes_for_career(self, career_id: UUID) -> list[dict[str, Any]]:
         """Get all knowledge nodes required for a career, with
         requirement metadata."""
-        from app.models.knowledge_node import KnowledgeNode
         from sqlalchemy import select
 
         stmt = (
@@ -154,9 +153,8 @@ class CareerRepository(BaseRepository[Career]):
             for node, req in result.all()
         ]
 
-    async def find_careers_by_node(self, node_id: UUID) -> list['Career']:
+    async def find_careers_by_node(self, node_id: UUID) -> list[Career]:
         """Find all careers that require a given knowledge node."""
-        from app.models.knowledge_node import KnowledgeNode
         from sqlalchemy import select
 
         stmt = (
@@ -190,6 +188,9 @@ class CareerRepository(BaseRepository[Career]):
         )
         result = await self.session.execute(stmt)
         return [
-            {'demand_level': row[0].value if isinstance(row[0], DemandLevel) else row[0], 'count': row[1]}
+            {
+                'demand_level': row[0].value if isinstance(row[0], DemandLevel) else row[0],
+                'count': row[1],
+            }
             for row in result.all()
         ]

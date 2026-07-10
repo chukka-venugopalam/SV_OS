@@ -25,7 +25,9 @@ class UserProfile(BaseModel):
     id: UUID = Field(description='Unique user identifier')
     email: EmailStr = Field(description='Verified email address')
     username: str = Field(description='Public username', max_length=100)
-    display_name: str | None = Field(default=None, description='Display name shown in UI', max_length=200)
+    display_name: str | None = Field(
+        default=None, description='Display name shown in UI', max_length=200
+    )
     avatar_url: str | None = Field(default=None, description='Profile picture URL')
     bio: str | None = Field(default=None, description='Short biography', max_length=5000)
     role: UserRole = Field(description='Authorization role')
@@ -41,10 +43,18 @@ class UserSettings(BaseModel):
     Returned as part of the profile and accepted for updates.
     """
 
-    theme: str | None = Field(default=None, description='UI theme preference', examples=['light', 'dark', 'system'])
-    language: str | None = Field(default=None, description='UI language preference', examples=['en', 'es', 'fr'])
-    email_notifications: bool | None = Field(default=None, description='Whether to receive email notifications')
-    learning_reminders: bool | None = Field(default=None, description='Whether to receive learning reminders')
+    theme: str | None = Field(
+        default=None, description='UI theme preference', examples=['light', 'dark', 'system']
+    )
+    language: str | None = Field(
+        default=None, description='UI language preference', examples=['en', 'es', 'fr']
+    )
+    email_notifications: bool | None = Field(
+        default=None, description='Whether to receive email notifications'
+    )
+    learning_reminders: bool | None = Field(
+        default=None, description='Whether to receive learning reminders'
+    )
 
     @field_validator('theme')
     @classmethod

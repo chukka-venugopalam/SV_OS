@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from structlog.stdlib import get_logger
 
-from app.api.deps import get_current_user_id, get_uow
+from app.api.deps import get_uow
 from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
 from app.schemas.response import success_response
@@ -20,10 +21,10 @@ router = APIRouter()
 
 @router.get('')
 async def list_learning_paths(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    difficulty: str | None = Query(None, description='Filter by difficulty'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
+    difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
 ) -> dict:
     """List published learning paths."""
     service = LearningPathService(uow)
@@ -47,14 +48,14 @@ async def list_learning_paths(
 @router.get('/{path_id}')
 async def get_learning_path(
     path_id: UUID,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get a learning path by ID."""
     service = LearningPathService(uow)
     try:
         path = await service.get_by_id(path_id)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Learning path not found')
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Learning path not found') from e
     return success_response(
         data=_path_to_dict(path),
         message='Learning path retrieved',

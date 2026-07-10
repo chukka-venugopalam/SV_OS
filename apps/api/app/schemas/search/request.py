@@ -57,4 +57,6 @@ class FilterRequest(BaseModel):
     options without returning search results.
     """
 
-    q: str | None = Field(default=None, description='Optional search query for relevance', max_length=200)
+    q: str | None = Field(
+        default=None, description='Optional search query for relevance', max_length=200
+    )

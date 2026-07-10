@@ -165,7 +165,7 @@ class UnitOfWork:
 
     # ── Context Manager Support ────────────────────────────────────
 
-    async def __aenter__(self) -> 'UnitOfWork':
+    async def __aenter__(self) -> UnitOfWork:
         """Enter the context manager — no explicit begin needed (sessions begin implicitly)."""
         self._closed = False
         return self

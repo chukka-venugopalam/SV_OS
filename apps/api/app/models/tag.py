@@ -7,10 +7,10 @@ NodeTag is the many-to-many join between tags and knowledge nodes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, text
+from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,18 +30,22 @@ class Tag(AppBaseMixin, Base):
     __tablename__ = 'tags'
 
     name: Mapped[str] = mapped_column(
-        String(100), unique=True, nullable=False,
+        String(100),
+        unique=True,
+        nullable=False,
         comment='Unique tag name (lowercase, hyphenated)',
     )
-    description: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='Optional description of the tag intent',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    node_tags: Mapped[list['NodeTag']] = relationship(
-        'NodeTag', back_populates='tag',
+    node_tags: Mapped[list[NodeTag]] = relationship(
+        'NodeTag',
+        back_populates='tag',
         cascade='all, delete-orphan',
     )
 
@@ -56,7 +60,8 @@ class NodeTag(AppBaseMixin, Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'node_id', 'tag_id',
+            'node_id',
+            'tag_id',
             name='uq_node_tag_node_tag',
         ),
     )
@@ -64,26 +69,28 @@ class NodeTag(AppBaseMixin, Base):
     node_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('knowledge_nodes.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Knowledge node ID',
     )
     tag_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('tags.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Tag ID',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    node: Mapped['KnowledgeNode'] = relationship(
-        'KnowledgeNode', back_populates='node_tags',
+    node: Mapped[KnowledgeNode] = relationship(
+        'KnowledgeNode',
+        back_populates='node_tags',
     )
-    tag: Mapped['Tag'] = relationship(
-        'Tag', back_populates='node_tags',
+    tag: Mapped[Tag] = relationship(
+        'Tag',
+        back_populates='node_tags',
     )
 
     def __repr__(self) -> str:
-        return (
-            f'<NodeTag node={self.node_id!r} tag={self.tag_id!r}>'
-        )
+        return f'<NodeTag node={self.node_id!r} tag={self.tag_id!r}>'

@@ -17,7 +17,8 @@ class RelatedCareer(BaseModel):
     title: str = Field(description='Career title', max_length=300)
     demand_level: DemandLevel = Field(description='Market demand trend')
     overlap_score: float = Field(
-        ge=0.0, le=1.0,
+        ge=0.0,
+        le=1.0,
         description='Fraction of shared knowledge requirements (1.0 = identical requirements)',
     )
 
@@ -39,7 +40,8 @@ class CareerRecommendation(BaseModel):
 
     # Recommendation-specific
     match_score: float = Field(
-        ge=0.0, le=1.0,
+        ge=0.0,
+        le=1.0,
         description='How well this career matches the user profile',
     )
     missing_requirements: int = Field(

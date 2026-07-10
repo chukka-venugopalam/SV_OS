@@ -39,6 +39,7 @@ async def Lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # noqa: N802
     # The pool is created in app.core.database and must be
     # explicitly disposed to release all connections.
     from app.core.database import engine as db_engine
+
     app.state._db_engine = db_engine
 
     yield

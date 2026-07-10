@@ -10,37 +10,28 @@ marked with ``pytest.mark.db`` and are skipped by default unless
 
 from __future__ import annotations
 
-from typing import Any, AsyncGenerator
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import uuid4
 
 import pytest
-from sqlalchemy import Column, String, Text, select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.database import Base, async_session_factory
+from app.core.database import async_session_factory
 from app.models.enums import NodeType
-from app.models.knowledge_node import KnowledgeNode
-from app.models.user import User
 from app.repositories import (
     BookmarkRepository,
     CareerRepository,
     GraphRepository,
-    KnowledgeEdgeRepository,
     KnowledgeNodeRepository,
     PageResult,
     UnitOfWork,
     UserRepository,
     unit_of_work,
 )
-from app.repositories.base import BaseRepository
 from app.repositories.errors import (
-    ConcurrentModificationError,
     DuplicateEntityError,
     EntityNotFoundError,
-    RepositoryError,
 )
-from app.repositories.query_helpers import CursorPageResult, FilterCondition, SortDirection
-
+from app.repositories.query_helpers import CursorPageResult, SortDirection
 
 # ── Fixtures ────────────────────────────────────────────────────────
 

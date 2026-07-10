@@ -108,8 +108,12 @@ class KnowledgeNodeDetail(BaseModel):
     # Relationship counts (not full lists — those are separate endpoints)
     prerequisite_count: int = Field(default=0, description='Number of prerequisite nodes', ge=0)
     resource_count: int = Field(default=0, description='Number of learning resources', ge=0)
-    career_count: int = Field(default=0, description='Number of careers referencing this node', ge=0)
-    project_count: int = Field(default=0, description='Number of projects referencing this node', ge=0)
+    career_count: int = Field(
+        default=0, description='Number of careers referencing this node', ge=0
+    )
+    project_count: int = Field(
+        default=0, description='Number of projects referencing this node', ge=0
+    )
 
     @field_validator('color')
     @classmethod
@@ -133,8 +137,12 @@ class KnowledgeNodeCreate(BaseModel):
     description: str = Field(description='Short abstract / summary', max_length=5000)
     content: str | None = Field(default=None, description='Full rich-text / Markdown body')
     node_type: NodeType = Field(description='Type discriminator')
-    difficulty: Difficulty = Field(default=Difficulty.BEGINNER, description='Educational difficulty')
-    estimated_minutes: int = Field(default=30, ge=1, le=99999, description='Estimated study time in minutes')
+    difficulty: Difficulty = Field(
+        default=Difficulty.BEGINNER, description='Educational difficulty'
+    )
+    estimated_minutes: int = Field(
+        default=30, ge=1, le=99999, description='Estimated study time in minutes'
+    )
     icon: str | None = Field(default=None, max_length=50, description='UI icon identifier')
     color: str | None = Field(default=None, max_length=7, description='Hex colour for UI')
     metadata: dict = Field(default_factory=dict, description='Arbitrary metadata')

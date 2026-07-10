@@ -32,8 +32,12 @@ class GraphStatistics(BaseModel):
     total_nodes: int = Field(ge=0, description='Total number of published nodes')
     total_edges: int = Field(ge=0, description='Total number of edges')
     nodes_by_type: list[NodeTypeCount] = Field(description='Node counts grouped by type')
-    edges_by_type: list[EdgeTypeCount] = Field(description='Edge counts grouped by relationship type')
+    edges_by_type: list[EdgeTypeCount] = Field(
+        description='Edge counts grouped by relationship type'
+    )
     max_depth: int = Field(ge=0, description='Maximum prerequisite depth in the graph')
-    avg_resources_per_node: float = Field(ge=0.0, description='Average number of learning resources per node')
+    avg_resources_per_node: float = Field(
+        ge=0.0, description='Average number of learning resources per node'
+    )
     total_careers: int = Field(ge=0, description='Total number of published careers')
     total_projects: int = Field(ge=0, description='Total number of published projects')

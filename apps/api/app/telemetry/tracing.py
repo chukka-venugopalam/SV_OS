@@ -20,8 +20,8 @@ class Tracer:
     @asynccontextmanager
     async def span(
         self,
-        name: str,
-        attributes: dict[str, Any] | None = None,
+        _name: str,
+        _attributes: dict[str, Any] | None = None,
     ) -> AsyncGenerator[None, None]:
         """Context manager wrapping a span of work."""
         yield

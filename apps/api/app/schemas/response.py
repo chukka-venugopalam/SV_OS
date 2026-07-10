@@ -14,8 +14,8 @@ duplicate definitions. ``PaginatedData`` is imported from
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Generic, TypeVar
+from datetime import UTC, datetime
+from typing import TypeVar
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict
@@ -25,7 +25,7 @@ from app.schemas.common.errors import ErrorDetail
 T = TypeVar('T')
 
 
-class APIResponse(BaseModel, Generic[T]):
+class APIResponse[T](BaseModel):
     """Universal API response wrapper.
 
     Every endpoint returns this shape — success or error.
@@ -41,7 +41,7 @@ class APIResponse(BaseModel, Generic[T]):
     request_id: str
 
 
-def build_success_response(
+def build_success_response[T](
     data: T,
     message: str = 'Success',
     request_id: str | None = None,
@@ -52,7 +52,7 @@ def build_success_response(
         message=message,
         data=data,
         errors=None,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         request_id=request_id or str(uuid4()),
     ).model_dump(mode='json')
 
@@ -68,7 +68,7 @@ def build_error_response(
         message=message,
         data=None,
         errors=errors,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         request_id=request_id or str(uuid4()),
     ).model_dump(mode='json')
 

@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from app.models.bookmark import Bookmark
 from app.repositories.base import BaseRepository
-from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class BookmarkRepository(BaseRepository[Bookmark]):
@@ -40,13 +39,10 @@ class BookmarkRepository(BaseRepository[Bookmark]):
         node_id: UUID,
     ) -> Bookmark | None:
         """Find a specific bookmark by user and node."""
-        stmt = (
-            select(Bookmark)
-            .where(
-                Bookmark.user_id == user_id,
-                Bookmark.node_id == node_id,
-                Bookmark.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(Bookmark).where(
+            Bookmark.user_id == user_id,
+            Bookmark.node_id == node_id,
+            Bookmark.is_deleted == False,  # noqa: E712
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()

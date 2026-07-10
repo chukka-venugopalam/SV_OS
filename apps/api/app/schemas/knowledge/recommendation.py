@@ -34,7 +34,10 @@ class KnowledgeRecommendation(BaseModel):
     reason: str | None = Field(
         default=None,
         description='Human-readable explanation of why this was recommended',
-        examples=['Based on your interest in Python', 'Popular among learners who completed SQL Basics'],
+        examples=[
+            'Based on your interest in Python',
+            'Popular among learners who completed SQL Basics',
+        ],
     )
     score: float | None = Field(
         default=None,

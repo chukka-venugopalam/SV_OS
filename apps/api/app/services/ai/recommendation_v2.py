@@ -12,6 +12,7 @@ Builds on the phase 3.1 RecommendationEngine by adding:
 from __future__ import annotations
 
 import math
+from datetime import UTC
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -80,7 +81,7 @@ class RecommendationV2:
                 completed_ids=completed_ids,
                 bookmarked_ids=bookmarked_ids,
                 weak_topics=weak_topics,
-                career_goals=career_goals,
+                _career_goals=career_goals,
                 recent_searches=recent_searches,
                 learning_velocity=learning_velocity,
                 all_nodes=all_nodes,
@@ -88,12 +89,14 @@ class RecommendationV2:
 
             if score > 0:
                 reasons = self._build_reasons(breakdown)
-                scored.append({
-                    'node': _node_to_dict(node),
-                    'score': round(score, 4),
-                    'breakdown': breakdown,
-                    'reasons': reasons,
-                })
+                scored.append(
+                    {
+                        'node': _node_to_dict(node),
+                        'score': round(score, 4),
+                        'breakdown': breakdown,
+                        'reasons': reasons,
+                    }
+                )
 
         scored.sort(key=lambda x: x['score'], reverse=True)
         return scored[:limit]
@@ -103,14 +106,14 @@ class RecommendationV2:
     async def _score_node_v2(
         self,
         node,
-        user_id: UUID,
+        _user_id: UUID,
         completed_ids: set[UUID],
         bookmarked_ids: set[UUID],
         weak_topics: list[dict],
-        career_goals: list,
+        _career_goals: list,
         recent_searches: list,
         learning_velocity: float,
-        all_nodes: list,
+        _all_nodes: list,
     ) -> tuple[float, dict]:
         """Compute V2 composite score with full breakdown."""
 
@@ -155,9 +158,7 @@ class RecommendationV2:
 
     # ── V2 Signals ─────────────────────────────────────────────────
 
-    def _weak_topic_score(
-        self, node, weak_topics: list[dict]
-    ) -> float:
+    def _weak_topic_score(self, node, weak_topics: list[dict]) -> float:
         """Score based on whether the node is a known weak topic."""
         node_id_str = str(node.id)
         for wt in weak_topics:
@@ -165,9 +166,7 @@ class RecommendationV2:
                 return 0.9  # Strong recommendation to reinforce
         return 0.0
 
-    def _bookmark_affinity_score(
-        self, node, bookmarked_ids: set[UUID]
-    ) -> float:
+    def _bookmark_affinity_score(self, node, bookmarked_ids: set[UUID]) -> float:
         """Score based on similarity to bookmarked nodes."""
         if not bookmarked_ids:
             return 0.0
@@ -206,9 +205,7 @@ class RecommendationV2:
 
         return max_sim * 0.8  # Scale to max 0.8
 
-    def _difficulty_score(
-        self, node, learning_velocity: float
-    ) -> float:
+    def _difficulty_score(self, node, learning_velocity: float) -> float:
         """Score based on difficulty relative to learning velocity."""
         diff = getattr(node, 'difficulty', None)
         if diff is None:
@@ -223,9 +220,7 @@ class RecommendationV2:
         else:  # Slow learners
             return 0.7 if diff_str.lower() == 'beginner' else 0.3
 
-    def _estimated_time_score(
-        self, node, learning_velocity: float
-    ) -> float:
+    def _estimated_time_score(self, node, learning_velocity: float) -> float:
         """Score based on estimated time vs available time."""
         estimated = getattr(node, 'estimated_minutes', 30) or 30
         if learning_velocity <= 0:
@@ -235,22 +230,18 @@ class RecommendationV2:
             return 0.8  # Can finish in a day
         return 0.3
 
-    def _recent_search_score(
-        self, node, recent_searches: list
-    ) -> float:
+    def _recent_search_score(self, node, recent_searches: list) -> float:
         """Score based on overlap with recent search queries."""
         if not recent_searches:
             return 0.0
         title_lower = node.title.lower()
         for search in recent_searches:
             query = search.lower()
-            if query in title_lower or any(
-                word in title_lower for word in query.split()
-            ):
+            if query in title_lower or any(word in title_lower for word in query.split()):
                 return 0.6
         return 0.0
 
-    def _velocity_boost(self, node, learning_velocity: float) -> float:
+    def _velocity_boost(self, _node, learning_velocity: float) -> float:
         """Boost for fast learners (recommend more content)."""
         if learning_velocity > 2.0:
             return 0.5
@@ -260,12 +251,10 @@ class RecommendationV2:
 
     # ── Helpers ────────────────────────────────────────────────────
 
-    def _cosine_similarity(
-        self, vec_a: list[float], vec_b: list[float]
-    ) -> float:
+    def _cosine_similarity(self, vec_a: list[float], vec_b: list[float]) -> float:
         if not vec_a or not vec_b:
             return 0.0
-        dot = sum(a * b for a, b in zip(vec_a, vec_b))
+        dot = sum(a * b for a, b in zip(vec_a, vec_b, strict=False))
         norm_a = math.sqrt(sum(a * a for a in vec_a))
         norm_b = math.sqrt(sum(b * b for b in vec_b))
         if norm_a == 0 or norm_b == 0:
@@ -288,9 +277,7 @@ class RecommendationV2:
         }
 
         # Sort signals by score descending
-        sorted_signals = sorted(
-            breakdown.items(), key=lambda x: x[1], reverse=True
-        )
+        sorted_signals = sorted(breakdown.items(), key=lambda x: x[1], reverse=True)
         for signal_name, score in sorted_signals[:3]:
             if score > 0.3 and signal_name in signal_names:
                 reasons.append(signal_names[signal_name])
@@ -299,14 +286,14 @@ class RecommendationV2:
 
     async def _get_completed_ids(self, user_id: UUID) -> set[UUID]:
         completed = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status='completed',
+            user_id=user_id,
+            status='completed',
         )
         mastered = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status='mastered',
+            user_id=user_id,
+            status='mastered',
         )
-        return {p.node_id for p in completed.items if p} | {
-            p.node_id for p in mastered.items if p
-        }
+        return {p.node_id for p in completed.items if p} | {p.node_id for p in mastered.items if p}
 
     async def _get_bookmarked_ids(self, user_id: UUID) -> set[UUID]:
         bookmarks = await self._uow.bookmarks.find_by_user(user_id=user_id)
@@ -314,42 +301,47 @@ class RecommendationV2:
 
     async def _get_weak_topics(self, user_id: UUID) -> list[dict]:
         """Identify weak topics (stale learning, >7 days without update)."""
-        from datetime import datetime, timezone, timedelta
+        from datetime import datetime
+
         progress = await self._uow.user_progress.find_by_user(user_id=user_id)
         weak = []
         for p in progress.items:
             if not p or p.status != 'learning':
                 continue
-            if p.updated_at and (datetime.now(timezone.utc) - p.updated_at).days > 7:
+            if p.updated_at and (datetime.now(UTC) - p.updated_at).days > 7:
                 node = await self._uow.knowledge_nodes.get_by_id(p.node_id)
                 if node:
                     weak.append({'node': _node_to_dict(node)})
         return weak
 
-    async def _get_career_goals(self, user_id: UUID) -> list:
+    async def _get_career_goals(self, _user_id: UUID) -> list:
         """Get user's career interests (stub — future: career preferences)."""
         return []
 
     async def _get_recent_searches(self, user_id: UUID) -> list[str]:
         """Get recent search queries for the user."""
         searches = await self._uow.search_history.find_by_user(
-            user_id=user_id, limit=10,
+            user_id=user_id,
+            limit=10,
         )
         return [s.query for s in searches if s and s.query][:10]
 
     async def _compute_learning_velocity(self, user_id: UUID) -> float:
         """Compute learning velocity (nodes completed per day, last 30 days)."""
-        from datetime import datetime, timezone, timedelta
-        thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+        from datetime import datetime, timedelta
+
+        thirty_days_ago = datetime.now(UTC) - timedelta(days=30)
 
         completed = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status='completed',
+            user_id=user_id,
+            status='completed',
         )
         nodes_completed = sum(
             1 for p in completed.items if p and p.updated_at and p.updated_at >= thirty_days_ago
         )
         mastered = await self._uow.user_progress.find_by_user(
-            user_id=user_id, status='mastered',
+            user_id=user_id,
+            status='mastered',
         )
         nodes_mastered = sum(
             1 for p in mastered.items if p and p.updated_at and p.updated_at >= thirty_days_ago
@@ -366,7 +358,9 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description[:300] if node.description else '',
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
         'estimated_minutes': node.estimated_minutes,
         'icon': node.icon,
         'color': node.color,

@@ -6,10 +6,10 @@ Maps to the ``bookmarks`` table.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Text, UniqueConstraint, text
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,8 +17,8 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.knowledge_node import KnowledgeNode
+    from app.models.user import User
 
 
 class Bookmark(AppBaseMixin, Base):
@@ -32,7 +32,8 @@ class Bookmark(AppBaseMixin, Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'user_id', 'node_id',
+            'user_id',
+            'node_id',
             name='uq_bookmark_user_node',
         ),
     )
@@ -40,7 +41,8 @@ class Bookmark(AppBaseMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='User who created the bookmark',
     )
     node_id: Mapped[UUID] = mapped_column(
@@ -49,21 +51,22 @@ class Bookmark(AppBaseMixin, Base):
         nullable=False,
         comment='Bookmarked knowledge node',
     )
-    notes: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    notes: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='Optional personal note attached to the bookmark',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    user: Mapped['User'] = relationship(
-        'User', back_populates='bookmarks',
+    user: Mapped[User] = relationship(
+        'User',
+        back_populates='bookmarks',
     )
-    node: Mapped['KnowledgeNode'] = relationship(
-        'KnowledgeNode', back_populates='bookmarks',
+    node: Mapped[KnowledgeNode] = relationship(
+        'KnowledgeNode',
+        back_populates='bookmarks',
     )
 
     def __repr__(self) -> str:
-        return (
-            f'<Bookmark user={self.user_id!r} node={self.node_id!r}>'
-        )
+        return f'<Bookmark user={self.user_id!r} node={self.node_id!r}>'

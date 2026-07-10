@@ -12,12 +12,13 @@ Provides routes for:
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from structlog.stdlib import get_logger
 
-from app.api.deps import get_current_user_id, get_db, get_uow
+from app.api.deps import get_current_user_id, get_uow
 from app.repositories import UnitOfWork
 from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
 from app.schemas.auth.auth import (
@@ -29,8 +30,8 @@ from app.schemas.auth.auth import (
     TokenResponse,
 )
 from app.schemas.response import success_response
-from app.schemas.user.profile import ProfileUpdate, UserProfile, UserSummary
-from app.services.auth import AuthService, AuthenticationError
+from app.schemas.user.profile import ProfileUpdate, UserProfile
+from app.services.auth import AuthenticationError, AuthService
 from app.services.user import UserService
 
 logger = get_logger(__name__)
@@ -81,7 +82,7 @@ def _user_to_profile(user) -> UserProfile:
 @router.post('/register', status_code=status.HTTP_201_CREATED)
 async def register(
     body: SignupRequest,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Register a new user account.
 
@@ -101,7 +102,7 @@ async def register(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=exc.message,
-        )
+        ) from exc
 
     access_token, expires_at = auth_service.create_access_token(user.id, user.role.value)
     refresh_token = auth_service.create_refresh_token(user.id)
@@ -115,7 +116,7 @@ async def register(
 @router.post('/login')
 async def login(
     body: LoginRequest,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Authenticate a user with email and password.
 
@@ -133,7 +134,7 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=exc.message,
             headers={'WWW-Authenticate': 'Bearer'},
-        )
+        ) from exc
 
     return _build_login_response(user, access_token, refresh_token, expires_at)
 
@@ -144,7 +145,7 @@ async def login(
 @router.post('/refresh')
 async def refresh(
     body: RefreshRequest,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Refresh an expired access token using a valid refresh token."""
     auth_service = AuthService(uow)
@@ -158,7 +159,7 @@ async def refresh(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=exc.message,
             headers={'WWW-Authenticate': 'Bearer'},
-        )
+        ) from exc
 
     return _build_login_response(user, access_token, refresh_token, expires_at)
 
@@ -168,19 +169,19 @@ async def refresh(
 
 @router.get('/me')
 async def get_me(
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get the authenticated user's profile."""
     user_service = UserService(uow)
 
     try:
         user = await user_service.get_profile(current_user_id)
-    except EntityNotFoundError:
+    except EntityNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found',
-        )
+        ) from e
 
     return success_response(
         data=_user_to_profile(user).model_dump(mode='json'),
@@ -194,8 +195,8 @@ async def get_me(
 @router.put('/me')
 async def update_me(
     body: ProfileUpdate,
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Update the authenticated user's profile."""
     user_service = UserService(uow)
@@ -208,11 +209,11 @@ async def update_me(
             bio=body.bio,
             preferences=body.preferences,
         )
-    except EntityNotFoundError:
+    except EntityNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found',
-        )
+        ) from e
 
     return success_response(
         data=_user_to_profile(user).model_dump(mode='json'),
@@ -226,8 +227,8 @@ async def update_me(
 @router.post('/change-password')
 async def change_password(
     body: ChangePasswordRequest,
-    current_user_id: UUID = Depends(get_current_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Change the authenticated user's password."""
     auth_service = AuthService(uow)
@@ -242,12 +243,12 @@ async def change_password(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=exc.message,
-        )
-    except EntityNotFoundError:
+        ) from exc
+    except EntityNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found',
-        )
+        ) from e
 
     return success_response(message='Password changed successfully')
 

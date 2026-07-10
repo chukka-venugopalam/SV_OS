@@ -53,22 +53,22 @@ class GraphAnalyticsService:
         # Count total edges per node
         outgoing_stmt = (
             select(
-                KnowledgeEdge.source_node_id.label("node_id"),
-                func.count().label("edge_count"),
+                KnowledgeEdge.source_node_id.label('node_id'),
+                func.count().label('edge_count'),
             )
-            .where(KnowledgeEdge.is_deleted == False)
+            .where(not KnowledgeEdge.is_deleted)
             .group_by(KnowledgeEdge.source_node_id)
-            .cte("outgoing_counts")
+            .cte('outgoing_counts')
         )
 
         incoming_stmt = (
             select(
-                KnowledgeEdge.target_node_id.label("node_id"),
-                func.count().label("edge_count"),
+                KnowledgeEdge.target_node_id.label('node_id'),
+                func.count().label('edge_count'),
             )
-            .where(KnowledgeEdge.is_deleted == False)
+            .where(not KnowledgeEdge.is_deleted)
             .group_by(KnowledgeEdge.target_node_id)
-            .cte("incoming_counts")
+            .cte('incoming_counts')
         )
 
         # Join and sum
@@ -79,27 +79,37 @@ class GraphAnalyticsService:
                 KnowledgeNode.slug,
                 KnowledgeNode.node_type,
                 KnowledgeNode.difficulty,
-                (func.coalesce(outgoing_stmt.c.edge_count, 0) + func.coalesce(incoming_stmt.c.edge_count, 0)).label("total_connections"),
+                (
+                    func.coalesce(outgoing_stmt.c.edge_count, 0)
+                    + func.coalesce(incoming_stmt.c.edge_count, 0)
+                ).label('total_connections'),
             )
             .outerjoin(outgoing_stmt, KnowledgeNode.id == outgoing_stmt.c.node_id)
             .outerjoin(incoming_stmt, KnowledgeNode.id == incoming_stmt.c.node_id)
             .where(
-                KnowledgeNode.is_deleted == False,
-                KnowledgeNode.is_published == True,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
-            .order_by(func.coalesce(outgoing_stmt.c.edge_count, 0) + func.coalesce(incoming_stmt.c.edge_count, 0).desc())
+            .order_by(
+                func.coalesce(outgoing_stmt.c.edge_count, 0)
+                + func.coalesce(incoming_stmt.c.edge_count, 0).desc()
+            )
             .limit(limit)
         )
 
         result = await self._uow.session.execute(stmt)
         return [
             {
-                "id": str(row.id),
-                "title": row.title,
-                "slug": row.slug,
-                "node_type": row.node_type.value if hasattr(row.node_type, "value") else row.node_type,
-                "difficulty": row.difficulty.value if hasattr(row.difficulty, "value") else row.difficulty,
-                "total_connections": row.total_connections,
+                'id': str(row.id),
+                'title': row.title,
+                'slug': row.slug,
+                'node_type': row.node_type.value
+                if hasattr(row.node_type, 'value')
+                else row.node_type,
+                'difficulty': row.difficulty.value
+                if hasattr(row.difficulty, 'value')
+                else row.difficulty,
+                'total_connections': row.total_connections,
             }
             for row in result.all()
         ]
@@ -114,20 +124,19 @@ class GraphAnalyticsService:
         represent incomplete or orphaned content.
         """
         # Find all node IDs that appear in edges
-        edge_node_ids = select(KnowledgeEdge.source_node_id).where(
-            KnowledgeEdge.is_deleted == False
-        ).union(
-            select(KnowledgeEdge.target_node_id).where(
-                KnowledgeEdge.is_deleted == False
-            )
-        ).cte("edge_nodes")
+        edge_node_ids = (
+            select(KnowledgeEdge.source_node_id)
+            .where(not KnowledgeEdge.is_deleted)
+            .union(select(KnowledgeEdge.target_node_id).where(not KnowledgeEdge.is_deleted))
+            .cte('edge_nodes')
+        )
 
         stmt = (
             select(KnowledgeNode)
             .where(
                 KnowledgeNode.id.notin_(select(edge_node_ids.c.source_node_id)),
-                KnowledgeNode.is_deleted == False,
-                KnowledgeNode.is_published == True,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
             .order_by(KnowledgeNode.title)
         )
@@ -137,11 +146,13 @@ class GraphAnalyticsService:
 
         return [
             {
-                "id": str(n.id),
-                "title": n.title,
-                "slug": n.slug,
-                "node_type": n.node_type.value if hasattr(n.node_type, "value") else n.node_type,
-                "difficulty": n.difficulty.value if hasattr(n.difficulty, "value") else n.difficulty,
+                'id': str(n.id),
+                'title': n.title,
+                'slug': n.slug,
+                'node_type': n.node_type.value if hasattr(n.node_type, 'value') else n.node_type,
+                'difficulty': n.difficulty.value
+                if hasattr(n.difficulty, 'value')
+                else n.difficulty,
             }
             for n in nodes
         ]
@@ -157,17 +168,17 @@ class GraphAnalyticsService:
         """
         bottleneck_stmt = (
             select(
-                KnowledgeEdge.source_node_id.label("node_id"),
-                func.count().label("dependent_count"),
+                KnowledgeEdge.source_node_id.label('node_id'),
+                func.count().label('dependent_count'),
             )
             .where(
-                KnowledgeEdge.relationship_type == "prerequisite",
-                KnowledgeEdge.is_deleted == False,
+                KnowledgeEdge.relationship_type == 'prerequisite',
+                not KnowledgeEdge.is_deleted,
             )
             .group_by(KnowledgeEdge.source_node_id)
             .order_by(func.count().desc())
             .limit(limit)
-            .cte("bottlenecks")
+            .cte('bottlenecks')
         )
 
         stmt = (
@@ -181,8 +192,8 @@ class GraphAnalyticsService:
             )
             .join(bottleneck_stmt, KnowledgeNode.id == bottleneck_stmt.c.node_id)
             .where(
-                KnowledgeNode.is_deleted == False,
-                KnowledgeNode.is_published == True,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
             .order_by(bottleneck_stmt.c.dependent_count.desc())
         )
@@ -190,12 +201,16 @@ class GraphAnalyticsService:
         result = await self._uow.session.execute(stmt)
         return [
             {
-                "id": str(row.id),
-                "title": row.title,
-                "slug": row.slug,
-                "node_type": row.node_type.value if hasattr(row.node_type, "value") else row.node_type,
-                "difficulty": row.difficulty.value if hasattr(row.difficulty, "value") else row.difficulty,
-                "dependent_count": row.dependent_count,
+                'id': str(row.id),
+                'title': row.title,
+                'slug': row.slug,
+                'node_type': row.node_type.value
+                if hasattr(row.node_type, 'value')
+                else row.node_type,
+                'difficulty': row.difficulty.value
+                if hasattr(row.difficulty, 'value')
+                else row.difficulty,
+                'dependent_count': row.dependent_count,
             }
             for row in result.all()
         ]
@@ -240,25 +255,25 @@ class GraphAnalyticsService:
 
         if not depth_map:
             return {
-                "min_depth": 0,
-                "max_depth": 0,
-                "avg_depth": 0.0,
-                "distribution": {},
-                "root_node_count": 0,
+                'min_depth': 0,
+                'max_depth': 0,
+                'avg_depth': 0.0,
+                'distribution': {},
+                'root_node_count': 0,
             }
 
         depths = list(depth_map.values())
         distribution: dict[str, int] = {}
         for d in depths:
-            key = f"depth_{d}"
+            key = f'depth_{d}'
             distribution[key] = distribution.get(key, 0) + 1
 
         return {
-            "min_depth": min(depths),
-            "max_depth": max(depths),
-            "avg_depth": round(sum(depths) / len(depths), 2),
-            "distribution": distribution,
-            "root_node_count": len(root_nodes),
+            'min_depth': min(depths),
+            'max_depth': max(depths),
+            'avg_depth': round(sum(depths) / len(depths), 2),
+            'distribution': distribution,
+            'root_node_count': len(root_nodes),
         }
 
     # ── Graph Density ──────────────────────────────────────────────
@@ -272,7 +287,7 @@ class GraphAnalyticsService:
         A density close to 1 means nearly all nodes are connected.
         A density close to 0 means the graph is sparse.
         """
-        total_nodes = await self._uow.knowledge_nodes.count(filters={"is_published": True})
+        total_nodes = await self._uow.knowledge_nodes.count(filters={'is_published': True})
         total_edges = await self._uow.knowledge_edges.count()
 
         density = 0.0
@@ -280,10 +295,10 @@ class GraphAnalyticsService:
             density = (2.0 * total_edges) / (total_nodes * (total_nodes - 1))
 
         return {
-            "total_nodes": total_nodes,
-            "total_edges": total_edges,
-            "density": round(density, 6),
-            "max_possible_edges": total_nodes * (total_nodes - 1) // 2,
+            'total_nodes': total_nodes,
+            'total_edges': total_edges,
+            'density': round(density, 6),
+            'max_possible_edges': total_nodes * (total_nodes - 1) // 2,
         }
 
     # ── Average Branching Factor ───────────────────────────────────
@@ -306,15 +321,15 @@ class GraphAnalyticsService:
                     .select_from(KnowledgeEdge)
                     .where(
                         KnowledgeEdge.source_node_id == KnowledgeNode.id,
-                        KnowledgeEdge.is_deleted == False,
+                        not KnowledgeEdge.is_deleted,
                     )
                     .scalar_subquery()
-                ).label("avg_outgoing")
+                ).label('avg_outgoing')
             )
             .select_from(KnowledgeNode)
             .where(
-                KnowledgeNode.is_deleted == False,
-                KnowledgeNode.is_published == True,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
         )
 
@@ -330,34 +345,31 @@ class GraphAnalyticsService:
             .select_from(KnowledgeEdge)
             .where(
                 KnowledgeEdge.source_node_id == KnowledgeNode.id,
-                KnowledgeEdge.is_deleted == False,
+                not KnowledgeEdge.is_deleted,
             )
             .scalar_subquery()
         )
 
         histogram_stmt = (
             select(
-                sql_func.coalesce(outgoing_subq, 0).label("outgoing_count"),
-                sql_func.count().label("node_count"),
+                sql_func.coalesce(outgoing_subq, 0).label('outgoing_count'),
+                sql_func.count().label('node_count'),
             )
             .select_from(KnowledgeNode)
             .where(
-                KnowledgeNode.is_deleted == False,
-                KnowledgeNode.is_published == True,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
-            .group_by(literal_column("outgoing_count"))
-            .order_by(literal_column("outgoing_count"))
+            .group_by(literal_column('outgoing_count'))
+            .order_by(literal_column('outgoing_count'))
         )
 
         hist_result = await self._uow.session.execute(histogram_stmt)
-        histogram = {
-            f"{row.outgoing_count}_outgoing": row.node_count
-            for row in hist_result.all()
-        }
+        histogram = {f'{row.outgoing_count}_outgoing': row.node_count for row in hist_result.all()}
 
         return {
-            "avg_branching_factor": round(float(avg_branching), 3),
-            "histogram": histogram,
+            'avg_branching_factor': round(float(avg_branching), 3),
+            'histogram': histogram,
         }
 
     # ── Preserved Legacy Stats ─────────────────────────────────────
@@ -369,16 +381,16 @@ class GraphAnalyticsService:
         depth = await self.concept_depth_distribution()
 
         return {
-            "total_nodes": density_data["total_nodes"],
-            "total_edges": density_data["total_edges"],
-            "graph_density": density_data["density"],
-            "avg_branching_factor": branching["avg_branching_factor"],
-            "branching_histogram": branching["histogram"],
-            "depth": {
-                "min": depth["min_depth"],
-                "max": depth["max_depth"],
-                "avg": depth["avg_depth"],
-                "distribution": depth["distribution"],
-                "root_nodes": depth["root_node_count"],
+            'total_nodes': density_data['total_nodes'],
+            'total_edges': density_data['total_edges'],
+            'graph_density': density_data['density'],
+            'avg_branching_factor': branching['avg_branching_factor'],
+            'branching_histogram': branching['histogram'],
+            'depth': {
+                'min': depth['min_depth'],
+                'max': depth['max_depth'],
+                'avg': depth['avg_depth'],
+                'distribution': depth['distribution'],
+                'root_nodes': depth['root_node_count'],
             },
         }

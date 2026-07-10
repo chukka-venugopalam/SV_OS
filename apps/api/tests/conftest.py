@@ -41,4 +41,5 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
 def app_settings():
     """Provide access to the application settings singleton."""
     from app.core.config import settings
+
     return settings

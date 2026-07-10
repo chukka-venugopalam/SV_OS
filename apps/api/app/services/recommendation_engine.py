@@ -19,12 +19,10 @@ Scoring formula:
 
 from __future__ import annotations
 
-import math
 from uuid import UUID
 
 from structlog.stdlib import get_logger
 
-from app.models.enums import Difficulty, NodeType
 from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
@@ -87,18 +85,23 @@ class RecommendationEngine:
 
             score, reasons = await self._score_node(
                 node=node,
-                user_id=user_id,
+                _user_id=user_id,
                 completed_node_ids=completed_node_ids,
                 bookmarked_node_ids=bookmarked_node_ids,
                 all_nodes=all_nodes,
             )
 
             if score > 0:
-                scored.append((score, {
-                    "node": _node_to_dict(node),
-                    "score": round(score, 4),
-                    "reasons": reasons,
-                }))
+                scored.append(
+                    (
+                        score,
+                        {
+                            'node': _node_to_dict(node),
+                            'score': round(score, 4),
+                            'reasons': reasons,
+                        },
+                    )
+                )
 
         # 3. Sort by score descending and return top results
         scored.sort(key=lambda x: x[0], reverse=True)
@@ -109,7 +112,7 @@ class RecommendationEngine:
     async def _score_node(
         self,
         node,
-        user_id: UUID,
+        _user_id: UUID,
         completed_node_ids: set[UUID],
         bookmarked_node_ids: set[UUID],
         all_nodes: list,
@@ -118,14 +121,12 @@ class RecommendationEngine:
         reasons: list[str] = []
 
         # Prerequisite score
-        prereq_score, prereq_detail = await self._prerequisite_score(
-            node, completed_node_ids
-        )
+        prereq_score, prereq_detail = await self._prerequisite_score(node, completed_node_ids)
         if prereq_detail:
             reasons.append(prereq_detail)
 
         # Graph distance score
-        distance_score, distance_detail = await self._graph_distance_score(
+        distance_score, _distance_detail = await self._graph_distance_score(
             node, completed_node_ids
         )
 
@@ -142,9 +143,7 @@ class RecommendationEngine:
             reasons.append(difficulty_detail)
 
         # Relevance score
-        relevance_score, relevance_detail = self._relevance_score(
-            node, bookmarked_node_ids
-        )
+        relevance_score, relevance_detail = self._relevance_score(node, bookmarked_node_ids)
         if relevance_detail:
             reasons.append(relevance_detail)
 
@@ -178,15 +177,15 @@ class RecommendationEngine:
 
         ratio = completed / total
         if ratio >= 1.0:
-            return 1.0, "All prerequisites completed"
+            return 1.0, 'All prerequisites completed'
         elif ratio >= 0.75:
-            return 0.7, f"Most prerequisites completed ({completed}/{total})"
+            return 0.7, f'Most prerequisites completed ({completed}/{total})'
         elif ratio >= 0.5:
-            return 0.5, f"Some prerequisites completed ({completed}/{total})"
+            return 0.5, f'Some prerequisites completed ({completed}/{total})'
         elif ratio > 0:
-            return 0.2, f"Few prerequisites completed ({completed}/{total})"
+            return 0.2, f'Few prerequisites completed ({completed}/{total})'
 
-        return 0.0, "No prerequisites completed"
+        return 0.0, 'No prerequisites completed'
 
     # ── Signal: Graph Distance ─────────────────────────────────────
     # Score: Higher when close to user's completed nodes.
@@ -197,7 +196,7 @@ class RecommendationEngine:
         if not completed_node_ids:
             return 0.0, None
 
-        completed_list = list(completed_node_ids)[:5]  # Sample for performance
+        list(completed_node_ids)[:5]  # Sample for performance
 
         # Check if node shares an edge with any completed node
         edges = await self._uow.graph.load_edges_for_nodes(
@@ -209,7 +208,7 @@ class RecommendationEngine:
         )
 
         if connected_to_completed:
-            return 0.8, "Directly connected to your completed topics"
+            return 0.8, 'Directly connected to your completed topics'
 
         return 0.3, None
 
@@ -217,16 +216,16 @@ class RecommendationEngine:
     # Score: Based on total edge count relative to the max.
 
     def _popularity_score(self, node) -> tuple[float, str | None]:
-        view_count = getattr(node, "view_count", 0) or 0
-        edge_count = getattr(node, "edge_count", 0) or 0
+        view_count = getattr(node, 'view_count', 0) or 0
+        edge_count = getattr(node, 'edge_count', 0) or 0
         total = view_count + edge_count
 
         if total > 100:
-            return 1.0, "Highly popular topic"
+            return 1.0, 'Highly popular topic'
         elif total > 50:
-            return 0.7, "Popular topic"
+            return 0.7, 'Popular topic'
         elif total > 10:
-            return 0.4, "Moderately popular"
+            return 0.4, 'Moderately popular'
         elif total > 0:
             return 0.1, None
 
@@ -236,42 +235,40 @@ class RecommendationEngine:
     # Score: Higher when difficulty matches the user's current level.
 
     def _difficulty_score(
-        self, node, completed_node_ids: set[UUID], all_nodes: list
+        self, node, _completed_node_ids: set[UUID], _all_nodes: list
     ) -> tuple[float, str | None]:
-        difficulty = getattr(node, "difficulty", None)
+        difficulty = getattr(node, 'difficulty', None)
         if difficulty is None:
             return 0.3, None
 
-        diff_str = difficulty.value if hasattr(difficulty, "value") else str(difficulty)
+        diff_str = difficulty.value if hasattr(difficulty, 'value') else str(difficulty)
         diff_lower = diff_str.lower()
 
         # Beginner and intermediate are generally recommended
-        if diff_lower in ("beginner", "intermediate"):
-            return 0.7, f"Good {diff_str} level"
-        elif diff_lower == "advanced":
-            return 0.4, f"Advanced topic"
-        elif diff_lower == "expert":
-            return 0.1, "Expert level"
+        if diff_lower in ('beginner', 'intermediate'):
+            return 0.7, f'Good {diff_str} level'
+        elif diff_lower == 'advanced':
+            return 0.4, 'Advanced topic'
+        elif diff_lower == 'expert':
+            return 0.1, 'Expert level'
 
         return 0.3, None
 
     # ── Signal: Content Relevance ──────────────────────────────────
     # Score: Higher when related to bookmarked/favorited topics.
 
-    def _relevance_score(
-        self, node, bookmarked_node_ids: set[UUID]
-    ) -> tuple[float, str | None]:
+    def _relevance_score(self, node, bookmarked_node_ids: set[UUID]) -> tuple[float, str | None]:
         if not bookmarked_node_ids:
             return 0.0, None
 
         # Simple heuristic: check if node type matches bookmarked types
-        node_type = getattr(node, "node_type", None)
+        node_type = getattr(node, 'node_type', None)
         if node_type:
-            ntype_str = node_type.value if hasattr(node_type, "value") else str(node_type)
+            node_type.value if hasattr(node_type, 'value') else str(node_type)
 
             # Boost if bookmarked similar types
             if len(bookmarked_node_ids) > 3:
-                return 0.3, "Related to your interests"
+                return 0.3, 'Related to your interests'
 
         return 0.1, None
 
@@ -303,7 +300,7 @@ class RecommendationEngine:
         for career in all_careers:
             # Count how many required nodes the user has completed
             required_nodes = await self._uow.graph.load_all_neighbors(career.id)
-            all_required = required_nodes.get("incoming", []) + required_nodes.get("outgoing", [])
+            all_required = required_nodes.get('incoming', []) + required_nodes.get('outgoing', [])
             total_required = len(all_required)
 
             if total_required == 0:
@@ -313,21 +310,25 @@ class RecommendationEngine:
             match_ratio = completed_required / total_required
 
             if match_ratio > 0:
-                scored_careers.append({
-                    "career": {
-                        "id": str(career.id),
-                        "title": career.title,
-                        "slug": career.slug,
-                        "description": career.description,
-                        "salary_range": getattr(career, "salary_range", None),
-                        "demand": career.demand.value if hasattr(career.demand, "value") else career.demand,
-                    },
-                    "match_score": round(match_ratio, 4),
-                    "completed_required": completed_required,
-                    "total_required": total_required,
-                })
+                scored_careers.append(
+                    {
+                        'career': {
+                            'id': str(career.id),
+                            'title': career.title,
+                            'slug': career.slug,
+                            'description': career.description,
+                            'salary_range': getattr(career, 'salary_range', None),
+                            'demand': career.demand.value
+                            if hasattr(career.demand, 'value')
+                            else career.demand,
+                        },
+                        'match_score': round(match_ratio, 4),
+                        'completed_required': completed_required,
+                        'total_required': total_required,
+                    }
+                )
 
-        scored_careers.sort(key=lambda x: x["match_score"], reverse=True)
+        scored_careers.sort(key=lambda x: x['match_score'], reverse=True)
         return scored_careers[:limit]
 
     # ── Helper: Get Completed Node IDs ─────────────────────────────
@@ -335,15 +336,13 @@ class RecommendationEngine:
     async def _get_completed_node_ids(self, user_id: UUID) -> set[UUID]:
         progress_records = await self._uow.user_progress.find_by_user(
             user_id=user_id,
-            status="completed",
+            status='completed',
         )
         mastered = await self._uow.user_progress.find_by_user(
             user_id=user_id,
-            status="mastered",
+            status='mastered',
         )
-        completed = {
-            p.node_id for p in progress_records.items if p
-        } | {
+        completed = {p.node_id for p in progress_records.items if p} | {
             p.node_id for p in mastered.items if p
         }
         return completed
@@ -360,13 +359,15 @@ class RecommendationEngine:
 
 def _node_to_dict(node) -> dict:
     return {
-        "id": str(node.id),
-        "slug": node.slug,
-        "title": node.title,
-        "description": node.description,
-        "node_type": node.node_type.value if hasattr(node.node_type, "value") else node.node_type,
-        "difficulty": node.difficulty.value if hasattr(node.difficulty, "value") else node.difficulty,
-        "icon": getattr(node, "icon", None),
-        "color": getattr(node, "color", None),
-        "estimated_minutes": getattr(node, "estimated_minutes", None),
+        'id': str(node.id),
+        'slug': node.slug,
+        'title': node.title,
+        'description': node.description,
+        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
+        'icon': getattr(node, 'icon', None),
+        'color': getattr(node, 'color', None),
+        'estimated_minutes': getattr(node, 'estimated_minutes', None),
     }

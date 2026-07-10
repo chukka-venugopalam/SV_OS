@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, Button, Label, Badge, cn } from '@sv-os/ui';
-import { ArrowLeft, Palette, Sun, Moon, Monitor, Type, Eye } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, cn } from '@sv-os/ui';
+import { ArrowLeft, Palette, Sun, Moon, Type, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 import { Shell } from '@/components/shared/shell';
@@ -10,7 +10,7 @@ import { useUIStore } from '@/stores/ui-store';
 
 
 export default function PreferencesSettingsPage() {
-  const { theme, setTheme, isDark } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize, reducedMotion, setReducedMotion } = useUIStore();
 
   const themeOptions = [

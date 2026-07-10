@@ -11,7 +11,7 @@ Builds and configures the FastAPI application with:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -63,7 +63,7 @@ def create_app() -> FastAPI:
     )
 
     # ── Middleware Stack (order matters — outermost first) ──────────
-    app.add_middleware(   # 1. CORS — handle preflight before anything else
+    app.add_middleware(  # 1. CORS — handle preflight before anything else
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
         allow_credentials=True,
@@ -71,35 +71,35 @@ def create_app() -> FastAPI:
         allow_headers=['*'],
     )
 
-    app.add_middleware(   # 2. Compression — compress responses
+    app.add_middleware(  # 2. Compression — compress responses
         GZipMiddleware,
         minimum_size=1000,
     )
 
-    app.add_middleware(   # 3. Host validation — reject unknown hosts early
+    app.add_middleware(  # 3. Host validation — reject unknown hosts early
         TrustedHostsMiddleware,
         allowed_hosts=settings.TRUSTED_HOSTS,
         environment=settings.ENVIRONMENT,
     )
 
-    app.add_middleware(   # 4. Security headers — set before response is finalised
+    app.add_middleware(  # 4. Security headers — set before response is finalised
         SecurityHeadersMiddleware,
         environment=settings.ENVIRONMENT,
     )
 
-    app.add_middleware(   # 5. Request ID + logging context — outermost context layer
+    app.add_middleware(  # 5. Request ID + logging context — outermost context layer
         RequestIDMiddleware,
     )
 
-    app.add_middleware(   # 6. Correlation ID — trace across service boundaries
+    app.add_middleware(  # 6. Correlation ID — trace across service boundaries
         CorrelationIDMiddleware,
     )
 
-    app.add_middleware(   # 7. Timing — measure closest to the actual handler
+    app.add_middleware(  # 7. Timing — measure closest to the actual handler
         RequestTimingMiddleware,
     )
 
-    app.add_middleware(   # 8. Rate limit — stub, applied last
+    app.add_middleware(  # 8. Rate limit — stub, applied last
         RateLimitMiddleware,
     )
 
@@ -126,7 +126,7 @@ def create_app() -> FastAPI:
                 'environment': settings.ENVIRONMENT,
             },
             'errors': None,
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'request_id': request_id,
         }
 
@@ -143,7 +143,7 @@ def create_app() -> FastAPI:
                 'documentation': '/docs',
             },
             'errors': None,
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'request_id': request_id,
         }
 

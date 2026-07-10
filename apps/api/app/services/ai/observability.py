@@ -83,7 +83,7 @@ class ObservabilityService:
         )
         self._operations.append(telemetry)
         if len(self._operations) > self._max_operations:
-            self._operations = self._operations[-self._max_operations:]
+            self._operations = self._operations[-self._max_operations :]
         return telemetry.operation_id
 
     def end_operation(
@@ -106,7 +106,9 @@ class ObservabilityService:
                 op.latency_ms = (time.time() - op.timestamp) * 1000
                 op.cached = cached
                 op.estimated_cost = self._estimate_cost(
-                    op.provider, prompt_tokens, completion_tokens,
+                    op.provider,
+                    prompt_tokens,
+                    completion_tokens,
                 )
 
                 if not success:
@@ -120,7 +122,10 @@ class ObservabilityService:
                 return
 
     def _estimate_cost(
-        self, provider: str, prompt_tokens: int, completion_tokens: int,
+        self,
+        provider: str,
+        prompt_tokens: int,
+        completion_tokens: int,
     ) -> float:
         """Estimate USD cost for token usage."""
         costs = PROVIDER_COSTS.get(provider, {'input': 0.0, 'output': 0.0})
@@ -143,7 +148,9 @@ class ObservabilityService:
         latencies = [o.latency_ms for o in successful]
         avg_latency = sum(latencies) / len(latencies) if latencies else 0.0
         max_latency = max(latencies) if latencies else 0.0
-        p95_latency = sorted(latencies)[int(len(latencies) * 0.95)] if len(latencies) > 20 else max_latency
+        p95_latency = (
+            sorted(latencies)[int(len(latencies) * 0.95)] if len(latencies) > 20 else max_latency
+        )
 
         total_prompt = sum(o.prompt_tokens for o in self._operations)
         total_completion = sum(o.completion_tokens for o in self._operations)
@@ -180,7 +187,9 @@ class ObservabilityService:
         }
 
     def get_operation_log(
-        self, limit: int = 50, offset: int = 0,
+        self,
+        limit: int = 50,
+        offset: int = 0,
     ) -> list[dict]:
         """Get raw operation log for debugging."""
         ops = list(reversed(self._operations))
@@ -198,7 +207,7 @@ class ObservabilityService:
                 'cached': o.cached,
                 'timestamp': o.timestamp,
             }
-            for o in ops[offset:offset + limit]
+            for o in ops[offset : offset + limit]
         ]
 
     def reset_metrics(self) -> None:

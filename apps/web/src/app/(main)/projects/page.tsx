@@ -15,7 +15,7 @@ import {
   EmptyState,
   Pagination,
 } from '@sv-os/ui';
-import { FolderGit2, Search, ArrowRight, Github, Globe, Clock } from 'lucide-react';
+import { FolderGit2, Search, Github, Globe, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useState, memo } from 'react';
 

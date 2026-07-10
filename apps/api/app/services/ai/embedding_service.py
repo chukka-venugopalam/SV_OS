@@ -12,22 +12,20 @@ All API endpoints use this service rather than providers directly.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any
+from enum import StrEnum
 from uuid import UUID
 
 from structlog.stdlib import get_logger
 
 from app.repositories import UnitOfWork
-from app.services.ai.providers.base import EmbeddingProvider
+from app.services.ai.providers.base import EmbeddingProvider, EmbeddingResult
 from app.services.ai.providers.ollama import OllamaEmbeddingProvider
 from app.services.ai.providers.openai import OpenAIEmbeddingProvider
 
 logger = get_logger(__name__)
 
 
-class ProviderType(str, Enum):
+class ProviderType(StrEnum):
     """Supported embedding provider types."""
 
     OPENAI = 'openai'
@@ -91,11 +89,13 @@ class EmbeddingService:
         if use_cache:
             self._cache[text] = result.vector
 
-        logger.debug('embedding_generated',
-                      model=self._provider.model_name,
-                      dimensions=result.dimensions,
-                      tokens=result.tokens_used,
-                      cache_size=len(self._cache))
+        logger.debug(
+            'embedding_generated',
+            model=self._provider.model_name,
+            dimensions=result.dimensions,
+            tokens=result.tokens_used,
+            cache_size=len(self._cache),
+        )
 
         return result.vector
 
@@ -129,7 +129,7 @@ class EmbeddingService:
 
             results = await self._provider.embed_batch(uncached_texts)
 
-            for text, result in zip(uncached_texts, results):
+            for text, result in zip(uncached_texts, results, strict=False):
                 self._cache[text] = result.vector
                 self._cache_misses += 1
 
@@ -182,7 +182,7 @@ class EmbeddingService:
 
         # Store embeddings in node metadata (future: dedicated vector table)
         updated_count = 0
-        for node_id, embedding in zip(node_ids, embeddings):
+        for node_id, embedding in zip(node_ids, embeddings, strict=False):
             if not self._uow:
                 continue
             node = await self._uow.knowledge_nodes.get_by_id(node_id)
@@ -197,10 +197,12 @@ class EmbeddingService:
                 )
                 updated_count += 1
 
-        logger.info('reindex_complete',
-                     nodes_processed=len(nodes),
-                     embeddings_generated=len(embeddings),
-                     updated=updated_count)
+        logger.info(
+            'reindex_complete',
+            nodes_processed=len(nodes),
+            embeddings_generated=len(embeddings),
+            updated=updated_count,
+        )
 
         self._cache.clear()
 
@@ -252,7 +254,7 @@ class EmbeddingService:
     def _reorder_results(
         self,
         original_texts: list[str],
-        cached: list[list[float]],
+        _cached: list[list[float]],
         uncached_indices: list[int],
         uncached_results: list[EmbeddingResult],
     ) -> list[list[float]]:
@@ -261,7 +263,7 @@ class EmbeddingService:
         for i, text in enumerate(original_texts):
             if text in self._cache:
                 result_map[i] = self._cache[text]
-        for idx, res in zip(uncached_indices, uncached_results):
+        for idx, res in zip(uncached_indices, uncached_results, strict=False):
             result_map[idx] = res.vector
 
         return [result_map[i] for i in range(len(original_texts))]

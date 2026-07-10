@@ -1,41 +1,41 @@
 """Knowledge graph node DTOs."""
 
-from app.schemas.knowledge.node import (
-    KnowledgeNodeCard,
-    KnowledgeNodeSummary,
-    KnowledgeNodeDetail,
-    KnowledgeNodeCreate,
-    KnowledgeNodeUpdate,
-    KnowledgeNodeList,
-    KnowledgeNodeLink,
-)
-from app.schemas.knowledge.search import (
-    KnowledgeSearchResult,
-    GroupedSearchResult,
-    SearchHighlight,
-)
 from app.schemas.knowledge.dependency import (
-    KnowledgeDependency,
     DependencyNode,
     DependencyTree,
+    KnowledgeDependency,
+)
+from app.schemas.knowledge.node import (
+    KnowledgeNodeCard,
+    KnowledgeNodeCreate,
+    KnowledgeNodeDetail,
+    KnowledgeNodeLink,
+    KnowledgeNodeList,
+    KnowledgeNodeSummary,
+    KnowledgeNodeUpdate,
 )
 from app.schemas.knowledge.recommendation import (
     KnowledgeRecommendation,
 )
+from app.schemas.knowledge.search import (
+    GroupedSearchResult,
+    KnowledgeSearchResult,
+    SearchHighlight,
+)
 
 __all__ = [
-    'KnowledgeNodeCard',
-    'KnowledgeNodeSummary',
-    'KnowledgeNodeDetail',
-    'KnowledgeNodeCreate',
-    'KnowledgeNodeUpdate',
-    'KnowledgeNodeList',
-    'KnowledgeNodeLink',
-    'KnowledgeSearchResult',
-    'GroupedSearchResult',
-    'SearchHighlight',
-    'KnowledgeDependency',
     'DependencyNode',
     'DependencyTree',
+    'GroupedSearchResult',
+    'KnowledgeDependency',
+    'KnowledgeNodeCard',
+    'KnowledgeNodeCreate',
+    'KnowledgeNodeDetail',
+    'KnowledgeNodeLink',
+    'KnowledgeNodeList',
+    'KnowledgeNodeSummary',
+    'KnowledgeNodeUpdate',
     'KnowledgeRecommendation',
+    'KnowledgeSearchResult',
+    'SearchHighlight',
 ]

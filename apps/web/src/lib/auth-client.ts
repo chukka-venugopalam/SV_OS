@@ -5,8 +5,6 @@
  * Uses localStorage for token persistence.
  */
 
-import type { ApiResponse } from '@sv-os/types';
-
 import { apiClient, clearAuth, storeTokens } from './api-client';
 
 // ── Types ─────────────────────────────────────────────────────────

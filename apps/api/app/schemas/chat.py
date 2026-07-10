@@ -17,8 +17,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-
 # ── Chat Messages ──────────────────────────────────────────────────
+
 
 class ChatMessageSchema(BaseModel):
     """A single chat message in API responses."""
@@ -53,6 +53,7 @@ class ChatResponse(BaseModel):
 
 
 # ── Conversations ──────────────────────────────────────────────────
+
 
 class ConversationSummary(BaseModel):
     """Summary of a conversation for list views."""
@@ -92,6 +93,7 @@ class UpdateConversationRequest(BaseModel):
 
 # ── AI Memory ──────────────────────────────────────────────────────
 
+
 class AImemorySchema(BaseModel):
     """A single memory fact about a user."""
 
@@ -116,16 +118,20 @@ class AIPreferenceSchema(BaseModel):
 
 # ── Tutor ──────────────────────────────────────────────────────────
 
+
 class TutorRequest(BaseModel):
     """Request for the tutor engine."""
 
     message: str = Field(..., min_length=1, description='Question or topic')
     node_slug: str | None = Field(default=None, description='Specific knowledge node slug')
     difficulty: str = Field(default='intermediate', description='beginner, intermediate, advanced')
-    style: str | None = Field(default=None, description='simple, detailed, socratic, example_driven')
+    style: str | None = Field(
+        default=None, description='simple, detailed, socratic, example_driven'
+    )
 
 
 # ── Planner ────────────────────────────────────────────────────────
+
 
 class PlannerRequest(BaseModel):
     """Request to generate a learning plan."""
@@ -138,6 +144,7 @@ class PlannerRequest(BaseModel):
 
 # ── Career Mentor ──────────────────────────────────────────────────
 
+
 class CareerMentorRequest(BaseModel):
     """Request for career mentor analysis."""
 
@@ -146,6 +153,7 @@ class CareerMentorRequest(BaseModel):
 
 
 # ── Project Mentor ─────────────────────────────────────────────────
+
 
 class ProjectMentorRequest(BaseModel):
     """Request for project mentor guidance."""
@@ -157,11 +165,14 @@ class ProjectMentorRequest(BaseModel):
 
 # ── Quiz ───────────────────────────────────────────────────────────
 
+
 class QuizRequest(BaseModel):
     """Request to generate a quiz."""
 
     topic: str = Field(..., min_length=1, description='Topic to quiz on')
-    quiz_type: str = Field(default='mcq', description='mcq, flashcards, coding, interview, fill_blanks, true_false')
+    quiz_type: str = Field(
+        default='mcq', description='mcq, flashcards, coding, interview, fill_blanks, true_false'
+    )
     difficulty: str = Field(default='intermediate')
     question_count: int = Field(default=5, ge=1, le=20)
     node_slug: str | None = Field(default=None)

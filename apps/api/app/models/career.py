@@ -8,11 +8,12 @@ knowledge nodes, with a typed requirement strength.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -33,54 +34,70 @@ class Career(AppBaseMixin, Base):
     __tablename__ = 'careers'
 
     slug: Mapped[str] = mapped_column(
-        String(200), unique=True, nullable=False, index=True,
+        String(200),
+        unique=True,
+        nullable=False,
+        index=True,
         comment='URL-safe unique identifier (e.g. "frontend-developer")',
     )
     title: Mapped[str] = mapped_column(
-        String(300), nullable=False,
+        String(300),
+        nullable=False,
         comment='Human-readable career title',
     )
     description: Mapped[str] = mapped_column(
-        Text, nullable=False,
+        Text,
+        nullable=False,
         comment='Detailed description of the career path',
     )
-    average_salary: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True,
+    average_salary: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
         comment='Display string for average salary (e.g. "$80k-$120k")',
     )
     demand_level: Mapped[DemandLevel] = mapped_column(
-        pg_enum(DemandLevel, "demand_enum"),
-        default=DemandLevel.GROWING, server_default=text("'growing'"),
-        nullable=False, index=True,
+        pg_enum(DemandLevel, 'demand_enum'),
+        default=DemandLevel.GROWING,
+        server_default=text("'growing'"),
+        nullable=False,
+        index=True,
         comment='Market demand trend',
     )
-    required_experience: Mapped[Optional[str]] = mapped_column(
-        String(50), nullable=True,
+    required_experience: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
         comment='Years or level of experience needed (e.g. "3-5 years")',
     )
-    icon: Mapped[Optional[str]] = mapped_column(
-        String(50), nullable=True,
+    icon: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
         comment='Icon identifier for UI display',
     )
-    color: Mapped[Optional[str]] = mapped_column(
-        String(7), nullable=True,
+    color: Mapped[str | None] = mapped_column(
+        String(7),
+        nullable=True,
         comment='Hex colour for UI display',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Arbitrary metadata JSON blob',
     )
     is_published: Mapped[bool] = mapped_column(
-        default=True, server_default=text('true'),
+        default=True,
+        server_default=text('true'),
         nullable=False,
         comment='Whether the career is publicly visible',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    requirements: Mapped[list['CareerRequirement']] = relationship(
-        'CareerRequirement', back_populates='career',
+    requirements: Mapped[list[CareerRequirement]] = relationship(
+        'CareerRequirement',
+        back_populates='career',
         cascade='all, delete-orphan',
         order_by='CareerRequirement.order_index',
     )
@@ -101,7 +118,9 @@ class CareerRequirement(AppBaseMixin, Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'career_id', 'node_id', 'requirement_type',
+            'career_id',
+            'node_id',
+            'requirement_type',
             name='uq_career_req_career_node_type',
         ),
     )
@@ -109,33 +128,39 @@ class CareerRequirement(AppBaseMixin, Base):
     career_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('careers.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Parent career ID',
     )
     node_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('knowledge_nodes.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Required knowledge node ID',
     )
     requirement_type: Mapped[RequirementType] = mapped_column(
-        pg_enum(RequirementType, "requirement_type_enum"),
+        pg_enum(RequirementType, 'requirement_type_enum'),
         nullable=False,
         comment='How strongly the node is required (required / recommended / bonus)',
     )
     order_index: Mapped[int] = mapped_column(
-        Integer, default=0, server_default=text('0'),
+        Integer,
+        default=0,
+        server_default=text('0'),
         nullable=False,
         comment='Display ordering within the career roadmap',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    career: Mapped['Career'] = relationship(
-        'Career', back_populates='requirements',
+    career: Mapped[Career] = relationship(
+        'Career',
+        back_populates='requirements',
     )
-    node: Mapped['KnowledgeNode'] = relationship(
-        'KnowledgeNode', back_populates='career_requirements',
+    node: Mapped[KnowledgeNode] = relationship(
+        'KnowledgeNode',
+        back_populates='career_requirements',
     )
 
     def __repr__(self) -> str:

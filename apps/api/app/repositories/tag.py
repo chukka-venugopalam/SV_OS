@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 
 from app.models.tag import NodeTag, Tag
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class TagRepository(BaseRepository[Tag]):
@@ -82,12 +82,9 @@ class TagRepository(BaseRepository[Tag]):
 
     async def get_node_tags_for_node(self, node_id: UUID) -> list[NodeTag]:
         """Get all NodeTag associations for a node."""
-        stmt = (
-            select(NodeTag)
-            .where(
-                NodeTag.node_id == node_id,
-                NodeTag.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(NodeTag).where(
+            NodeTag.node_id == node_id,
+            NodeTag.is_deleted == False,  # noqa: E712
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

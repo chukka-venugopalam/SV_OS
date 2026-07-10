@@ -14,18 +14,18 @@ from __future__ import annotations
 
 from app.services.ai.embedding_service import EmbeddingService, ProviderType
 from app.services.ai.hybrid_search import HybridSearchService
-from app.services.ai.ranking_service import RankingService, RankedResult
+from app.services.ai.ranking_service import RankedResult, RankingService
 from app.services.ai.recommendation_v2 import RecommendationV2
 from app.services.ai.semantic_search import SemanticSearchService
 from app.services.ai.similarity import SimilarityService
 
 __all__ = [
     'EmbeddingService',
-    'ProviderType',
-    'SemanticSearchService',
     'HybridSearchService',
-    'RankingService',
+    'ProviderType',
     'RankedResult',
+    'RankingService',
     'RecommendationV2',
+    'SemanticSearchService',
     'SimilarityService',
 ]

@@ -27,9 +27,14 @@ def similarity_service(mock_uow):
     return SimilarityService(mock_uow)
 
 
-def _make_node(node_id=None, title='Test', slug='test',
-               node_type='concept', difficulty='beginner',
-               embedding=None):
+def _make_node(
+    node_id=None,
+    title='Test',
+    slug='test',
+    node_type='concept',
+    difficulty='beginner',
+    embedding=None,
+):
     node = MagicMock()
     node.id = node_id or uuid4()
     node.title = title
@@ -66,9 +71,12 @@ class TestFindSimilar:
         node = _make_node(uuid4(), 'Lonely Node', 'lonely')
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=node)
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            'outgoing': [], 'incoming': [],
-        })
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'outgoing': [],
+                'incoming': [],
+            }
+        )
 
         result = await similarity_service.find_similar(node.id)
 
@@ -85,10 +93,12 @@ class TestFindSimilar:
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
             side_effect=lambda nid: {source_id: source, neighbor_id: neighbor}.get(nid)
         )
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            'outgoing': [neighbor],
-            'incoming': [],
-        })
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'outgoing': [neighbor],
+                'incoming': [],
+            }
+        )
 
         result = await similarity_service.find_similar(source_id)
 
@@ -100,23 +110,24 @@ class TestFindSimilar:
         """Test semantic signal is used when embeddings available."""
         source_id = uuid4()
         similar_id = uuid4()
-        source = _make_node(source_id, 'Source', 'source',
-                           embedding=[0.9, 0.0, 0.0])
-        similar = _make_node(similar_id, 'Similar', 'similar',
-                            embedding=[0.85, 0.0, 0.0])
+        source = _make_node(source_id, 'Source', 'source', embedding=[0.9, 0.0, 0.0])
+        similar = _make_node(similar_id, 'Similar', 'similar', embedding=[0.85, 0.0, 0.0])
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
             side_effect=lambda nid: {source_id: source, similar_id: similar}.get(nid)
         )
-        mock_uow.knowledge_nodes.find_published = AsyncMock(
-            return_value=[source, similar]
+        mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[source, similar])
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'outgoing': [],
+                'incoming': [],
+            }
         )
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            'outgoing': [], 'incoming': [],
-        })
 
         result = await similarity_service.find_similar(
-            source_id, include_semantic=True, include_graph=True,
+            source_id,
+            include_semantic=True,
+            include_graph=True,
         )
 
         assert len(result) >= 1
@@ -126,22 +137,21 @@ class TestFindSimilar:
         """Test composite score includes all signals."""
         source_id = uuid4()
         neighbor_id = uuid4()
-        source = _make_node(source_id, 'Source', 'source',
-                           embedding=[0.9, 0.0, 0.0])
-        neighbor = _make_node(neighbor_id, 'Neighbor', 'neighbor',
-                             node_type='concept',
-                             embedding=[0.85, 0.0, 0.0])
+        source = _make_node(source_id, 'Source', 'source', embedding=[0.9, 0.0, 0.0])
+        neighbor = _make_node(
+            neighbor_id, 'Neighbor', 'neighbor', node_type='concept', embedding=[0.85, 0.0, 0.0]
+        )
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
             side_effect=lambda nid: {source_id: source, neighbor_id: neighbor}.get(nid)
         )
-        mock_uow.knowledge_nodes.find_published = AsyncMock(
-            return_value=[source, neighbor]
+        mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[source, neighbor])
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'outgoing': [neighbor],
+                'incoming': [],
+            }
         )
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            'outgoing': [neighbor],
-            'incoming': [],
-        })
 
         result = await similarity_service.find_similar(source_id)
 
@@ -163,18 +173,18 @@ class TestEdgeCases:
     async def test_limit_respected(self, similarity_service, mock_uow):
         """Test limit restricts results."""
         source_id = uuid4()
-        neighbors = [
-            _make_node(uuid4(), f'Neighbor {i}', f'neighbor-{i}')
-            for i in range(10)
-        ]
+        neighbors = [_make_node(uuid4(), f'Neighbor {i}', f'neighbor-{i}') for i in range(10)]
         source = _make_node(source_id, 'Source', 'source')
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
             side_effect=lambda nid: {source_id: source, **{n.id: n for n in neighbors}}.get(nid)
         )
-        mock_uow.graph.load_all_neighbors = AsyncMock(return_value={
-            'outgoing': neighbors, 'incoming': [],
-        })
+        mock_uow.graph.load_all_neighbors = AsyncMock(
+            return_value={
+                'outgoing': neighbors,
+                'incoming': [],
+            }
+        )
 
         result = await similarity_service.find_similar(source_id, limit=3)
         assert len(result) <= 3

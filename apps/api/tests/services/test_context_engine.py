@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
 from app.services.ai.context_engine import ContextEngine
-from app.services.ai.semantic_search import SemanticSearchService
 
 
 @pytest.fixture
@@ -16,7 +15,7 @@ def mock_uow():
     uow = MagicMock()
     uow.session = MagicMock()
     uow.session.execute = AsyncMock()
-    
+
     # Mock repository methods
     node = MagicMock()
     node.id = uuid4()
@@ -26,15 +25,15 @@ def mock_uow():
     node.node_type.value = 'concept'
     node.difficulty = MagicMock()
     node.difficulty.value = 'beginner'
-    
+
     uow.knowledge_nodes = MagicMock()
     uow.knowledge_nodes.find_by_slug = AsyncMock(return_value=node)
-    
+
     uow.graph = MagicMock()
     uow.graph.load_prerequisites = AsyncMock(return_value=[])
     uow.graph.load_dependents = AsyncMock(return_value=[])
     uow.graph.load_all_neighbors = AsyncMock(return_value={'outgoing': [], 'incoming': []})
-    
+
     return uow
 
 
@@ -73,18 +72,27 @@ class TestContextEngine:
         """Progress intelligence is called for authenticated users."""
         engine = ContextEngine(mock_uow)
         user_id = uuid4()
-        
+
         with patch.multiple(
             engine._progress,
-            completion_forecast=AsyncMock(return_value={
-                'completion_percentage': 50.0, 'completed_nodes': 10, 'remaining_nodes': 10,
-            }),
-            weak_topics=AsyncMock(return_value=[
-                {'node': {'title': 'Loops'}, 'score': 0.3},
-            ]),
-            next_best_node=AsyncMock(return_value={
-                'node': {'title': 'Data Structures'}, 'score': 0.9,
-            }),
+            completion_forecast=AsyncMock(
+                return_value={
+                    'completion_percentage': 50.0,
+                    'completed_nodes': 10,
+                    'remaining_nodes': 10,
+                }
+            ),
+            weak_topics=AsyncMock(
+                return_value=[
+                    {'node': {'title': 'Loops'}, 'score': 0.3},
+                ]
+            ),
+            next_best_node=AsyncMock(
+                return_value={
+                    'node': {'title': 'Data Structures'},
+                    'score': 0.9,
+                }
+            ),
         ):
             context = await engine.build_context(user_id=user_id)
             up = context.get('user_progress', {})
@@ -96,36 +104,40 @@ class TestContextEngine:
         """Progress errors don't crash context building."""
         engine = ContextEngine(mock_uow)
         engine._progress.completion_forecast = AsyncMock(side_effect=Exception('DB error'))
-        
+
         context = await engine.build_context(user_id=uuid4())
         assert context.get('user_progress', {}) == {}
 
     async def test_build_context_with_ai_memory(self, mock_uow):
         """AI memories are included in context for authenticated users."""
         mock_uow.session.execute = AsyncMock(return_value=MagicMock())
-        mock_uow.session.execute.return_value.all = MagicMock(return_value=[
-            MagicMock(memory_type='weak_concept', key='loops', value='Loops'),
-            MagicMock(memory_type='career_goal', key='se', value='Software Engineer'),
-        ])
-        
+        mock_uow.session.execute.return_value.all = MagicMock(
+            return_value=[
+                MagicMock(memory_type='weak_concept', key='loops', value='Loops'),
+                MagicMock(memory_type='career_goal', key='se', value='Software Engineer'),
+            ]
+        )
+
         engine = ContextEngine(mock_uow)
         context = await engine.build_context(user_id=uuid4())
-        
+
         assert 'ai_memory' in context
         assert 'career' in context
 
     async def test_build_context_max_nodes_respected(self, mock_uow):
         """Max nodes parameter limits context size."""
         # Create many prerequisites
-        mock_nodes = [MagicMock(spec=['slug', 'title', 'node_type', 'difficulty']) for _ in range(20)]
+        mock_nodes = [
+            MagicMock(spec=['slug', 'title', 'node_type', 'difficulty']) for _ in range(20)
+        ]
         for n in mock_nodes:
             n.slug = 'node'
             n.title = 'Node'
             n.node_type.value = 'concept'
             n.difficulty.value = 'beginner'
-        
+
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=mock_nodes)
-        
+
         engine = ContextEngine(mock_uow)
         context = await engine.build_context(node_slug='python-basics', max_nodes=5)
         prereqs = context.get('knowledge_graph', {}).get('prerequisites', [])
@@ -136,5 +148,5 @@ class TestContextEngine:
         engine = ContextEngine(mock_uow)
         ctx1 = await engine.build_context(node_slug='python-basics')
         ctx2 = await engine.build_context(node_slug='python-basics')
-        
+
         assert ctx1 == ctx2

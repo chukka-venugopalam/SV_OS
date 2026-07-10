@@ -48,7 +48,9 @@ class AuditLogDetail(BaseModel):
         max_length=100,
         examples=['user.login', 'node.create', 'progress.update'],
     )
-    entity_type: str | None = Field(default=None, description='Type of entity affected', max_length=50)
+    entity_type: str | None = Field(
+        default=None, description='Type of entity affected', max_length=50
+    )
     entity_id: UUID | None = Field(default=None, description='UUID of the entity affected')
     user_id: UUID | None = Field(default=None, description='User who performed the action')
     username: str | None = Field(default=None, description='Username of the actor (if available)')
@@ -63,12 +65,20 @@ class AuditLogFilter(BaseModel):
     All fields are optional — filters are applied only when provided.
     """
 
-    action: str | None = Field(default=None, max_length=100, description='Filter by action identifier')
-    entity_type: str | None = Field(default=None, max_length=50, description='Filter by entity type')
+    action: str | None = Field(
+        default=None, max_length=100, description='Filter by action identifier'
+    )
+    entity_type: str | None = Field(
+        default=None, max_length=50, description='Filter by entity type'
+    )
     entity_id: UUID | None = Field(default=None, description='Filter by entity UUID')
     user_id: UUID | None = Field(default=None, description='Filter by user UUID')
-    start_date: datetime | None = Field(default=None, description='Include events after this timestamp')
-    end_date: datetime | None = Field(default=None, description='Include events before this timestamp')
+    start_date: datetime | None = Field(
+        default=None, description='Include events after this timestamp'
+    )
+    end_date: datetime | None = Field(
+        default=None, description='Include events before this timestamp'
+    )
 
 
 class AuditLogList(BaseModel):

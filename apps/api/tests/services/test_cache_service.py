@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-import pytest
-
 from app.services.ai.cache_service import CacheService
 
 
@@ -33,6 +31,7 @@ class TestCacheService:
         cache._enabled = True
         # Set with negative TTL to force immediate expiry
         import time
+
         cache._local_cache['expire_key'] = (time.monotonic() - 1, 'value')
         result = await cache.get('expire_key')
         assert result is None
@@ -111,6 +110,7 @@ class TestCacheService:
         cache._enabled = True
         # Fill beyond max with expired entries
         import time
+
         now = time.monotonic()
         for i in range(10500):
             cache._local_cache[f'key_{i}'] = (now - 1, i)  # expired

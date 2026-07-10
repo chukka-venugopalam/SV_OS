@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import httpx
 from structlog.stdlib import get_logger
@@ -64,8 +64,10 @@ class AnthropicChatProvider(LLMProvider):
         return LLMResponse(
             content=content,
             model=data.get('model', self._model),
-            usage={'input_tokens': usage.get('input_tokens', 0),
-                   'output_tokens': usage.get('output_tokens', 0)},
+            usage={
+                'input_tokens': usage.get('input_tokens', 0),
+                'output_tokens': usage.get('output_tokens', 0),
+            },
             finish_reason=data.get('stop_reason', 'stop'),
         )
 
@@ -88,26 +90,28 @@ class AnthropicChatProvider(LLMProvider):
         if system_msgs:
             payload['system'] = system_msgs[0].content
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            async with client.stream(
+        async with (
+            httpx.AsyncClient(timeout=120.0) as client,
+            client.stream(
                 'POST',
                 f'{API_BASE}/messages',
                 headers=self._headers(),
                 json=payload,
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if not line or not line.startswith('data: '):
-                        continue
-                    try:
-                        chunk = json.loads(line[6:])
-                        if chunk.get('type') == 'content_block_delta':
-                            delta = chunk.get('delta', {})
-                            token = delta.get('text', '')
-                            if token:
-                                yield token
-                    except (json.JSONDecodeError, KeyError):
-                        continue
+            ) as response,
+        ):
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                if not line or not line.startswith('data: '):
+                    continue
+                try:
+                    chunk = json.loads(line[6:])
+                    if chunk.get('type') == 'content_block_delta':
+                        delta = chunk.get('delta', {})
+                        token = delta.get('text', '')
+                        if token:
+                            yield token
+                except (json.JSONDecodeError, KeyError):
+                    continue
 
     async def validate_connection(self) -> bool:
         if not self._api_key:

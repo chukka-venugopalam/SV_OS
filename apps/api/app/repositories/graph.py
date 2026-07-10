@@ -10,13 +10,12 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import and_, func, or_, select, text
+from sqlalchemy import func, or_, select
 
 from app.models.knowledge_edge import KnowledgeEdge
 from app.models.knowledge_node import KnowledgeNode
 from app.repositories.base import BaseRepository
-from app.repositories.errors import RepositoryError
-from app.repositories.query_helpers import FilterCondition, PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class GraphRepository(BaseRepository[KnowledgeNode]):
@@ -131,7 +130,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
     async def load_dependencies(
         self,
         node_id: UUID,
-        max_depth: int = 1,
+        _max_depth: int = 1,
     ) -> list[dict[str, Any]]:
         """Load dependencies (outgoing edges) with edge metadata.
 
@@ -153,10 +152,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .order_by(KnowledgeEdge.relationship_type, KnowledgeNode.title)
         )
         result = await self.session.execute(stmt)
-        return [
-            {'edge': edge, 'node': node}
-            for edge, node in result.all()
-        ]
+        return [{'edge': edge, 'node': node} for edge, node in result.all()]
 
     # ── Edge Queries ───────────────────────────────────────────────
 
@@ -234,15 +230,12 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
         if not node_ids:
             return []
 
-        stmt = (
-            select(KnowledgeEdge)
-            .where(
-                or_(
-                    KnowledgeEdge.source_node_id.in_(node_ids),
-                    KnowledgeEdge.target_node_id.in_(node_ids),
-                ),
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(KnowledgeEdge).where(
+            or_(
+                KnowledgeEdge.source_node_id.in_(node_ids),
+                KnowledgeEdge.target_node_id.in_(node_ids),
+            ),
+            KnowledgeEdge.is_deleted == False,  # noqa: E712
         )
         if relationship_type:
             stmt = stmt.where(KnowledgeEdge.relationship_type == relationship_type)

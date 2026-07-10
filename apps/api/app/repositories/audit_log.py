@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 
 from app.models.audit_log import AuditLog
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import FilterCondition, PageResult, SortDirection
+from app.repositories.query_helpers import FilterCondition, PageResult
 
 
 class AuditLogRepository(BaseRepository[AuditLog]):
@@ -27,13 +27,13 @@ class AuditLogRepository(BaseRepository[AuditLog]):
     async def find_by_user(
         self,
         user_id: UUID,
-        page: int = 1,
-        per_page: int = 20,
+        _page: int = 1,
+        _per_page: int = 20,
     ) -> PageResult[AuditLog]:
         """Find audit log entries for a specific user."""
         return await self.paginate(
-            page=page,
-            per_page=per_page,
+            page=_page,
+            per_page=_per_page,
             filters={'user_id': user_id},
             sort_field='created_at',
             sort_direction='desc',
@@ -42,13 +42,13 @@ class AuditLogRepository(BaseRepository[AuditLog]):
     async def find_by_action(
         self,
         action: str,
-        page: int = 1,
-        per_page: int = 20,
+        _page: int = 1,
+        _per_page: int = 20,
     ) -> PageResult[AuditLog]:
         """Find audit log entries by action type."""
         return await self.paginate(
-            page=page,
-            per_page=per_page,
+            page=_page,
+            per_page=_per_page,
             filters={'action': action},
             sort_field='created_at',
             sort_direction='desc',
@@ -58,8 +58,8 @@ class AuditLogRepository(BaseRepository[AuditLog]):
         self,
         entity_type: str,
         entity_id: UUID,
-        page: int = 1,
-        per_page: int = 20,
+        _page: int = 1,
+        _per_page: int = 20,
     ) -> PageResult[AuditLog]:
         """Find audit log entries for a specific entity."""
         return await self.find_by(
@@ -98,7 +98,9 @@ class AuditLogRepository(BaseRepository[AuditLog]):
         if action:
             conditions.append(FilterCondition(field='action', value=action, operator='eq'))
         if entity_type:
-            conditions.append(FilterCondition(field='entity_type', value=entity_type, operator='eq'))
+            conditions.append(
+                FilterCondition(field='entity_type', value=entity_type, operator='eq')
+            )
 
         builder = self._query()
         if conditions:
@@ -136,8 +138,9 @@ class AuditLogRepository(BaseRepository[AuditLog]):
 
     async def count_recent_hours(self, hours: int = 24) -> int:
         """Count audit log entries created in the last N hours."""
-        from app.utils.date_utils import utc_now
         from datetime import timedelta
+
+        from app.utils.date_utils import utc_now
 
         since = utc_now() - timedelta(hours=hours)
         stmt = (

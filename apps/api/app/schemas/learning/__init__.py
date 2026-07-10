@@ -1,37 +1,37 @@
 """Learning resource, path, session, and progress DTOs."""
 
-from app.schemas.learning.resource import (
-    LearningResourceSummary,
-    LearningResourceDetail,
-    LearningResourceCreate,
-)
 from app.schemas.learning.path import (
-    LearningPathSummary,
     LearningPathDetail,
+    LearningPathSummary,
     PathNode,
+)
+from app.schemas.learning.progress import (
+    ProgressDetail,
+    ProgressStatistics,
+    ProgressUpdate,
+)
+from app.schemas.learning.resource import (
+    LearningResourceCreate,
+    LearningResourceDetail,
+    LearningResourceSummary,
 )
 from app.schemas.learning.session import (
     LearningSessionCreate,
     LearningSessionUpdate,
     SessionSummary,
 )
-from app.schemas.learning.progress import (
-    ProgressUpdate,
-    ProgressDetail,
-    ProgressStatistics,
-)
 
 __all__ = [
-    'LearningResourceSummary',
-    'LearningResourceDetail',
-    'LearningResourceCreate',
-    'LearningPathSummary',
     'LearningPathDetail',
-    'PathNode',
+    'LearningPathSummary',
+    'LearningResourceCreate',
+    'LearningResourceDetail',
+    'LearningResourceSummary',
     'LearningSessionCreate',
     'LearningSessionUpdate',
-    'SessionSummary',
-    'ProgressUpdate',
+    'PathNode',
     'ProgressDetail',
     'ProgressStatistics',
+    'ProgressUpdate',
+    'SessionSummary',
 ]

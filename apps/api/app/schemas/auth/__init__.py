@@ -12,12 +12,12 @@ from app.schemas.auth.auth import (
 )
 
 __all__ = [
-    'LoginRequest',
-    'SignupRequest',
-    'RefreshRequest',
-    'TokenResponse',
-    'LoginResponse',
     'ChangePasswordRequest',
     'ForgotPasswordRequest',
+    'LoginRequest',
+    'LoginResponse',
+    'RefreshRequest',
     'ResetPasswordRequest',
+    'SignupRequest',
+    'TokenResponse',
 ]

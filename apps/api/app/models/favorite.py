@@ -18,8 +18,8 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.knowledge_node import KnowledgeNode
+    from app.models.user import User
 
 
 class Favorite(AppBaseMixin, Base):
@@ -34,7 +34,8 @@ class Favorite(AppBaseMixin, Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'user_id', 'node_id',
+            'user_id',
+            'node_id',
             name='uq_favorite_user_node',
         ),
     )
@@ -42,7 +43,8 @@ class Favorite(AppBaseMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='User who favourited the node',
     )
     node_id: Mapped[UUID] = mapped_column(
@@ -54,14 +56,14 @@ class Favorite(AppBaseMixin, Base):
 
     # ── Relationships ──────────────────────────────────────────────
 
-    user: Mapped['User'] = relationship(
-        'User', back_populates='favorites',
+    user: Mapped[User] = relationship(
+        'User',
+        back_populates='favorites',
     )
-    node: Mapped['KnowledgeNode'] = relationship(
-        'KnowledgeNode', back_populates='favorites',
+    node: Mapped[KnowledgeNode] = relationship(
+        'KnowledgeNode',
+        back_populates='favorites',
     )
 
     def __repr__(self) -> str:
-        return (
-            f'<Favorite user={self.user_id!r} node={self.node_id!r}>'
-        )
+        return f'<Favorite user={self.user_id!r} node={self.node_id!r}>'

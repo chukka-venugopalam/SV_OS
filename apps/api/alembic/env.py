@@ -3,16 +3,14 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app.core.config import settings
-from app.core.database import Base
-
 # ── Import all domain models so they register on Base.metadata ────
 # This is required for Alembic autogenerate to detect model changes.
-from app.models import *  # noqa: F401, F403
+from alembic import context
+from app.core.config import settings
+from app.core.database import Base
 
 config = context.config
 config.set_main_option('sqlalchemy.url', settings.DATABASE_URL)

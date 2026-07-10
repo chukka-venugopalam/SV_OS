@@ -29,9 +29,15 @@ def search_service(mock_uow):
     return HybridSearchService(mock_uow)
 
 
-def _make_node(node_id=None, title='Test', slug='test',
-               description='A test node', node_type='concept',
-               difficulty='beginner', view_count=10):
+def _make_node(
+    node_id=None,
+    title='Test',
+    slug='test',
+    description='A test node',
+    node_type='concept',
+    difficulty='beginner',
+    view_count=10,
+):
     node = MagicMock()
     node.id = node_id or uuid4()
     node.title = title
@@ -166,9 +172,10 @@ class TestHybridSearch:
     @pytest.mark.asyncio
     async def test_search_pagination(self, search_service, mock_uow):
         """Test search paginates results."""
-        nodes = [_make_node(uuid4(), f'Node {i}', f'node-{i}',
-                           description='Python programming')
-                for i in range(5)]
+        nodes = [
+            _make_node(uuid4(), f'Node {i}', f'node-{i}', description='Python programming')
+            for i in range(5)
+        ]
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=nodes)
         mock_uow.graph.load_edges_for_nodes = AsyncMock(return_value=[])

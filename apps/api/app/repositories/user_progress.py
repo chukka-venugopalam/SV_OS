@@ -10,8 +10,7 @@ from sqlalchemy import func, select
 from app.models.enums import ProgressStatus
 from app.models.user_progress import UserProgress
 from app.repositories.base import BaseRepository
-from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult, SortDirection
+from app.repositories.query_helpers import PageResult
 
 
 class UserProgressRepository(BaseRepository[UserProgress]):
@@ -46,13 +45,10 @@ class UserProgressRepository(BaseRepository[UserProgress]):
         node_id: UUID,
     ) -> UserProgress | None:
         """Find the progress record for a specific user/node pair."""
-        stmt = (
-            select(UserProgress)
-            .where(
-                UserProgress.user_id == user_id,
-                UserProgress.node_id == node_id,
-                UserProgress.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(UserProgress).where(
+            UserProgress.user_id == user_id,
+            UserProgress.node_id == node_id,
+            UserProgress.is_deleted == False,  # noqa: E712
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -96,15 +92,20 @@ class UserProgressRepository(BaseRepository[UserProgress]):
                 # Auto-set timestamps based on status
                 if status == ProgressStatus.LEARNING.value and existing.started_at is None:
                     from app.utils.date_utils import utc_now
+
                     update_data['started_at'] = utc_now()
                 elif status == ProgressStatus.COMPLETED.value and existing.completed_at is None:
                     from app.utils.date_utils import utc_now
+
                     update_data['completed_at'] = utc_now()
                 elif status == ProgressStatus.MASTERED.value and existing.mastered_at is None:
                     from app.utils.date_utils import utc_now
+
                     update_data['mastered_at'] = utc_now()
             if time_spent_minutes is not None:
-                update_data['time_spent_minutes'] = (existing.time_spent_minutes or 0) + time_spent_minutes
+                update_data['time_spent_minutes'] = (
+                    existing.time_spent_minutes or 0
+                ) + time_spent_minutes
             if notes is not None:
                 update_data['notes'] = notes
 
@@ -155,12 +156,9 @@ class UserProgressRepository(BaseRepository[UserProgress]):
 
     async def total_time_for_user(self, user_id: UUID) -> int:
         """Sum total time spent across all progress records for a user."""
-        stmt = (
-            select(func.coalesce(func.sum(UserProgress.time_spent_minutes), 0))
-            .where(
-                UserProgress.user_id == user_id,
-                UserProgress.is_deleted == False,  # noqa: E712
-            )
+        stmt = select(func.coalesce(func.sum(UserProgress.time_spent_minutes), 0)).where(
+            UserProgress.user_id == user_id,
+            UserProgress.is_deleted == False,  # noqa: E712
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0

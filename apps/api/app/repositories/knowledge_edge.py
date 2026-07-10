@@ -5,12 +5,10 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import or_, select
 
 from app.models.knowledge_edge import KnowledgeEdge
-from app.models.enums import EdgeType
 from app.repositories.base import BaseRepository
-from app.repositories.errors import DuplicateEntityError
 from app.repositories.query_helpers import FilterCondition, PageResult
 
 
@@ -106,7 +104,9 @@ class KnowledgeEdgeRepository(BaseRepository[KnowledgeEdge]):
 
         conditions = [
             FilterCondition(
-                field='source_node_id', value=node_ids, operator='in',
+                field='source_node_id',
+                value=node_ids,
+                operator='in',
             ),
         ]
         if relationship_type:
@@ -149,6 +149,6 @@ class KnowledgeEdgeRepository(BaseRepository[KnowledgeEdge]):
 
         edges = await self.find_by(conditions=conditions)
         for edge in edges:
-            setattr(edge, 'is_deleted', True)
+            edge.is_deleted = True
         await self.session.flush()
         return len(edges)

@@ -6,6 +6,7 @@ using mocked UnitOfWork.
 
 from __future__ import annotations
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -43,7 +44,9 @@ class TestActivityFeed:
         mock_uow.session.execute = mock_execute
 
         result = await feed_service.get_feed(
-            user_id=uuid4(), page=1, per_page=20,
+            user_id=uuid4(),
+            page=1,
+            per_page=20,
         )
 
         assert result['items'] == []
@@ -62,7 +65,9 @@ class TestActivityFeed:
         mock_uow.session.execute = mock_execute
 
         result = await feed_service.get_feed(
-            user_id=uuid4(), page=2, per_page=10,
+            user_id=uuid4(),
+            page=2,
+            per_page=10,
         )
 
         assert result['page'] == 2
@@ -73,20 +78,20 @@ class TestActivityFeed:
     @pytest.mark.asyncio
     async def test_feed_with_activity_items(self, feed_service, mock_uow):
         """Test feed returns properly formatted activity items."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         mock_execute = AsyncMock()
         mock_count = MagicMock()
         mock_count.scalar.return_value = 1
 
         row = (
-            str(uuid4()),          # id
-            'progress_started',    # activity_type
-            'Python Basics',       # title
-            'Started learning',    # description
-            str(uuid4()),          # node_id
-            'python-basics',       # node_slug
-            datetime.now(timezone.utc),  # timestamp
+            str(uuid4()),  # id
+            'progress_started',  # activity_type
+            'Python Basics',  # title
+            'Started learning',  # description
+            str(uuid4()),  # node_id
+            'python-basics',  # node_slug
+            datetime.now(UTC),  # timestamp
             {'status': 'learning', 'time_spent': 0},  # metadata
         )
         mock_data = MagicMock()
@@ -95,7 +100,9 @@ class TestActivityFeed:
         mock_uow.session.execute = mock_execute
 
         result = await feed_service.get_feed(
-            user_id=uuid4(), page=1, per_page=20,
+            user_id=uuid4(),
+            page=1,
+            per_page=20,
         )
 
         assert len(result['items']) == 1
@@ -109,19 +116,43 @@ class TestActivityFeed:
     @pytest.mark.asyncio
     async def test_feed_returns_all_activity_types(self, feed_service, mock_uow):
         """Test feed handles various activity types."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         mock_execute = AsyncMock()
         mock_count = MagicMock()
         mock_count.scalar.return_value = 3
 
         rows = [
-            (str(uuid4()), 'node_completed', 'Node A', 'Completed learning',
-             str(uuid4()), 'node-a', datetime.now(timezone.utc), {}),
-            (str(uuid4()), 'bookmark_added', 'Node B', 'Bookmarked this topic',
-             str(uuid4()), 'node-b', datetime.now(timezone.utc), {}),
-            (str(uuid4()), 'progress_updated', 'Node C', 'Progress updated to learning',
-             str(uuid4()), 'node-c', datetime.now(timezone.utc), {}),
+            (
+                str(uuid4()),
+                'node_completed',
+                'Node A',
+                'Completed learning',
+                str(uuid4()),
+                'node-a',
+                datetime.now(UTC),
+                {},
+            ),
+            (
+                str(uuid4()),
+                'bookmark_added',
+                'Node B',
+                'Bookmarked this topic',
+                str(uuid4()),
+                'node-b',
+                datetime.now(UTC),
+                {},
+            ),
+            (
+                str(uuid4()),
+                'progress_updated',
+                'Node C',
+                'Progress updated to learning',
+                str(uuid4()),
+                'node-c',
+                datetime.now(UTC),
+                {},
+            ),
         ]
         mock_data = MagicMock()
         mock_data.all.return_value = rows

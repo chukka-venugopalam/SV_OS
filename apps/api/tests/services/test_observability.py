@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from uuid import uuid4
-
-import pytest
-
 from app.services.ai.observability import ObservabilityService
 
 
@@ -24,7 +20,7 @@ class TestObservabilityService:
         obs = ObservabilityService()
         op_id = obs.start_operation('openai', 'gpt-4o', 'chat')
         obs.end_operation(op_id, success=True, prompt_tokens=100, completion_tokens=50)
-        
+
         metrics = obs.get_metrics()
         assert metrics['total_operations'] == 1
         assert metrics['successful'] == 1
@@ -40,7 +36,7 @@ class TestObservabilityService:
 
         metrics = obs.get_metrics()
         assert metrics['estimated_cost_usd'] > 0
-        
+
         # OpenAI: 1000 * 0.0025/1000 + 500 * 0.010/1000 = 0.0025 + 0.005 = 0.0075
         assert round(metrics['estimated_cost_usd'], 4) == 0.0075
 
@@ -68,6 +64,7 @@ class TestObservabilityService:
     async def test_latency_tracking(self):
         """Latency is tracked in milliseconds."""
         import time
+
         obs = ObservabilityService()
         op_id = obs.start_operation('openai', 'gpt-4o', 'chat')
         time.sleep(0.01)
@@ -92,7 +89,7 @@ class TestObservabilityService:
     async def test_operation_log_pagination(self):
         """Operation log supports limit and offset."""
         obs = ObservabilityService()
-        for i in range(10):
+        for _i in range(10):
             op_id = obs.start_operation('openai', 'gpt-4o', 'chat')
             obs.end_operation(op_id, success=True)
 
@@ -112,10 +109,10 @@ class TestObservabilityService:
     async def test_by_operation_breakdown(self):
         """Metrics break down by operation type."""
         obs = ObservabilityService()
-        for i in range(3):
+        for _i in range(3):
             op_id = obs.start_operation('openai', 'gpt-4o', 'chat')
             obs.end_operation(op_id, success=True, prompt_tokens=100, completion_tokens=50)
-        
+
         op_id = obs.start_operation('anthropic', 'claude-3', 'tutor')
         obs.end_operation(op_id, success=True, prompt_tokens=200, completion_tokens=100)
 

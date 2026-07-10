@@ -11,10 +11,10 @@ Provides:
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import time
-from collections import defaultdict
 from typing import Any
 from uuid import UUID
 
@@ -25,7 +25,10 @@ logger = get_logger(__name__)
 # ── Prompt injection patterns ─────────────────────────────────────
 INJECTION_PATTERNS: list[re.Pattern] = [
     re.compile(r'ignore\s+(all\s+)?(previous|above|below|prior)\s+instructions', re.IGNORECASE),
-    re.compile(r'forget\s+(all\s+)?(previous|above|below)\s+(instructions|context|conversation)', re.IGNORECASE),
+    re.compile(
+        r'forget\s+(all\s+)?(previous|above|below)\s+(instructions|context|conversation)',
+        re.IGNORECASE,
+    ),
     re.compile(r'you\s+are\s+(now|not\s+required|free\s+to)', re.IGNORECASE),
     re.compile(r'role[- ]?play\s+as', re.IGNORECASE),
     re.compile(r'system\s*(prompt|message|instruction)', re.IGNORECASE),
@@ -120,15 +123,18 @@ class SecurityService:
 
         # Truncate if too long
         if len(content) > self._max_response_length:
-            content = content[:self._max_response_length] + '\n\n*[Truncated due to length]*'
+            content = content[: self._max_response_length] + '\n\n*[Truncated due to length]*'
 
         return content
 
     # ── Rate Limiting ──────────────────────────────────────────────
 
     def check_rate_limit(
-        self, user_id: UUID, endpoint: str,
-        max_requests: int = 30, window_seconds: int = 60,
+        self,
+        user_id: UUID,
+        endpoint: str,
+        max_requests: int = 30,
+        window_seconds: int = 60,
     ) -> tuple[bool, int]:
         """Check if user has exceeded rate limit.
 
@@ -180,7 +186,9 @@ class SecurityService:
         return len(text) // 4
 
     def enforce_token_limit(
-        self, messages: list[dict], max_tokens: int = 8000,
+        self,
+        messages: list[dict],
+        max_tokens: int = 8000,
     ) -> list[dict]:
         """Truncate message history to fit within token budget.
 
@@ -212,6 +220,7 @@ class SecurityService:
         # URL decoding
         try:
             from urllib.parse import unquote
+
             result = unquote(result)
         except Exception:
             pass
@@ -219,14 +228,13 @@ class SecurityService:
         if re.match(r'^[A-Za-z0-9+/=]+$', result) and len(result) > 20:
             try:
                 import base64
+
                 decoded = base64.b64decode(result).decode('utf-8', errors='ignore')
                 result = decoded
             except Exception:
                 pass
         # Hex encoding
         if re.match(r'^[0-9a-fA-F]+$', result) and len(result) > 20:
-            try:
+            with contextlib.suppress(Exception):
                 result = bytes.fromhex(result).decode('utf-8', errors='ignore')
-            except Exception:
-                pass
         return result

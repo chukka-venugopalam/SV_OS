@@ -8,17 +8,17 @@ contract used by the recommendation listing endpoints.
 """
 
 from app.schemas.recommendation.recommendation import (
-    RecommendationSummary,
     RecommendationDetail,
     RecommendationDismiss,
     RecommendationList,
+    RecommendationSummary,
     RecommendationTypeCount,
 )
 
 __all__ = [
-    'RecommendationSummary',
     'RecommendationDetail',
     'RecommendationDismiss',
     'RecommendationList',
+    'RecommendationSummary',
     'RecommendationTypeCount',
 ]

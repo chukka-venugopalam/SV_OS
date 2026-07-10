@@ -53,13 +53,13 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ['http://localhost:3000']
 
     # ── Rate Limiting ────────────────────────────────────────────────
-    API_RATE_LIMIT: int = 100          # requests per minute (authenticated)
-    API_RATE_LIMIT_ANON: int = 20      # requests per minute (anonymous)
-    GRAPH_RATE_LIMIT: int = 30         # requests per minute (graph endpoints)
+    API_RATE_LIMIT: int = 100  # requests per minute (authenticated)
+    API_RATE_LIMIT_ANON: int = 20  # requests per minute (anonymous)
+    GRAPH_RATE_LIMIT: int = 30  # requests per minute (graph endpoints)
 
     # ── Logging ──────────────────────────────────────────────────────
     LOG_LEVEL: str = 'INFO'
-    LOG_FORMAT: str = 'auto'           # 'json' | 'console' | 'auto'
+    LOG_FORMAT: str = 'auto'  # 'json' | 'console' | 'auto'
 
     # ── Caching ──────────────────────────────────────────────────────
     CACHE_TTL_SECONDS: int = 300
@@ -72,7 +72,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ''
 
     # ── Deployment ───────────────────────────────────────────────────
-    ROOT_PATH: str = ''                # e.g. '/api/v1' when behind a reverse proxy
+    ROOT_PATH: str = ''  # e.g. '/api/v1' when behind a reverse proxy
     FORWARDED_ALLOW_IPS: str = '127.0.0.1'
 
     # ── Validators ───────────────────────────────────────────────────
@@ -91,10 +91,7 @@ class Settings(BaseSettings):
     def validate_database_url(cls, v: str) -> str:
         """Ensure the database URL starts with the async scheme."""
         if not v.startswith('postgresql+asyncpg://'):
-            raise ValueError(
-                'DATABASE_URL must use the asyncpg driver '
-                '(postgresql+asyncpg://)'
-            )
+            raise ValueError('DATABASE_URL must use the asyncpg driver (postgresql+asyncpg://)')
         return v
 
     @field_validator('SECRET_KEY')
@@ -103,9 +100,7 @@ class Settings(BaseSettings):
         """Warn (but don't block) if the default secret key is used in production."""
         environment = info.data.get('ENVIRONMENT', 'development')
         if environment == 'production' and v == 'change-me-in-production':
-            raise ValueError(
-                'SECRET_KEY must be changed from the default in production'
-            )
+            raise ValueError('SECRET_KEY must be changed from the default in production')
         return v
 
     @field_validator('CORS_ORIGINS', mode='before')

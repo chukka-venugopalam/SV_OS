@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 
 import { NODE_TYPE_COLORS } from '@/components/graph';
-import { useGraphExplore, useGraphStats } from '@/hooks/use-graph';
+import { useGraphExplore } from '@/hooks/use-graph';
 import { useGraph } from '@/providers/graph-provider';
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,6 @@ export const dynamicParams = true;
 
 export default function GraphPage() {
   const { data: graphData, isLoading, isError, refetch } = useGraphExplore({ depth: 2 });
-  const { data: stats } = useGraphStats();
   const { selectedNodeId, setSelectedNodeId } = useGraph();
 
   const nodes = useMemo(() => graphData?.nodes ?? [], [graphData]);

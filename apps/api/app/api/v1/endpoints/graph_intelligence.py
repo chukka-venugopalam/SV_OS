@@ -12,14 +12,14 @@ Provides endpoints for:
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_optional_user_id, get_uow
 from app.repositories import UnitOfWork
-from app.repositories.errors import EntityNotFoundError
 from app.schemas.response import build_success_response
 from app.services.graph.analytics import GraphAnalyticsService
 from app.services.graph.traversal import GraphTraversalService
@@ -35,12 +35,12 @@ router = APIRouter()
 # ── Path Finding ───────────────────────────────────────────────────
 
 
-@router.get("/path")
+@router.get('/path')
 async def find_path(
-    source_id: UUID = Query(..., description="Source node ID"),
-    target_id: UUID = Query(..., description="Target node ID"),
-    max_depth: int = Query(10, ge=1, le=20, description="Maximum search depth"),
-    uow: UnitOfWork = Depends(get_uow),
+    source_id: Annotated[UUID, Query(..., description='Source node ID')],
+    target_id: Annotated[UUID, Query(..., description='Target node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    max_depth: Annotated[int, Query(ge=1, le=20, description='Maximum search depth')] = 10,
 ) -> dict:
     """Find the shortest learning path between two nodes using BFS."""
     service = GraphTraversalService(uow)
@@ -50,20 +50,20 @@ async def find_path(
         max_depth=max_depth,
     )
     return build_success_response(
-        data={"path": path, "found": len(path) > 0, "steps": len(path)},
-        message="Path search completed",
+        data={'path': path, 'found': len(path) > 0, 'steps': len(path)},
+        message='Path search completed',
     )
 
 
 # ── BFS / DFS Traversal ────────────────────────────────────────────
 
 
-@router.get("/traverse/bfs")
+@router.get('/traverse/bfs')
 async def bfs_traverse(
-    node_id: UUID = Query(..., description="Start node ID"),
-    max_depth: int = Query(5, ge=1, le=15, description="Maximum traversal depth"),
-    relationship_type: str | None = Query(None, description="Filter by edge type"),
-    uow: UnitOfWork = Depends(get_uow),
+    node_id: Annotated[UUID, Query(..., description='Start node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    max_depth: Annotated[int, Query(ge=1, le=15, description='Maximum traversal depth')] = 5,
+    relationship_type: Annotated[str | None, Query(description='Filter by edge type')] = None,
 ) -> dict:
     """Breadth-first traversal from a start node."""
     service = GraphTraversalService(uow)
@@ -73,17 +73,17 @@ async def bfs_traverse(
         relationship_type=relationship_type,
     )
     return build_success_response(
-        data={"traversal": result, "node_count": len(result)},
-        message="BFS traversal completed",
+        data={'traversal': result, 'node_count': len(result)},
+        message='BFS traversal completed',
     )
 
 
-@router.get("/traverse/dfs")
+@router.get('/traverse/dfs')
 async def dfs_traverse(
-    node_id: UUID = Query(..., description="Start node ID"),
-    max_depth: int = Query(10, ge=1, le=20, description="Maximum traversal depth"),
-    relationship_type: str | None = Query(None, description="Filter by edge type"),
-    uow: UnitOfWork = Depends(get_uow),
+    node_id: Annotated[UUID, Query(..., description='Start node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    max_depth: Annotated[int, Query(ge=1, le=20, description='Maximum traversal depth')] = 10,
+    relationship_type: Annotated[str | None, Query(description='Filter by edge type')] = None,
 ) -> dict:
     """Depth-first traversal from a start node."""
     service = GraphTraversalService(uow)
@@ -93,20 +93,20 @@ async def dfs_traverse(
         relationship_type=relationship_type,
     )
     return build_success_response(
-        data={"traversal": result, "node_count": len(result)},
-        message="DFS traversal completed",
+        data={'traversal': result, 'node_count': len(result)},
+        message='DFS traversal completed',
     )
 
 
 # ── Neighbors ───────────────────────────────────────────────────────
 
 
-@router.get("/neighbors")
+@router.get('/neighbors')
 async def get_neighbors(
-    node_id: UUID = Query(..., description="Node ID"),
-    depth: int = Query(1, ge=1, le=3, description="Neighborhood depth"),
-    relationship_type: str | None = Query(None, description="Filter by edge type"),
-    uow: UnitOfWork = Depends(get_uow),
+    node_id: Annotated[UUID, Query(..., description='Node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    depth: Annotated[int, Query(ge=1, le=3, description='Neighborhood depth')] = 1,
+    relationship_type: Annotated[str | None, Query(description='Filter by edge type')] = None,
 ) -> dict:
     """Get all neighbors of a node with edge type counts."""
     service = GraphTraversalService(uow)
@@ -117,19 +117,19 @@ async def get_neighbors(
     )
     return build_success_response(
         data=result,
-        message="Neighbors retrieved",
+        message='Neighbors retrieved',
     )
 
 
 # ── Subgraph Extraction ────────────────────────────────────────────
 
 
-@router.get("/subgraph")
+@router.get('/subgraph')
 async def extract_subgraph(
-    node_id: UUID = Query(..., description="Center node ID"),
-    depth: int = Query(2, ge=1, le=5, description="Subgraph depth"),
-    relationship_type: str | None = Query(None, description="Filter by edge type"),
-    uow: UnitOfWork = Depends(get_uow),
+    node_id: Annotated[UUID, Query(..., description='Center node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    depth: Annotated[int, Query(ge=1, le=5, description='Subgraph depth')] = 2,
+    relationship_type: Annotated[str | None, Query(description='Filter by edge type')] = None,
 ) -> dict:
     """Extract a subgraph around a center node for visualisation."""
     service = GraphTraversalService(uow)
@@ -140,18 +140,18 @@ async def extract_subgraph(
     )
     return build_success_response(
         data=result,
-        message="Subgraph extracted",
+        message='Subgraph extracted',
     )
 
 
 # ── Prerequisites ──────────────────────────────────────────────────
 
 
-@router.get("/prerequisites")
+@router.get('/prerequisites')
 async def get_prerequisite_chain(
-    node_id: UUID = Query(..., description="Node ID"),
-    max_depth: int = Query(5, ge=1, le=10, description="Maximum chain depth"),
-    uow: UnitOfWork = Depends(get_uow),
+    node_id: Annotated[UUID, Query(..., description='Node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    max_depth: Annotated[int, Query(ge=1, le=10, description='Maximum chain depth')] = 5,
 ) -> dict:
     """Get the full prerequisite chain organised by depth level."""
     service = GraphTraversalService(uow)
@@ -160,19 +160,19 @@ async def get_prerequisite_chain(
         max_depth=max_depth,
     )
     return build_success_response(
-        data={"levels": chain, "depth": len(chain)},
-        message="Prerequisite chain retrieved",
+        data={'levels': chain, 'depth': len(chain)},
+        message='Prerequisite chain retrieved',
     )
 
 
 # ── Dependents ─────────────────────────────────────────────────────
 
 
-@router.get("/dependents")
+@router.get('/dependents')
 async def get_dependent_chain(
-    node_id: UUID = Query(..., description="Node ID"),
-    max_depth: int = Query(5, ge=1, le=10, description="Maximum chain depth"),
-    uow: UnitOfWork = Depends(get_uow),
+    node_id: Annotated[UUID, Query(..., description='Node ID')],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    max_depth: Annotated[int, Query(ge=1, le=10, description='Maximum chain depth')] = 5,
 ) -> dict:
     """Get the chain of nodes that depend on this node."""
     service = GraphTraversalService(uow)
@@ -181,96 +181,96 @@ async def get_dependent_chain(
         max_depth=max_depth,
     )
     return build_success_response(
-        data={"levels": chain, "depth": len(chain)},
-        message="Dependent chain retrieved",
+        data={'levels': chain, 'depth': len(chain)},
+        message='Dependent chain retrieved',
     )
 
 
 # ── Analytics ──────────────────────────────────────────────────────
 
 
-@router.get("/analytics/centrality")
+@router.get('/analytics/centrality')
 async def get_central_nodes(
-    limit: int = Query(20, ge=1, le=100, description="Number of results"),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=100, description='Number of results')] = 20,
 ) -> dict:
     """Get the most central (connected) nodes in the graph."""
     service = GraphAnalyticsService(uow)
     result = await service.degree_centrality(limit=limit)
     return build_success_response(
-        data={"nodes": result, "count": len(result)},
-        message="Central nodes retrieved",
+        data={'nodes': result, 'count': len(result)},
+        message='Central nodes retrieved',
     )
 
 
-@router.get("/analytics/isolated")
+@router.get('/analytics/isolated')
 async def get_isolated_nodes(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get nodes with no edges (disconnected from the graph)."""
     service = GraphAnalyticsService(uow)
     result = await service.isolated_nodes()
     return build_success_response(
-        data={"nodes": result, "count": len(result)},
-        message="Isolated nodes retrieved",
+        data={'nodes': result, 'count': len(result)},
+        message='Isolated nodes retrieved',
     )
 
 
-@router.get("/analytics/bottlenecks")
+@router.get('/analytics/bottlenecks')
 async def get_prerequisite_bottlenecks(
-    limit: int = Query(20, ge=1, le=100, description="Number of results"),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=100, description='Number of results')] = 20,
 ) -> dict:
     """Get prerequisite bottlenecks — nodes with the most dependents."""
     service = GraphAnalyticsService(uow)
     result = await service.prerequisite_bottlenecks(limit=limit)
     return build_success_response(
-        data={"nodes": result, "count": len(result)},
-        message="Bottlenecks retrieved",
+        data={'nodes': result, 'count': len(result)},
+        message='Bottlenecks retrieved',
     )
 
 
-@router.get("/analytics/depth")
+@router.get('/analytics/depth')
 async def get_concept_depth(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get the depth distribution of concepts in the graph."""
     service = GraphAnalyticsService(uow)
     result = await service.concept_depth_distribution()
     return build_success_response(
         data=result,
-        message="Concept depth distribution retrieved",
+        message='Concept depth distribution retrieved',
     )
 
 
-@router.get("/analytics/density")
+@router.get('/analytics/density')
 async def get_graph_density(
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get graph density and branching factor metrics."""
     service = GraphAnalyticsService(uow)
     result = await service.graph_statistics()
     return build_success_response(
         data=result,
-        message="Graph statistics retrieved",
+        message='Graph statistics retrieved',
     )
 
 
 # ── Recommendations ────────────────────────────────────────────────
 
 
-@router.get("/recommendations")
+@router.get('/recommendations')
 async def get_recommendations(
-    limit: int = Query(20, ge=1, le=50, description="Number of recommendations"),
-    user_id: UUID | None = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    user_id: Annotated[UUID | None, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=50, description='Number of recommendations')] = 20,
 ) -> dict:
     """Get personalised recommendations for the current user."""
     if not user_id:
         # Return empty recommendations for anonymous users
         return build_success_response(
-            data={"items": [], "count": 0},
-            message="Login to get personalised recommendations",
+            data={'items': [], 'count': 0},
+            message='Login to get personalised recommendations',
         )
 
     engine = RecommendationEngine(uow)
@@ -280,22 +280,22 @@ async def get_recommendations(
         exclude_completed=True,
     )
     return build_success_response(
-        data={"items": recommendations, "count": len(recommendations)},
-        message="Recommendations retrieved",
+        data={'items': recommendations, 'count': len(recommendations)},
+        message='Recommendations retrieved',
     )
 
 
-@router.get("/recommendations/careers")
+@router.get('/recommendations/careers')
 async def get_career_recommendations(
-    limit: int = Query(5, ge=1, le=20, description="Number of recommendations"),
-    user_id: UUID = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    user_id: Annotated[UUID, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    limit: Annotated[int, Query(ge=1, le=20, description='Number of recommendations')] = 5,
 ) -> dict:
     """Get career recommendations based on completed nodes."""
     if not user_id:
         return build_success_response(
-            data={"items": [], "count": 0},
-            message="Login to get career recommendations",
+            data={'items': [], 'count': 0},
+            message='Login to get career recommendations',
         )
 
     engine = RecommendationEngine(uow)
@@ -304,21 +304,23 @@ async def get_career_recommendations(
         limit=limit,
     )
     return build_success_response(
-        data={"items": careers, "count": len(careers)},
-        message="Career recommendations retrieved",
+        data={'items': careers, 'count': len(careers)},
+        message='Career recommendations retrieved',
     )
 
 
 # ── Learning Path ──────────────────────────────────────────────────
 
 
-@router.get("/learning-path")
+@router.get('/learning-path')
 async def generate_learning_path(
-    goal_node_id: UUID = Query(..., description="Goal knowledge node ID"),
-    user_id: UUID | None = Depends(get_optional_user_id),
-    difficulty: str | None = Query(None, description="Preferred difficulty level"),
-    estimated_hours: int | None = Query(None, ge=1, le=1000, description="Time constraint"),
-    uow: UnitOfWork = Depends(get_uow),
+    goal_node_id: Annotated[UUID, Query(..., description='Goal knowledge node ID')],
+    user_id: Annotated[UUID | None, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    difficulty: Annotated[str | None, Query(description='Preferred difficulty level')] = None,
+    estimated_hours: Annotated[
+        int | None, Query(ge=1, le=1000, description='Time constraint')
+    ] = None,
 ) -> dict:
     """Generate a dynamic learning path toward a goal."""
     generator = LearningPathGenerator(uow)
@@ -330,23 +332,23 @@ async def generate_learning_path(
     )
     return build_success_response(
         data=path,
-        message="Learning path generated",
+        message='Learning path generated',
     )
 
 
 # ── Progress Analysis ──────────────────────────────────────────────
 
 
-@router.get("/progress-analysis")
+@router.get('/progress-analysis')
 async def get_progress_analysis(
-    user_id: UUID = Depends(get_optional_user_id),
-    uow: UnitOfWork = Depends(get_uow),
+    user_id: Annotated[UUID, Depends(get_optional_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get comprehensive progress analysis for the user."""
     if not user_id:
         return build_success_response(
-            data={"error": "Authentication required"},
-            message="Login to view progress analysis",
+            data={'error': 'Authentication required'},
+            message='Login to view progress analysis',
         )
 
     intelligence = ProgressIntelligence(uow)
@@ -360,15 +362,18 @@ async def get_progress_analysis(
     forecast_task = intelligence.completion_forecast(user_id)
 
     next_node, missing, weak, forecast = await asyncio.gather(
-        next_node_task, missing_task, weak_task, forecast_task,
+        next_node_task,
+        missing_task,
+        weak_task,
+        forecast_task,
     )
 
     return build_success_response(
         data={
-            "next_best_node": next_node,
-            "missing_prerequisites": missing,
-            "weak_topics": weak,
-            "completion_forecast": forecast,
+            'next_best_node': next_node,
+            'missing_prerequisites': missing,
+            'weak_topics': weak,
+            'completion_forecast': forecast,
         },
-        message="Progress analysis retrieved",
+        message='Progress analysis retrieved',
     )

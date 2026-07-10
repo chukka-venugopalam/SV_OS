@@ -14,7 +14,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-
 # ── Password Validation ───────────────────────────────────────────
 
 
@@ -35,13 +34,9 @@ def validate_password_strength(password: str) -> list[str]:
     errors: list[str] = []
 
     if len(password) < PASSWORD_MIN_LENGTH:
-        errors.append(
-            f'Password must be at least {PASSWORD_MIN_LENGTH} characters long'
-        )
+        errors.append(f'Password must be at least {PASSWORD_MIN_LENGTH} characters long')
     if len(password) > PASSWORD_MAX_LENGTH:
-        errors.append(
-            f'Password must not exceed {PASSWORD_MAX_LENGTH} characters'
-        )
+        errors.append(f'Password must not exceed {PASSWORD_MAX_LENGTH} characters')
     if not PASSWORD_PATTERN.match(password):
         errors.append(
             'Password must contain at least one uppercase letter, '
@@ -72,9 +67,7 @@ SECURITY_HEADERS: dict[str, str] = {
     'X-Frame-Options': 'DENY',
     'X-XSS-Protection': '0',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': (
-        'camera=(), microphone=(), geolocation=(), interest-cohort=()'
-    ),
+    'Permissions-Policy': ('camera=(), microphone=(), geolocation=(), interest-cohort=()'),
 }
 
 
@@ -88,13 +81,10 @@ def csp_directive(
     Default is a restrictive policy suitable for a JSON API.
     Pass ``report_only=True`` to generate the ``-Report-Only`` variant.
     """
-    return (
-        'Content-Security-Policy-Report-Only' if report_only
-        else 'Content-Security-Policy'
-    ), (
+    return ('Content-Security-Policy-Report-Only' if report_only else 'Content-Security-Policy'), (
         f"default-src 'self'; "
-        f"script-src {script_src}; "
-        f"style-src {style_src}; "
+        f'script-src {script_src}; '
+        f'style-src {style_src}; '
         f"img-src 'self' data:; "
         f"connect-src 'self'; "
         f"frame-ancestors 'none'; "

@@ -32,7 +32,7 @@ class GraphService:
     async def get_neighborhood(
         self,
         node_id: UUID,
-        depth: int = 1,
+        _depth: int = 1,
         relationship_type: str | None = None,
     ) -> dict:
         """Get the neighborhood around a node up to a given depth.
@@ -120,9 +120,9 @@ class GraphService:
             outgoing = await self._uow.graph.load_outgoing_edges(current_id)
             for edge in outgoing.items:
                 if edge and edge.target_node_id not in visited:
-                    new_path = path + [{'node_id': current_id, 'edge': edge}]
+                    new_path = [*path, {'node_id': current_id, 'edge': edge}]
                     if edge.target_node_id == target_id:
-                        return new_path + [{'node_id': target_id, 'edge': None}]
+                        return [*new_path, {'node_id': target_id, 'edge': None}]
                     visited.add(edge.target_node_id)
                     queue.append((edge.target_node_id, new_path))
 
@@ -134,7 +134,6 @@ class GraphService:
         """Get aggregate graph statistics."""
         # Count active nodes by type
         from sqlalchemy import func, select
-        from app.models.enums import NodeType
 
         stmt = (
             select(
@@ -142,15 +141,14 @@ class GraphService:
                 func.count().label('count'),
             )
             .where(
-                KnowledgeNode.is_deleted == False,
-                KnowledgeNode.is_published == True,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
             .group_by(KnowledgeNode.node_type)
         )
         result = await self._uow.session.execute(stmt)
         node_type_counts = {
-            row[0].value if hasattr(row[0], 'value') else row[0]: row[1]
-            for row in result.all()
+            row[0].value if hasattr(row[0], 'value') else row[0]: row[1] for row in result.all()
         }
 
         # Total edges

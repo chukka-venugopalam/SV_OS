@@ -6,8 +6,6 @@ No metrics are recorded yet.
 
 from __future__ import annotations
 
-from typing import Any
-
 
 class MetricsCollector:
     """Stub metrics collector — all methods are no-ops.

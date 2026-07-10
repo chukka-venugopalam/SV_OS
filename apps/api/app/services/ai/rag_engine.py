@@ -11,7 +11,6 @@ Pipeline:
 
 from __future__ import annotations
 
-import math
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -89,21 +88,25 @@ class RAGEngine:
             nid = r.get('node', {}).get('id', '')
             if nid and nid not in seen_ids:
                 seen_ids.add(nid)
-                merged.append({
-                    'node': r['node'],
-                    'similarity': r.get('similarity', 0),
-                    'source': 'semantic',
-                })
+                merged.append(
+                    {
+                        'node': r['node'],
+                        'similarity': r.get('similarity', 0),
+                        'source': 'semantic',
+                    }
+                )
 
         for r in hybrid_results.get('items', []):
             nid = r.get('node', {}).get('id', '')
             if nid and nid not in seen_ids:
                 seen_ids.add(nid)
-                merged.append({
-                    'node': r['node'],
-                    'similarity': r.get('score', 0),
-                    'source': 'hybrid',
-                })
+                merged.append(
+                    {
+                        'node': r['node'],
+                        'similarity': r.get('score', 0),
+                        'source': 'hybrid',
+                    }
+                )
 
         # Sort by similarity descending
         merged.sort(key=lambda x: x['similarity'], reverse=True)
@@ -118,20 +121,23 @@ class RAGEngine:
         results = []
         for item in merged:
             node = item.get('node', {})
-            results.append({
-                **item,
-                'citation': {
-                    'title': node.get('title', ''),
-                    'slug': node.get('slug', ''),
-                    'node_type': node.get('node_type', ''),
-                    'difficulty': node.get('difficulty', ''),
-                },
-            })
+            results.append(
+                {
+                    **item,
+                    'citation': {
+                        'title': node.get('title', ''),
+                        'slug': node.get('slug', ''),
+                        'node_type': node.get('node_type', ''),
+                        'difficulty': node.get('difficulty', ''),
+                    },
+                }
+            )
 
         return results
 
     async def _expand_with_graph(
-        self, results: list[dict],
+        self,
+        results: list[dict],
     ) -> list[dict]:
         """Expand results with prerequisite and dependent context."""
         expanded = []
@@ -150,14 +156,8 @@ class RAGEngine:
             prereqs = await self._uow.graph.load_prerequisites(node_id)
             dependents = await self._uow.graph.load_dependents(node_id)
 
-            item['prerequisites'] = [
-                {'title': n.title, 'slug': n.slug}
-                for n in prereqs[:3]
-            ]
-            item['dependents'] = [
-                {'title': n.title, 'slug': n.slug}
-                for n in dependents[:3]
-            ]
+            item['prerequisites'] = [{'title': n.title, 'slug': n.slug} for n in prereqs[:3]]
+            item['dependents'] = [{'title': n.title, 'slug': n.slug} for n in dependents[:3]]
             expanded.append(item)
 
         return expanded

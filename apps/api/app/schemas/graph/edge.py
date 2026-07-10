@@ -30,5 +30,9 @@ class GraphEdge(BaseModel):
         default=EdgeDirection.FORWARD,
         description='Directionality of the edge',
     )
-    description: str = Field(default='', description='Human-readable description of the relationship')
-    weight: float = Field(default=1.0, ge=0.0, le=1.0, description='Relationship strength for layout')
+    description: str = Field(
+        default='', description='Human-readable description of the relationship'
+    )
+    weight: float = Field(
+        default=1.0, ge=0.0, le=1.0, description='Relationship strength for layout'
+    )

@@ -24,9 +24,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     - ``X-RateLimit-Limit``, ``X-RateLimit-Remaining``, ``X-RateLimit-Reset`` headers
     """
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # TODO: Implement rate limiting in a future phase.
         # For now, pass through without modification.
         response: Response = await call_next(request)

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from structlog.stdlib import get_logger
 
@@ -18,10 +20,10 @@ router = APIRouter()
 
 @router.get('')
 async def list_careers(
-    page: int = Query(1, ge=1, description='Page number'),
-    per_page: int = Query(20, ge=1, le=100, description='Items per page'),
-    demand_level: str | None = Query(None, description='Filter by demand level'),
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
+    demand_level: Annotated[str | None, Query(description='Filter by demand level')] = None,
 ) -> dict:
     """List published careers with optional demand-level filter."""
     service = CareerService(uow)
@@ -45,15 +47,14 @@ async def list_careers(
 @router.get('/{slug}')
 async def get_career(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get a career by slug."""
     service = CareerService(uow)
     try:
         career = await service.get_by_slug(slug)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Career not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Career not found') from e
     return success_response(
         data=_career_to_dict(career),
         message='Career retrieved',
@@ -63,15 +64,14 @@ async def get_career(
 @router.get('/{slug}/roadmap')
 async def get_roadmap(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get a career's full roadmap with requirements."""
     service = CareerService(uow)
     try:
         roadmap = await service.get_roadmap(slug)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Career not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Career not found') from e
     return success_response(
         data={
             'career': _career_to_dict(roadmap['career']),
@@ -85,21 +85,22 @@ async def get_roadmap(
 @router.get('/{slug}/nodes')
 async def get_career_nodes(
     slug: str,
-    uow: UnitOfWork = Depends(get_uow),
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
 ) -> dict:
     """Get all knowledge nodes required for a career."""
     service = CareerService(uow)
     try:
         nodes = await service.get_nodes_for_career(slug)
-    except EntityNotFoundError:
-        raise HTTPException(status_code=404, detail='Career not found')
-
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=404, detail='Career not found') from e
     return success_response(
         data={
             'items': [
                 {
                     'node': _node_to_dict(item['node']),
-                    'requirement_type': item['requirement_type'].value if hasattr(item['requirement_type'], 'value') else item['requirement_type'],
+                    'requirement_type': item['requirement_type'].value
+                    if hasattr(item['requirement_type'], 'value')
+                    else item['requirement_type'],
                     'order_index': item['order_index'],
                 }
                 for item in nodes
@@ -116,7 +117,9 @@ def _career_to_dict(c) -> dict:
         'title': c.title,
         'description': c.description,
         'average_salary': c.average_salary,
-        'demand_level': c.demand_level.value if hasattr(c.demand_level, 'value') else c.demand_level,
+        'demand_level': c.demand_level.value
+        if hasattr(c.demand_level, 'value')
+        else c.demand_level,
         'required_experience': c.required_experience,
         'icon': c.icon,
         'color': c.color,
@@ -132,5 +135,7 @@ def _node_to_dict(node) -> dict:
         'title': node.title,
         'description': node.description,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else node.difficulty,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
     }

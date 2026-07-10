@@ -8,11 +8,12 @@ SkillRelationship describes how skills relate to each other
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, text
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -33,25 +34,33 @@ class Skill(AppBaseMixin, Base):
     __tablename__ = 'skills'
 
     name: Mapped[str] = mapped_column(
-        String(200), unique=True, nullable=False,
+        String(200),
+        unique=True,
+        nullable=False,
         comment='Unique skill name',
     )
-    description: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True,
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
         comment='Short description of the skill',
     )
-    category: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True,
+    category: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
         comment='Skill category (e.g. "Programming Language", "Soft Skill")',
     )
     difficulty: Mapped[Difficulty] = mapped_column(
-        pg_enum(Difficulty, "difficulty_enum"),
-        default=Difficulty.BEGINNER, server_default=text("'beginner'"),
+        pg_enum(Difficulty, 'difficulty_enum'),
+        default=Difficulty.BEGINNER,
+        server_default=text("'beginner'"),
         nullable=False,
         comment='Typical difficulty level',
     )
     extra_metadata: Mapped[dict] = mapped_column(
-        'metadata', JSONB, default=dict, server_default=text("'{}'::jsonb"),
+        'metadata',
+        JSONB,
+        default=dict,
+        server_default=text("'{}'::jsonb"),
         nullable=False,
         comment='Arbitrary metadata JSON blob',
     )
@@ -59,14 +68,14 @@ class Skill(AppBaseMixin, Base):
     # ── Relationships ──────────────────────────────────────────────
 
     # Outgoing skill relationships
-    outgoing_relationships: Mapped[list['SkillRelationship']] = relationship(
+    outgoing_relationships: Mapped[list[SkillRelationship]] = relationship(
         'SkillRelationship',
         foreign_keys='SkillRelationship.source_skill_id',
         back_populates='source_skill',
         cascade='all, delete-orphan',
     )
     # Incoming skill relationships
-    incoming_relationships: Mapped[list['SkillRelationship']] = relationship(
+    incoming_relationships: Mapped[list[SkillRelationship]] = relationship(
         'SkillRelationship',
         foreign_keys='SkillRelationship.target_skill_id',
         back_populates='target_skill',
@@ -88,7 +97,9 @@ class SkillRelationship(AppBaseMixin, Base):
 
     __table_args__ = (
         UniqueConstraint(
-            'source_skill_id', 'target_skill_id', 'relationship_type',
+            'source_skill_id',
+            'target_skill_id',
+            'relationship_type',
             name='uq_skill_rel_source_target_type',
         ),
     )
@@ -96,33 +107,35 @@ class SkillRelationship(AppBaseMixin, Base):
     source_skill_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('skills.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Source / prerequisite skill ID',
     )
     target_skill_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('skills.id', ondelete='CASCADE'),
-        nullable=False, index=True,
+        nullable=False,
+        index=True,
         comment='Target / dependent skill ID',
     )
     relationship_type: Mapped[SkillRelationshipType] = mapped_column(
-        pg_enum(SkillRelationshipType, "skill_relationship_type_enum"),
+        pg_enum(SkillRelationshipType, 'skill_relationship_type_enum'),
         nullable=False,
         comment='Semantic type of the skill relationship',
     )
-    weight: Mapped[Optional[float]] = mapped_column(
+    weight: Mapped[float | None] = mapped_column(
         nullable=True,
         comment='Optional strength / relevance weight',
     )
 
     # ── Relationships ──────────────────────────────────────────────
 
-    source_skill: Mapped['Skill'] = relationship(
+    source_skill: Mapped[Skill] = relationship(
         'Skill',
         foreign_keys=[source_skill_id],
         back_populates='outgoing_relationships',
     )
-    target_skill: Mapped['Skill'] = relationship(
+    target_skill: Mapped[Skill] = relationship(
         'Skill',
         foreign_keys=[target_skill_id],
         back_populates='incoming_relationships',

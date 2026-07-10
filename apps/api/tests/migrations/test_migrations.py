@@ -22,12 +22,12 @@ Run with:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 from sqlalchemy import inspect, text
 
-from app.core.database import Base, async_session_factory, engine
+from app.core.database import engine
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncConnection
@@ -37,10 +37,12 @@ if TYPE_CHECKING:
 # Fixtures
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture(scope='module')
 def event_loop():
     """Provide an event loop for the test module."""
     import asyncio
+
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
@@ -57,11 +59,12 @@ async def db_connection():
 # Extension Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestExtensions:
     """Verify PostgreSQL extensions are available."""
 
-    EXTENSIONS = [
+    EXTENSIONS: ClassVar[list[str]] = [
         'uuid-ossp',
         'pgcrypto',
         'pg_trgm',
@@ -89,15 +92,22 @@ class TestExtensions:
 # Enum Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestEnumTypes:
     """Verify all 13 enum types exist with correct values."""
 
-    ENUMS = {
+    ENUMS: ClassVar[dict[str, list[str]]] = {
         'node_type_enum': ['subject', 'concept', 'technology', 'tool', 'career', 'project'],
         'edge_type_enum': [
-            'prerequisite', 'depends_on', 'uses', 'enables',
-            'part_of', 'related_to', 'leads_to', 'requires',
+            'prerequisite',
+            'depends_on',
+            'uses',
+            'enables',
+            'part_of',
+            'related_to',
+            'leads_to',
+            'requires',
         ],
         'edge_direction_enum': ['forward', 'bidirectional', 'unidirectional'],
         'difficulty_enum': ['beginner', 'intermediate', 'advanced', 'expert'],
@@ -105,19 +115,32 @@ class TestEnumTypes:
         'demand_enum': ['declining', 'stable', 'growing', 'high_demand'],
         'user_role_enum': ['learner', 'admin'],
         'resource_type_enum': [
-            'video', 'article', 'course', 'book',
-            'documentation', 'tool', 'podcast', 'interactive',
+            'video',
+            'article',
+            'course',
+            'book',
+            'documentation',
+            'tool',
+            'podcast',
+            'interactive',
         ],
         'learning_status_enum': ['active', 'paused', 'completed', 'abandoned'],
         'visibility_enum': ['public', 'private', 'shared'],
         'recommendation_type_enum': [
-            'career_path', 'learning_path', 'skill_gap',
-            'related_content', 'popular', 'next_step',
+            'career_path',
+            'learning_path',
+            'skill_gap',
+            'related_content',
+            'popular',
+            'next_step',
         ],
         'requirement_type_enum': ['required', 'recommended', 'bonus'],
         'skill_relationship_type_enum': [
-            'prerequisite', 'builds_upon', 'complement',
-            'specialization', 'alternative',
+            'prerequisite',
+            'builds_upon',
+            'complement',
+            'specialization',
+            'alternative',
         ],
     }
 
@@ -150,8 +173,7 @@ class TestEnumTypes:
         )
         actual_values = result.scalar()
         assert actual_values == expected_values, (
-            f"Enum '{enum_name}' has values {actual_values}, "
-            f"expected {expected_values}"
+            f"Enum '{enum_name}' has values {actual_values}, expected {expected_values}"
         )
 
 
@@ -159,32 +181,33 @@ class TestEnumTypes:
 # Table Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestTables:
     """Verify all 20 tables exist with correct columns."""
 
     # Actual column counts verified from migration 0002_initial_schema
-    TABLES = {
-        'users': 14,               # id, email, username, display_name, avatar_url, bio, role, preferences, is_active, last_login_at, created_at, updated_at, is_deleted, version
-        'knowledge_nodes': 18,     # id, slug, title, description, content, node_type, difficulty, estimated_minutes, icon, color, metadata, search_vector, view_count, is_published, created_at, updated_at, is_deleted, version
-        'knowledge_edges': 12,     # id, source_node_id, target_node_id, relationship_type, direction, description, weight, metadata, created_at, updated_at, is_deleted, version
-        'careers': 15,             # id, slug, title, description, average_salary, demand_level, required_experience, icon, color, metadata, is_published, created_at, updated_at, is_deleted, version
-        'career_requirements': 9,  # id, career_id, node_id, requirement_type, order_index, created_at, updated_at, is_deleted, version
-        'projects': 15,            # id, slug, title, description, difficulty, estimated_hours, tech_stack, icon, color, metadata, is_published, created_at, updated_at, is_deleted, version
-        'project_requirements': 9, # id, project_id, node_id, requirement_type, order_index, created_at, updated_at, is_deleted, version
-        'learning_resources': 14,  # id, node_id, title, url, resource_type, platform, is_free, duration_minutes, difficulty, language, created_at, updated_at, is_deleted, version
-        'learning_paths': 14,      # id, title, description, difficulty, estimated_hours, icon, color, metadata, node_order, is_published, created_at, updated_at, is_deleted, version
-        'learning_sessions': 12,   # id, user_id, node_id, status, started_at, ended_at, duration_minutes, notes, created_at, updated_at, is_deleted, version
-        'skills': 10,              # id, name, description, category, difficulty, metadata, created_at, updated_at, is_deleted, version
-        'skill_relationships': 9,  # id, source_skill_id, target_skill_id, relationship_type, weight, created_at, updated_at, is_deleted, version
-        'user_progress': 13,       # id, user_id, node_id, status, started_at, completed_at, mastered_at, time_spent_minutes, notes, created_at, updated_at, is_deleted, version
-        'bookmarks': 8,            # id, user_id, node_id, notes, created_at, updated_at, is_deleted, version
-        'favorites': 7,            # id, user_id, node_id, created_at, updated_at, is_deleted, version
-        'search_history': 9,       # id, user_id, query, filters, results_count, created_at, updated_at, is_deleted, version
-        'activity_logs': 11,       # id, user_id, action, entity_type, entity_id, metadata, ip_address, created_at, updated_at, is_deleted, version
-        'recommendations': 12,     # id, user_id, node_id, recommendation_type, score, reason, metadata, is_dismissed, created_at, updated_at, is_deleted, version
-        'tags': 7,                 # id, name, description, created_at, updated_at, is_deleted, version
-        'node_tags': 7,            # id, node_id, tag_id, created_at, updated_at, is_deleted, version
+    TABLES: ClassVar[dict[str, int]] = {
+        'users': 14,
+        'knowledge_nodes': 18,
+        'knowledge_edges': 12,
+        'careers': 15,
+        'career_requirements': 9,
+        'projects': 15,
+        'project_requirements': 9,
+        'learning_resources': 14,
+        'learning_paths': 14,
+        'learning_sessions': 12,
+        'skills': 10,
+        'skill_relationships': 9,
+        'user_progress': 13,
+        'bookmarks': 8,
+        'favorites': 7,
+        'search_history': 9,
+        'activity_logs': 11,
+        'recommendations': 12,
+        'tags': 7,
+        'node_tags': 7,
     }
 
     @pytest.mark.parametrize('table_name', TABLES.keys())
@@ -199,11 +222,12 @@ class TestTables:
 # Constraint Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestConstraints:
     """Verify foreign key, unique, and check constraints."""
 
-    FOREIGN_KEYS = {
+    FOREIGN_KEYS: ClassVar[dict[str, list[tuple[str, str, str]]]] = {
         'knowledge_edges': [
             ('source_node_id', 'knowledge_nodes', 'CASCADE'),
             ('target_node_id', 'knowledge_nodes', 'CASCADE'),
@@ -275,11 +299,10 @@ class TestConstraints:
         )
         rows = result.fetchall()
         assert len(rows) == len(expected_fks), (
-            f"Expected {len(expected_fks)} foreign keys on '{table_name}', "
-            f"found {len(rows)}"
+            f"Expected {len(expected_fks)} foreign keys on '{table_name}', found {len(rows)}"
         )
 
-    UNIQUE_CONSTRAINTS = {
+    UNIQUE_CONSTRAINTS: ClassVar[dict[str, list[str]]] = {
         'users': ['uq_users_email', 'uq_users_username'],
         'knowledge_nodes': ['uq_knowledge_nodes_slug'],
         'knowledge_edges': ['uq_knowledge_edges_source_target_type'],
@@ -318,11 +341,12 @@ class TestConstraints:
 # Trigger Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestTriggers:
     """Verify database triggers are correctly installed."""
 
-    EXPECTED_TRIGGERS = {
+    EXPECTED_TRIGGERS: ClassVar[dict[str, str | None]] = {
         'update_search_vector': 'knowledge_nodes',
         'update_updated_at_column': None,  # Function
         'trigger_users_updated_at': 'users',
@@ -343,7 +367,7 @@ class TestTriggers:
                 )
             """)
         )
-        assert result.scalar() is True, "Search vector trigger not found"
+        assert result.scalar() is True, 'Search vector trigger not found'
 
     async def test_update_functions_exist(self, db_connection: AsyncConnection):
         """Both trigger functions should exist."""
@@ -364,11 +388,12 @@ class TestTriggers:
 # View Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestViews:
     """Verify database views are correctly created."""
 
-    EXPECTED_VIEWS = ['v_node_statistics', 'v_user_progress_summary']
+    EXPECTED_VIEWS: ClassVar[list[str]] = ['v_node_statistics', 'v_user_progress_summary']
 
     @pytest.mark.parametrize('view_name', EXPECTED_VIEWS)
     async def test_view_exists(self, db_connection: AsyncConnection, view_name: str):
@@ -390,6 +415,7 @@ class TestViews:
 # Migration Round-Trip Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 class TestMigrationRoundTrip:
     """Verify Alembic migrations are fully reversible.
@@ -402,30 +428,33 @@ class TestMigrationRoundTrip:
     async def test_upgrade_succeeds(self):
         """Running alembic upgrade head should succeed."""
         from alembic.config import Config
+
         from alembic import command
 
         alembic_cfg = Config('alembic.ini')
         try:
             command.upgrade(alembic_cfg, 'head')
         except Exception as e:
-            pytest.fail(f"Alembic upgrade failed: {e}")
+            pytest.fail(f'Alembic upgrade failed: {e}')
 
     @pytest.mark.slow
     async def test_downgrade_succeeds(self):
         """Running alembic downgrade to base should succeed."""
         from alembic.config import Config
+
         from alembic import command
 
         alembic_cfg = Config('alembic.ini')
         try:
             command.downgrade(alembic_cfg, 'base')
         except Exception as e:
-            pytest.fail(f"Alembic downgrade failed: {e}")
+            pytest.fail(f'Alembic downgrade failed: {e}')
 
     @pytest.mark.slow
     async def test_full_round_trip(self):
         """Full upgrade then downgrade should succeed."""
         from alembic.config import Config
+
         from alembic import command
 
         alembic_cfg = Config('alembic.ini')
@@ -435,4 +464,4 @@ class TestMigrationRoundTrip:
             command.downgrade(alembic_cfg, 'base')
             command.upgrade(alembic_cfg, 'head')
         except Exception as e:
-            pytest.fail(f"Alembic round-trip failed: {e}")
+            pytest.fail(f'Alembic round-trip failed: {e}')

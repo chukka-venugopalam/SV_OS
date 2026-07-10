@@ -52,7 +52,7 @@ class ContextEngine:
         node_slug: str | None = None,
         include_progress: bool = True,
         include_recommendations: bool = True,
-        include_graph: bool = True,
+        _include_graph: bool = True,
         max_nodes: int = MAX_CONTEXT_NODES,
     ) -> dict:
         """Build comprehensive context for AI prompt injection.
@@ -107,7 +107,9 @@ class ContextEngine:
                     'completed_nodes': forecast.get('completed_nodes', 0),
                     'remaining_nodes': forecast.get('remaining_nodes', 0),
                     'weak_topics': [w.get('node', {}).get('title', '') for w in weak[:3]],
-                    'next_recommended_node': next_node.get('node', {}).get('title') if next_node else None,
+                    'next_recommended_node': next_node.get('node', {}).get('title')
+                    if next_node
+                    else None,
                 }
             except Exception as exc:
                 logger.warning('context_progress_error', error=str(exc))
@@ -117,7 +119,11 @@ class ContextEngine:
             try:
                 feed = await self._activity.get_feed(user_id, page=1, per_page=5)
                 context['activity'] = [
-                    {'type': a['activity_type'], 'title': a['title'], 'description': a['description']}
+                    {
+                        'type': a['activity_type'],
+                        'title': a['title'],
+                        'description': a['description'],
+                    }
                     for a in feed.get('items', [])[:5]
                 ]
             except Exception as exc:
@@ -127,11 +133,16 @@ class ContextEngine:
         if user_id and include_recommendations:
             try:
                 recs = await self._recommender.get_recommendations(
-                    user_id=user_id, limit=5, exclude_completed=True,
+                    user_id=user_id,
+                    limit=5,
+                    exclude_completed=True,
                 )
                 context['recommendations'] = [
-                    {'title': r.get('node', {}).get('title', ''), 'score': r.get('score', 0),
-                     'reasons': r.get('reasons', [])}
+                    {
+                        'title': r.get('node', {}).get('title', ''),
+                        'score': r.get('score', 0),
+                        'reasons': r.get('reasons', []),
+                    }
                     for r in recs[:5]
                 ]
             except Exception as exc:
@@ -140,11 +151,13 @@ class ContextEngine:
         # 5. AI Memory
         if user_id:
             try:
-                from app.models.ai_memory import AIMemory
                 from sqlalchemy import select
+
+                from app.models.ai_memory import AIMemory
+
                 stmt = (
                     select(AIMemory.memory_type, AIMemory.key, AIMemory.value)
-                    .where(AIMemory.user_id == user_id, AIMemory.is_deleted == False)
+                    .where(AIMemory.user_id == user_id, not AIMemory.is_deleted)
                     .order_by(AIMemory.confidence.desc())
                     .limit(10)
                 )
@@ -158,15 +171,14 @@ class ContextEngine:
         # 6. Career goals
         if user_id:
             try:
-                from app.models.ai_memory import AIMemory
                 from sqlalchemy import select
-                stmt = (
-                    select(AIMemory.value)
-                    .where(
-                        AIMemory.user_id == user_id,
-                        AIMemory.memory_type == 'career_goal',
-                        AIMemory.is_deleted == False,
-                    )
+
+                from app.models.ai_memory import AIMemory
+
+                stmt = select(AIMemory.value).where(
+                    AIMemory.user_id == user_id,
+                    AIMemory.memory_type == 'career_goal',
+                    not AIMemory.is_deleted,
                 )
                 rows = (await self._uow.session.execute(stmt)).all()
                 context['career'] = [r.value for r in rows] if rows else []
@@ -176,12 +188,17 @@ class ContextEngine:
         return context
 
     async def build_node_context(
-        self, node_slug: str, max_depth: int = 2,
+        self,
+        node_slug: str,
+        _max_depth: int = 2,
     ) -> dict:
         """Build focused context around a specific knowledge node."""
         context = await self.build_context(
-            user_id=None, node_slug=node_slug,
-            include_progress=False, include_recommendations=False, include_graph=True,
+            user_id=None,
+            node_slug=node_slug,
+            include_progress=False,
+            include_recommendations=False,
+            _include_graph=True,
         )
         return context
 
@@ -190,6 +207,10 @@ def _node_summary(node) -> dict:
     return {
         'slug': node.slug,
         'title': node.title,
-        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else str(node.node_type),
-        'difficulty': node.difficulty.value if hasattr(node.difficulty, 'value') else str(node.difficulty),
+        'node_type': node.node_type.value
+        if hasattr(node.node_type, 'value')
+        else str(node.node_type),
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else str(node.difficulty),
     }

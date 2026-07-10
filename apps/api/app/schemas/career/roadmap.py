@@ -36,8 +36,12 @@ class RoadmapStep(BaseModel):
     # Roadmap-specific
     requirement_type: RequirementType = Field(description='How strongly this node is required')
     order_index: int = Field(ge=0, description='Display order within the roadmap')
-    is_completed: bool = Field(default=False, description='Whether the user has completed this step')
-    status: ProgressStatus = Field(default=ProgressStatus.NOT_STARTED, description='User progress status')
+    is_completed: bool = Field(
+        default=False, description='Whether the user has completed this step'
+    )
+    status: ProgressStatus = Field(
+        default=ProgressStatus.NOT_STARTED, description='User progress status'
+    )
 
 
 class CareerRoadmap(BaseModel):
@@ -51,7 +55,9 @@ class CareerRoadmap(BaseModel):
     career_title: str = Field(description='Career display title')
     total_steps: int = Field(ge=0, description='Total number of steps in the roadmap')
     completed_steps: int = Field(ge=0, description='Number of steps completed by the user')
-    estimated_total_minutes: int = Field(ge=0, description='Sum of estimated study time across all steps')
+    estimated_total_minutes: int = Field(
+        ge=0, description='Sum of estimated study time across all steps'
+    )
     steps: list[RoadmapStep] = Field(description='Ordered roadmap steps')
 
 
@@ -67,5 +73,9 @@ class CareerProgress(BaseModel):
     total_requirements: int = Field(ge=0, description='Total number of requirements')
     completed_requirements: int = Field(ge=0, description='Number of completed requirements')
     in_progress_requirements: int = Field(ge=0, description='Number of requirements in progress')
-    completion_percentage: float = Field(ge=0.0, le=100.0, description='Overall completion percentage')
-    last_activity_at: datetime | None = Field(default=None, description='Most recent progress update')
+    completion_percentage: float = Field(
+        ge=0.0, le=100.0, description='Overall completion percentage'
+    )
+    last_activity_at: datetime | None = Field(
+        default=None, description='Most recent progress update'
+    )

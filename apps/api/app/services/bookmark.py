@@ -7,7 +7,6 @@ from uuid import UUID
 from structlog.stdlib import get_logger
 
 from app.models.bookmark import Bookmark
-from app.models.knowledge_node import KnowledgeNode
 from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
 from app.repositories.query_helpers import PageResult

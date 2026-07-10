@@ -4,7 +4,6 @@ import { CommandPalette as CommandPaletteUI } from '@sv-os/ui';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 
-import { useDebounce } from '@/hooks/use-debounce';
 import { useSearchSuggestions, useTrendingSearches, useSearchHistory } from '@/hooks/use-search';
 import { ROUTES } from '@/lib/constants';
 import { useCommand } from '@/providers/command-provider';

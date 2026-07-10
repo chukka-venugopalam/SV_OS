@@ -98,12 +98,14 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         sorted_data = sorted(data['data'], key=lambda x: x['index'])
         results = []
         for item in sorted_data:
-            results.append(EmbeddingResult(
-                vector=item['embedding'],
-                model=self._model,
-                dimensions=len(item['embedding']),
-                tokens_used=per_item_tokens,
-            ))
+            results.append(
+                EmbeddingResult(
+                    vector=item['embedding'],
+                    model=self._model,
+                    dimensions=len(item['embedding']),
+                    tokens_used=per_item_tokens,
+                )
+            )
 
         return results
 

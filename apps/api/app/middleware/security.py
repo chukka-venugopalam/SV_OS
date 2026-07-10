@@ -36,9 +36,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         self.environment = environment
         self.csp_report_only = csp_report_only
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response: Response = await call_next(request)
 
         # Apply all standard security headers from shared constants

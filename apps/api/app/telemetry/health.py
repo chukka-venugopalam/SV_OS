@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, Coroutine
+from datetime import UTC, datetime
+from typing import Any
 
 
 @dataclass
@@ -62,7 +63,7 @@ class HealthChecker:
         """Format health results as a standard response dict."""
         return {
             'status': 'healthy' if all(r.healthy for r in results) else 'degraded',
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'timestamp': datetime.now(UTC).isoformat(),
             'checks': {
                 r.name: {
                     'healthy': r.healthy,

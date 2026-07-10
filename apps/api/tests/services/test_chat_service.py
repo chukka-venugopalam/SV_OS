@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -28,11 +28,13 @@ def mock_uow():
 def mock_provider():
     provider = MagicMock()
     provider.model_name = 'test-model'
-    provider.chat = AsyncMock(return_value=LLMResponse(
-        content='This is a test response.',
-        model='test-model',
-        usage={'total_tokens': 10, 'prompt_tokens': 5, 'completion_tokens': 5},
-    ))
+    provider.chat = AsyncMock(
+        return_value=LLMResponse(
+            content='This is a test response.',
+            model='test-model',
+            usage={'total_tokens': 10, 'prompt_tokens': 5, 'completion_tokens': 5},
+        )
+    )
     provider.chat_stream = AsyncMock()
     return provider
 
@@ -53,16 +55,26 @@ class TestChatService:
     """Test the core ChatService functionality with proper mocks."""
 
     @pytest.fixture(autouse=True)
-    def _patch_dependencies(self, mock_uow, mock_provider, mock_session):
+    def _patch_dependencies(self, mock_uow, mock_provider, mock_session):  # noqa: ARG002
         """Patch ALL external dependencies before each test."""
         patches = [
             patch.object(ChatService, '_create_provider', return_value=mock_provider),
-            patch.object(ChatService, '_get_preferences', AsyncMock(return_value={
-                'explanation_style': 'balanced', 'temperature': 0.7,
-                'max_tokens': 2048, 'auto_generate_titles': False,
-                'include_citations': True,
-            })),
-            patch.object(ChatService, '_get_or_create_session', AsyncMock(return_value=mock_session)),
+            patch.object(
+                ChatService,
+                '_get_preferences',
+                AsyncMock(
+                    return_value={
+                        'explanation_style': 'balanced',
+                        'temperature': 0.7,
+                        'max_tokens': 2048,
+                        'auto_generate_titles': False,
+                        'include_citations': True,
+                    }
+                ),
+            ),
+            patch.object(
+                ChatService, '_get_or_create_session', AsyncMock(return_value=mock_session)
+            ),
             patch.object(ChatService, '_create_session', AsyncMock(return_value=mock_session)),
         ]
         for p in patches:
@@ -76,10 +88,17 @@ class TestChatService:
         service = ChatService(mock_uow)
         service._provider = mock_provider
         service._context_engine = MagicMock()
-        service._context_engine.build_context = AsyncMock(return_value={
-            'knowledge_graph': {}, 'user_progress': {}, 'activity': [],
-            'recommendations': [], 'career': [], 'projects': [], 'ai_memory': [],
-        })
+        service._context_engine.build_context = AsyncMock(
+            return_value={
+                'knowledge_graph': {},
+                'user_progress': {},
+                'activity': [],
+                'recommendations': [],
+                'career': [],
+                'projects': [],
+                'ai_memory': [],
+            }
+        )
         service._rag = MagicMock()
         service._rag.search = AsyncMock(return_value=[])
         return service
@@ -101,7 +120,8 @@ class TestChatService:
         session_id = uuid4()
         user_id = uuid4()
         result = await service.chat(
-            user_id=user_id, message='Hello',
+            user_id=user_id,
+            message='Hello',
             session_id=session_id,
         )
         assert result['session_id'] is not None
@@ -109,9 +129,14 @@ class TestChatService:
     async def test_chat_with_citations(self, mock_uow, mock_provider):
         """Citations are returned when RAG finds results."""
         service = self._make_service(mock_uow, mock_provider)
-        service._rag.search = AsyncMock(return_value=[
-            {'node': {'title': 'Test Node', 'slug': 'test-node', 'node_type': 'concept'}, 'similarity': 0.95},
-        ])
+        service._rag.search = AsyncMock(
+            return_value=[
+                {
+                    'node': {'title': 'Test Node', 'slug': 'test-node', 'node_type': 'concept'},
+                    'similarity': 0.95,
+                },
+            ]
+        )
         user_id = uuid4()
         result = await service.chat(user_id=user_id, message='Hello')
         assert len(result.get('citations', [])) > 0
@@ -121,7 +146,7 @@ class TestChatService:
         """Chat stream yields token events."""
         service = self._make_service(mock_uow, mock_provider)
 
-        async def mock_stream(messages=None, temperature=0.7, max_tokens=2048):
+        async def mock_stream(_messages=None, _temperature=0.7, _max_tokens=2048):
             yield 'Hello'
             yield ' world'
 
@@ -141,12 +166,18 @@ class TestChatService:
         service = self._make_service(mock_uow, mock_provider)
         context = {
             'knowledge_graph': {
-                'current_node': {'title': 'Python Basics', 'difficulty': 'beginner', 'node_type': 'concept'},
+                'current_node': {
+                    'title': 'Python Basics',
+                    'difficulty': 'beginner',
+                    'node_type': 'concept',
+                },
                 'prerequisites': [{'title': 'Variables'}],
             },
             'user_progress': {
-                'completion_percentage': 45, 'completed_nodes': 10,
-                'remaining_nodes': 12, 'weak_topics': ['Loops'],
+                'completion_percentage': 45,
+                'completed_nodes': 10,
+                'remaining_nodes': 12,
+                'weak_topics': ['Loops'],
             },
             'career': ['Software Engineer'],
         }

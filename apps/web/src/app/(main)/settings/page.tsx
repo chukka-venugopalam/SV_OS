@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent } from '@sv-os/ui';
-import { User, Palette, Shield, Bell, ChevronRight } from 'lucide-react';
+import { User, Palette, Shield, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { PageHeader } from '@/components/shared/page-header';

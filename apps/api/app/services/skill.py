@@ -8,7 +8,7 @@ from structlog.stdlib import get_logger
 
 from app.models.skill import Skill
 from app.repositories import UnitOfWork
-from app.repositories.errors import EntityNotFoundError, DuplicateEntityError
+from app.repositories.errors import EntityNotFoundError
 from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)

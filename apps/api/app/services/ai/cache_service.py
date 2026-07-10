@@ -11,6 +11,7 @@ Provides:
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -45,6 +46,7 @@ class CacheService:
             return
         try:
             import redis.asyncio as aioredis
+
             self._redis = aioredis.from_url(
                 self._redis_url,
                 encoding='utf-8',
@@ -59,7 +61,7 @@ class CacheService:
 
     def _make_key(self, prefix: str, *parts: str) -> str:
         """Create a namespaced cache key."""
-        key_parts = [prefix] + list(parts)
+        key_parts = [prefix, *list(parts)]
         raw = ':'.join(key_parts)
         if len(raw) > 200:
             return f'{prefix}:{hashlib.sha256(raw.encode()).hexdigest()}'
@@ -93,7 +95,10 @@ class CacheService:
         return None
 
     async def set(
-        self, key: str, value: Any, ttl: int | None = None,
+        self,
+        key: str,
+        value: Any,
+        ttl: int | None = None,
     ) -> None:
         """Set a value in cache with TTL."""
         if not self._enabled:
@@ -119,10 +124,8 @@ class CacheService:
     async def delete(self, key: str) -> None:
         """Delete a key from cache."""
         if self._redis is not None:
-            try:
+            with contextlib.suppress(Exception):
                 await self._redis.delete(key)
-            except Exception:
-                pass
         self._local_cache.pop(key, None)
 
     async def delete_pattern(self, pattern: str) -> None:
@@ -132,7 +135,9 @@ class CacheService:
                 cursor = 0
                 while True:
                     cursor, keys = await self._redis.scan(
-                        cursor=cursor, match=pattern, count=100,
+                        cursor=cursor,
+                        match=pattern,
+                        count=100,
                     )
                     if keys:
                         await self._redis.delete(*keys)
@@ -143,8 +148,7 @@ class CacheService:
 
         # Clear matching local keys
         self._local_cache = {
-            k: v for k, v in self._local_cache.items()
-            if not k.startswith(pattern.rstrip('*'))
+            k: v for k, v in self._local_cache.items() if not k.startswith(pattern.rstrip('*'))
         }
 
     def _evict_stale(self) -> None:
@@ -173,7 +177,9 @@ class CacheService:
         await self.set(key, embedding, ttl=86400)  # 24h for embeddings
 
     async def get_search_results(
-        self, query: str, user_id: UUID | None = None,
+        self,
+        query: str,
+        user_id: UUID | None = None,
     ) -> list[dict] | None:
         """Get cached search results."""
         parts = ['search', hashlib.sha256(query.encode()).hexdigest()]
@@ -182,7 +188,9 @@ class CacheService:
         return await self.get(self._make_key(*parts))
 
     async def set_search_results(
-        self, query: str, results: list[dict],
+        self,
+        query: str,
+        results: list[dict],
         user_id: UUID | None = None,
     ) -> None:
         """Cache search results."""
@@ -192,21 +200,28 @@ class CacheService:
         await self.set(self._make_key(*parts), results, ttl=120)  # 2min for search
 
     async def get_ai_response(
-        self, session_id: UUID, message: str,
+        self,
+        session_id: UUID,
+        message: str,
     ) -> str | None:
         """Get cached AI response for exact message."""
         key = self._make_key(
-            'ai_response', str(session_id),
+            'ai_response',
+            str(session_id),
             hashlib.sha256(message.encode()).hexdigest(),
         )
         return await self.get(key)
 
     async def set_ai_response(
-        self, session_id: UUID, message: str, response: str,
+        self,
+        session_id: UUID,
+        message: str,
+        response: str,
     ) -> None:
         """Cache an AI response (short TTL)."""
         key = self._make_key(
-            'ai_response', str(session_id),
+            'ai_response',
+            str(session_id),
             hashlib.sha256(message.encode()).hexdigest(),
         )
         await self.set(key, response, ttl=60)  # 1min for responses

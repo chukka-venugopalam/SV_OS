@@ -21,9 +21,7 @@ class RequestTimingMiddleware(BaseHTTPMiddleware):
     - Structured log line at INFO level with duration info
     """
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         start_time: float = time.perf_counter()
 
         response: Response = await call_next(request)
