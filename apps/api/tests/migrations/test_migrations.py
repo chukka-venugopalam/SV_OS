@@ -432,8 +432,9 @@ class TestMigrationRoundTrip:
     @pytest.mark.slow
     def test_upgrade_succeeds(self):
         """Running alembic upgrade head should succeed."""
-        from alembic import command
         from alembic.config import Config
+
+        from alembic import command
 
         alembic_cfg = Config('alembic.ini')
         try:
@@ -444,8 +445,9 @@ class TestMigrationRoundTrip:
     @pytest.mark.slow
     def test_downgrade_succeeds(self):
         """Running alembic downgrade to base should succeed."""
-        from alembic import command
         from alembic.config import Config
+
+        from alembic import command
 
         alembic_cfg = Config('alembic.ini')
         try:
@@ -456,8 +458,9 @@ class TestMigrationRoundTrip:
     @pytest.mark.slow
     def test_full_round_trip(self):
         """Full upgrade then downgrade should succeed."""
-        from alembic import command
         from alembic.config import Config
+
+        from alembic import command
 
         alembic_cfg = Config('alembic.ini')
 

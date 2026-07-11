@@ -29,8 +29,9 @@ def _setup_database() -> None:
     event loop, so ``alembic.command.upgrade()`` can safely call
     ``asyncio.run()`` internally.
     """
-    from alembic import command
     from alembic.config import Config
+
+    from alembic import command
 
     alembic_cfg = Config('alembic.ini')
     command.upgrade(alembic_cfg, 'head')
