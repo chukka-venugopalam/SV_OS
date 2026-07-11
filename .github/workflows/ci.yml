@@ -84,4 +84,13 @@ jobs:
 
       - name: Backend Tests
         working-directory: apps/api
-        run: pip install pytest pytest-asyncio httpx && python -m pytest tests/ -v
+        run: pip install pytest pytest-asyncio httpx && python -m pytest tests/ -vv --tb=long -ra --maxfail=1 -s 2>&1 | tee pytest.log
+
+      - name: Upload pytest full log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-full-log
+          path: apps/api/pytest.log
+          retention-days: 7
+          if-no-files-found: warn
