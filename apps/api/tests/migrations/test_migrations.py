@@ -416,20 +416,24 @@ class TestViews:
 # ═══════════════════════════════════════════════════════════════════
 
 
-@pytest.mark.asyncio
 class TestMigrationRoundTrip:
     """Verify Alembic migrations are fully reversible.
 
     These tests require a test database that can be migrated.
     They are marked as 'slow' since they modify the database schema.
+
+    Note: These test methods are **synchronous** because
+    ``alembic.command.upgrade()`` and ``alembic.command.downgrade()``
+    internally call ``asyncio.run()`` in the async migration path,
+    which cannot be invoked from within a running event loop
+    (pytest-asyncio).
     """
 
     @pytest.mark.slow
-    async def test_upgrade_succeeds(self):
+    def test_upgrade_succeeds(self):
         """Running alembic upgrade head should succeed."""
-        from alembic.config import Config
-
         from alembic import command
+        from alembic.config import Config
 
         alembic_cfg = Config('alembic.ini')
         try:
@@ -438,11 +442,10 @@ class TestMigrationRoundTrip:
             pytest.fail(f'Alembic upgrade failed: {e}')
 
     @pytest.mark.slow
-    async def test_downgrade_succeeds(self):
+    def test_downgrade_succeeds(self):
         """Running alembic downgrade to base should succeed."""
-        from alembic.config import Config
-
         from alembic import command
+        from alembic.config import Config
 
         alembic_cfg = Config('alembic.ini')
         try:
@@ -451,11 +454,10 @@ class TestMigrationRoundTrip:
             pytest.fail(f'Alembic downgrade failed: {e}')
 
     @pytest.mark.slow
-    async def test_full_round_trip(self):
+    def test_full_round_trip(self):
         """Full upgrade then downgrade should succeed."""
-        from alembic.config import Config
-
         from alembic import command
+        from alembic.config import Config
 
         alembic_cfg = Config('alembic.ini')
 

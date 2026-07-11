@@ -17,6 +17,25 @@ from httpx import ASGITransport, AsyncClient
 from app.main import create_app
 
 
+@pytest.fixture(scope='session', autouse=True)
+def _setup_database() -> None:
+    """Ensure a fresh PostgreSQL schema before any tests run.
+
+    Runs ``alembic upgrade head`` once per test session to create
+    all tables, enums, extensions, triggers, and views defined by
+    the migration chain.
+
+    This fixture is synchronous and runs outside pytest-asyncio's
+    event loop, so ``alembic.command.upgrade()`` can safely call
+    ``asyncio.run()`` internally.
+    """
+    from alembic import command
+    from alembic.config import Config
+
+    alembic_cfg = Config('alembic.ini')
+    command.upgrade(alembic_cfg, 'head')
+
+
 @pytest.fixture(scope='session')
 def app() -> FastAPI:
     """Create a test application instance.
