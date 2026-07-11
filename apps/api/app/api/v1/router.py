@@ -178,6 +178,7 @@ from app.api.v1.endpoints import (  # noqa: E402
     graph,
     graph_intelligence,
     learning_paths,
+    nodes,
     progress,
     projects,
     recommendations,
@@ -195,6 +196,7 @@ router.include_router(favorites.router, prefix='/favorites', tags=['favorites'])
 router.include_router(graph.router, prefix='/graph', tags=['graph'])
 router.include_router(graph_intelligence.router, prefix='/graph', tags=['graph-intelligence'])
 router.include_router(learning_paths.router, prefix='/learning-paths', tags=['learning-paths'])
+router.include_router(nodes.router, prefix='/nodes', tags=['knowledge-nodes'])
 router.include_router(progress.router, prefix='/progress', tags=['progress'])
 router.include_router(projects.router, prefix='/projects', tags=['projects'])
 router.include_router(recommendations.router, prefix='/recommendations', tags=['recommendations'])
