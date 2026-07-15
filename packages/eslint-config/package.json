@@ -15,7 +15,6 @@
     "./react": "./react.js"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
     "@typescript-eslint/eslint-plugin": "^8.30.0",
     "@typescript-eslint/parser": "^8.30.0",
     "eslint": "^9.25.0",

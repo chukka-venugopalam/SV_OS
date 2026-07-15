@@ -4,7 +4,14 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 
 import { ErrorBoundary } from '@/components/shared/error-boundary';
 import { SkipNavigation } from '@/components/shared/skip-nav';
-import { AuthProvider, ThemeProvider, CommandProvider, ModalProvider, ToastProvider, GraphProvider } from '@/providers';
+import {
+  AuthProvider,
+  ThemeProvider,
+  CommandProvider,
+  ModalProvider,
+  ToastProvider,
+  GraphProvider,
+} from '@/providers';
 import { ReactQueryProvider } from '@/providers/react-query-provider';
 import './globals.css';
 
@@ -44,7 +51,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} min-h-screen bg-white font-sans text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-100`}
+      >
         <ThemeProvider>
           <ReactQueryProvider>
             <AuthProvider>

@@ -133,6 +133,31 @@
 }
 
 /* ============================================================================
+   CSS CUSTOM PROPERTIES (for shadcn/ui compatibility & runtime theming)
+   ============================================================================ */
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+  --ring: #4c6ef5;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #3f3f46;
+  --ring: #748ffc;
+}
+
+/* ============================================================================
    KEYFRAMES
    ============================================================================ */
 @keyframes fade-in {
@@ -273,7 +298,7 @@
   }
 
   .glass-card {
-    @apply glass rounded-xl shadow-sm transition-all duration-200 hover:shadow-md;
+    @apply rounded-xl border border-neutral-200/50 bg-white/80 shadow-sm backdrop-blur-xl transition-all duration-200 hover:shadow-md dark:border-neutral-700/50 dark:bg-neutral-900/80;
   }
 
   .glass-strong {

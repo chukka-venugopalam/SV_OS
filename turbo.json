@@ -15,7 +15,7 @@
     },
     "lint": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".eslintrc*"]
+      "inputs": ["$TURBO_DEFAULT$", "eslint.config.*"]
     },
     "typecheck": {
       "dependsOn": ["^build"],

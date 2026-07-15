@@ -1,8 +1,8 @@
-import reactConfig from '@sv-os/eslint-config/react';
+import baseConfig from '@sv-os/eslint-config/base';
 
 export default [
-  ...reactConfig,
+  ...baseConfig,
   {
-    ignores: ['node_modules/**', 'dist/**'],
+    ignores: ['dist/**', 'node_modules/**'],
   },
 ];
