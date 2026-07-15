@@ -27,6 +27,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from types import TracebackType
+from typing import cast
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,11 +36,11 @@ from app.repositories.bookmark import BookmarkRepository
 from app.repositories.career import CareerRepository
 from app.repositories.favorite import FavoriteRepository
 from app.repositories.graph import GraphRepository
-from app.repositories.password_reset import PasswordResetRepository
 from app.repositories.knowledge_edge import KnowledgeEdgeRepository
 from app.repositories.knowledge_node import KnowledgeNodeRepository
-from app.repositories.learning_path import LearningPathRepository
+from app.repositories.learning_path import LearningPathRepository, LearningSessionRepository
 from app.repositories.learning_resource import LearningResourceRepository
+from app.repositories.password_reset import PasswordResetRepository
 from app.repositories.project import ProjectRepository
 from app.repositories.recommendation import RecommendationRepository
 from app.repositories.search_history import SearchHistoryRepository
@@ -103,6 +104,10 @@ class UnitOfWork:
     @property
     def learning_paths(self) -> LearningPathRepository:
         return self._get_or_create('learning_paths', LearningPathRepository)
+
+    @property
+    def learning_sessions(self) -> LearningSessionRepository:
+        return self._get_or_create('learning_sessions', LearningSessionRepository)
 
     @property
     def learning_resources(self) -> LearningResourceRepository:
@@ -194,11 +199,11 @@ class UnitOfWork:
 
     # ── Internal ───────────────────────────────────────────────────
 
-    def _get_or_create(self, key: str, repo_cls: type) -> object:
+    def _get_or_create[T](self, key: str, repo_cls: type[T]) -> T:
         """Return a cached repository instance or create a new one."""
         if key not in self._repositories:
             self._repositories[key] = repo_cls(self._session)
-        return self._repositories[key]
+        return cast(T, self._repositories[key])
 
 
 @asynccontextmanager

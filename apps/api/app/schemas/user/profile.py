@@ -49,9 +49,7 @@ class UserSettings(BaseModel):
     font_size: str | None = Field(
         default=None, description='UI font size preference', examples=['sm', 'md', 'lg']
     )
-    reduced_motion: bool | None = Field(
-        default=None, description='Whether to minimize animations'
-    )
+    reduced_motion: bool | None = Field(default=None, description='Whether to minimize animations')
     language: str | None = Field(
         default=None, description='UI language preference', examples=['en', 'es', 'fr']
     )

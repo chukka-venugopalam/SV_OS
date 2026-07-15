@@ -18,16 +18,16 @@ from app.models.base import AppBaseMixin
 from app.models.enums import UserRole, pg_enum
 
 if TYPE_CHECKING:
-from app.models.ai_memory import AIMemory, AIPreference
-from app.models.audit_log import AuditLog
-from app.models.bookmark import Bookmark
-from app.models.chat_session import ChatSession
-from app.models.favorite import Favorite
-from app.models.learning_path import LearningSession
-from app.models.password_reset import PasswordResetToken
-from app.models.recommendation import Recommendation
-from app.models.search_history import SearchHistory
-from app.models.user_progress import UserProgress
+    from app.models.ai_memory import AIMemory, AIPreference
+    from app.models.audit_log import AuditLog
+    from app.models.bookmark import Bookmark
+    from app.models.chat_session import ChatSession
+    from app.models.favorite import Favorite
+    from app.models.learning_path import LearningSession
+    from app.models.password_reset import PasswordResetToken
+    from app.models.recommendation import Recommendation
+    from app.models.search_history import SearchHistory
+    from app.models.user_progress import UserProgress
 
 
 class User(AppBaseMixin, Base):

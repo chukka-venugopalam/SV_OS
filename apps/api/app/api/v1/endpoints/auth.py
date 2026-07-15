@@ -23,14 +23,16 @@ from app.repositories import UnitOfWork
 from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
 from app.schemas.auth.auth import (
     ChangePasswordRequest,
+    ForgotPasswordRequest,
     LoginRequest,
     LoginResponse,
     RefreshRequest,
+    ResetPasswordRequest,
     SignupRequest,
     TokenResponse,
 )
 from app.schemas.response import success_response
-from app.schemas.user.profile import ProfileUpdate, UserProfile
+from app.schemas.user.profile import ProfileUpdate, UserProfile, UserSettings
 from app.services.auth import AuthenticationError, AuthService
 from app.services.user import UserService
 

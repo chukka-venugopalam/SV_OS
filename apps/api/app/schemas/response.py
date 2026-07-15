@@ -15,7 +15,7 @@ duplicate definitions. ``PaginatedData`` is imported from
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TypeVar
+from typing import Any, TypeVar
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict
@@ -42,10 +42,10 @@ class APIResponse[T](BaseModel):
 
 
 def build_success_response[T](
-    data: T,
+    data: T | None = None,
     message: str = 'Success',
     request_id: str | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Build a standard success response dict (ready for JSON serialisation)."""
     return APIResponse(
         success=True,
@@ -61,7 +61,7 @@ def build_error_response(
     message: str = 'An error occurred',
     errors: list[ErrorDetail] | None = None,
     request_id: str | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Build a standard error response dict (ready for JSON serialisation)."""
     return APIResponse(
         success=False,

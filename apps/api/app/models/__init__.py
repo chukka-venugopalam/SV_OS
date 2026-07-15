@@ -33,10 +33,10 @@ from app.models.enums import (
 )
 from app.models.favorite import Favorite
 from app.models.knowledge_edge import KnowledgeEdge
-from app.models.password_reset import PasswordResetToken
 from app.models.knowledge_node import KnowledgeNode
 from app.models.learning_path import LearningPath, LearningSession
 from app.models.learning_resource import LearningResource
+from app.models.password_reset import PasswordResetToken
 from app.models.project import Project, ProjectRequirement
 from app.models.recommendation import Recommendation
 from app.models.search_history import SearchHistory

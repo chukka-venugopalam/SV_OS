@@ -31,7 +31,7 @@ async def list_learning_paths(
     result = await service.list_paths(
         page=page,
         per_page=per_page,
-        difficulty=difficulty,
+        _difficulty=difficulty,
     )
     return success_response(
         data={

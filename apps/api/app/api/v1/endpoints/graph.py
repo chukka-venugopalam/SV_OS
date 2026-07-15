@@ -26,9 +26,10 @@ async def get_full_graph(
 
     Returns everything in a format compatible with React Flow.
     """
-    from app.models.knowledge_node import KnowledgeNode
-    from app.models.knowledge_edge import KnowledgeEdge
     from sqlalchemy import select
+
+    from app.models.knowledge_edge import KnowledgeEdge
+    from app.models.knowledge_node import KnowledgeNode
 
     # Fetch all published nodes
     nodes_stmt = (

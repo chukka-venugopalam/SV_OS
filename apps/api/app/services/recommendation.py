@@ -10,6 +10,7 @@ that demonstrate the expected response shape.
 
 from __future__ import annotations
 
+from typing import Any
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -37,7 +38,7 @@ class RecommendationService:
         _recommendation_type: str | None = None,
         page: int = 1,
         per_page: int = 20,
-    ) -> PageResult:
+    ) -> PageResult[Any]:
         """Get recommendations for a user (stub — returns empty results)."""
         return await self._uow.recommendations.find_active_by_user(
             user_id=user_id,

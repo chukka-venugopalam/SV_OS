@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -30,7 +31,7 @@ class SearchService:
         page: int = 1,
         per_page: int = 20,
         user_id: UUID | None = None,
-    ) -> PageResult:
+    ) -> PageResult[Any]:
         """Full-text search across knowledge nodes with optional filters.
 
         If ``user_id`` is provided, records the search in the user's
@@ -75,7 +76,7 @@ class SearchService:
         user_id: UUID,
         page: int = 1,
         per_page: int = 20,
-    ) -> PageResult:
+    ) -> PageResult[Any]:
         """Get search history for a user."""
         return await self._uow.search_history.find_by_user(
             user_id=user_id,
@@ -90,6 +91,6 @@ class SearchService:
         """
         return await self._uow.search_history.clear_for_user(user_id)
 
-    async def get_trending(self, limit: int = 10) -> list[dict]:
+    async def get_trending(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get trending search queries across all users."""
         return await self._uow.search_history.find_trending(limit=limit)

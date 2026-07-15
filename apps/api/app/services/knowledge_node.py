@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from uuid import UUID
 
 from structlog.stdlib import get_logger
@@ -47,7 +48,7 @@ class KnowledgeNodeService:
         sort_dir: str = 'asc',
     ) -> PageResult[KnowledgeNode]:
         """List published nodes with optional filtering."""
-        filters = {'is_published': True}
+        filters: dict[str, Any] = {'is_published': True}
         if node_type:
             filters['node_type'] = node_type
         if difficulty:
@@ -146,7 +147,9 @@ class KnowledgeNodeService:
         """Get all neighboring nodes (incoming and outgoing)."""
         return await self._uow.graph.load_all_neighbors(node_id)
 
-    async def get_resources(self, node_id: UUID, page: int = 1, per_page: int = 20) -> PageResult:
+    async def get_resources(
+        self, node_id: UUID, page: int = 1, per_page: int = 20
+    ) -> PageResult[Any]:
         """Get learning resources for a node."""
         return await self._uow.learning_resources.find_by_node(
             node_id=node_id,
