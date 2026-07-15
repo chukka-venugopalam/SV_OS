@@ -256,6 +256,122 @@ async def change_password(
 # ── Logout ─────────────────────────────────────────────────────────
 
 
+# ── Forgot Password ────────────────────────────────────────────
+
+
+@router.post('/forgot-password')
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+) -> dict:
+    """Request a password reset.
+
+    Generates a single-use reset token and returns it (in development)
+    or sends it via email (in production).
+    """
+    auth_service = AuthService(uow)
+
+    try:
+        token = await auth_service.forgot_password(email=body.email)
+    except EntityNotFoundError:
+        # Don't reveal whether the email exists
+        return success_response(
+            message='If the email is registered, you will receive a reset link',
+        )
+
+    return success_response(
+        data={'reset_token': token},
+        message='Password reset token generated',
+    )
+
+
+# ── Reset Password ──────────────────────────────────────────────
+
+
+@router.post('/reset-password')
+async def reset_password(
+    body: ResetPasswordRequest,
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+) -> dict:
+    """Reset a password using a valid reset token."""
+    auth_service = AuthService(uow)
+
+    try:
+        await auth_service.reset_password(
+            token=body.token,
+            new_password=body.new_password,
+        )
+    except AuthenticationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=exc.message,
+        ) from exc
+    except EntityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Invalid or expired reset token',
+        ) from exc
+
+    return success_response(message='Password reset successfully')
+
+
+# ── Preferences ────────────────────────────────────────────────
+
+
+@router.get('/me/preferences')
+async def get_preferences(
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+) -> dict:
+    """Get the authenticated user's preferences."""
+    user_service = UserService(uow)
+    try:
+        user = await user_service.get_profile(current_user_id)
+    except EntityNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found',
+        ) from e
+
+    return success_response(
+        data=user.preferences or {},
+        message='Preferences retrieved',
+    )
+
+
+@router.put('/me/preferences')
+async def update_preferences(
+    body: UserSettings,
+    current_user_id: Annotated[UUID, Depends(get_current_user_id)],
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+) -> dict:
+    """Update the authenticated user's preferences (partial merge).
+
+    Accepts a partial UserSettings object.  Merges with existing
+    preferences rather than replacing them.
+    """
+    user_service = UserService(uow)
+    try:
+        user = await user_service.get_profile(current_user_id)
+    except EntityNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found',
+        ) from e
+
+    # Merge new preferences into existing ones
+    merged = {**(user.preferences or {}), **body.model_dump(exclude_none=True)}
+    updated = await user_service.update_profile(
+        user_id=current_user_id,
+        preferences=merged,
+    )
+
+    return success_response(
+        data=updated.preferences or {},
+        message='Preferences updated',
+    )
+
+
 @router.post('/logout')
 async def logout() -> dict:
     """Log out the current user.

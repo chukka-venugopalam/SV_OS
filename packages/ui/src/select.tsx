@@ -6,7 +6,6 @@ import * as React from 'react';
 
 import { cn } from './cn';
 
-
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
 export const SelectValue = SelectPrimitive.Value;

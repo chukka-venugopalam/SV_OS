@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Avatar,
-  Skeleton,
-} from '@sv-os/ui';
+import { Card, CardContent, Button, Input, Label, Textarea, Avatar, Skeleton } from '@sv-os/ui';
 import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';

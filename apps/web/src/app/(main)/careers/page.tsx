@@ -15,14 +15,7 @@ import {
   EmptyState,
   Pagination,
 } from '@sv-os/ui';
-import {
-  Briefcase,
-  Search,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  ArrowRight,
-} from 'lucide-react';
+import { Briefcase, Search, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useState, memo } from 'react';
 

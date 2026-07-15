@@ -35,6 +35,7 @@ from app.repositories.bookmark import BookmarkRepository
 from app.repositories.career import CareerRepository
 from app.repositories.favorite import FavoriteRepository
 from app.repositories.graph import GraphRepository
+from app.repositories.password_reset import PasswordResetRepository
 from app.repositories.knowledge_edge import KnowledgeEdgeRepository
 from app.repositories.knowledge_node import KnowledgeNodeRepository
 from app.repositories.learning_path import LearningPathRepository
@@ -138,6 +139,10 @@ class UnitOfWork:
     @property
     def graph(self) -> GraphRepository:
         return self._get_or_create('graph', GraphRepository)
+
+    @property
+    def password_reset_tokens(self) -> PasswordResetRepository:
+        return self._get_or_create('password_reset_tokens', PasswordResetRepository)
 
     # ── Transaction Management ─────────────────────────────────────
 

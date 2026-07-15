@@ -4,7 +4,7 @@
  * Provides functions for tracking user learning progress.
  */
 
-import type { UserProgress, ProgressStats , PaginatedResponse } from '@sv-os/types';
+import type { UserProgress, ProgressStats, PaginatedResponse } from '@sv-os/types';
 
 import { apiClient } from '@/lib/api-client';
 

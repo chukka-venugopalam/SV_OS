@@ -46,6 +46,12 @@ class UserSettings(BaseModel):
     theme: str | None = Field(
         default=None, description='UI theme preference', examples=['light', 'dark', 'system']
     )
+    font_size: str | None = Field(
+        default=None, description='UI font size preference', examples=['sm', 'md', 'lg']
+    )
+    reduced_motion: bool | None = Field(
+        default=None, description='Whether to minimize animations'
+    )
     language: str | None = Field(
         default=None, description='UI language preference', examples=['en', 'es', 'fr']
     )
@@ -61,6 +67,13 @@ class UserSettings(BaseModel):
     def validate_theme(cls, v: str | None) -> str | None:
         if v is not None and v.lower() not in ('light', 'dark', 'system'):
             raise ValueError("Theme must be 'light', 'dark', or 'system'")
+        return v.lower() if v else v
+
+    @field_validator('font_size')
+    @classmethod
+    def validate_font_size(cls, v: str | None) -> str | None:
+        if v is not None and v.lower() not in ('sm', 'md', 'lg'):
+            raise ValueError("Font size must be 'sm', 'md', or 'lg'")
         return v.lower() if v else v
 
 

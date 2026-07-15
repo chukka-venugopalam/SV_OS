@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 
-
 const settingsSections = [
   {
     title: 'Profile',

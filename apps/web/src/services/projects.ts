@@ -4,7 +4,12 @@
  * Provides functions for interacting with project endpoints.
  */
 
-import type { Project, ProjectWithRequirements, KnowledgeNode , PaginatedResponse } from '@sv-os/types';
+import type {
+  Project,
+  ProjectWithRequirements,
+  KnowledgeNode,
+  PaginatedResponse,
+} from '@sv-os/types';
 
 import { apiClient } from '@/lib/api-client';
 

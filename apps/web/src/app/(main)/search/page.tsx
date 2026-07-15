@@ -35,7 +35,11 @@ import { NODE_TYPE_COLORS } from '@/components/graph';
 import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useSearch as useSearchHook , useSearchSuggestions, useTrendingSearches } from '@/hooks/use-search';
+import {
+  useSearch as useSearchHook,
+  useSearchSuggestions,
+  useTrendingSearches,
+} from '@/hooks/use-search';
 import { slugToTitle, truncate } from '@/lib';
 import { ROUTES } from '@/lib/constants';
 

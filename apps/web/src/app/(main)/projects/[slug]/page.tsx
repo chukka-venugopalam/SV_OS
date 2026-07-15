@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  Badge,
-  Button,
-  Skeleton,
-  ErrorState,
-  EmptyState,
-} from '@sv-os/ui';
+import { Card, CardContent, Badge, Button, Skeleton, ErrorState, EmptyState } from '@sv-os/ui';
 import {
   ArrowLeft,
   FolderGit2,

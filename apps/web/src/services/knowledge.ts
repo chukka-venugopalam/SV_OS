@@ -4,7 +4,7 @@
  * Provides functions for interacting with knowledge node endpoints.
  */
 
-import type { KnowledgeNode, LearningResource , PaginatedResponse } from '@sv-os/types';
+import type { KnowledgeNode, LearningResource, PaginatedResponse } from '@sv-os/types';
 
 import { apiClient } from '@/lib/api-client';
 

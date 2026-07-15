@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  Badge,
-  Button,
-  Progress,
-  Skeleton,
-} from '@sv-os/ui';
+import { Card, CardContent, Badge, Button, Progress, Skeleton } from '@sv-os/ui';
 import {
   BookOpen,
   TrendingUp,

@@ -18,6 +18,58 @@ logger = get_logger(__name__)
 router = APIRouter()
 
 
+@router.get('/full')
+async def get_full_graph(
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+) -> dict:
+    """Get all published nodes and edges for full graph visualisation.
+
+    Returns everything in a format compatible with React Flow.
+    """
+    from app.models.knowledge_node import KnowledgeNode
+    from app.models.knowledge_edge import KnowledgeEdge
+    from sqlalchemy import select
+
+    # Fetch all published nodes
+    nodes_stmt = (
+        select(KnowledgeNode)
+        .where(
+            KnowledgeNode.is_deleted == False,  # noqa: E712
+            KnowledgeNode.is_published == True,  # noqa: E712
+        )
+        .order_by(KnowledgeNode.title)
+    )
+    nodes_result = await uow.session.execute(nodes_stmt)
+    all_nodes = list(nodes_result.scalars().all())
+
+    # Fetch edges where both source and target are published nodes
+    published_ids = [n.id for n in all_nodes]
+    if published_ids:
+        edges_stmt = (
+            select(KnowledgeEdge)
+            .where(
+                KnowledgeEdge.is_deleted == False,  # noqa: E712
+                KnowledgeEdge.source_node_id.in_(published_ids),
+                KnowledgeEdge.target_node_id.in_(published_ids),
+            )
+            .order_by(KnowledgeEdge.relationship_type)
+        )
+        edges_result = await uow.session.execute(edges_stmt)
+        all_edges = list(edges_result.scalars().all())
+    else:
+        all_edges = []
+
+    return success_response(
+        data={
+            'nodes': [_node_to_dict(n) for n in all_nodes],
+            'edges': [_edge_to_dict(e) for e in all_edges],
+            'total_nodes': len(all_nodes),
+            'total_edges': len(all_edges),
+        },
+        message='Full graph retrieved',
+    )
+
+
 @router.get('/explore/{node_id}')
 async def explore_node(
     node_id: UUID,
@@ -88,6 +140,21 @@ def _node_to_dict(node) -> dict:
         'difficulty': node.difficulty.value
         if hasattr(node.difficulty, 'value')
         else node.difficulty,
+        'estimated_minutes': getattr(node, 'estimated_minutes', None),
         'icon': node.icon,
         'color': node.color,
+    }
+
+
+def _edge_to_dict(edge) -> dict:
+    return {
+        'id': str(edge.id),
+        'source_id': str(edge.source_node_id),
+        'target_id': str(edge.target_node_id),
+        'relationship_type': edge.relationship_type.value
+        if hasattr(edge.relationship_type, 'value')
+        else edge.relationship_type,
+        'direction': edge.direction.value
+        if hasattr(edge.direction, 'value')
+        else getattr(edge, 'direction', 'forward'),
     }

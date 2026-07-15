@@ -38,8 +38,6 @@ const demandColors: Record<string, 'success' | 'warning' | 'info' | 'danger'> = 
   declining: 'danger',
 };
 
-
-
 export default function CareerDetailPage() {
   const params = useParams();
   const slug = params.slug as string;

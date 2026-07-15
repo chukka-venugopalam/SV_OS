@@ -117,6 +117,23 @@ export function useChangePassword() {
   });
 }
 
+// ── Hook: Forgot Password ────────────────────────────────────────
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => authClient.forgotPassword(email),
+  });
+}
+
+// ── Hook: Reset Password ─────────────────────────────────────────
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: ({ token, newPassword }: { token: string; newPassword: string }) =>
+      authClient.resetPassword(token, newPassword),
+  });
+}
+
 // ── Hook: Auth Listener (for token refresh events) ───────────────
 
 export function useAuthListener() {

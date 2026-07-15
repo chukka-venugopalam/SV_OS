@@ -96,6 +96,25 @@ export const authClient = {
     });
   },
 
+  /** Request a password reset email */
+  async forgotPassword(email: string): Promise<{ reset_token?: string } | null> {
+    const res = await apiClient.post<{ reset_token?: string }>(
+      '/auth/forgot-password',
+      { email },
+      { skipAuth: true },
+    );
+    return res.data;
+  },
+
+  /** Reset password using a valid reset token */
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await apiClient.post(
+      '/auth/reset-password',
+      { token, new_password: newPassword },
+      { skipAuth: true },
+    );
+  },
+
   /** Logout — clears client-side tokens */
   logout(): void {
     clearAuth();

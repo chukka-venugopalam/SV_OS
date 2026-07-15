@@ -314,6 +314,22 @@ CREATE INDEX idx_activity_action ON activity_logs(action);
 CREATE INDEX idx_activity_created ON activity_logs(created_at DESC);
 CREATE INDEX idx_activity_entity ON activity_logs(entity_type, entity_id);
 
+-- 14. Password Reset Tokens
+CREATE TABLE password_reset_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    is_used BOOLEAN NOT NULL DEFAULT false,
+    is_deleted BOOLEAN NOT NULL DEFAULT false,
+    version INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_password_reset_user ON password_reset_tokens(user_id);
+CREATE INDEX idx_password_reset_token_hash ON password_reset_tokens(token_hash);
+
 -- ============================================================================
 -- FULL-TEXT SEARCH TRIGGER
 -- ============================================================================

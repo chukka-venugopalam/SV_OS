@@ -52,8 +52,6 @@ import {
 import { cn, slugToTitle } from '@/lib';
 import { useAuth } from '@/providers/auth-provider';
 
-
-
 const resourceIcons: Record<string, React.ReactNode> = {
   video: <Youtube className="h-4 w-4" />,
   article: <FileText className="h-4 w-4" />,

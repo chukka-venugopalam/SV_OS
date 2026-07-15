@@ -84,6 +84,15 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
+
+          <div className="text-center">
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+            >
+              Forgot your password?
+            </Link>
+          </div>
         </form>
 
         <p className="mt-4 text-center text-sm text-neutral-500 dark:text-neutral-400">

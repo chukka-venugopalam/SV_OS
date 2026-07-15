@@ -1,28 +1,52 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, cn } from '@sv-os/ui';
-import { ArrowLeft, Palette, Sun, Moon, Type, Eye } from 'lucide-react';
+import { Button, Card, CardContent, CardHeader, CardTitle, cn } from '@sv-os/ui';
+import { ArrowLeft, Palette, Sun, Moon, Type, Eye, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { Shell } from '@/components/shared/shell';
+import { useSyncPreferences, useUpdatePreferences } from '@/hooks/use-preferences';
 import { useTheme } from '@/hooks/use-theme';
+import { useToast } from '@/providers/toast-provider';
 import { useUIStore } from '@/stores/ui-store';
-
 
 export default function PreferencesSettingsPage() {
   const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize, reducedMotion, setReducedMotion } = useUIStore();
+  const updatePrefs = useUpdatePreferences();
+  const { addToast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Sync preferences from backend on mount
+  useSyncPreferences();
 
   const themeOptions = [
-    { value: 'dark', label: 'Dark', icon: <Moon className="h-5 w-5" /> },
-    { value: 'light', label: 'Light', icon: <Sun className="h-5 w-5" /> },
-  ] as const;
+    { value: 'dark' as const, label: 'Dark', icon: <Moon className="h-5 w-5" /> },
+    { value: 'light' as const, label: 'Light', icon: <Sun className="h-5 w-5" /> },
+  ];
 
   const fontSizeOptions = [
     { value: 'sm' as const, label: 'Small', preview: 'text-sm' },
     { value: 'md' as const, label: 'Medium', preview: 'text-base' },
     { value: 'lg' as const, label: 'Large', preview: 'text-lg' },
   ];
+
+  const handleSavePreferences = async () => {
+    setIsSaving(true);
+    try {
+      await updatePrefs.mutateAsync({
+        font_size: fontSize,
+        reduced_motion: reducedMotion,
+        theme: theme as 'light' | 'dark' | undefined,
+      });
+      addToast('Preferences saved', 'success');
+    } catch {
+      addToast('Failed to save preferences', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <Shell maxWidth="2xl">
@@ -34,7 +58,22 @@ export default function PreferencesSettingsPage() {
         Back to settings
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-neutral-50">Preferences</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">Preferences</h1>
+        <Button
+          size="sm"
+          className="gap-2"
+          onClick={handleSavePreferences}
+          disabled={isSaving || updatePrefs.isPending}
+        >
+          {isSaving || updatePrefs.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          {isSaving || updatePrefs.isPending ? 'Saving...' : 'Save all'}
+        </Button>
+      </div>
 
       <div className="space-y-4">
         {/* Theme */}

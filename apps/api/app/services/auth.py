@@ -8,6 +8,8 @@ without changing the service interface.
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+from secrets import token_urlsafe
 from typing import Any
 from uuid import UUID
 
@@ -280,6 +282,79 @@ class AuthService:
         if not user or not user.is_active:
             return None
         return user
+
+    # ── Password Reset ─────────────────────────────────────────
+
+    async def forgot_password(self, email: str) -> str:
+        """Generate a password reset token for the user with the given email.
+
+        Args:
+            email: Registered email address.
+
+        Returns:
+            The plain-text reset token (to be sent via email or returned in dev).
+
+        Raises:
+            ``EntityNotFoundError`` if the email is not registered.
+            Note: In production, always return success to prevent email enumeration.
+        """
+        user = await self._uow.users.find_by_email(email)
+        if not user:
+            # Don't reveal whether the email exists
+            raise EntityNotFoundError('User', email)
+
+        # Invalidate any existing tokens for this user
+        await self._uow.password_reset_tokens.invalidate_user_tokens(user.id)
+
+        # Generate a secure random token
+        raw_token = token_urlsafe(48)
+        token_hash = sha256(raw_token.encode()).hexdigest()
+
+        # Token expires in 1 hour
+        expires_at = datetime.now(UTC) + timedelta(hours=1)
+
+        await self._uow.password_reset_tokens.create(
+            user_id=user.id,
+            token_hash=token_hash,
+            expires_at=expires_at,
+        )
+
+        logger.info(
+            'password_reset_token_generated',
+            user_id=str(user.id),
+            expires_at=expires_at.isoformat(),
+        )
+
+        return raw_token
+
+    async def reset_password(self, token: str, new_password: str) -> None:
+        """Reset a user's password using a valid reset token.
+
+        Args:
+            token: The plain-text reset token received via email.
+            new_password: The new password to set.
+
+        Raises:
+            ``AuthenticationError`` if the token is invalid, expired, or already used.
+        """
+        token_hash = sha256(token.encode()).hexdigest()
+        reset_token = await self._uow.password_reset_tokens.find_valid_token(token_hash)
+
+        if not reset_token:
+            raise AuthenticationError('Invalid or expired reset token')
+
+        # Change the password
+        password_hash = self.hash_password(new_password)
+        await self._uow.users.update(
+            reset_token.user_id,
+            password_hash=password_hash,
+        )
+
+        # Mark token as used and invalidate any other active tokens
+        await self._uow.password_reset_tokens.mark_as_used(reset_token.id)
+        await self._uow.password_reset_tokens.invalidate_user_tokens(reset_token.user_id)
+
+        logger.info('password_reset_completed', user_id=str(reset_token.user_id))
 
     # ── Role Checking ──────────────────────────────────────────────
 

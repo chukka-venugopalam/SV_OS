@@ -39,6 +39,7 @@ from app.repositories.knowledge_edge import KnowledgeEdgeRepository
 from app.repositories.knowledge_node import KnowledgeNodeRepository
 from app.repositories.learning_path import LearningPathRepository, LearningSessionRepository
 from app.repositories.learning_resource import LearningResourceRepository
+from app.repositories.password_reset import PasswordResetRepository
 from app.repositories.project import ProjectRepository
 from app.repositories.query_helpers import (
     CursorPageResult,
@@ -77,6 +78,7 @@ __all__ = [
     'LearningSessionRepository',
     # Query Helpers
     'PageResult',
+    'PasswordResetRepository',
     'ProjectRepository',
     'QueryBuilder',
     'QueryError',
