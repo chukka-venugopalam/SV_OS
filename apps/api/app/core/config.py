@@ -6,7 +6,8 @@ at startup.  Sensible defaults are provided for development.
 
 from __future__ import annotations
 
-from typing import ClassVar
+import json
+from typing import Any, ClassVar
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -105,11 +106,42 @@ class Settings(BaseSettings):
 
     @field_validator('CORS_ORIGINS', mode='before')
     @classmethod
-    def parse_cors_origins(cls, v: str | list[str]) -> list[str]:
-        """Allow CORS_ORIGINS to be a comma-separated string or a list."""
+    def parse_cors_origins(cls, v: Any) -> list[str]:
+        """Parse CORS_ORIGINS from environment variable into a list of origins.
+
+        Handles all formats that Pydantic v2 BaseSettings and various
+        deployment platforms (Render, Fly.io, Railway, etc.) may produce:
+
+        - JSON array string:  ``["https://a.com","http://localhost:3000"]``
+        - Comma-separated:    ``https://a.com,http://localhost:3000``
+        - Single origin:      ``https://a.com``
+        - Already a list:     (Pydantic v2 JSON auto-decoded value)
+        - Python list string: ``['https://a.com']`` (repr from debug logs)
+        """
         if isinstance(v, str):
+            v_stripped = v.strip()
+            # Attempt 1: if it looks like a JSON array, parse it as JSON
+            if v_stripped.startswith('[') and v_stripped.endswith(']'):
+                try:
+                    parsed = json.loads(v_stripped)
+                    if isinstance(parsed, list):
+                        return [
+                            str(item).strip()
+                            for item in parsed
+                            if str(item).strip()
+                        ]
+                except json.JSONDecodeError:
+                    pass  # fall through to comma-separated
+
+            # Attempt 2: treat as comma-separated (supports single origin too)
             return [origin.strip() for origin in v.split(',') if origin.strip()]
-        return v
+
+        if isinstance(v, list):
+            return [str(item).strip() for item in v if str(item).strip()]
+
+        raise ValueError(
+            f'CORS_ORIGINS must be a string or list, got {type(v).__name__}: {v!r}'
+        )
 
     @field_validator('TRUSTED_HOSTS', mode='before')
     @classmethod

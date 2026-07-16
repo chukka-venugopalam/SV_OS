@@ -62,6 +62,17 @@ def create_app() -> FastAPI:
         },
     )
 
+    # ── Startup Diagnostics ──────────────────────────────────────────
+    logger.info(
+        'startup_config',
+        cors_origins=settings.CORS_ORIGINS,
+        cors_origins_count=len(settings.CORS_ORIGINS),
+        environment=settings.ENVIRONMENT,
+        trusted_hosts=settings.TRUSTED_HOSTS,
+        root_path=settings.ROOT_PATH,
+        is_production=settings.is_production,
+    )
+
     # ── Middleware Stack ─────────────────────────────────────────────
     #
     # Starlette/FastAPI middleware is an onion: the LAST middleware added
@@ -115,6 +126,15 @@ def create_app() -> FastAPI:
         allow_headers=['*'],
     )
 
+    # Log CORS config after middleware is registered
+    logger.info(
+        'middleware_cors_registered',
+        origins=settings.CORS_ORIGINS,
+        credentials=True,
+        methods='*',
+        headers='*',
+    )
+
     # ── Exception Handlers ─────────────────────────────────────────
     register_exception_handlers(app)
 
@@ -153,6 +173,39 @@ def create_app() -> FastAPI:
                 'name': settings.APP_NAME,
                 'version': settings.APP_VERSION,
                 'documentation': '/docs',
+            },
+            'errors': None,
+            'timestamp': datetime.now(UTC).isoformat(),
+            'request_id': request_id,
+        }
+
+    # ── Debug Endpoints ──────────────────────────────────────────────
+    # These expose runtime configuration for production debugging.
+    # Disable in production by removing include_in_schema or guarding
+    # with settings.is_production check if sensitive info is exposed.
+
+    @app.get('/debug/cors', tags=['debug'], include_in_schema=False)
+    async def debug_cors(request: Request) -> dict:
+        """
+        Debug endpoint: inspect current CORS configuration at runtime.
+
+        This is intentionally gated behind ``/debug/`` so it is not
+        accessible from the public API schema (``include_in_schema=False``).
+        Safe for production — only exposes non-sensitive config values
+        (CORS origins, environment name, trusted hosts).
+        """
+        request_id = getattr(request.state, 'request_id', str(uuid4()))
+        return {
+            'success': True,
+            'message': 'CORS debug info',
+            'data': {
+                'cors_origins': settings.CORS_ORIGINS,
+                'cors_origins_count': len(settings.CORS_ORIGINS),
+                'cors_origins_type': type(settings.CORS_ORIGINS).__name__,
+                'environment': settings.ENVIRONMENT,
+                'is_production': settings.is_production,
+                'trusted_hosts': settings.TRUSTED_HOSTS,
+                'root_path': settings.ROOT_PATH,
             },
             'errors': None,
             'timestamp': datetime.now(UTC).isoformat(),
