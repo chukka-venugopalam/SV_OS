@@ -62,45 +62,57 @@ def create_app() -> FastAPI:
         },
     )
 
-    # ── Middleware Stack (order matters — outermost first) ──────────
-    app.add_middleware(  # 1. CORS — handle preflight before anything else
-        CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=['*'],
-        allow_headers=['*'],
-    )
+    # ── Middleware Stack ─────────────────────────────────────────────
+    #
+    # Starlette/FastAPI middleware is an onion: the LAST middleware added
+    # via add_middleware() becomes the OUTERMOST layer, processing
+    # requests first.  All non-CORS middleware are added first (inner
+    # layers), then CORSMiddleware is added LAST so it intercepts OPTIONS
+    # preflight before any other middleware can reject the request.
+    #
+    # ── Inner middleware (added first, runs after CORS) ──────────────
 
-    app.add_middleware(  # 2. Compression — compress responses
+    app.add_middleware(  # 1. Compression — compress responses
         GZipMiddleware,
         minimum_size=1000,
     )
 
-    app.add_middleware(  # 3. Host validation — reject unknown hosts early
+    app.add_middleware(  # 2. Host validation — reject unknown hosts early
         TrustedHostsMiddleware,
         allowed_hosts=settings.TRUSTED_HOSTS,
         environment=settings.ENVIRONMENT,
     )
 
-    app.add_middleware(  # 4. Security headers — set before response is finalised
+    app.add_middleware(  # 3. Security headers — set before response is finalised
         SecurityHeadersMiddleware,
         environment=settings.ENVIRONMENT,
     )
 
-    app.add_middleware(  # 5. Request ID + logging context — outermost context layer
+    app.add_middleware(  # 4. Request ID + logging context
         RequestIDMiddleware,
     )
 
-    app.add_middleware(  # 6. Correlation ID — trace across service boundaries
+    app.add_middleware(  # 5. Correlation ID — trace across service boundaries
         CorrelationIDMiddleware,
     )
 
-    app.add_middleware(  # 7. Timing — measure closest to the actual handler
+    app.add_middleware(  # 6. Timing — measure request duration
         RequestTimingMiddleware,
     )
 
-    app.add_middleware(  # 8. Rate limit — stub, applied last
+    app.add_middleware(  # 7. Rate limit — stub
         RateLimitMiddleware,
+    )
+
+    # ── Outer middleware (added last, runs first) ────────────────────
+
+    app.add_middleware(  # 8. CORS — outermost; handles OPTIONS preflight
+                         #    before any inner middleware can reject it
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
     )
 
     # ── Exception Handlers ─────────────────────────────────────────

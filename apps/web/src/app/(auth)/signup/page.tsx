@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { ErrorCategory, getErrorInfo } from '@/lib/api-client';
 import { useAuth } from '@/providers/auth-provider';
 
 export default function SignupPage() {
@@ -52,7 +53,33 @@ export default function SignupPage() {
       });
       router.replace('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+      const info = getErrorInfo(err);
+      switch (info.category) {
+        case ErrorCategory.NETWORK:
+          setError(
+            'Cannot connect to the server. Please ensure the backend is running. ' +
+              'If this is a deployment issue, contact the administrator.',
+          );
+          break;
+        case ErrorCategory.CORS:
+          setError(
+            'Request blocked by browser security policy (CORS). ' +
+              'This is a server configuration issue.',
+          );
+          break;
+        case ErrorCategory.DUPLICATE:
+          setError('An account with this email or username already exists.');
+          break;
+        case ErrorCategory.VALIDATION:
+          setError('Please check your input and try again.');
+          break;
+        case ErrorCategory.SERVER:
+          setError('The server encountered an error. Please try again later.');
+          break;
+        default:
+          setError(info.message);
+          break;
+      }
     } finally {
       setIsSubmitting(false);
     }
