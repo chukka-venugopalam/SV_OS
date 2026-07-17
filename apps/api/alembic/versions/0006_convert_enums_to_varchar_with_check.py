@@ -63,9 +63,7 @@ def _alter_enum_to_varchar(
     """
     # Step 1: Cast the native enum column to VARCHAR(50).
     # Native enum values are stored as strings, so this is a safe cast.
-    op.execute(
-        text(f'ALTER TABLE {table} ALTER COLUMN {column} TYPE VARCHAR(50)')
-    )
+    op.execute(text(f'ALTER TABLE {table} ALTER COLUMN {column} TYPE VARCHAR(50)'))
 
     # Step 2: Add a CHECK constraint to preserve data integrity.
     values_sql = ', '.join(repr(v) for v in check_values)
@@ -122,9 +120,7 @@ def _drop_check_and_restore_enum(
 
     # Step 4: Restore default if provided
     if default_sql:
-        op.execute(
-            text(f'ALTER TABLE {table} ALTER COLUMN {column} SET {default_sql}')
-        )
+        op.execute(text(f'ALTER TABLE {table} ALTER COLUMN {column} SET {default_sql}'))
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -136,137 +132,356 @@ ENUM_COLUMNS: list[tuple[str, str, list[str], str]] = [
     # user_role_enum
     ('users', 'role', ['learner', 'admin'], 'ck_users_role'),
     # node_type_enum
-    ('knowledge_nodes', 'node_type', [
-        'subject', 'concept', 'technology', 'tool', 'career', 'project',
-    ], 'ck_knowledge_nodes_node_type'),
+    (
+        'knowledge_nodes',
+        'node_type',
+        [
+            'subject',
+            'concept',
+            'technology',
+            'tool',
+            'career',
+            'project',
+        ],
+        'ck_knowledge_nodes_node_type',
+    ),
     # difficulty_enum (used across 6 tables)
-    ('knowledge_nodes', 'difficulty', [
-        'beginner', 'intermediate', 'advanced', 'expert',
-    ], 'ck_knowledge_nodes_difficulty'),
-    ('skills', 'difficulty', [
-        'beginner', 'intermediate', 'advanced', 'expert',
-    ], 'ck_skills_difficulty'),
-    ('projects', 'difficulty', [
-        'beginner', 'intermediate', 'advanced', 'expert',
-    ], 'ck_projects_difficulty'),
-    ('learning_paths', 'difficulty', [
-        'beginner', 'intermediate', 'advanced', 'expert',
-    ], 'ck_learning_paths_difficulty'),
-    ('learning_resources', 'difficulty', [
-        'beginner', 'intermediate', 'advanced', 'expert',
-    ], 'ck_learning_resources_difficulty'),
+    (
+        'knowledge_nodes',
+        'difficulty',
+        [
+            'beginner',
+            'intermediate',
+            'advanced',
+            'expert',
+        ],
+        'ck_knowledge_nodes_difficulty',
+    ),
+    (
+        'skills',
+        'difficulty',
+        [
+            'beginner',
+            'intermediate',
+            'advanced',
+            'expert',
+        ],
+        'ck_skills_difficulty',
+    ),
+    (
+        'projects',
+        'difficulty',
+        [
+            'beginner',
+            'intermediate',
+            'advanced',
+            'expert',
+        ],
+        'ck_projects_difficulty',
+    ),
+    (
+        'learning_paths',
+        'difficulty',
+        [
+            'beginner',
+            'intermediate',
+            'advanced',
+            'expert',
+        ],
+        'ck_learning_paths_difficulty',
+    ),
+    (
+        'learning_resources',
+        'difficulty',
+        [
+            'beginner',
+            'intermediate',
+            'advanced',
+            'expert',
+        ],
+        'ck_learning_resources_difficulty',
+    ),
     # edge_type_enum
-    ('knowledge_edges', 'relationship_type', [
-        'prerequisite', 'depends_on', 'uses', 'enables', 'part_of',
-        'related_to', 'leads_to', 'requires',
-    ], 'ck_knowledge_edges_relationship_type'),
+    (
+        'knowledge_edges',
+        'relationship_type',
+        [
+            'prerequisite',
+            'depends_on',
+            'uses',
+            'enables',
+            'part_of',
+            'related_to',
+            'leads_to',
+            'requires',
+        ],
+        'ck_knowledge_edges_relationship_type',
+    ),
     # edge_direction_enum
-    ('knowledge_edges', 'direction', [
-        'forward', 'bidirectional', 'unidirectional',
-    ], 'ck_knowledge_edges_direction'),
+    (
+        'knowledge_edges',
+        'direction',
+        [
+            'forward',
+            'bidirectional',
+            'unidirectional',
+        ],
+        'ck_knowledge_edges_direction',
+    ),
     # progress_enum
-    ('user_progress', 'status', [
-        'not_started', 'learning', 'completed', 'mastered',
-    ], 'ck_user_progress_status'),
+    (
+        'user_progress',
+        'status',
+        [
+            'not_started',
+            'learning',
+            'completed',
+            'mastered',
+        ],
+        'ck_user_progress_status',
+    ),
     # demand_enum
-    ('careers', 'demand_level', [
-        'declining', 'stable', 'growing', 'high_demand',
-    ], 'ck_careers_demand_level'),
+    (
+        'careers',
+        'demand_level',
+        [
+            'declining',
+            'stable',
+            'growing',
+            'high_demand',
+        ],
+        'ck_careers_demand_level',
+    ),
     # resource_type_enum
-    ('learning_resources', 'resource_type', [
-        'video', 'article', 'course', 'book', 'documentation',
-        'tool', 'podcast', 'interactive',
-    ], 'ck_learning_resources_resource_type'),
+    (
+        'learning_resources',
+        'resource_type',
+        [
+            'video',
+            'article',
+            'course',
+            'book',
+            'documentation',
+            'tool',
+            'podcast',
+            'interactive',
+        ],
+        'ck_learning_resources_resource_type',
+    ),
     # learning_status_enum
-    ('learning_sessions', 'status', [
-        'active', 'paused', 'completed', 'abandoned',
-    ], 'ck_learning_sessions_status'),
+    (
+        'learning_sessions',
+        'status',
+        [
+            'active',
+            'paused',
+            'completed',
+            'abandoned',
+        ],
+        'ck_learning_sessions_status',
+    ),
     # recommendation_type_enum
-    ('recommendations', 'recommendation_type', [
-        'career_path', 'learning_path', 'skill_gap',
-        'related_content', 'popular', 'next_step',
-    ], 'ck_recommendations_recommendation_type'),
+    (
+        'recommendations',
+        'recommendation_type',
+        [
+            'career_path',
+            'learning_path',
+            'skill_gap',
+            'related_content',
+            'popular',
+            'next_step',
+        ],
+        'ck_recommendations_recommendation_type',
+    ),
     # requirement_type_enum (used across 2 tables)
-    ('career_requirements', 'requirement_type', [
-        'required', 'recommended', 'bonus',
-    ], 'ck_career_requirements_requirement_type'),
-    ('project_requirements', 'requirement_type', [
-        'required', 'recommended', 'bonus',
-    ], 'ck_project_requirements_requirement_type'),
+    (
+        'career_requirements',
+        'requirement_type',
+        [
+            'required',
+            'recommended',
+            'bonus',
+        ],
+        'ck_career_requirements_requirement_type',
+    ),
+    (
+        'project_requirements',
+        'requirement_type',
+        [
+            'required',
+            'recommended',
+            'bonus',
+        ],
+        'ck_project_requirements_requirement_type',
+    ),
     # skill_relationship_type_enum
-    ('skill_relationships', 'relationship_type', [
-        'prerequisite', 'builds_upon', 'complement',
-        'specialization', 'alternative',
-    ], 'ck_skill_relationships_relationship_type'),
+    (
+        'skill_relationships',
+        'relationship_type',
+        [
+            'prerequisite',
+            'builds_upon',
+            'complement',
+            'specialization',
+            'alternative',
+        ],
+        'ck_skill_relationships_relationship_type',
+    ),
 ]
 
 # Reverse migration data: (table, column, enum_name, enum_values, constraint_name, default_sql)
 ENUM_RESTORE: list[tuple[str, str, str, list[str], str, str | None]] = [
     # user_role_enum
-    ('users', 'role', 'user_role_enum', ['learner', 'admin'],
-     'ck_users_role', "DEFAULT 'learner'"),
+    ('users', 'role', 'user_role_enum', ['learner', 'admin'], 'ck_users_role', "DEFAULT 'learner'"),
     # node_type_enum
-    ('knowledge_nodes', 'node_type', 'node_type_enum',
-     ['subject', 'concept', 'technology', 'tool', 'career', 'project'],
-     'ck_knowledge_nodes_node_type', None),
+    (
+        'knowledge_nodes',
+        'node_type',
+        'node_type_enum',
+        ['subject', 'concept', 'technology', 'tool', 'career', 'project'],
+        'ck_knowledge_nodes_node_type',
+        None,
+    ),
     # difficulty_enum
-    ('knowledge_nodes', 'difficulty', 'difficulty_enum',
-     ['beginner', 'intermediate', 'advanced', 'expert'],
-     'ck_knowledge_nodes_difficulty', "DEFAULT 'beginner'"),
-    ('skills', 'difficulty', 'difficulty_enum',
-     ['beginner', 'intermediate', 'advanced', 'expert'],
-     'ck_skills_difficulty', "DEFAULT 'beginner'"),
-    ('projects', 'difficulty', 'difficulty_enum',
-     ['beginner', 'intermediate', 'advanced', 'expert'],
-     'ck_projects_difficulty', "DEFAULT 'intermediate'"),
-    ('learning_paths', 'difficulty', 'difficulty_enum',
-     ['beginner', 'intermediate', 'advanced', 'expert'],
-     'ck_learning_paths_difficulty', "DEFAULT 'beginner'"),
-    ('learning_resources', 'difficulty', 'difficulty_enum',
-     ['beginner', 'intermediate', 'advanced', 'expert'],
-     'ck_learning_resources_difficulty', "DEFAULT 'beginner'"),
+    (
+        'knowledge_nodes',
+        'difficulty',
+        'difficulty_enum',
+        ['beginner', 'intermediate', 'advanced', 'expert'],
+        'ck_knowledge_nodes_difficulty',
+        "DEFAULT 'beginner'",
+    ),
+    (
+        'skills',
+        'difficulty',
+        'difficulty_enum',
+        ['beginner', 'intermediate', 'advanced', 'expert'],
+        'ck_skills_difficulty',
+        "DEFAULT 'beginner'",
+    ),
+    (
+        'projects',
+        'difficulty',
+        'difficulty_enum',
+        ['beginner', 'intermediate', 'advanced', 'expert'],
+        'ck_projects_difficulty',
+        "DEFAULT 'intermediate'",
+    ),
+    (
+        'learning_paths',
+        'difficulty',
+        'difficulty_enum',
+        ['beginner', 'intermediate', 'advanced', 'expert'],
+        'ck_learning_paths_difficulty',
+        "DEFAULT 'beginner'",
+    ),
+    (
+        'learning_resources',
+        'difficulty',
+        'difficulty_enum',
+        ['beginner', 'intermediate', 'advanced', 'expert'],
+        'ck_learning_resources_difficulty',
+        "DEFAULT 'beginner'",
+    ),
     # edge_type_enum
-    ('knowledge_edges', 'relationship_type', 'edge_type_enum',
-     ['prerequisite', 'depends_on', 'uses', 'enables', 'part_of',
-      'related_to', 'leads_to', 'requires'],
-     'ck_knowledge_edges_relationship_type', None),
+    (
+        'knowledge_edges',
+        'relationship_type',
+        'edge_type_enum',
+        [
+            'prerequisite',
+            'depends_on',
+            'uses',
+            'enables',
+            'part_of',
+            'related_to',
+            'leads_to',
+            'requires',
+        ],
+        'ck_knowledge_edges_relationship_type',
+        None,
+    ),
     # edge_direction_enum
-    ('knowledge_edges', 'direction', 'edge_direction_enum',
-     ['forward', 'bidirectional', 'unidirectional'],
-     'ck_knowledge_edges_direction', "DEFAULT 'forward'"),
+    (
+        'knowledge_edges',
+        'direction',
+        'edge_direction_enum',
+        ['forward', 'bidirectional', 'unidirectional'],
+        'ck_knowledge_edges_direction',
+        "DEFAULT 'forward'",
+    ),
     # progress_enum
-    ('user_progress', 'status', 'progress_enum',
-     ['not_started', 'learning', 'completed', 'mastered'],
-     'ck_user_progress_status', "DEFAULT 'not_started'"),
+    (
+        'user_progress',
+        'status',
+        'progress_enum',
+        ['not_started', 'learning', 'completed', 'mastered'],
+        'ck_user_progress_status',
+        "DEFAULT 'not_started'",
+    ),
     # demand_enum
-    ('careers', 'demand_level', 'demand_enum',
-     ['declining', 'stable', 'growing', 'high_demand'],
-     'ck_careers_demand_level', "DEFAULT 'growing'"),
+    (
+        'careers',
+        'demand_level',
+        'demand_enum',
+        ['declining', 'stable', 'growing', 'high_demand'],
+        'ck_careers_demand_level',
+        "DEFAULT 'growing'",
+    ),
     # resource_type_enum
-    ('learning_resources', 'resource_type', 'resource_type_enum',
-     ['video', 'article', 'course', 'book', 'documentation',
-      'tool', 'podcast', 'interactive'],
-     'ck_learning_resources_resource_type', None),
+    (
+        'learning_resources',
+        'resource_type',
+        'resource_type_enum',
+        ['video', 'article', 'course', 'book', 'documentation', 'tool', 'podcast', 'interactive'],
+        'ck_learning_resources_resource_type',
+        None,
+    ),
     # learning_status_enum
-    ('learning_sessions', 'status', 'learning_status_enum',
-     ['active', 'paused', 'completed', 'abandoned'],
-     'ck_learning_sessions_status', "DEFAULT 'active'"),
+    (
+        'learning_sessions',
+        'status',
+        'learning_status_enum',
+        ['active', 'paused', 'completed', 'abandoned'],
+        'ck_learning_sessions_status',
+        "DEFAULT 'active'",
+    ),
     # recommendation_type_enum
-    ('recommendations', 'recommendation_type', 'recommendation_type_enum',
-     ['career_path', 'learning_path', 'skill_gap',
-      'related_content', 'popular', 'next_step'],
-     'ck_recommendations_recommendation_type', None),
+    (
+        'recommendations',
+        'recommendation_type',
+        'recommendation_type_enum',
+        ['career_path', 'learning_path', 'skill_gap', 'related_content', 'popular', 'next_step'],
+        'ck_recommendations_recommendation_type',
+        None,
+    ),
     # requirement_type_enum
-    ('career_requirements', 'requirement_type', 'requirement_type_enum',
-     ['required', 'recommended', 'bonus'],
-     'ck_career_requirements_requirement_type', None),
-    ('project_requirements', 'requirement_type', 'requirement_type_enum',
-     ['required', 'recommended', 'bonus'],
-     'ck_project_requirements_requirement_type', None),
+    (
+        'career_requirements',
+        'requirement_type',
+        'requirement_type_enum',
+        ['required', 'recommended', 'bonus'],
+        'ck_career_requirements_requirement_type',
+        None,
+    ),
+    (
+        'project_requirements',
+        'requirement_type',
+        'requirement_type_enum',
+        ['required', 'recommended', 'bonus'],
+        'ck_project_requirements_requirement_type',
+        None,
+    ),
     # skill_relationship_type_enum
-    ('skill_relationships', 'relationship_type', 'skill_relationship_type_enum',
-     ['prerequisite', 'builds_upon', 'complement', 'specialization', 'alternative'],
-     'ck_skill_relationships_relationship_type', None),
+    (
+        'skill_relationships',
+        'relationship_type',
+        'skill_relationship_type_enum',
+        ['prerequisite', 'builds_upon', 'complement', 'specialization', 'alternative'],
+        'ck_skill_relationships_relationship_type',
+        None,
+    ),
 ]
 
 

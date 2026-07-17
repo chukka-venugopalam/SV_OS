@@ -125,11 +125,7 @@ class Settings(BaseSettings):
                 try:
                     parsed = json.loads(v_stripped)
                     if isinstance(parsed, list):
-                        return [
-                            str(item).strip()
-                            for item in parsed
-                            if str(item).strip()
-                        ]
+                        return [str(item).strip() for item in parsed if str(item).strip()]
                 except json.JSONDecodeError:
                     pass  # fall through to comma-separated
 
@@ -139,9 +135,7 @@ class Settings(BaseSettings):
         if isinstance(v, list):
             return [str(item).strip() for item in v if str(item).strip()]
 
-        raise ValueError(
-            f'CORS_ORIGINS must be a string or list, got {type(v).__name__}: {v!r}'
-        )
+        raise ValueError(f'CORS_ORIGINS must be a string or list, got {type(v).__name__}: {v!r}')
 
     @field_validator('TRUSTED_HOSTS', mode='before')
     @classmethod

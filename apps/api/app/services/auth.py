@@ -89,7 +89,11 @@ class AuthService:
         to_encode.update({'exp': expire, 'iat': datetime.now(UTC)})
         return jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
 
-    def create_access_token(self, user_id: UUID, role: str | UserRole = 'learner') -> tuple[str, datetime]:
+    def create_access_token(
+        self,
+        user_id: UUID,
+        role: str | UserRole = 'learner',
+    ) -> tuple[str, datetime]:
         """Create a short-lived JWT access token.
 
         Returns a tuple of ``(token, expires_at)``.

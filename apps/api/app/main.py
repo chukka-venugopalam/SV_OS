@@ -118,7 +118,7 @@ def create_app() -> FastAPI:
     # ── Outer middleware (added last, runs first) ────────────────────
 
     app.add_middleware(  # 8. CORS — outermost; handles OPTIONS preflight
-                         #    before any inner middleware can reject it
+        #    before any inner middleware can reject it
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
         allow_credentials=True,

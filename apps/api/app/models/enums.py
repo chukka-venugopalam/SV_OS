@@ -74,10 +74,10 @@ class PgEnumType(TypeDecorator):
     def __init__(
         self,
         enum_cls: type[enum.Enum],
-        name: str,
+        _name: str,
     ) -> None:
         self._user_enum = enum_cls
-        # ``name`` is accepted for backward compatibility with the
+        # ``_name`` is accepted for backward compatibility with the
         # ``pg_enum(EnumClass, 'pg_enum_name')`` call signature used
         # across all model files.  It is no longer needed for the
         # ``TypeDecorator`` implementation, but kept for interface
