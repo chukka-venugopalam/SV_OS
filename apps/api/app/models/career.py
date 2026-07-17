@@ -166,5 +166,5 @@ class CareerRequirement(AppBaseMixin, Base):
     def __repr__(self) -> str:
         return (
             f'<CareerRequirement career={self.career_id!r} '
-            f'node={self.node_id!r} type={self.requirement_type.value}>'
+            f'node={self.node_id!r} type={self.requirement_type}>'
         )

@@ -1,26 +1,22 @@
 """Enum serialization utilities.
 
-Centralises the pattern of converting SQLAlchemy-mapped enum columns
-(PgEnum-backed) to their string values for JSON serialization.
+Centralises the pattern of converting ``StrEnum`` members to their
+string values for JSON serialization.
 
-The ``PgEnum`` type stores enum values as strings in PostgreSQL and
-reconstitutes them via an ``after_load`` listener.  This module
-provides safe, consistent accessors for both cases:
-
-- When the ``after_load`` listener has run: the attribute is a
-  proper Python enum member, and ``.value`` gives the string.
-- When the listener has NOT run (edge case): the attribute is
-  already a plain string, which is returned as-is.
+The ``PgEnumType`` (via ``TypeDecorator``) ensures that all enum
+attributes on ORM instances are always proper Python ``StrEnum``
+members.  This module provides consistent accessors that handle
+both enum members and plain strings defensively.
 
 Usage::
 
     from app.utils.enum_utils import enum_value
 
-    # Instead of:
-    #   value = obj.node_type.value if hasattr(obj.node_type, 'value') else obj.node_type
+    # For a StrEnum attribute that is guaranteed to be an enum member:
+    value = obj.role.value  # Always works (attribute is always an enum)
 
-    # Use:
-    value = enum_value(obj.node_type)
+    # For defensive access when the type is uncertain:
+    value = enum_value(obj.role)  # Handles enum, string, and None
 """
 
 from __future__ import annotations

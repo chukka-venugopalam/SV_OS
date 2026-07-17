@@ -92,5 +92,5 @@ class Recommendation(AppBaseMixin, Base):
     def __repr__(self) -> str:
         return (
             f'<Recommendation user={self.user_id!r} '
-            f'node={self.node_id!r} type={self.recommendation_type.value}>'
+            f'node={self.node_id!r} type={self.recommendation_type}>'
         )

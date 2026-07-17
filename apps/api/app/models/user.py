@@ -159,4 +159,4 @@ class User(AppBaseMixin, Base):
     )
 
     def __repr__(self) -> str:
-        return f'<User id={self.id!r} username={self.username!r} role={self.role.value}>'
+        return f'<User id={self.id!r} username={self.username!r} role={self.role}>'

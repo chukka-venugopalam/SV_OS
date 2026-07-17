@@ -106,7 +106,7 @@ async def register(
             detail=exc.message,
         ) from exc
 
-    access_token, expires_at = auth_service.create_access_token(user.id, user.role.value)
+    access_token, expires_at = auth_service.create_access_token(user.id, user.role)
     refresh_token = auth_service.create_refresh_token(user.id)
 
     return _build_login_response(user, access_token, refresh_token, expires_at)

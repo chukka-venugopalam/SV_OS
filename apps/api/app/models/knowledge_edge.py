@@ -116,5 +116,5 @@ class KnowledgeEdge(AppBaseMixin, Base):
         return (
             f'<KnowledgeEdge id={self.id!r} '
             f'{self.source_node_id!r} → {self.target_node_id!r} '
-            f'type={self.relationship_type.value}>'
+            f'type={self.relationship_type}>'
         )

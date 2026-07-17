@@ -144,5 +144,5 @@ class SkillRelationship(AppBaseMixin, Base):
     def __repr__(self) -> str:
         return (
             f'<SkillRelationship {self.source_skill_id!r} → '
-            f'{self.target_skill_id!r} type={self.relationship_type.value}>'
+            f'{self.target_skill_id!r} type={self.relationship_type}>'
         )

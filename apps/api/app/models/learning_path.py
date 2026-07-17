@@ -168,5 +168,5 @@ class LearningSession(AppBaseMixin, Base):
         return (
             f'<LearningSession id={self.id!r} '
             f'user={self.user_id!r} node={self.node_id!r} '
-            f'status={self.status.value}>'
+            f'status={self.status}>'
         )

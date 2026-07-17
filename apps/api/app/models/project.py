@@ -170,5 +170,5 @@ class ProjectRequirement(AppBaseMixin, Base):
     def __repr__(self) -> str:
         return (
             f'<ProjectRequirement project={self.project_id!r} '
-            f'node={self.node_id!r} type={self.requirement_type.value}>'
+            f'node={self.node_id!r} type={self.requirement_type}>'
         )

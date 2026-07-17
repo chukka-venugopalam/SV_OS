@@ -89,7 +89,7 @@ class AuthService:
         to_encode.update({'exp': expire, 'iat': datetime.now(UTC)})
         return jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
 
-    def create_access_token(self, user_id: UUID, role: str = 'learner') -> tuple[str, datetime]:
+    def create_access_token(self, user_id: UUID, role: str | UserRole = 'learner') -> tuple[str, datetime]:
         """Create a short-lived JWT access token.
 
         Returns a tuple of ``(token, expires_at)``.
@@ -216,7 +216,7 @@ class AuthService:
         await self._uow.flush()
 
         # Generate tokens
-        access_token, expires_at = self.create_access_token(user.id, user.role.value)
+        access_token, expires_at = self.create_access_token(user.id, user.role)
         refresh_token = self.create_refresh_token(user.id)
 
         logger.info('user_logged_in', user_id=str(user.id))
@@ -246,7 +246,7 @@ class AuthService:
             raise AuthenticationError('Account is deactivated')
 
         # Generate new token pair
-        access_token, expires_at = self.create_access_token(user.id, user.role.value)
+        access_token, expires_at = self.create_access_token(user.id, user.role)
         new_refresh_token = self.create_refresh_token(user.id)
 
         return user, access_token, new_refresh_token, expires_at

@@ -103,5 +103,5 @@ class UserProgress(AppBaseMixin, Base):
 
     def __repr__(self) -> str:
         return (
-            f'<UserProgress user={self.user_id!r} node={self.node_id!r} status={self.status.value}>'
+            f'<UserProgress user={self.user_id!r} node={self.node_id!r} status={self.status}>'
         )

@@ -181,4 +181,4 @@ class KnowledgeNode(AppBaseMixin, Base):
     )
 
     def __repr__(self) -> str:
-        return f'<KnowledgeNode id={self.id!r} slug={self.slug!r} type={self.node_type.value}>'
+        return f'<KnowledgeNode id={self.id!r} slug={self.slug!r} type={self.node_type}>'

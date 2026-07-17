@@ -50,8 +50,7 @@ def sample_user():
     user.username = 'testuser'
     user.display_name = 'Test User'
     user.password_hash = hash_password('correct-password')
-    user.role = MagicMock()
-    user.role.value = 'learner'
+    user.role = 'learner'
     user.is_active = True
     user.is_deleted = False
     user.last_login_at = None
@@ -408,15 +407,13 @@ class TestAuthorization:
     def test_require_role_admin_allowed(self):
         """Test require_role passes for admin users."""
         user = MagicMock()
-        user.role = MagicMock()
-        user.role.value = 'admin'
+        user.role = 'admin'
         AuthService.require_role(user, 'admin')  # Should not raise
 
     def test_require_role_learner_denied_admin(self):
         """Test require_role raises for non-admin users."""
         user = MagicMock()
-        user.role = MagicMock()
-        user.role.value = 'learner'
+        user.role = 'learner'
         with pytest.raises(AuthorizationError, match='Admin access required'):
             AuthService.require_role(user, 'admin')
 

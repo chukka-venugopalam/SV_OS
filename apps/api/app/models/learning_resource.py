@@ -96,5 +96,5 @@ class LearningResource(AppBaseMixin, Base):
     def __repr__(self) -> str:
         return (
             f'<LearningResource id={self.id!r} '
-            f'title={self.title!r} type={self.resource_type.value}>'
+            f'title={self.title!r} type={self.resource_type}>'
         )
