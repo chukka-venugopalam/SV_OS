@@ -22,12 +22,28 @@ For each native PostgreSQL enum column:
 
 This affects all 13 PostgreSQL enum types and their 17 column usages.
 
+View Handling
+-------------
+PostgreSQL refuses to ``ALTER COLUMN ... TYPE`` on columns referenced by
+views or rules.  The following views depend on enum columns:
+
+- ``v_node_statistics`` — depends on ``knowledge_nodes.node_type``
+  and ``knowledge_nodes.difficulty``
+- ``v_user_progress_summary`` — depends on ``user_progress.status``
+
+The migration therefore:
+1. Drops dependent views before altering columns.
+2. Performs all enum-to-VARCHAR conversions.
+3. Adds all CHECK constraints.
+4. Recreates the views exactly as they were.
+
 Verification
 ------------
 - No data loss — native enum values are already stored as the same
   lowercase strings that VARCHAR will hold.
 - All CHECK constraints mirror the valid values defined in the Python
   ``StrEnum`` classes in ``app.models.enums``.
+- Views are fully preserved (same SQL definitions as the initial schema).
 """
 
 from collections.abc import Sequence
@@ -43,8 +59,80 @@ depends_on: str | Sequence[str] | None = None
 
 
 # ═══════════════════════════════════════════════════════════════════
+# VIEW DEFINITIONS
+# ═══════════════════════════════════════════════════════════════════
+# These must be dropped before altering enum column types and
+# recreated afterward.
+
+
+V_NODE_STATISTICS_SQL = """
+CREATE OR REPLACE VIEW v_node_statistics AS
+SELECT
+    n.id,
+    n.slug,
+    n.title,
+    n.node_type,
+    n.difficulty,
+    n.estimated_minutes,
+    n.view_count,
+    COUNT(DISTINCT e_in.target_node_id) AS prerequisite_count,
+    COUNT(DISTINCT e_out.source_node_id) AS unlock_count,
+    COUNT(DISTINCT lr.id) AS resource_count
+FROM knowledge_nodes n
+LEFT JOIN knowledge_edges e_in
+    ON e_in.source_node_id = n.id
+    AND e_in.relationship_type = 'prerequisite'
+LEFT JOIN knowledge_edges e_out
+    ON e_out.target_node_id = n.id
+    AND e_out.relationship_type = 'prerequisite'
+LEFT JOIN learning_resources lr ON lr.node_id = n.id
+WHERE n.is_published = true
+    AND n.is_deleted = false
+GROUP BY n.id, n.slug, n.title, n.node_type,
+         n.difficulty, n.estimated_minutes, n.view_count
+"""
+
+V_USER_PROGRESS_SUMMARY_SQL = """
+CREATE OR REPLACE VIEW v_user_progress_summary AS
+SELECT
+    up.user_id,
+    COUNT(*) AS total_nodes,
+    COUNT(*) FILTER (WHERE up.status = 'not_started') AS not_started_count,
+    COUNT(*) FILTER (WHERE up.status = 'learning') AS learning_count,
+    COUNT(*) FILTER (WHERE up.status = 'completed') AS completed_count,
+    COUNT(*) FILTER (WHERE up.status = 'mastered') AS mastered_count,
+    SUM(up.time_spent_minutes) AS total_time_minutes
+FROM user_progress up
+WHERE up.is_deleted = false
+GROUP BY up.user_id
+"""
+
+ALL_VIEW_NAMES = ['v_node_statistics', 'v_user_progress_summary']
+ALL_VIEW_SQL = [V_NODE_STATISTICS_SQL, V_USER_PROGRESS_SUMMARY_SQL]
+
+
+# ═══════════════════════════════════════════════════════════════════
 # HELPERS
 # ═══════════════════════════════════════════════════════════════════
+
+
+def _drop_views() -> None:
+    """Drop all views that depend on enum columns being altered.
+
+    Idempotent: uses ``DROP VIEW IF EXISTS`` so it is safe on a
+    fresh database where views do not yet exist.
+    """
+    for view_name in ALL_VIEW_NAMES:
+        op.execute(text(f'DROP VIEW IF EXISTS {view_name}'))
+
+
+def _recreate_views() -> None:
+    """Recreate all views that were dropped.
+
+    Uses ``CREATE OR REPLACE VIEW`` so it is idempotent.
+    """
+    for view_sql in ALL_VIEW_SQL:
+        op.execute(text(view_sql))
 
 
 def _alter_enum_to_varchar(
@@ -491,9 +579,25 @@ ENUM_RESTORE: list[tuple[str, str, str, list[str], str, str | None]] = [
 
 
 def upgrade() -> None:
-    """Convert all native enum columns to VARCHAR(50) with CHECK constraints."""
+    """Convert all native enum columns to VARCHAR(50) with CHECK constraints.
+
+    Order of operations:
+    1. Drop views that depend on enum columns (idempotent).
+    2. Alter each enum column to VARCHAR(50).
+    3. Add CHECK constraints.
+    4. Recreate views exactly as they were.
+    """
+    # Step 1: Drop dependent views before altering column types.
+    # PostgreSQL refuses ALTER COLUMN ... TYPE on columns referenced
+    # by views or rules.
+    _drop_views()
+
+    # Step 2: Convert all enum columns to VARCHAR(50) and add CHECK constraints.
     for table, column, valid_values, constraint_name in ENUM_COLUMNS:
         _alter_enum_to_varchar(table, column, valid_values, constraint_name)
+
+    # Step 3: Recreate views that were dropped.
+    _recreate_views()
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -502,6 +606,19 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Restore native PostgreSQL enum columns (drop CHECK, recreate enum types)."""
+    """Restore native PostgreSQL enum columns (drop CHECK, recreate enum types).
+
+    Order of operations:
+    1. Drop views (they depend on VARCHAR columns that will be converted).
+    2. Drop CHECK constraints and restore native enum types.
+    3. Recreate views.
+    """
+    # Step 1: Drop views (they reference the columns we are converting).
+    _drop_views()
+
+    # Step 2: Restore native enum types.
     for entry in ENUM_RESTORE:
         _drop_check_and_restore_enum(*entry)
+
+    # Step 3: Recreate views now that native enum columns are restored.
+    _recreate_views()
