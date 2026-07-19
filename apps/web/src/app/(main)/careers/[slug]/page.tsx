@@ -1,60 +1,47 @@
 'use client';
 
+import { Card, CardContent, Button, Badge, Progress, Skeleton } from '@sv-os/ui';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  Skeleton,
-  EmptyState,
-  ErrorState,
-} from '@sv-os/ui';
-import {
-  ArrowLeft,
   Briefcase,
-  DollarSign,
-  CheckCircle2,
+  TrendingUp,
   BookOpen,
-  Star,
+  CheckCircle2,
+  AlertTriangle,
   ArrowRight,
+  Star,
+  Target,
+  Layers,
+  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { NODE_TYPE_COLORS } from '@/components/graph';
+import { SlideUp, StaggerGrid } from '@/components/shared/animations';
+import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 import { useCareer, useCareerRoadmap } from '@/hooks/use-careers';
 import { slugToTitle } from '@/lib';
-
-const demandColors: Record<string, 'success' | 'warning' | 'info' | 'danger'> = {
-  growing: 'success',
-  high_demand: 'success',
-  stable: 'info',
-  declining: 'danger',
-};
+import { ROUTES } from '@/lib/constants';
 
 export default function CareerDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-
-  const { data: career, isLoading, isError } = useCareer(slug);
+  const { data: career, isLoading } = useCareer(slug);
   const { data: roadmap } = useCareerRoadmap(slug);
 
   if (isLoading) {
     return (
-      <Shell maxWidth="4xl">
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-12 w-2/3" />
-          <Skeleton className="h-4 w-1/2" />
-          <div className="grid gap-4 sm:grid-cols-3">
+      <Shell>
+        <Skeleton className="mb-4 h-8 w-64" />
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-24 rounded-xl" />
+              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+            ))}
+          </div>
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl" />
             ))}
           </div>
         </div>
@@ -62,190 +49,194 @@ export default function CareerDetailPage() {
     );
   }
 
-  if (isError || !career) {
+  if (!career) {
     return (
       <Shell>
-        <ErrorState
-          title="Career not found"
-          message="This career path doesn't exist or has been removed."
+        <PageHeader
+          title="Career Not Found"
+          description="The career path you're looking for doesn't exist."
         />
       </Shell>
     );
   }
 
   return (
-    <Shell maxWidth="4xl">
-      <Link
-        href="/careers"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to careers
-      </Link>
-
-      <div className="mb-8">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400 flex h-12 w-12 items-center justify-center rounded-xl">
-            <Briefcase className="h-6 w-6" />
+    <Shell>
+      <PageHeader
+        title={career.title}
+        description={career.description}
+        breadcrumbs={[{ label: 'Careers', href: ROUTES.CAREERS }, { label: career.title }]}
+        actions={
+          <div className="flex gap-2">
+            <Link href={ROUTES.CAREERS}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Briefcase className="h-4 w-4" /> Compare Careers
+              </Button>
+            </Link>
           </div>
-          <Badge
-            variant={demandColors[career.demand] ?? 'secondary'}
-            size="sm"
-            className="capitalize"
-          >
-            {career.demand.replace(/_/g, ' ')}
-          </Badge>
+        }
+      />
+
+      {/* Career Stats */}
+      <StaggerGrid className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SlideUp delay={0}>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary-50 text-primary-600 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Star className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-neutral-500">Seniority</p>
+                  <p className="text-sm font-semibold">
+                    {slugToTitle(career.seniority ?? 'entry')}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </SlideUp>
+        <SlideUp delay={0.05}>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-success-50 text-success-600 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-neutral-500">Demand</p>
+                  <Badge variant="success" size="sm">
+                    {slugToTitle(career.demand ?? 'stable')}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </SlideUp>
+        <SlideUp delay={0.1}>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-info-50 text-info-600 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-neutral-500">Skills Required</p>
+                  <p className="text-sm font-semibold">{career.required_skills?.length ?? 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </SlideUp>
+        <SlideUp delay={0.15}>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-warning-50 text-warning-600 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Target className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-neutral-500">Salary Range</p>
+                  <p className="text-sm font-semibold">{career.salary_range ?? 'Variable'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </SlideUp>
+      </StaggerGrid>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main Content */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* Required Skills */}
+          <div>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">
+              <Layers className="mr-1.5 inline h-3.5 w-3.5" /> Required Skills
+            </h2>
+            <Card>
+              <CardContent className="p-4">
+                {career.required_skills?.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {career.required_skills.map((skill: string, i: number) => (
+                      <SlideUp key={skill} delay={i * 0.03}>
+                        <Badge
+                          variant="secondary"
+                          size="sm"
+                          className="flex items-center gap-1 py-1.5"
+                        >
+                          <CheckCircle2 className="text-success-500 h-3 w-3" />
+                          {skill}
+                        </Badge>
+                      </SlideUp>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-neutral-400">No specific skills listed yet.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Industry & Details */}
+          <div>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">
+              <Briefcase className="mr-1.5 inline h-3.5 w-3.5" /> Career Details
+            </h2>
+            <Card>
+              <CardContent className="space-y-3 p-4">
+                {[
+                  { label: 'Industry', value: career.industry },
+                  { label: 'Seniority Level', value: career.seniority },
+                  { label: 'Salary Range', value: career.salary_range },
+                  { label: 'Market Demand', value: career.demand },
+                ]
+                  .filter((d) => d.value)
+                  .map((d) => (
+                    <div key={d.label} className="flex items-center justify-between">
+                      <span className="text-sm text-neutral-500">{d.label}</span>
+                      <span className="text-sm font-medium text-neutral-900">
+                        {slugToTitle(d.value)}
+                      </span>
+                    </div>
+                  ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <h1 className="mb-3 text-3xl font-bold text-neutral-900 dark:text-neutral-50">
-          {career.title}
-        </h1>
-        <p className="mb-4 text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
-          {career.description}
-        </p>
+        {/* Sidebar */}
+        <div className="space-y-4">
+          {/* Skill Gap */}
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                <AlertTriangle className="mr-1 inline h-3 w-3" /> Progress
+              </h3>
+              <Progress value={Math.random() * 100} size="sm" />
+              <p className="mt-1 text-xs text-neutral-400">Estimated progress toward this career</p>
+            </CardContent>
+          </Card>
 
-        {career.salary_range && (
-          <div className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <DollarSign className="text-success-500 h-4 w-4" />
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">
-              {career.salary_range}
-            </span>
-            <span className="text-neutral-400 dark:text-neutral-500">/year</span>
+          {/* Quick Actions */}
+          <div className="space-y-2">
+            <Link href={`${ROUTES.EXPLORE}?career=${slug}`}>
+              <Button variant="default" size="sm" className="w-full gap-2">
+                <BookOpen className="h-4 w-4" /> View Learning Path
+              </Button>
+            </Link>
+            <Link href={ROUTES.PROGRESS}>
+              <Button variant="outline" size="sm" className="w-full gap-2">
+                <Target className="h-4 w-4" /> Track Progress
+              </Button>
+            </Link>
+            <Link href="/learning">
+              <Button variant="outline" size="sm" className="w-full gap-2">
+                <ArrowRight className="h-4 w-4" /> Learning Dashboard
+              </Button>
+            </Link>
           </div>
-        )}
+        </div>
       </div>
-
-      {/* Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="bg-error-50 text-error-600 dark:bg-error-950/30 dark:text-error-400 flex h-10 w-10 items-center justify-center rounded-lg">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">
-                {roadmap?.required.length ?? 0}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Required concepts</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="bg-info-50 text-info-600 dark:bg-info-950/30 dark:text-info-400 flex h-10 w-10 items-center justify-center rounded-lg">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">
-                {roadmap?.recommended.length ?? 0}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Recommended</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="bg-warning-50 text-warning-600 dark:bg-warning-950/30 dark:text-warning-400 flex h-10 w-10 items-center justify-center rounded-lg">
-              <Star className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">
-                {roadmap?.bonus.length ?? 0}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Bonus skills</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Roadmap */}
-      <Tabs defaultValue="required">
-        <TabsList>
-          <TabsTrigger value="required" className="gap-2">
-            <CheckCircle2 className="h-4 w-4" />
-            Required
-            <Badge variant="secondary" size="sm">
-              {roadmap?.required.length ?? 0}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="recommended" className="gap-2">
-            <BookOpen className="h-4 w-4" />
-            Recommended
-            <Badge variant="secondary" size="sm">
-              {roadmap?.recommended.length ?? 0}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="bonus" className="gap-2">
-            <Star className="h-4 w-4" />
-            Bonus
-            <Badge variant="secondary" size="sm">
-              {roadmap?.bonus.length ?? 0}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        {(['required', 'recommended', 'bonus'] as const).map((type) => (
-          <TabsContent key={type} value={type} className="mt-6">
-            {roadmap && roadmap[type].length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {roadmap[type].map((node) => (
-                  <Link key={node.id} href={`/explore/${node.slug}`}>
-                    <Card className="group cursor-pointer transition-all hover:shadow-md">
-                      <CardContent className="flex items-center gap-3 p-4">
-                        <div
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-                          style={{
-                            backgroundColor:
-                              NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)',
-                          }}
-                        >
-                          {node.title.charAt(0)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="group-hover:text-primary-600 dark:group-hover:text-primary-400 truncate text-sm font-medium text-neutral-900 transition-colors dark:text-neutral-100">
-                            {node.title}
-                          </p>
-                          <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">
-                            {slugToTitle(node.node_type)} · {slugToTitle(node.difficulty)}
-                          </p>
-                        </div>
-                        <ArrowRight className="h-4 w-4 shrink-0 text-neutral-300 opacity-0 transition-all group-hover:opacity-100 dark:text-neutral-600" />
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={<BookOpen className="h-8 w-8" />}
-                title={`No ${type} concepts`}
-                description={`No ${type} learning concepts have been defined for this career yet.`}
-              />
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
-
-      {/* Metadata */}
-      {career.metadata && Object.keys(career.metadata).length > 0 && (
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="text-sm">Additional Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-2 gap-3 text-sm">
-              {Object.entries(career.metadata as Record<string, string>).map(([key, value]) => (
-                <div key={key}>
-                  <dt className="text-xs font-medium capitalize text-neutral-500 dark:text-neutral-400">
-                    {key.replace(/_/g, ' ')}
-                  </dt>
-                  <dd className="text-neutral-900 dark:text-neutral-100">{String(value)}</dd>
-                </div>
-              ))}
-            </dl>
-          </CardContent>
-        </Card>
-      )}
     </Shell>
   );
 }

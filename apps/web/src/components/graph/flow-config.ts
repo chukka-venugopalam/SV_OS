@@ -49,6 +49,16 @@ export const NODE_TYPE_COLORS: Record<string, string> = {
   project: 'var(--color-graph-project)',
 };
 
+/** Graph layout strategies */
+export type GraphLayout = 'force' | 'hierarchical' | 'radial' | 'dependency-tree';
+
+export const GRAPH_LAYOUTS: Array<{ value: GraphLayout; label: string; description: string }> = [
+  { value: 'force', label: 'Force-Directed', description: 'Natural cluster-based layout' },
+  { value: 'hierarchical', label: 'Hierarchical', description: 'Top-down dependency tree' },
+  { value: 'radial', label: 'Radial', description: 'Concentric rings around center' },
+  { value: 'dependency-tree', label: 'Dependency Tree', description: 'Prerequisite chain view' },
+];
+
 /** Custom node types to register with React Flow */
 export const CUSTOM_NODE_TYPES = {
   // Will be populated when custom nodes are implemented

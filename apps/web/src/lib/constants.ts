@@ -23,6 +23,7 @@ export const ROUTES = {
   VERSIONS: '/versions',
   IMPORT_EXPORT: '/import-export',
   NOTIFICATIONS: '/notifications',
+  LEARNING: '/learning',
 } as const;
 
 export const API_ROUTES = {
@@ -46,6 +47,7 @@ export const NAV_ITEMS = [
   { label: 'Projects', href: ROUTES.PROJECTS, icon: 'FolderGit2' },
   { label: 'Progress', href: ROUTES.PROGRESS, icon: 'BarChart3' },
   { label: 'Bookmarks', href: ROUTES.BOOKMARKS, icon: 'Bookmark' },
+  { label: 'Learning', href: ROUTES.LEARNING, icon: 'BookOpen' },
   { label: 'Settings', href: ROUTES.SETTINGS, icon: 'Settings' },
 ] as const;
 
