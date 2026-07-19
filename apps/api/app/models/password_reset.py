@@ -1,5 +1,4 @@
-"""
-PasswordResetToken model — stores password reset tokens.
+"""PasswordResetToken model — stores password reset tokens.
 
 Each token is a short-lived, single-use random string that allows
 a user to reset their password without being authenticated.
@@ -7,9 +6,7 @@ a user to reset their password without being authenticated.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -19,6 +16,9 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
     from app.models.user import User
 
 

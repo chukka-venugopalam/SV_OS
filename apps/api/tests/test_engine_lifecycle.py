@@ -12,21 +12,20 @@ from uuid import UUID, uuid4
 import pytest
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth, EngineState
-from app.engines.state_engine import StateEngine
 from app.engines.import_engine import ImportEngine
+from app.engines.state_engine import StateEngine
 from app.engines.validation_engine import (
     DuplicateIdValidator,
-    MissingIdValidator,
-    SchemaValidator,
     EdgeValidator,
     MetadataValidator,
+    MissingIdValidator,
+    SchemaValidator,
 )
 from app.infrastructure.registries.registries import (
     DependencyCycleError,
     DependencyGraph,
     EngineRegistry,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════
 # Engine Lifecycle Tests
@@ -36,21 +35,21 @@ from app.infrastructure.registries.registries import (
 class TestEngineLifecycle:
     """Verify engine lifecycle state transitions."""
 
-    async def test_engine_starts_uninitialized(self):
+    async def test_engine_starts_uninitialized(self) -> None:
         """An engine should start in UNINITIALIZED state."""
         engine = _create_test_engine()
         assert engine.engine_state == EngineState.UNINITIALIZED
         assert not engine.is_initialized
         assert not engine.is_running
 
-    async def test_initialize_transitions_to_ready(self):
+    async def test_initialize_transitions_to_ready(self) -> None:
         """initialize() should transition to READY state."""
         engine = _create_test_engine()
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
         assert engine.is_initialized
 
-    async def test_start_transitions_to_running(self):
+    async def test_start_transitions_to_running(self) -> None:
         """start() should transition to RUNNING state."""
         engine = _create_test_engine()
         await engine.initialize()
@@ -58,7 +57,7 @@ class TestEngineLifecycle:
         assert engine.engine_state == EngineState.RUNNING
         assert engine.is_running
 
-    async def test_stop_transitions_to_stopped(self):
+    async def test_stop_transitions_to_stopped(self) -> None:
         """stop() should transition to STOPPED state."""
         engine = _create_test_engine()
         await engine.initialize()
@@ -66,7 +65,7 @@ class TestEngineLifecycle:
         await engine.stop()
         assert engine.engine_state == EngineState.STOPPED
 
-    async def test_health_returns_engine_health(self):
+    async def test_health_returns_engine_health(self) -> None:
         """health() should return an EngineHealth instance."""
         engine = _create_test_engine()
         await engine.initialize()
@@ -75,7 +74,7 @@ class TestEngineLifecycle:
         assert health.engine_name == 'test_engine'
         assert health.healthy
 
-    async def test_diagnostics_returns_full_snapshot(self):
+    async def test_diagnostics_returns_full_snapshot(self) -> None:
         """diagnostics() should return a comprehensive snapshot."""
         engine = _create_test_engine()
         await engine.initialize()
@@ -95,18 +94,18 @@ class TestEngineLifecycle:
 class TestDependencyGraph:
     """Verify dependency graph cycle detection and ordering."""
 
-    def test_empty_graph_has_no_cycle(self):
+    def test_empty_graph_has_no_cycle(self) -> None:
         graph = DependencyGraph()
         assert graph.has_cycle() is None
 
-    def test_linear_graph_has_no_cycle(self):
+    def test_linear_graph_has_no_cycle(self) -> None:
         graph = DependencyGraph()
         graph.add_node('c', ['b'])
         graph.add_node('b', ['a'])
         graph.add_node('a', [])
         assert graph.has_cycle() is None
 
-    def test_cyclic_graph_detects_cycle(self):
+    def test_cyclic_graph_detects_cycle(self) -> None:
         graph = DependencyGraph()
         graph.add_node('a', ['b'])
         graph.add_node('b', ['c'])
@@ -115,7 +114,7 @@ class TestDependencyGraph:
         assert cycle is not None
         assert len(cycle) >= 2
 
-    def test_startup_order_is_topological(self):
+    def test_startup_order_is_topological(self) -> None:
         graph = DependencyGraph()
         graph.add_node('c', ['b'])
         graph.add_node('b', ['a'])
@@ -124,7 +123,7 @@ class TestDependencyGraph:
         assert order.index('a') < order.index('b')
         assert order.index('b') < order.index('c')
 
-    def test_shutdown_order_reverses_startup(self):
+    def test_shutdown_order_reverses_startup(self) -> None:
         graph = DependencyGraph()
         graph.add_node('c', ['b'])
         graph.add_node('b', ['a'])
@@ -133,7 +132,7 @@ class TestDependencyGraph:
         shutdown = graph.shutdown_order()
         assert start == list(reversed(shutdown))
 
-    def test_shutdown_order_reverses_startup_complex(self):
+    def test_shutdown_order_reverses_startup_complex(self) -> None:
         graph = DependencyGraph()
         graph.add_node('event', [])
         graph.add_node('graph', ['event'])
@@ -147,39 +146,39 @@ class TestDependencyGraph:
 class TestEngineRegistry:
     """Verify the EngineRegistry implementation."""
 
-    async def test_register_engine(self):
+    async def test_register_engine(self) -> None:
         registry = EngineRegistry()
         registry.register('test', _create_test_engine_class)
         assert registry.is_registered('test')
 
-    async def test_register_duplicate_raises(self):
+    async def test_register_duplicate_raises(self) -> None:
         registry = EngineRegistry()
         registry.register('test', _create_test_engine_class)
         with pytest.raises(ValueError, match='already registered'):
             registry.register('test', _create_test_engine_class)
 
-    async def test_get_returns_engine(self):
+    async def test_get_returns_engine(self) -> None:
         registry = EngineRegistry()
         registry.register('test', _create_test_engine_class)
         engine = registry.get('test')
         assert isinstance(engine, EngineBase)
 
-    async def test_get_unregistered_raises(self):
+    async def test_get_unregistered_raises(self) -> None:
         registry = EngineRegistry()
         with pytest.raises(KeyError, match='not registered'):
             registry.get('nonexistent')
 
-    async def test_try_get_unregistered_returns_none(self):
+    async def test_try_get_unregistered_returns_none(self) -> None:
         registry = EngineRegistry()
         assert registry.try_get('nonexistent') is None
 
-    async def test_names_returns_sorted(self):
+    async def test_names_returns_sorted(self) -> None:
         registry = EngineRegistry()
         registry.register('z_engine', _create_test_engine_class)
         registry.register('a_engine', _create_test_engine_class)
         assert registry.names() == ['a_engine', 'z_engine']
 
-    async def test_cyclic_dependency_raises(self):
+    async def test_cyclic_dependency_raises(self) -> None:
         registry = EngineRegistry()
         registry.register('a', _create_test_engine_class)
         registry.register('b', _create_test_engine_class)
@@ -198,12 +197,12 @@ class TestEngineRegistry:
 class TestStateEngine:
     """Verify state engine transitions."""
 
-    async def test_initial_state_is_none(self):
+    async def test_initial_state_is_none(self) -> None:
         engine = StateEngine()
         state = await engine.get_state(uuid4(), uuid4())
         assert state is None
 
-    async def test_update_creates_new_state(self):
+    async def test_update_creates_new_state(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_id = uuid4()
@@ -212,7 +211,7 @@ class TestStateEngine:
         assert result['user_id'] == str(user_id)
         assert result['node_id'] == str(node_id)
 
-    async def test_valid_transition_succeeds(self):
+    async def test_valid_transition_succeeds(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_id = uuid4()
@@ -220,7 +219,7 @@ class TestStateEngine:
         result = await engine.update_state(user_id, node_id, 'completed')
         assert result['status'] == 'completed'
 
-    async def test_invalid_transition_raises(self):
+    async def test_invalid_transition_raises(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_id = uuid4()
@@ -228,7 +227,7 @@ class TestStateEngine:
         with pytest.raises(ValueError, match='Invalid state transition'):
             await engine.update_state(user_id, node_id, 'mastered')
 
-    async def test_confidence_update(self):
+    async def test_confidence_update(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_id = uuid4()
@@ -236,7 +235,7 @@ class TestStateEngine:
         confidence = await engine.update_confidence(user_id, node_id, 0.2)
         assert confidence == pytest.approx(0.2, abs=0.01)
 
-    async def test_transition_history(self):
+    async def test_transition_history(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_id = uuid4()
@@ -245,7 +244,7 @@ class TestStateEngine:
         history = await engine.get_transition_history(user_id, node_id)
         assert len(history) == 2
 
-    async def test_list_states_by_status(self):
+    async def test_list_states_by_status(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_a = uuid4()
@@ -257,7 +256,7 @@ class TestStateEngine:
         assert len(states) == 1
         assert states[0]['status'] == 'learning'
 
-    async def test_count_by_status(self):
+    async def test_count_by_status(self) -> None:
         engine = StateEngine()
         user_id = uuid4()
         node_a = uuid4()
@@ -278,27 +277,27 @@ class TestStateEngine:
 class TestValidators:
     """Verify built-in validators."""
 
-    async def test_duplicate_id_validator_detects_duplicates(self):
+    async def test_duplicate_id_validator_detects_duplicates(self) -> None:
         validator = DuplicateIdValidator(id_field='id', label='node')
         data = [{'id': 'a'}, {'id': 'b'}, {'id': 'a'}]
         errors = await validator(data)
         assert len(errors) == 1
         assert 'Duplicate' in errors[0]['message']
 
-    async def test_missing_id_validator_detects_missing(self):
+    async def test_missing_id_validator_detects_missing(self) -> None:
         validator = MissingIdValidator(id_field='id', label='node')
         data = [{'id': 'a'}, {'name': 'no-id'}]
         errors = await validator(data)
         assert len(errors) == 1
 
-    async def test_schema_validator_checks_required_fields(self):
+    async def test_schema_validator_checks_required_fields(self) -> None:
         validator = SchemaValidator(required_fields=['id', 'title'], label='node')
         data = [{'id': 'a', 'title': 'OK'}, {'id': 'b'}]
         errors = await validator(data)
         assert len(errors) == 1
         assert 'title' in errors[0]['message']
 
-    async def test_edge_validator_checks_source_target(self):
+    async def test_edge_validator_checks_source_target(self) -> None:
         validator = EdgeValidator(node_ids={UUID(int=1)})
         data = [
             {'id': 'e1', 'source_node_id': UUID(int=1), 'target_node_id': UUID(int=2)},
@@ -307,7 +306,7 @@ class TestValidators:
         # target_node_id 2 doesn't exist
         assert len(errors) >= 1
 
-    async def test_self_loop_detected(self):
+    async def test_self_loop_detected(self) -> None:
         validator = EdgeValidator(node_ids={UUID(int=1)})
         nid = UUID(int=1)
         data = [{'id': 'e1', 'source_node_id': nid, 'target_node_id': nid}]
@@ -316,7 +315,7 @@ class TestValidators:
         assert len(self_loop_errors) == 1
         assert self_loop_errors[0]['message'] == f'Self-loop edge detected: {nid} -> {nid}'
 
-    async def test_metadata_validator_checks_type(self):
+    async def test_metadata_validator_checks_type(self) -> None:
         validator = MetadataValidator()
         data = [{'metadata': 'not-a-dict'}]
         errors = await validator(data)
@@ -331,7 +330,7 @@ class TestValidators:
 class TestImportPipeline:
     """Verify import pipeline lifecycle."""
 
-    async def test_import_creates_job(self):
+    async def test_import_creates_job(self) -> None:
         engine = ImportEngine()
         result = await engine.start_import(
             payload={'source': 'test', 'nodes': [], 'edges': []},
@@ -339,7 +338,7 @@ class TestImportPipeline:
         assert result['source'] == 'test'
         assert 'import_id' in result
 
-    async def test_dry_run_does_not_commit(self):
+    async def test_dry_run_does_not_commit(self) -> None:
         engine = ImportEngine()
         result = await engine.start_import(
             payload={'source': 'test', 'nodes': [], 'edges': []},
@@ -347,7 +346,7 @@ class TestImportPipeline:
         )
         assert result['committed'] is False
 
-    async def test_get_import_status(self):
+    async def test_get_import_status(self) -> None:
         engine = ImportEngine()
         result = await engine.start_import(
             payload={'source': 'test', 'nodes': [], 'edges': []},
@@ -355,7 +354,7 @@ class TestImportPipeline:
         status = await engine.get_import_status(UUID(result['import_id']))
         assert status['import_id'] == result['import_id']
 
-    async def test_import_history(self):
+    async def test_import_history(self) -> None:
         engine = ImportEngine()
         await engine.start_import(payload={'source': 'test', 'nodes': [], 'edges': []})
         await engine.start_import(payload={'source': 'test2', 'nodes': [], 'edges': []})

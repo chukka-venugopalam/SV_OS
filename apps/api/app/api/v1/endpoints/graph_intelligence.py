@@ -1,5 +1,4 @@
-"""
-Graph Intelligence API endpoints — advanced graph operations.
+"""Graph Intelligence API endpoints — advanced graph operations.
 
 Provides endpoints for:
 - Path finding (BFS shortest path)
@@ -12,20 +11,23 @@ Provides endpoints for:
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_optional_user_id, get_uow
-from app.repositories import UnitOfWork
 from app.schemas.response import build_success_response
 from app.services.graph.analytics import GraphAnalyticsService
 from app.services.graph.traversal import GraphTraversalService
 from app.services.learning_path_generator import LearningPathGenerator
 from app.services.progress_intelligence import ProgressIntelligence
 from app.services.recommendation_engine import RecommendationEngine
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -319,7 +321,8 @@ async def generate_learning_path(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
     difficulty: Annotated[str | None, Query(description='Preferred difficulty level')] = None,
     estimated_hours: Annotated[
-        int | None, Query(ge=1, le=1000, description='Time constraint')
+        int | None,
+        Query(ge=1, le=1000, description='Time constraint'),
     ] = None,
 ) -> dict:
     """Generate a dynamic learning path toward a goal."""

@@ -7,11 +7,14 @@ here as stable API contracts.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import Difficulty, NodeType
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.enums import Difficulty, NodeType
 
 
 class KnowledgeRecommendation(BaseModel):

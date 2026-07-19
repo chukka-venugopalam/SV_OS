@@ -12,12 +12,15 @@ on the use case:
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.enums import Difficulty, NodeType
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
 
 
 class KnowledgeNodeLink(BaseModel):
@@ -54,7 +57,8 @@ class KnowledgeNodeCard(BaseModel):
     def validate_color(cls, v: str | None) -> str | None:
         """Validate hex colour format."""
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v
 
 
@@ -109,10 +113,14 @@ class KnowledgeNodeDetail(BaseModel):
     prerequisite_count: int = Field(default=0, description='Number of prerequisite nodes', ge=0)
     resource_count: int = Field(default=0, description='Number of learning resources', ge=0)
     career_count: int = Field(
-        default=0, description='Number of careers referencing this node', ge=0
+        default=0,
+        description='Number of careers referencing this node',
+        ge=0,
     )
     project_count: int = Field(
-        default=0, description='Number of projects referencing this node', ge=0
+        default=0,
+        description='Number of projects referencing this node',
+        ge=0,
     )
 
     @field_validator('color')
@@ -120,7 +128,8 @@ class KnowledgeNodeDetail(BaseModel):
     def validate_color(cls, v: str | None) -> str | None:
         """Validate hex colour format."""
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v
 
 
@@ -138,10 +147,14 @@ class KnowledgeNodeCreate(BaseModel):
     content: str | None = Field(default=None, description='Full rich-text / Markdown body')
     node_type: NodeType = Field(description='Type discriminator')
     difficulty: Difficulty = Field(
-        default=Difficulty.BEGINNER, description='Educational difficulty'
+        default=Difficulty.BEGINNER,
+        description='Educational difficulty',
     )
     estimated_minutes: int = Field(
-        default=30, ge=1, le=99999, description='Estimated study time in minutes'
+        default=30,
+        ge=1,
+        le=99999,
+        description='Estimated study time in minutes',
     )
     icon: str | None = Field(default=None, max_length=50, description='UI icon identifier')
     color: str | None = Field(default=None, max_length=7, description='Hex colour for UI')
@@ -153,7 +166,8 @@ class KnowledgeNodeCreate(BaseModel):
     def validate_slug(cls, v: str) -> str:
         """Ensure slug is lowercase and URL-safe."""
         if v != v.lower():
-            raise ValueError('Slug must be lowercase')
+            msg = 'Slug must be lowercase'
+            raise ValueError(msg)
         return v
 
     @field_validator('color')
@@ -161,7 +175,8 @@ class KnowledgeNodeCreate(BaseModel):
     def validate_color(cls, v: str | None) -> str | None:
         """Validate hex colour format."""
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v
 
 
@@ -186,7 +201,8 @@ class KnowledgeNodeUpdate(BaseModel):
     def validate_color(cls, v: str | None) -> str | None:
         """Validate hex colour format."""
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v
 
 

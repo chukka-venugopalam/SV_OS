@@ -5,24 +5,27 @@ Target: 200+ passing tests across all 4 engines.
 
 from __future__ import annotations
 
+from uuid import UUID
+
 import pytest
-from uuid import UUID, uuid4
 
-from app.engines.base import EngineState, EngineDependency
-from app.engines.graph_engine import GraphEngine
-from app.engines.traversal_engine import TraversalEngine
-from app.engines.state_engine import StateEngine
-from app.engines.knowledge_engine import KnowledgeEngine
-from app.engines.dependency_engine import DependencyEngine
-from app.engines.recommendation_engine import RecommendationEngine, Recommendation, PRIORITY_EASIEST_FIRST
-from app.engines.learning_path_engine import LearningPathEngine, PathNode, Milestone
+from app.engines.assessment_engine import Assessment, AssessmentEngine, Question
+from app.engines.base import EngineDependency, EngineState
 from app.engines.career_engine import CareerEngine, CareerProfile, SkillGap
-from app.engines.assessment_engine import AssessmentEngine, Question, Assessment, Submission
-
+from app.engines.graph_engine import GraphEngine
+from app.engines.knowledge_engine import KnowledgeEngine
+from app.engines.learning_path_engine import LearningPathEngine, Milestone, PathNode
+from app.engines.recommendation_engine import (
+    PRIORITY_EASIEST_FIRST,
+    Recommendation,
+    RecommendationEngine,
+)
+from app.engines.traversal_engine import TraversalEngine
 
 # ═══════════════════════════════════════════════════════════════════
 # Fixtures
 # ═══════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture
 async def graph():
@@ -31,23 +34,85 @@ async def graph():
     await g.start()
 
     # Add some nodes for testing
-    await g.add_node(slug='python', title='Python', node_type='concept', difficulty='beginner', estimated_minutes=30)
-    await g.add_node(slug='js', title='JavaScript', node_type='concept', difficulty='beginner', estimated_minutes=30)
-    await g.add_node(slug='react', title='React', node_type='technology', difficulty='intermediate', estimated_minutes=60)
-    await g.add_node(slug='backend', title='Backend Dev', node_type='career', difficulty='intermediate', estimated_minutes=0)
-    await g.add_node(slug='fullstack', title='Full Stack Dev', node_type='career', difficulty='advanced', estimated_minutes=0)
-    await g.add_node(slug='advanced-python', title='Advanced Python', node_type='concept', difficulty='advanced', estimated_minutes=120)
-    await g.add_node(slug='data-structures', title='Data Structures', node_type='concept', difficulty='intermediate', estimated_minutes=60)
+    await g.add_node(
+        slug='python',
+        title='Python',
+        node_type='concept',
+        difficulty='beginner',
+        estimated_minutes=30,
+    )
+    await g.add_node(
+        slug='js',
+        title='JavaScript',
+        node_type='concept',
+        difficulty='beginner',
+        estimated_minutes=30,
+    )
+    await g.add_node(
+        slug='react',
+        title='React',
+        node_type='technology',
+        difficulty='intermediate',
+        estimated_minutes=60,
+    )
+    await g.add_node(
+        slug='backend',
+        title='Backend Dev',
+        node_type='career',
+        difficulty='intermediate',
+        estimated_minutes=0,
+    )
+    await g.add_node(
+        slug='fullstack',
+        title='Full Stack Dev',
+        node_type='career',
+        difficulty='advanced',
+        estimated_minutes=0,
+    )
+    await g.add_node(
+        slug='advanced-python',
+        title='Advanced Python',
+        node_type='concept',
+        difficulty='advanced',
+        estimated_minutes=120,
+    )
+    await g.add_node(
+        slug='data-structures',
+        title='Data Structures',
+        node_type='concept',
+        difficulty='intermediate',
+        estimated_minutes=60,
+    )
 
     # Add edges
     nodes = await g.all_nodes()
     node_map = {n['slug']: UUID(n['id']) for n in nodes}
 
-    await g.add_edge(source_node_id=node_map['python'], target_node_id=node_map['react'], relationship_type='prerequisite')
-    await g.add_edge(source_node_id=node_map['js'], target_node_id=node_map['react'], relationship_type='prerequisite')
-    await g.add_edge(source_node_id=node_map['react'], target_node_id=node_map['fullstack'], relationship_type='prerequisite')
-    await g.add_edge(source_node_id=node_map['python'], target_node_id=node_map['backend'], relationship_type='prerequisite')
-    await g.add_edge(source_node_id=node_map['data-structures'], target_node_id=node_map['advanced-python'], relationship_type='prerequisite')
+    await g.add_edge(
+        source_node_id=node_map['python'],
+        target_node_id=node_map['react'],
+        relationship_type='prerequisite',
+    )
+    await g.add_edge(
+        source_node_id=node_map['js'],
+        target_node_id=node_map['react'],
+        relationship_type='prerequisite',
+    )
+    await g.add_edge(
+        source_node_id=node_map['react'],
+        target_node_id=node_map['fullstack'],
+        relationship_type='prerequisite',
+    )
+    await g.add_edge(
+        source_node_id=node_map['python'],
+        target_node_id=node_map['backend'],
+        relationship_type='prerequisite',
+    )
+    await g.add_edge(
+        source_node_id=node_map['data-structures'],
+        target_node_id=node_map['advanced-python'],
+        relationship_type='prerequisite',
+    )
 
     return g, node_map
 
@@ -74,56 +139,57 @@ async def knowledge(graph):
 # Part 1: Recommendation Engine Tests (60+ tests)
 # ═══════════════════════════════════════════════════════════════════
 
+
 class TestRecommendationEngineLifecycle:
     """Test EngineBase lifecycle compliance."""
 
-    async def test_engine_initial_state(self):
+    async def test_engine_initial_state(self) -> None:
         engine = RecommendationEngine()
         assert engine.engine_state == EngineState.UNINITIALIZED
         assert engine.engine_name == 'recommendation'
         assert engine.is_initialized is False
 
-    async def test_engine_initialize(self):
+    async def test_engine_initialize(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
         assert engine.is_initialized
 
-    async def test_engine_start(self):
+    async def test_engine_start(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         await engine.start()
         assert engine.engine_state == EngineState.RUNNING
         assert engine.is_running
 
-    async def test_engine_stop(self):
+    async def test_engine_stop(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         await engine.start()
         await engine.stop()
         assert engine.engine_state == EngineState.STOPPED
 
-    async def test_engine_dependencies(self):
+    async def test_engine_dependencies(self) -> None:
         engine = RecommendationEngine()
         deps = engine.dependencies()
         assert len(deps) > 0
         assert any(d.engine_name == 'graph' for d in deps)
 
-    async def test_engine_health(self):
+    async def test_engine_health(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
         assert health.engine_name == 'recommendation'
 
-    async def test_engine_diagnostics(self):
+    async def test_engine_diagnostics(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         diag = await engine.diagnostics()
         assert diag['engine_name'] == 'recommendation'
         assert diag['state'] == 'ready'
 
-    async def test_validate_configuration_missing_graph(self):
+    async def test_validate_configuration_missing_graph(self) -> None:
         engine = RecommendationEngine()
         issues = await engine.validate_configuration()
         assert len(issues) > 0
@@ -133,45 +199,45 @@ class TestRecommendationEngineLifecycle:
 class TestRecommendationEnginePriorityOrder:
     """Test priority rules are applied correctly."""
 
-    async def test_recommend_next_returns_list(self):
+    async def test_recommend_next_returns_list(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_next(UUID(int=1), limit=5)
         assert isinstance(result, list)
 
-    async def test_recommend_batch_returns_list(self):
+    async def test_recommend_batch_returns_list(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_batch(UUID(int=1), limit=10)
         assert isinstance(result, list)
 
-    async def test_recommend_daily_returns_list(self):
+    async def test_recommend_daily_returns_list(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_daily(UUID(int=1), limit=10)
         assert isinstance(result, list)
 
-    async def test_recommend_weekly_returns_list(self):
+    async def test_recommend_weekly_returns_list(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_weekly(UUID(int=1), limit=20)
         assert isinstance(result, list)
 
-    async def test_recommend_by_goal(self, graph, traversal):
+    async def test_recommend_by_goal(self, graph, traversal) -> None:
         g, node_map = graph
         engine = RecommendationEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine.recommend_by_goal(UUID(int=1), node_map['fullstack'], limit=10)
         assert isinstance(result, list)
 
-    async def test_recommend_by_career(self, graph, traversal):
+    async def test_recommend_by_career(self, graph, traversal) -> None:
         g, node_map = graph
         engine = RecommendationEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine.recommend_by_career(node_map['backend'], limit=10)
         assert isinstance(result, list)
 
-    async def test_recommend_after_assessment(self):
+    async def test_recommend_after_assessment(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_after_assessment(
@@ -180,13 +246,13 @@ class TestRecommendationEnginePriorityOrder:
         )
         assert isinstance(result, list)
 
-    async def test_recommend_after_import(self):
+    async def test_recommend_after_import(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_after_import(['new-node-id'])
         assert isinstance(result, list)
 
-    async def test_recommend_after_revision(self):
+    async def test_recommend_after_revision(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         result = await engine.recommend_after_revision(
@@ -195,13 +261,13 @@ class TestRecommendationEnginePriorityOrder:
         )
         assert isinstance(result, list)
 
-    async def test_get_history(self):
+    async def test_get_history(self) -> None:
         engine = RecommendationEngine()
         await engine.initialize()
         history = await engine.get_history(UUID(int=1))
         assert isinstance(history, list)
 
-    async def test_recommendation_has_reason(self, graph, traversal):
+    async def test_recommendation_has_reason(self, graph, traversal) -> None:
         g, node_map = graph
         engine = RecommendationEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -210,7 +276,7 @@ class TestRecommendationEnginePriorityOrder:
             assert 'reason' in item
             assert item['reason']  # Non-empty reason
 
-    async def test_recommendation_priority_labels(self, graph, traversal):
+    async def test_recommendation_priority_labels(self, graph, traversal) -> None:
         g, node_map = graph
         engine = RecommendationEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -219,7 +285,7 @@ class TestRecommendationEnginePriorityOrder:
             assert 'priority_label' in item
             assert 'priority' in item
 
-    async def test_priority_constants_match_labels(self):
+    async def test_priority_constants_match_labels(self) -> None:
         assert PRIORITY_EASIEST_FIRST == 8
         labels = {
             1: 'Urgent Review',
@@ -233,19 +299,24 @@ class TestRecommendationEnginePriorityOrder:
         }
         assert len(labels) == 8
 
-    async def test_recommendation_dataclass(self):
+    async def test_recommendation_dataclass(self) -> None:
         rec = Recommendation(
-            node_id='test-id', title='Test', slug='test',
-            node_type='concept', difficulty='beginner',
-            priority=1, priority_label='Urgent', reason='Test',
+            node_id='test-id',
+            title='Test',
+            slug='test',
+            node_type='concept',
+            difficulty='beginner',
+            priority=1,
+            priority_label='Urgent',
+            reason='Test',
         )
         assert rec.node_id == 'test-id'
         assert rec.priority == 1
         assert rec.priority_label == 'Urgent'
         assert rec.reason == 'Test'
 
-    async def test_recommend_with_graph(self, graph):
-        g, node_map = graph
+    async def test_recommend_with_graph(self, graph) -> None:
+        g, _node_map = graph
         engine = RecommendationEngine(graph_engine=g)
         await engine.initialize()
         result = await engine._get_easiest_candidates(UUID(int=1))
@@ -253,8 +324,8 @@ class TestRecommendationEnginePriorityOrder:
         for r in result:
             assert r.difficulty == 'beginner'
 
-    async def test_recommend_unlock_candidates(self, graph, traversal):
-        g, node_map = graph
+    async def test_recommend_unlock_candidates(self, graph, traversal) -> None:
+        g, _node_map = graph
         engine = RecommendationEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine._get_unlock_candidates(UUID(int=1))
@@ -265,20 +336,21 @@ class TestRecommendationEnginePriorityOrder:
 # Part 2: Learning Path Engine Tests (50+ tests)
 # ═══════════════════════════════════════════════════════════════════
 
+
 class TestLearningPathEngineLifecycle:
     """Test EngineBase lifecycle compliance."""
 
-    async def test_engine_initial_state(self):
+    async def test_engine_initial_state(self) -> None:
         engine = LearningPathEngine()
         assert engine.engine_state == EngineState.UNINITIALIZED
         assert engine.engine_name == 'learning_path'
 
-    async def test_engine_initialize(self):
+    async def test_engine_initialize(self) -> None:
         engine = LearningPathEngine()
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
 
-    async def test_engine_start_stop(self):
+    async def test_engine_start_stop(self) -> None:
         engine = LearningPathEngine()
         await engine.initialize()
         await engine.start()
@@ -286,26 +358,32 @@ class TestLearningPathEngineLifecycle:
         await engine.stop()
         assert engine.engine_state == EngineState.STOPPED
 
-    async def test_engine_health(self):
+    async def test_engine_health(self) -> None:
         engine = LearningPathEngine()
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
         assert health.engine_name == 'learning_path'
 
-    async def test_engine_dependencies(self):
+    async def test_engine_dependencies(self) -> None:
         engine = LearningPathEngine()
         deps = engine.dependencies()
         assert any(d.engine_name == 'graph' for d in deps)
         assert any(d.engine_name == 'traversal' for d in deps)
 
-    async def test_path_node_dataclass(self):
-        node = PathNode(node_id='id1', title='Test', slug='test', node_type='concept', difficulty='beginner')
+    async def test_path_node_dataclass(self) -> None:
+        node = PathNode(
+            node_id='id1',
+            title='Test',
+            slug='test',
+            node_type='concept',
+            difficulty='beginner',
+        )
         assert node.node_id == 'id1'
         assert node.title == 'Test'
         assert not node.completed
 
-    async def test_milestone_dataclass(self):
+    async def test_milestone_dataclass(self) -> None:
         ms = Milestone(level=1, title='Milestone 1', node_count=3, estimated_minutes=90)
         assert ms.level == 1
         assert ms.node_count == 3
@@ -315,7 +393,7 @@ class TestLearningPathEngineLifecycle:
 class TestLearningPathEngineStrategies:
     """Test multiple roadmap strategies."""
 
-    async def test_generate_dependency_roadmap(self, graph, traversal):
+    async def test_generate_dependency_roadmap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -324,7 +402,7 @@ class TestLearningPathEngineStrategies:
         assert result['strategy'] == 'dependency_roadmap'
         assert result['milestone_count'] > 0
 
-    async def test_generate_shortest_roadmap(self, graph, traversal):
+    async def test_generate_shortest_roadmap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -332,21 +410,21 @@ class TestLearningPathEngineStrategies:
         assert 'milestones' in result
         assert result['strategy'] == 'shortest_roadmap'
 
-    async def test_generate_career_roadmap(self, graph, traversal):
+    async def test_generate_career_roadmap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine.generate_career_roadmap(node_map['fullstack'])
         assert 'milestones' in result
 
-    async def test_generate_skill_roadmap(self, graph, traversal):
-        g, node_map = graph
+    async def test_generate_skill_roadmap(self, graph, traversal) -> None:
+        g, _node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine.generate_skill_roadmap('Python')
         assert 'milestones' in result or 'error' in result
 
-    async def test_generate_path(self, graph, traversal):
+    async def test_generate_path(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -354,14 +432,14 @@ class TestLearningPathEngineStrategies:
         assert 'milestones' in result
         assert 'path_id' in result
 
-    async def test_generate_daily_roadmap(self, graph, traversal):
+    async def test_generate_daily_roadmap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine.generate_daily_roadmap(node_map['fullstack'])
         assert result is not None
 
-    async def test_generate_weekly_roadmap(self, graph, traversal):
+    async def test_generate_weekly_roadmap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -372,7 +450,7 @@ class TestLearningPathEngineStrategies:
 class TestLearningPathLifecycle:
     """Test path CRUD operations."""
 
-    async def test_path_lifecycle(self, graph, traversal):
+    async def test_path_lifecycle(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -388,7 +466,7 @@ class TestLearningPathLifecycle:
         assert resumed['status'] == 'active'
         assert resumed['resumed_count'] == 1
 
-    async def test_validate_path(self, graph, traversal):
+    async def test_validate_path(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -398,7 +476,7 @@ class TestLearningPathLifecycle:
         validation = await engine.validate_path(path_id)
         assert 'valid' in validation
 
-    async def test_export_path(self, graph, traversal):
+    async def test_export_path(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -409,7 +487,7 @@ class TestLearningPathLifecycle:
         assert 'export_format' in exported
         assert exported['export_format'] == 'json'
 
-    async def test_rebuild_path(self, graph, traversal):
+    async def test_rebuild_path(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -419,14 +497,14 @@ class TestLearningPathLifecycle:
         rebuilt = await engine.rebuild_path(path_id)
         assert 'milestones' in rebuilt
 
-    async def test_path_not_found(self, graph, traversal):
-        g, node_map = graph
+    async def test_path_not_found(self, graph, traversal) -> None:
+        g, _node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         result = await engine.get_progress(UUID(int=999))
         assert 'error' in result
 
-    async def test_get_progress(self, graph, traversal):
+    async def test_get_progress(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -437,7 +515,7 @@ class TestLearningPathLifecycle:
         assert 'completion_percentage' in progress
         assert 'milestones' in progress
 
-    async def test_milestone_structure(self, graph, traversal):
+    async def test_milestone_structure(self, graph, traversal) -> None:
         g, node_map = graph
         engine = LearningPathEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -452,15 +530,16 @@ class TestLearningPathLifecycle:
 # Part 3: Career Engine Tests (50+ tests)
 # ═══════════════════════════════════════════════════════════════════
 
+
 class TestCareerEngineLifecycle:
     """Test EngineBase lifecycle compliance."""
 
-    async def test_engine_initial_state(self):
+    async def test_engine_initial_state(self) -> None:
         engine = CareerEngine()
         assert engine.engine_state == EngineState.UNINITIALIZED
         assert engine.engine_name == 'career'
 
-    async def test_engine_initialize_start_stop(self):
+    async def test_engine_initialize_start_stop(self) -> None:
         engine = CareerEngine()
         await engine.initialize()
         await engine.start()
@@ -468,28 +547,36 @@ class TestCareerEngineLifecycle:
         await engine.stop()
         assert engine.engine_state == EngineState.STOPPED
 
-    async def test_engine_health(self):
+    async def test_engine_health(self) -> None:
         engine = CareerEngine()
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
 
-    async def test_engine_dependencies(self):
+    async def test_engine_dependencies(self) -> None:
         engine = CareerEngine()
         deps = engine.dependencies()
         assert any(d.engine_name == 'graph' for d in deps)
 
-    async def test_career_profile_dataclass(self):
+    async def test_career_profile_dataclass(self) -> None:
         profile = CareerProfile(
-            node_id='id1', title='SWE', slug='swe',
-            description='Software Engineer', industry='tech',
+            node_id='id1',
+            title='SWE',
+            slug='swe',
+            description='Software Engineer',
+            industry='tech',
         )
         assert profile.title == 'SWE'
         assert profile.industry == 'tech'
         assert profile.seniority == 'mid'
 
-    async def test_skill_gap_dataclass(self):
-        gap = SkillGap(skill_name='Python', status='missing', node_id='n1', node_title='Python basics')
+    async def test_skill_gap_dataclass(self) -> None:
+        gap = SkillGap(
+            skill_name='Python',
+            status='missing',
+            node_id='n1',
+            node_title='Python basics',
+        )
         assert gap.status == 'missing'
         assert gap.urgency == 'recommended'
 
@@ -497,7 +584,7 @@ class TestCareerEngineLifecycle:
 class TestCareerEngineOperations:
     """Test career engine operations."""
 
-    async def test_get_career(self, graph):
+    async def test_get_career(self, graph) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
@@ -505,36 +592,36 @@ class TestCareerEngineOperations:
         assert career is not None
         assert career['title'] == 'Full Stack Dev'
 
-    async def test_get_career_by_wrong_type(self, graph):
+    async def test_get_career_by_wrong_type(self, graph) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
         career = await engine.get_career(node_map['python'])
         assert career is None  # Python is not a career type
 
-    async def test_search_careers(self, graph):
-        g, node_map = graph
+    async def test_search_careers(self, graph) -> None:
+        g, _node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
         results = await engine.search_careers('Full Stack')
         assert len(results) > 0
         assert any('Full Stack' in r['title'] for r in results)
 
-    async def test_search_careers_no_match(self, graph):
-        g, node_map = graph
+    async def test_search_careers_no_match(self, graph) -> None:
+        g, _node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
         results = await engine.search_careers('NonexistentCareerXYZ')
         assert len(results) == 0
 
-    async def test_compare_careers(self, graph):
+    async def test_compare_careers(self, graph) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
         results = await engine.compare_careers([node_map['fullstack'], node_map['backend']])
         assert len(results) == 2
 
-    async def test_skill_gap(self, graph, traversal):
+    async def test_skill_gap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -543,7 +630,7 @@ class TestCareerEngineOperations:
         assert 'gaps' in gap
         assert 'completion_percentage' in gap
 
-    async def test_career_progression(self, graph):
+    async def test_career_progression(self, graph) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
@@ -551,14 +638,14 @@ class TestCareerEngineOperations:
         assert 'progression' in progression
         assert len(progression['progression']) > 0
 
-    async def test_career_similarity(self, graph, traversal):
+    async def test_career_similarity(self, graph, traversal) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         similar = await engine.get_career_similarity(node_map['fullstack'])
         assert isinstance(similar, list)
 
-    async def test_required_knowledge_graph(self, graph, traversal):
+    async def test_required_knowledge_graph(self, graph, traversal) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -566,15 +653,15 @@ class TestCareerEngineOperations:
         assert 'required_nodes' in kg
         assert 'career' in kg
 
-    async def test_career_statistics(self, graph):
-        g, node_map = graph
+    async def test_career_statistics(self, graph) -> None:
+        g, _node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
         stats = await engine.get_career_statistics()
         assert 'total_careers' in stats
         assert stats['total_careers'] >= 2
 
-    async def test_seniority_requirements(self, graph, traversal):
+    async def test_seniority_requirements(self, graph, traversal) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -582,14 +669,14 @@ class TestCareerEngineOperations:
         assert 'estimated_nodes_required' in reqs
         assert reqs['target_seniority'] == 'senior'
 
-    async def test_get_recommended_roadmap(self, graph, traversal):
+    async def test_get_recommended_roadmap(self, graph, traversal) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
         roadmap = await engine.get_recommended_roadmap(node_map['fullstack'])
         assert 'milestones' in roadmap or 'error' in roadmap
 
-    async def test_career_metadata(self, graph):
+    async def test_career_metadata(self, graph) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g)
         await engine.initialize()
@@ -602,15 +689,16 @@ class TestCareerEngineOperations:
 # Part 4: Assessment Engine Tests (50+ tests)
 # ═══════════════════════════════════════════════════════════════════
 
+
 class TestAssessmentEngineLifecycle:
     """Test EngineBase lifecycle compliance."""
 
-    async def test_engine_initial_state(self):
+    async def test_engine_initial_state(self) -> None:
         engine = AssessmentEngine()
         assert engine.engine_state == EngineState.UNINITIALIZED
         assert engine.engine_name == 'assessment'
 
-    async def test_engine_lifecycle(self):
+    async def test_engine_lifecycle(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         await engine.start()
@@ -618,20 +706,24 @@ class TestAssessmentEngineLifecycle:
         await engine.stop()
         assert engine.engine_state == EngineState.STOPPED
 
-    async def test_engine_health(self):
+    async def test_engine_health(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
 
-    async def test_question_dataclass(self):
-        q = Question(text='What is Python?', question_type='multiple_choice',
-                      options=['A', 'B', 'C'], correct_answer='A')
+    async def test_question_dataclass(self) -> None:
+        q = Question(
+            text='What is Python?',
+            question_type='multiple_choice',
+            options=['A', 'B', 'C'],
+            correct_answer='A',
+        )
         assert q.question_type == 'multiple_choice'
         assert q.correct_answer == 'A'
         assert q.points == 1
 
-    async def test_assessment_dataclass(self):
+    async def test_assessment_dataclass(self) -> None:
         a = Assessment(title='Test Assessment', total_points=10)
         assert a.passing_score == 0.7
         assert a.max_attempts == 3
@@ -641,7 +733,7 @@ class TestAssessmentEngineLifecycle:
 class TestAssessmentEngineOperations:
     """Test assessment CRUD, submission, and grading."""
 
-    async def test_create_assessment(self):
+    async def test_create_assessment(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
@@ -649,10 +741,19 @@ class TestAssessmentEngineOperations:
             'Python Basics Quiz',
             description='Test your Python knowledge',
             questions=[
-                {'text': 'What is Python?', 'question_type': 'multiple_choice',
-                 'options': ['Language', 'Snake', 'Both'], 'correct_answer': 'Language', 'points': 2},
-                {'text': 'Python is compiled.', 'question_type': 'true_false',
-                 'correct_answer': 'false', 'points': 1},
+                {
+                    'text': 'What is Python?',
+                    'question_type': 'multiple_choice',
+                    'options': ['Language', 'Snake', 'Both'],
+                    'correct_answer': 'Language',
+                    'points': 2,
+                },
+                {
+                    'text': 'Python is compiled.',
+                    'question_type': 'true_false',
+                    'correct_answer': 'false',
+                    'points': 1,
+                },
             ],
             passing_score=0.7,
         )
@@ -661,11 +762,12 @@ class TestAssessmentEngineOperations:
         assert result['total_points'] == 3
         assert 'assessment_id' in result
 
-    async def test_get_assessment(self):
+    async def test_get_assessment(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Test Quiz',
+            UUID(int=1),
+            'Test Quiz',
             questions=[{'text': 'Q?', 'correct_answer': 'A', 'points': 1}],
         )
         aid = UUID(result['assessment_id'])
@@ -673,13 +775,17 @@ class TestAssessmentEngineOperations:
         assert retrieved is not None
         assert retrieved['title'] == 'Test Quiz'
         # Without answers, correct_answer should not be visible
-        assert retrieved['questions'][0].get('correct_answer') is None or 'correct_answer' not in retrieved['questions'][0]
+        assert (
+            retrieved['questions'][0].get('correct_answer') is None
+            or 'correct_answer' not in retrieved['questions'][0]
+        )
 
-    async def test_get_assessment_with_answers(self):
+    async def test_get_assessment_with_answers(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Test Quiz',
+            UUID(int=1),
+            'Test Quiz',
             questions=[{'text': 'Q?', 'correct_answer': 'A', 'points': 1}],
         )
         aid = UUID(result['assessment_id'])
@@ -687,7 +793,7 @@ class TestAssessmentEngineOperations:
         assert retrieved is not None
         assert 'correct_answer' in retrieved['questions'][0]
 
-    async def test_get_assessments_for_node(self):
+    async def test_get_assessments_for_node(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         await engine.create_assessment(UUID(int=1), 'Quiz 1', questions=[])
@@ -695,14 +801,25 @@ class TestAssessmentEngineOperations:
         items = await engine.get_assessments_for_node(UUID(int=1))
         assert len(items) == 2
 
-    async def test_submit_assessment_pass(self):
+    async def test_submit_assessment_pass(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Easy Quiz',
+            UUID(int=1),
+            'Easy Quiz',
             questions=[
-                {'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'},
-                {'text': 'Q2', 'correct_answer': 'B', 'points': 1, 'question_type': 'multiple_choice'},
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+                {
+                    'text': 'Q2',
+                    'correct_answer': 'B',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
             ],
             passing_score=0.5,
         )
@@ -711,7 +828,8 @@ class TestAssessmentEngineOperations:
         q_ids = [q.question_id for q in assessment.questions]
 
         submission = await engine.submit_assessment(
-            UUID(int=100), aid,
+            UUID(int=100),
+            aid,
             answers=[
                 {'question_id': q_ids[0], 'answer': 'A'},
                 {'question_id': q_ids[1], 'answer': 'B'},
@@ -720,13 +838,19 @@ class TestAssessmentEngineOperations:
         assert submission['passed'] is True
         assert submission['score'] >= 0.5
 
-    async def test_submit_assessment_fail(self):
+    async def test_submit_assessment_fail(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Hard Quiz',
+            UUID(int=1),
+            'Hard Quiz',
             questions=[
-                {'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'},
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
             ],
             passing_score=0.9,
         )
@@ -735,18 +859,27 @@ class TestAssessmentEngineOperations:
         q_id = assessment.questions[0].question_id
 
         submission = await engine.submit_assessment(
-            UUID(int=100), aid,
+            UUID(int=100),
+            aid,
             answers=[{'question_id': q_id, 'answer': 'Wrong'}],
         )
         assert submission['passed'] is False
         assert submission['score'] < 0.9
 
-    async def test_submit_attempt_limit(self):
+    async def test_submit_attempt_limit(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Limited Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Limited Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
             passing_score=1.0,
         )
         # Set max_attempts to 1
@@ -755,65 +888,117 @@ class TestAssessmentEngineOperations:
         assessment = engine._assessments[result['assessment_id']]
         q_id = assessment.questions[0].question_id
 
-        await engine.submit_assessment(UUID(int=100), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
-        second = await engine.submit_assessment(UUID(int=100), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
+        await engine.submit_assessment(
+            UUID(int=100),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
+        second = await engine.submit_assessment(
+            UUID(int=100),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
         assert 'error' in second
         assert 'Maximum attempts' in second['error']
 
-    async def test_grade_assessment(self):
+    async def test_grade_assessment(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Graded Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Graded Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
         q_id = assessment.questions[0].question_id
 
-        submission = await engine.submit_assessment(UUID(int=100), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
+        submission = await engine.submit_assessment(
+            UUID(int=100),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
         sid = UUID(submission['submission_id'])
 
         graded = await engine.grade_assessment(sid)
         assert graded['passed'] is True
 
-    async def test_get_attempts_for_user(self):
+    async def test_get_attempts_for_user(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Attempt Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Attempt Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
         q_id = assessment.questions[0].question_id
 
-        await engine.submit_assessment(UUID(int=200), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
+        await engine.submit_assessment(
+            UUID(int=200),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
         attempts = await engine.get_attempts_for_user(UUID(int=200), aid)
         assert len(attempts) == 1
 
-    async def test_get_score_history(self):
+    async def test_get_score_history(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Score Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Score Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
         q_id = assessment.questions[0].question_id
 
-        await engine.submit_assessment(UUID(int=300), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
+        await engine.submit_assessment(
+            UUID(int=300),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
         history = await engine.get_score_history(UUID(int=300), UUID(int=1))
         assert len(history) == 1
         assert 'score' in history[0]
 
-    async def test_assessment_statistics(self):
+    async def test_assessment_statistics(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Stats Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Stats Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
@@ -830,72 +1015,116 @@ class TestAssessmentEngineOperations:
         assert 'highest_score' in stats
         assert 'lowest_score' in stats
 
-    async def test_update_knowledge(self):
+    async def test_update_knowledge(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Knowledge Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Knowledge Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
         q_id = assessment.questions[0].question_id
 
-        sub = await engine.submit_assessment(UUID(int=500), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
+        sub = await engine.submit_assessment(
+            UUID(int=500),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
         sid = UUID(sub['submission_id'])
 
         result = await engine.update_knowledge(sid)
         assert result['updated'] is True
 
-    async def test_update_confidence(self):
+    async def test_update_confidence(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Confidence Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Confidence Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
         q_id = assessment.questions[0].question_id
 
-        sub = await engine.submit_assessment(UUID(int=600), aid, answers=[{'question_id': q_id, 'answer': 'A'}])
+        sub = await engine.submit_assessment(
+            UUID(int=600),
+            aid,
+            answers=[{'question_id': q_id, 'answer': 'A'}],
+        )
         sid = UUID(sub['submission_id'])
 
         result = await engine.update_confidence(sid)
         assert result['updated'] is True
 
-    async def test_question_types(self):
+    async def test_question_types(self) -> None:
         """Test different question types are graded correctly."""
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Multi-Type Quiz',
+            UUID(int=1),
+            'Multi-Type Quiz',
             questions=[
-                {'text': 'MC?', 'question_type': 'multiple_choice', 'correct_answer': 'B',
-                 'options': ['A', 'B', 'C'], 'points': 1},
-                {'text': 'TF?', 'question_type': 'true_false', 'correct_answer': 'true', 'points': 1},
-                {'text': 'SA?', 'question_type': 'short_answer', 'correct_answer': 'hello', 'points': 1},
+                {
+                    'text': 'MC?',
+                    'question_type': 'multiple_choice',
+                    'correct_answer': 'B',
+                    'options': ['A', 'B', 'C'],
+                    'points': 1,
+                },
+                {
+                    'text': 'TF?',
+                    'question_type': 'true_false',
+                    'correct_answer': 'true',
+                    'points': 1,
+                },
+                {
+                    'text': 'SA?',
+                    'question_type': 'short_answer',
+                    'correct_answer': 'hello',
+                    'points': 1,
+                },
             ],
         )
         aid = UUID(result['assessment_id'])
         assessment = engine._assessments[result['assessment_id']]
         qs = assessment.questions
 
-        sub = await engine.submit_assessment(UUID(int=700), aid, answers=[
-            {'question_id': qs[0].question_id, 'answer': 'B'},
-            {'question_id': qs[1].question_id, 'answer': 'true'},
-            {'question_id': qs[2].question_id, 'answer': 'hello'},
-        ])
+        sub = await engine.submit_assessment(
+            UUID(int=700),
+            aid,
+            answers=[
+                {'question_id': qs[0].question_id, 'answer': 'B'},
+                {'question_id': qs[1].question_id, 'answer': 'true'},
+                {'question_id': qs[2].question_id, 'answer': 'hello'},
+            ],
+        )
         assert sub['passed'] is True
         assert sub['earned_points'] == 3
 
-    async def test_submission_not_found(self):
+    async def test_submission_not_found(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.grade_assessment(UUID(int=999))
         assert 'error' in result
 
-    async def test_assessment_not_found(self):
+    async def test_assessment_not_found(self) -> None:
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.submit_assessment(UUID(int=1), UUID(int=999), [])
@@ -906,10 +1135,11 @@ class TestAssessmentEngineOperations:
 # Part 5: Cross-Engine Integration Tests
 # ═══════════════════════════════════════════════════════════════════
 
+
 class TestEngineIntegration:
     """Test that engines work together through the shared graph."""
 
-    async def test_recommendation_and_learning_path_share_graph(self, graph, traversal):
+    async def test_recommendation_and_learning_path_share_graph(self, graph, traversal) -> None:
         """Both engines can access the same graph data."""
         g, node_map = graph
 
@@ -925,7 +1155,7 @@ class TestEngineIntegration:
         assert len(recs) >= 0
         assert path['milestone_count'] >= 0
 
-    async def test_career_engine_uses_graph(self, graph, traversal):
+    async def test_career_engine_uses_graph(self, graph, traversal) -> None:
         g, node_map = graph
         engine = CareerEngine(graph_engine=g, traversal_engine=traversal)
         await engine.initialize()
@@ -933,17 +1163,25 @@ class TestEngineIntegration:
         assert 'total_required' in gap
         assert gap['total_required'] >= 0
 
-    async def test_assessment_engine_independent(self):
+    async def test_assessment_engine_independent(self) -> None:
         """Assessment engine works independently (no graph needed for core operations)."""
         engine = AssessmentEngine()
         await engine.initialize()
         result = await engine.create_assessment(
-            UUID(int=1), 'Standalone Quiz',
-            questions=[{'text': 'Q1', 'correct_answer': 'A', 'points': 1, 'question_type': 'multiple_choice'}],
+            UUID(int=1),
+            'Standalone Quiz',
+            questions=[
+                {
+                    'text': 'Q1',
+                    'correct_answer': 'A',
+                    'points': 1,
+                    'question_type': 'multiple_choice',
+                },
+            ],
         )
         assert 'assessment_id' in result
 
-    async def test_four_engines_lifecycle(self):
+    async def test_four_engines_lifecycle(self) -> None:
         """All 4 engines can go through full lifecycle without errors."""
         rec = RecommendationEngine()
         lp = LearningPathEngine()
@@ -960,7 +1198,7 @@ class TestEngineIntegration:
             await engine.stop()
             assert engine.engine_state == EngineState.STOPPED
 
-    async def test_engine_name_uniqueness(self):
+    async def test_engine_name_uniqueness(self) -> None:
         """All 4 engines have unique names."""
         names = [
             RecommendationEngine().engine_name,
@@ -970,7 +1208,7 @@ class TestEngineIntegration:
         ]
         assert len(names) == len(set(names))  # All unique
 
-    async def test_engine_dependencies_structure(self, graph):
+    async def test_engine_dependencies_structure(self, graph) -> None:
         g, _ = graph
         engines = [
             RecommendationEngine(graph_engine=g),

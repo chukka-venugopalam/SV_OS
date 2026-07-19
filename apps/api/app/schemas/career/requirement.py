@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import Difficulty, NodeType, RequirementType
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.enums import Difficulty, NodeType, RequirementType
 
 
 class CareerRequirement(BaseModel):

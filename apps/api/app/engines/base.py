@@ -11,8 +11,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-from uuid import UUID, uuid4
-
+from uuid import uuid4
 
 # ── Engine Lifecycle States ───────────────────────────────────────
 
@@ -305,4 +304,4 @@ class EngineBase(ABC):
             self._metadata.error_message = error_message
 
     def __repr__(self) -> str:
-        return f'<{self._metadata.engine_class}: {self._metadata.engine_name} [{self._metadata.state.value}]>'
+        return f'<{self._metadata.engine_class}: {self._metadata.engine_name} [{self._metadata.state.value}]>'  # noqa: E501

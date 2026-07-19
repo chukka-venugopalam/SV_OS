@@ -1,18 +1,20 @@
-"""
-LearningPath repository — persistence operations
+"""LearningPath repository — persistence operations
 for ``LearningPath`` and ``LearningSession`` models.
 """
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
 from app.models.learning_path import LearningPath, LearningSession
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class LearningPathRepository(BaseRepository[LearningPath]):
@@ -99,7 +101,7 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
             .where(
                 LearningSession.user_id == user_id,
                 LearningSession.node_id == node_id,
-                LearningSession.is_deleted == False,  # noqa: E712
+                not LearningSession.is_deleted,
             )
             .order_by(LearningSession.created_at.desc())
             .limit(1)
@@ -115,7 +117,7 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
             .where(
                 LearningSession.user_id == user_id,
                 LearningSession.status == 'active',
-                LearningSession.is_deleted == False,  # noqa: E712
+                not LearningSession.is_deleted,
             )
         )
         result = await self.session.execute(stmt)
@@ -125,7 +127,7 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
         """Sum total learning minutes across all completed sessions for a user."""
         stmt = select(func.coalesce(func.sum(LearningSession.duration_minutes), 0)).where(
             LearningSession.user_id == user_id,
-            LearningSession.is_deleted == False,  # noqa: E712
+            not LearningSession.is_deleted,
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0

@@ -38,6 +38,7 @@ def enum_value(value: Any) -> str:
 
     Returns:
         The string value, or ``None`` if input was ``None``.
+
     """
     if value is None:
         return None  # type: ignore[return-value]
@@ -61,5 +62,6 @@ def enum_dict(obj: Any, fields: list[str]) -> dict[str, Any]:
 
     Returns:
         Dict mapping field names to their enum-string values.
+
     """
     return {field: enum_value(getattr(obj, field, None)) for field in fields}

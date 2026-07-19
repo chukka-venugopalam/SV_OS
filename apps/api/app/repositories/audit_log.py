@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
 from app.models.audit_log import AuditLog
 from app.repositories.base import BaseRepository
 from app.repositories.query_helpers import FilterCondition, PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class AuditLogRepository(BaseRepository[AuditLog]):
@@ -99,7 +101,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
             conditions.append(FilterCondition(field='action', value=action, operator='eq'))
         if entity_type:
             conditions.append(
-                FilterCondition(field='entity_type', value=entity_type, operator='eq')
+                FilterCondition(field='entity_type', value=entity_type, operator='eq'),
             )
 
         builder = self._query()
@@ -129,7 +131,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
                 AuditLog.action,
                 func.count().label('count'),
             )
-            .where(AuditLog.is_deleted == False)  # noqa: E712
+            .where(not AuditLog.is_deleted)
             .group_by(AuditLog.action)
             .order_by(func.count().desc())
         )
@@ -148,7 +150,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
             .select_from(AuditLog)
             .where(
                 AuditLog.created_at >= since,
-                AuditLog.is_deleted == False,  # noqa: E712
+                not AuditLog.is_deleted,
             )
         )
         result = await self.session.execute(stmt)

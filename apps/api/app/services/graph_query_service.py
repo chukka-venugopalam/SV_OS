@@ -5,14 +5,16 @@ Keeps services thin. Business logic belongs in engines.
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
-from app.engines.graph_engine import GraphEngine
-from app.engines.traversal_engine import TraversalEngine
-from app.engines.knowledge_engine import KnowledgeEngine
-from app.engines.query_engine import QueryEngine
-from app.infrastructure.cache.graph_cache import GraphCache
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.engines.graph_engine import GraphEngine
+    from app.engines.knowledge_engine import KnowledgeEngine
+    from app.engines.query_engine import QueryEngine
+    from app.engines.traversal_engine import TraversalEngine
+    from app.infrastructure.cache.graph_cache import GraphCache
 
 
 class GraphQueryService:
@@ -36,11 +38,9 @@ class GraphQueryService:
         self._knowledge = knowledge_engine
         self._cache = cache
 
-    async def shortest_path(
-        self, source_id: UUID, target_id: UUID, max_depth: int = 10
-    ) -> dict:
+    async def shortest_path(self, source_id: UUID, target_id: UUID, max_depth: int = 10) -> dict:
         """Find shortest path between two nodes."""
-        cache_key = f"shortest_path:{source_id}:{target_id}:{max_depth}"
+        cache_key = f'shortest_path:{source_id}:{target_id}:{max_depth}'
         if self._cache:
             cached = await self._cache.get('traversal', cache_key)
             if cached is not None:
@@ -54,7 +54,7 @@ class GraphQueryService:
 
     async def dependency_chain(self, node_id: UUID, max_depth: int = 5) -> dict:
         """Get the prerequisite chain for a node."""
-        cache_key = f"dependency_chain:{node_id}:{max_depth}"
+        cache_key = f'dependency_chain:{node_id}:{max_depth}'
         if self._cache:
             cached = await self._cache.get('traversal', cache_key)
             if cached is not None:
@@ -71,7 +71,10 @@ class GraphQueryService:
         return await self._query.find_reverse_dependency_chain(node_id, max_depth)
 
     async def related_nodes(
-        self, node_id: UUID, relationship_type: str | None = None, max_depth: int = 2
+        self,
+        node_id: UUID,
+        relationship_type: str | None = None,
+        max_depth: int = 2,
     ) -> dict:
         """Find nodes related to a node."""
         return await self._query.find_related_nodes(node_id, relationship_type, max_depth)
@@ -81,7 +84,10 @@ class GraphQueryService:
         return await self._query.find_common_nodes(node_id_a, node_id_b, max_depth)
 
     async def subgraph(
-        self, center_node_id: UUID, depth: int = 2, relationship_type: str | None = None
+        self,
+        center_node_id: UUID,
+        depth: int = 2,
+        relationship_type: str | None = None,
     ) -> dict:
         """Extract a subgraph around a center node."""
         return await self._query.find_subgraph(center_node_id, depth, relationship_type)
@@ -89,6 +95,7 @@ class GraphQueryService:
     async def validate_graph(self, full_data: dict | None = None) -> dict:
         """Validate graph structure. Delegates to ValidationEngine."""
         from app.engines.validation_engine import ValidationEngine
+
         val = ValidationEngine(graph_engine=self._graph)
         health = await val.graph_health_score(full_data)
         return {
@@ -104,12 +111,13 @@ class GraphQueryService:
     async def search_nodes(self, query: str, page: int = 1, per_page: int = 20) -> dict:
         """Search graph nodes by title/slug/description."""
         from app.engines.search_engine import SearchEngine
+
         se = SearchEngine(graph_engine=self._graph, knowledge_engine=self._knowledge)
         return await se.search(query, page=page, per_page=per_page)
 
     async def graph_statistics(self) -> dict:
         """Get graph statistics with caching."""
-        cache_key = "graph_statistics"
+        cache_key = 'graph_statistics'
         if self._cache:
             cached = await self._cache.get('statistics', cache_key)
             if cached is not None:

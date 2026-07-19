@@ -10,7 +10,7 @@ Provides:
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -18,6 +18,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 from app.telemetry.health import HealthStatus
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 engine = create_async_engine(
     settings.DATABASE_URL,

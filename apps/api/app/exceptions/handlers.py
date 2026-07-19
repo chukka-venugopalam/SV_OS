@@ -17,8 +17,8 @@ All exception handlers return responses in the standard API format:
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
-from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -30,6 +30,9 @@ from app.repositories.errors import (
     EntityNotFoundError,
     RepositoryError,
 )
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI, Request
 
 logger = get_logger(__name__)
 
@@ -72,14 +75,15 @@ async def app_exception_handler(request: Request, exc: AppError) -> JSONResponse
         status_code=exc.status_code,
         content=_error_response(
             message=exc.message,
-            errors=exc.errors if exc.errors else None,
+            errors=exc.errors or None,
             request_id=_request_id(request),
         ),
     )
 
 
 async def validation_exception_handler(
-    request: Request, exc: RequestValidationError
+    request: Request,
+    exc: RequestValidationError,
 ) -> JSONResponse:
     """Handler for Pydantic/FastAPI request validation errors."""
     errors: list[ErrorDetail] = [

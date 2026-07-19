@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_uow
-from app.repositories import UnitOfWork
 from app.schemas.response import success_response
 from app.services.progress import ProgressService
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -61,7 +64,8 @@ async def update_progress(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
     status: Annotated[str | None, Query(description='New progress status')] = None,
     time_spent_minutes: Annotated[
-        int | None, Query(ge=0, description='Additional time spent')
+        int | None,
+        Query(ge=0, description='Additional time spent'),
     ] = None,
     notes: Annotated[str | None, Query(description='Personal notes')] = None,
 ) -> dict:

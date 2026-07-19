@@ -16,8 +16,7 @@ Each recommendation includes an explanation of WHY it exists.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
@@ -27,14 +26,15 @@ from app.engines.base import EngineBase, EngineDependency, EngineHealth
 @dataclass
 class Recommendation:
     """A single deterministic recommendation with explanation."""
+
     node_id: str
     title: str
     slug: str
     node_type: str
     difficulty: str
-    priority: int           # 1 (highest) to 8 (lowest)
-    priority_label: str     # Human-readable priority name
-    reason: str             # WHY this item is recommended
+    priority: int  # 1 (highest) to 8 (lowest)
+    priority_label: str  # Human-readable priority name
+    reason: str  # WHY this item is recommended
     estimated_minutes: int = 30
     icon: str | None = None
     color: str | None = None
@@ -97,10 +97,26 @@ class RecommendationEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for node data'),
-            EngineDependency(engine_name='state', required=False, description='State engine for learner state'),
-            EngineDependency(engine_name='dependency', required=False, description='Dependency engine for prerequisites'),
-            EngineDependency(engine_name='traversal', required=False, description='Traversal engine for graph algorithms'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for node data',
+            ),
+            EngineDependency(
+                engine_name='state',
+                required=False,
+                description='State engine for learner state',
+            ),
+            EngineDependency(
+                engine_name='dependency',
+                required=False,
+                description='Dependency engine for prerequisites',
+            ),
+            EngineDependency(
+                engine_name='traversal',
+                required=False,
+                description='Traversal engine for graph algorithms',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -118,7 +134,9 @@ class RecommendationEngine(EngineBase):
             state=self.engine_state,
             healthy=True,
             message='Recommendation engine is operational',
-            details={'total_recommendations': sum(len(v) for v in self._recommendation_history.values())},
+            details={
+                'total_recommendations': sum(len(v) for v in self._recommendation_history.values()),
+            },
         )
 
     async def validate_configuration(self) -> list[str]:
@@ -148,8 +166,6 @@ class RecommendationEngine(EngineBase):
 
         Runs all 8 priority rules and merges results in priority order.
         """
-        recommendations: list[Recommendation] = []
-
         # Gather candidates from all priority rules
         candidates = await self._gather_all_candidates(user_id)
 
@@ -173,7 +189,11 @@ class RecommendationEngine(EngineBase):
         # Publish event
         await self.publish_event(
             'recommendation.generated.v1',
-            {'user_id': str(user_id), 'count': len(result), 'recommendations': [r['node_id'] for r in result]},
+            {
+                'user_id': str(user_id),
+                'count': len(result),
+                'recommendations': [r['node_id'] for r in result],
+            },
             correlation_id=str(user_id),
         )
 
@@ -218,7 +238,12 @@ class RecommendationEngine(EngineBase):
 
         return [self._rec_to_dict(r) for r in recommendations[:limit]]
 
-    async def recommend_by_goal(self, user_id: UUID, goal_node_id: UUID, limit: int = 10) -> list[dict]:
+    async def recommend_by_goal(
+        self,
+        user_id: UUID,  # noqa: ARG002
+        goal_node_id: UUID,
+        limit: int = 10,
+    ) -> list[dict]:
         """Get recommendations toward a specific goal node.
 
         Finds the dependency chain toward the goal and recommends the next
@@ -245,17 +270,19 @@ class RecommendationEngine(EngineBase):
             if self._graph:
                 node = await self._graph.get_node(UUID(nid))
                 if node:
-                    recommendations.append(Recommendation(
-                        node_id=str(nid),
-                        title=node.get('title', ''),
-                        slug=node.get('slug', ''),
-                        node_type=node.get('node_type', ''),
-                        difficulty=node.get('difficulty', 'beginner'),
-                        priority=PRIORITY_CAREER_REQUIREMENT,
-                        priority_label='Goal Prerequisite',
-                        reason=f'Prerequisite for your goal: {node.get("title", "")}',
-                        estimated_minutes=30,
-                    ))
+                    recommendations.append(
+                        Recommendation(
+                            node_id=str(nid),
+                            title=node.get('title', ''),
+                            slug=node.get('slug', ''),
+                            node_type=node.get('node_type', ''),
+                            difficulty=node.get('difficulty', 'beginner'),
+                            priority=PRIORITY_CAREER_REQUIREMENT,
+                            priority_label='Goal Prerequisite',
+                            reason=f'Prerequisite for your goal: {node.get("title", "")}',
+                            estimated_minutes=30,
+                        ),
+                    )
 
         return [self._rec_to_dict(r) for r in recommendations[:limit]]
 
@@ -266,8 +293,7 @@ class RecommendationEngine(EngineBase):
 
         # Search content index for the skill
         if hasattr(self._knowledge, 'search_content'):
-            results = await self._knowledge.search_content(skill_name, limit=limit)
-            return results
+            return await self._knowledge.search_content(skill_name, limit=limit)
         return []
 
     async def recommend_by_career(self, career_node_id: UUID, limit: int = 10) -> list[dict]:
@@ -285,21 +311,27 @@ class RecommendationEngine(EngineBase):
                 if self._graph:
                     node = await self._graph.get_node(UUID(nid))
                     if node:
-                        recommendations.append(Recommendation(
-                            node_id=str(nid),
-                            title=node.get('title', ''),
-                            slug=node.get('slug', ''),
-                            node_type=node.get('node_type', ''),
-                            difficulty=node.get('difficulty', 'beginner'),
-                            priority=PRIORITY_CAREER_REQUIREMENT,
-                            priority_label='Career Requirement',
-                            reason=f'Required for career: {node.get("title", "")}',
-                            estimated_minutes=30,
-                        ))
+                        recommendations.append(
+                            Recommendation(
+                                node_id=str(nid),
+                                title=node.get('title', ''),
+                                slug=node.get('slug', ''),
+                                node_type=node.get('node_type', ''),
+                                difficulty=node.get('difficulty', 'beginner'),
+                                priority=PRIORITY_CAREER_REQUIREMENT,
+                                priority_label='Career Requirement',
+                                reason=f'Required for career: {node.get("title", "")}',
+                                estimated_minutes=30,
+                            ),
+                        )
 
         return [self._rec_to_dict(r) for r in recommendations[:limit]]
 
-    async def recommend_after_assessment(self, user_id: UUID, assessment_results: dict) -> list[dict]:
+    async def recommend_after_assessment(
+        self,
+        user_id: UUID,  # noqa: ARG002
+        assessment_results: dict,
+    ) -> list[dict]:
         """Get recommendations based on assessment performance.
 
         Recommends nodes where the learner scored poorly for reinforcement.
@@ -311,17 +343,19 @@ class RecommendationEngine(EngineBase):
             if self._graph:
                 node = await self._graph.get_node(UUID(nid_str))
                 if node:
-                    recommendations.append(Recommendation(
-                        node_id=str(nid_str),
-                        title=node.get('title', ''),
-                        slug=node.get('slug', ''),
-                        node_type=node.get('node_type', ''),
-                        difficulty=node.get('difficulty', 'beginner'),
-                        priority=PRIORITY_REINFORCE_WEAK,
-                        priority_label='Reinforce Weak Knowledge',
-                        reason=f'Assessment shows weakness in "{node.get("title", "")}"',
-                        estimated_minutes=30,
-                    ))
+                    recommendations.append(
+                        Recommendation(
+                            node_id=str(nid_str),
+                            title=node.get('title', ''),
+                            slug=node.get('slug', ''),
+                            node_type=node.get('node_type', ''),
+                            difficulty=node.get('difficulty', 'beginner'),
+                            priority=PRIORITY_REINFORCE_WEAK,
+                            priority_label='Reinforce Weak Knowledge',
+                            reason=f'Assessment shows weakness in "{node.get("title", "")}"',
+                            estimated_minutes=30,
+                        ),
+                    )
 
         return [self._rec_to_dict(r) for r in recommendations]
 
@@ -336,21 +370,28 @@ class RecommendationEngine(EngineBase):
             if self._graph:
                 node = await self._graph.get_node(UUID(nid_str))
                 if node and node.get('difficulty') in ('beginner', 'intermediate'):
-                    recommendations.append(Recommendation(
-                        node_id=str(nid_str),
-                        title=node.get('title', ''),
-                        slug=node.get('slug', ''),
-                        node_type=node.get('node_type', ''),
-                        difficulty=node.get('difficulty', 'beginner'),
-                        priority=PRIORITY_EASIEST_FIRST,
-                        priority_label='New Content Available',
-                        reason=f'Newly imported: "{node.get("title", "")}"',
-                        estimated_minutes=node.get('estimated_minutes', 30),
-                    ))
+                    recommendations.append(
+                        Recommendation(
+                            node_id=str(nid_str),
+                            title=node.get('title', ''),
+                            slug=node.get('slug', ''),
+                            node_type=node.get('node_type', ''),
+                            difficulty=node.get('difficulty', 'beginner'),
+                            priority=PRIORITY_EASIEST_FIRST,
+                            priority_label='New Content Available',
+                            reason=f'Newly imported: "{node.get("title", "")}"',
+                            estimated_minutes=node.get('estimated_minutes', 30),
+                        ),
+                    )
 
         return [self._rec_to_dict(r) for r in recommendations]
 
-    async def recommend_after_revision(self, user_id: UUID, revised_node_ids: list[str], limit: int = 10) -> list[dict]:
+    async def recommend_after_revision(
+        self,
+        user_id: UUID,  # noqa: ARG002
+        revised_node_ids: list[str],
+        limit: int = 10,
+    ) -> list[dict]:
         """Get recommendations for what to study after completing a revision.
 
         Recommends nodes connected to the revised nodes for continued learning.
@@ -367,17 +408,19 @@ class RecommendationEngine(EngineBase):
                 sub = await self._traversal.subgraph(nid, depth=1)
                 for node in sub.get('nodes', []):
                     if node.get('id') != nid_str:
-                        recommendations.append(Recommendation(
-                            node_id=node['id'],
-                            title=node.get('title', ''),
-                            slug=node.get('slug', ''),
-                            node_type=node.get('node_type', ''),
-                            difficulty=node.get('difficulty', 'beginner'),
-                            priority=PRIORITY_CONTINUE_STREAK,
-                            priority_label='Continue Learning Streak',
-                            reason=f'Connected to what you just revised',
-                            estimated_minutes=node.get('estimated_minutes', 30),
-                        ))
+                        recommendations.append(
+                            Recommendation(
+                                node_id=node['id'],
+                                title=node.get('title', ''),
+                                slug=node.get('slug', ''),
+                                node_type=node.get('node_type', ''),
+                                difficulty=node.get('difficulty', 'beginner'),
+                                priority=PRIORITY_CONTINUE_STREAK,
+                                priority_label='Continue Learning Streak',
+                                reason='Connected to what you just revised',
+                                estimated_minutes=node.get('estimated_minutes', 30),
+                            ),
+                        )
             except (ValueError, AttributeError):
                 pass
 
@@ -480,17 +523,19 @@ class RecommendationEngine(EngineBase):
                     if confidence < 0.5:  # Needs review
                         node = await self._graph.get_node(UUID(nid_str)) if self._graph else None
                         if node:
-                            results.append(Recommendation(
-                                node_id=str(nid_str),
-                                title=node.get('title', ''),
-                                slug=node.get('slug', ''),
-                                node_type=node.get('node_type', ''),
-                                difficulty=node.get('difficulty', 'beginner'),
-                                priority=PRIORITY_URGENT_REVIEW,
-                                priority_label='Urgent Review',
-                                reason=f'Confidence is low ({round(confidence, 2)}) — needs review',
-                                estimated_minutes=node.get('estimated_minutes', 15),
-                            ))
+                            results.append(
+                                Recommendation(
+                                    node_id=str(nid_str),
+                                    title=node.get('title', ''),
+                                    slug=node.get('slug', ''),
+                                    node_type=node.get('node_type', ''),
+                                    difficulty=node.get('difficulty', 'beginner'),
+                                    priority=PRIORITY_URGENT_REVIEW,
+                                    priority_label='Urgent Review',
+                                    reason=f'Confidence is low ({round(confidence, 2)}) — needs review',  # noqa: E501
+                                    estimated_minutes=node.get('estimated_minutes', 15),
+                                ),
+                            )
         except Exception:
             pass
         return results
@@ -512,21 +557,25 @@ class RecommendationEngine(EngineBase):
             )
 
             for nid_str, state_info in sorted_nodes[:10]:
-                confidence = state_info.get('confidence', 1.0) if isinstance(state_info, dict) else 1.0
+                confidence = (
+                    state_info.get('confidence', 1.0) if isinstance(state_info, dict) else 1.0
+                )
                 if 0.3 <= confidence < 0.7:  # Moderate weakness
                     node = await self._graph.get_node(UUID(nid_str)) if self._graph else None
                     if node:
-                        results.append(Recommendation(
-                            node_id=str(nid_str),
-                            title=node.get('title', ''),
-                            slug=node.get('slug', ''),
-                            node_type=node.get('node_type', ''),
-                            difficulty=node.get('difficulty', 'beginner'),
-                            priority=PRIORITY_REINFORCE_WEAK,
-                            priority_label='Reinforce Weak Knowledge',
-                            reason=f'Confidence is moderate ({round(confidence, 2)}) — reinforce understanding',
-                            estimated_minutes=node.get('estimated_minutes', 20),
-                        ))
+                        results.append(
+                            Recommendation(
+                                node_id=str(nid_str),
+                                title=node.get('title', ''),
+                                slug=node.get('slug', ''),
+                                node_type=node.get('node_type', ''),
+                                difficulty=node.get('difficulty', 'beginner'),
+                                priority=PRIORITY_REINFORCE_WEAK,
+                                priority_label='Reinforce Weak Knowledge',
+                                reason=f'Confidence is moderate ({round(confidence, 2)}) — reinforce understanding',  # noqa: E501
+                                estimated_minutes=node.get('estimated_minutes', 20),
+                            ),
+                        )
         except Exception:
             pass
         return results
@@ -547,24 +596,26 @@ class RecommendationEngine(EngineBase):
                         sub = await self._traversal.subgraph(UUID(nid_str), depth=1)
                         for node in sub.get('nodes', []):
                             if node.get('id') != nid_str:
-                                results.append(Recommendation(
-                                    node_id=node['id'],
-                                    title=node.get('title', ''),
-                                    slug=node.get('slug', ''),
-                                    node_type=node.get('node_type', ''),
-                                    difficulty=node.get('difficulty', 'beginner'),
-                                    priority=PRIORITY_CONTINUE_STREAK,
-                                    priority_label='Continue Learning Streak',
-                                    reason=f'Continue your streak — next step from current topic',
-                                    estimated_minutes=node.get('estimated_minutes', 30),
-                                ))
+                                results.append(
+                                    Recommendation(
+                                        node_id=node['id'],
+                                        title=node.get('title', ''),
+                                        slug=node.get('slug', ''),
+                                        node_type=node.get('node_type', ''),
+                                        difficulty=node.get('difficulty', 'beginner'),
+                                        priority=PRIORITY_CONTINUE_STREAK,
+                                        priority_label='Continue Learning Streak',
+                                        reason='Continue your streak — next step from current topic',  # noqa: E501
+                                        estimated_minutes=node.get('estimated_minutes', 30),
+                                    ),
+                                )
                     except Exception:
                         pass
         except Exception:
             pass
         return results
 
-    async def _get_career_candidates(self, user_id: UUID) -> list[Recommendation]:
+    async def _get_career_candidates(self, user_id: UUID) -> list[Recommendation]:  # noqa: ARG002
         """Priority 4: Items required for target career."""
         if self._traversal is None or self._graph is None:
             return []
@@ -584,24 +635,26 @@ class RecommendationEngine(EngineBase):
                             nid = item.get('node_id', '')
                             node = await self._graph.get_node(UUID(nid))
                             if node:
-                                results.append(Recommendation(
-                                    node_id=str(nid),
-                                    title=node.get('title', ''),
-                                    slug=node.get('slug', ''),
-                                    node_type=node.get('node_type', ''),
-                                    difficulty=node.get('difficulty', 'beginner'),
-                                    priority=PRIORITY_CAREER_REQUIREMENT,
-                                    priority_label='Career Requirement',
-                                    reason=f'Required for career: {career.get("title", "")}',
-                                    estimated_minutes=node.get('estimated_minutes', 30),
-                                ))
+                                results.append(
+                                    Recommendation(
+                                        node_id=str(nid),
+                                        title=node.get('title', ''),
+                                        slug=node.get('slug', ''),
+                                        node_type=node.get('node_type', ''),
+                                        difficulty=node.get('difficulty', 'beginner'),
+                                        priority=PRIORITY_CAREER_REQUIREMENT,
+                                        priority_label='Career Requirement',
+                                        reason=f'Required for career: {career.get("title", "")}',
+                                        estimated_minutes=node.get('estimated_minutes', 30),
+                                    ),
+                                )
                 except Exception:
                     pass
         except Exception:
             pass
         return results
 
-    async def _get_unlock_candidates(self, user_id: UUID) -> list[Recommendation]:
+    async def _get_unlock_candidates(self, user_id: UUID) -> list[Recommendation]:  # noqa: ARG002
         """Priority 5: Items that unlock the most downstream content."""
         if self._traversal is None or self._graph is None:
             return []
@@ -613,28 +666,33 @@ class RecommendationEngine(EngineBase):
             all_nodes = await self._graph.all_nodes()
             for node in all_nodes[:50]:
                 try:
-                    chain = await self._traversal.reverse_dependency_chain(UUID(node['id']), max_depth=2)
+                    chain = await self._traversal.reverse_dependency_chain(
+                        UUID(node['id']),
+                        max_depth=2,
+                    )
                     dependent_count = sum(len(level) for level in chain)
 
                     if dependent_count > 2:  # Unlocks at least 3 nodes
-                        results.append(Recommendation(
-                            node_id=node['id'],
-                            title=node.get('title', ''),
-                            slug=node.get('slug', ''),
-                            node_type=node.get('node_type', ''),
-                            difficulty=node.get('difficulty', 'beginner'),
-                            priority=PRIORITY_UNLOCK_MAX_NODES,
-                            priority_label='Unlock Maximum Nodes',
-                            reason=f'Unlocks {dependent_count} downstream nodes',
-                            estimated_minutes=node.get('estimated_minutes', 30),
-                        ))
+                        results.append(
+                            Recommendation(
+                                node_id=node['id'],
+                                title=node.get('title', ''),
+                                slug=node.get('slug', ''),
+                                node_type=node.get('node_type', ''),
+                                difficulty=node.get('difficulty', 'beginner'),
+                                priority=PRIORITY_UNLOCK_MAX_NODES,
+                                priority_label='Unlock Maximum Nodes',
+                                reason=f'Unlocks {dependent_count} downstream nodes',
+                                estimated_minutes=node.get('estimated_minutes', 30),
+                            ),
+                        )
                 except Exception:
                     pass
         except Exception:
             pass
         return results
 
-    async def _get_dependency_value_candidates(self, user_id: UUID) -> list[Recommendation]:
+    async def _get_dependency_value_candidates(self, user_id: UUID) -> list[Recommendation]:  # noqa: ARG002
         """Priority 6: Items with the most dependents (high value)."""
         if self._traversal is None or self._graph is None:
             return []
@@ -647,7 +705,10 @@ class RecommendationEngine(EngineBase):
 
             for node in all_nodes[:50]:
                 try:
-                    chain = await self._traversal.reverse_dependency_chain(UUID(node['id']), max_depth=2)
+                    chain = await self._traversal.reverse_dependency_chain(
+                        UUID(node['id']),
+                        max_depth=2,
+                    )
                     count = sum(len(level) for level in chain)
                     dependency_counts.append((node['id'], count, node))
                 except Exception:
@@ -658,22 +719,24 @@ class RecommendationEngine(EngineBase):
 
             for nid_str, count, node in dependency_counts[:10]:
                 if count >= 2:
-                    results.append(Recommendation(
-                        node_id=str(nid_str),
-                        title=node.get('title', ''),
-                        slug=node.get('slug', ''),
-                        node_type=node.get('node_type', ''),
-                        difficulty=node.get('difficulty', 'beginner'),
-                        priority=PRIORITY_HIGHEST_DEPENDENCY,
-                        priority_label='Highest Dependency Value',
-                        reason=f'High value — {count} nodes depend on this',
-                        estimated_minutes=node.get('estimated_minutes', 30),
-                    ))
+                    results.append(
+                        Recommendation(
+                            node_id=str(nid_str),
+                            title=node.get('title', ''),
+                            slug=node.get('slug', ''),
+                            node_type=node.get('node_type', ''),
+                            difficulty=node.get('difficulty', 'beginner'),
+                            priority=PRIORITY_HIGHEST_DEPENDENCY,
+                            priority_label='Highest Dependency Value',
+                            reason=f'High value — {count} nodes depend on this',
+                            estimated_minutes=node.get('estimated_minutes', 30),
+                        ),
+                    )
         except Exception:
             pass
         return results
 
-    async def _get_shortest_time_candidates(self, user_id: UUID) -> list[Recommendation]:
+    async def _get_shortest_time_candidates(self, user_id: UUID) -> list[Recommendation]:  # noqa: ARG002
         """Priority 7: Items with the shortest estimated time."""
         if self._graph is None:
             return []
@@ -683,31 +746,30 @@ class RecommendationEngine(EngineBase):
         try:
             all_nodes = await self._graph.all_nodes()
             # Filter to available (published, not too difficult)
-            available = [
-                n for n in all_nodes
-                if n.get('estimated_minutes', 120) is not None
-            ]
+            available = [n for n in all_nodes if n.get('estimated_minutes', 120) is not None]
             available.sort(key=lambda n: n.get('estimated_minutes', 120))
 
             for node in available[:10]:
                 mins = node.get('estimated_minutes', 30)
                 if mins <= 30:  # Quick wins
-                    results.append(Recommendation(
-                        node_id=node['id'],
-                        title=node.get('title', ''),
-                        slug=node.get('slug', ''),
-                        node_type=node.get('node_type', ''),
-                        difficulty=node.get('difficulty', 'beginner'),
-                        priority=PRIORITY_SHORTEST_TIME,
-                        priority_label='Shortest Estimated Time',
-                        reason=f'Quick win — only {mins} minutes',
-                        estimated_minutes=mins,
-                    ))
+                    results.append(
+                        Recommendation(
+                            node_id=node['id'],
+                            title=node.get('title', ''),
+                            slug=node.get('slug', ''),
+                            node_type=node.get('node_type', ''),
+                            difficulty=node.get('difficulty', 'beginner'),
+                            priority=PRIORITY_SHORTEST_TIME,
+                            priority_label='Shortest Estimated Time',
+                            reason=f'Quick win — only {mins} minutes',
+                            estimated_minutes=mins,
+                        ),
+                    )
         except Exception:
             pass
         return results
 
-    async def _get_easiest_candidates(self, user_id: UUID) -> list[Recommendation]:
+    async def _get_easiest_candidates(self, user_id: UUID) -> list[Recommendation]:  # noqa: ARG002
         """Priority 8: Items with the lowest difficulty."""
         if self._graph is None:
             return []
@@ -719,17 +781,19 @@ class RecommendationEngine(EngineBase):
             beginner = [n for n in all_nodes if n.get('difficulty') == 'beginner']
 
             for node in beginner[:10]:
-                results.append(Recommendation(
-                    node_id=node['id'],
-                    title=node.get('title', ''),
-                    slug=node.get('slug', ''),
-                    node_type=node.get('node_type', ''),
-                    difficulty='beginner',
-                    priority=PRIORITY_EASIEST_FIRST,
-                    priority_label='Easiest First',
-                    reason='Beginner level — easiest to start with',
-                    estimated_minutes=node.get('estimated_minutes', 30),
-                ))
+                results.append(
+                    Recommendation(
+                        node_id=node['id'],
+                        title=node.get('title', ''),
+                        slug=node.get('slug', ''),
+                        node_type=node.get('node_type', ''),
+                        difficulty='beginner',
+                        priority=PRIORITY_EASIEST_FIRST,
+                        priority_label='Easiest First',
+                        reason='Beginner level — easiest to start with',
+                        estimated_minutes=node.get('estimated_minutes', 30),
+                    ),
+                )
         except Exception:
             pass
         return results

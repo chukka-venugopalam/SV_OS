@@ -64,7 +64,7 @@ class TestGeneratePath:
     """Test generate_path."""
 
     @pytest.mark.asyncio
-    async def test_generate_path_goal_not_found(self, generator, mock_uow):
+    async def test_generate_path_goal_not_found(self, generator, mock_uow) -> None:
         """Test returns error dict when goal node not found."""
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=None)
 
@@ -74,7 +74,7 @@ class TestGeneratePath:
         assert result['error'] == 'Goal node not found'
 
     @pytest.mark.asyncio
-    async def test_generate_path_no_prerequisites(self, generator, mock_uow):
+    async def test_generate_path_no_prerequisites(self, generator, mock_uow) -> None:
         """Test path generation with no prerequisites."""
         goal_id = uuid4()
         goal = _make_node(goal_id, title='Goal Node', slug='goal-node')
@@ -91,7 +91,7 @@ class TestGeneratePath:
         assert result['milestones'] == []
 
     @pytest.mark.asyncio
-    async def test_generate_path_with_prerequisites(self, generator, mock_uow):
+    async def test_generate_path_with_prerequisites(self, generator, mock_uow) -> None:
         """Test path generation includes prerequisites."""
         goal_id = uuid4()
         prereq_id = uuid4()
@@ -100,14 +100,14 @@ class TestGeneratePath:
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=goal)
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
-            side_effect=lambda nid: {goal_id: goal, prereq_id: prereq}.get(nid)
+            side_effect={goal_id: goal, prereq_id: prereq}.get,
         )
         mock_uow.graph.load_prerequisites = AsyncMock(
             side_effect=lambda nid: (
                 {'prereqs': ([prereq] if nid != prereq_id else [])}.get('prereqs', [])
                 if nid == goal_id
                 else []
-            )
+            ),
         )
 
         result = await generator.generate_path(goal_node_id=goal_id)
@@ -115,7 +115,7 @@ class TestGeneratePath:
         assert result['stats']['total_nodes'] >= 1
 
     @pytest.mark.asyncio
-    async def test_generate_path_includes_stats(self, generator, mock_uow):
+    async def test_generate_path_includes_stats(self, generator, mock_uow) -> None:
         """Test path generation includes stats."""
         goal_id = uuid4()
         goal = _make_node(goal_id, title='Goal')
@@ -141,7 +141,7 @@ class TestBuildPrerequisiteSet:
     """Test _build_prerequisite_set."""
 
     @pytest.mark.asyncio
-    async def test_build_returns_ordered_prereqs(self, generator, mock_uow):
+    async def test_build_returns_ordered_prereqs(self, generator, mock_uow) -> None:
         """Test prerequisite set is ordered (roots first)."""
         node_a = uuid4()
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
@@ -151,7 +151,7 @@ class TestBuildPrerequisiteSet:
         assert isinstance(result, list)
 
     @pytest.mark.asyncio
-    async def test_build_avoids_cycles(self, generator, mock_uow):
+    async def test_build_avoids_cycles(self, generator, mock_uow) -> None:
         """Test prerequisite building avoids infinite loops."""
         node_a = uuid4()
         node_b = MagicMock()
@@ -170,13 +170,13 @@ class TestBuildPrerequisiteSet:
 class TestBuildMilestones:
     """Test _build_milestones."""
 
-    def test_empty_milestones(self, generator):
+    def test_empty_milestones(self, generator) -> None:
         """Test empty nodes produce empty milestones."""
         result = generator._build_milestones([])
 
         assert result == []
 
-    def test_single_milestone(self, generator):
+    def test_single_milestone(self, generator) -> None:
         """Test few nodes produce a single milestone."""
         nodes = [_make_node(uuid4(), title=f'Node {i}', difficulty='beginner') for i in range(3)]
 
@@ -187,7 +187,7 @@ class TestBuildMilestones:
         assert result[0]['estimated_minutes'] > 0
         assert result[0]['estimated_hours'] > 0
 
-    def test_multiple_milestones(self, generator):
+    def test_multiple_milestones(self, generator) -> None:
         """Test many nodes produce multiple milestones."""
         nodes = [_make_node(uuid4(), title=f'Node {i}', difficulty='beginner') for i in range(12)]
 
@@ -195,7 +195,7 @@ class TestBuildMilestones:
 
         assert len(result) >= 2  # 12 nodes / 5 per milestone = 3 milestones
 
-    def test_milestone_structure(self, generator):
+    def test_milestone_structure(self, generator) -> None:
         """Test milestone dict structure is correct."""
         node = _make_node(uuid4(), title='Test', difficulty='intermediate')
         result = generator._build_milestones([node])
@@ -218,13 +218,13 @@ class TestTopologicalSort:
     """Test _topological_sort."""
 
     @pytest.mark.asyncio
-    async def test_sort_empty_list(self, generator, mock_uow):  # noqa: ARG002
+    async def test_sort_empty_list(self, generator, mock_uow) -> None:  # noqa: ARG002
         """Test sorting empty list returns empty."""
         result = await generator._topological_sort([], uuid4())
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_sort_returns_sorted_nodes(self, generator, mock_uow):
+    async def test_sort_returns_sorted_nodes(self, generator, mock_uow) -> None:
         """Test sorting returns nodes sorted by depth and difficulty."""
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
 
@@ -243,7 +243,7 @@ class TestEdgeCases:
     """Test edge cases for learning path generation."""
 
     @pytest.mark.asyncio
-    async def test_no_goal_node(self, generator, mock_uow):
+    async def test_no_goal_node(self, generator, mock_uow) -> None:
         """Test behavior when goal node doesn't exist."""
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=None)
 
@@ -252,7 +252,7 @@ class TestEdgeCases:
         assert 'error' in result
 
     @pytest.mark.asyncio
-    async def test_difficulty_filter_applied(self, generator, mock_uow):
+    async def test_difficulty_filter_applied(self, generator, mock_uow) -> None:
         """Test difficulty filter excludes hard nodes."""
         goal_id = uuid4()
         goal = _make_node(goal_id, title='Goal', difficulty='beginner')

@@ -61,7 +61,7 @@ class TestPersonalizedRecommendations:
     """Test get_personalized."""
 
     @pytest.mark.asyncio
-    async def test_empty_no_published_nodes(self, engine, mock_uow):
+    async def test_empty_no_published_nodes(self, engine, mock_uow) -> None:
         """Test returns empty when no published nodes."""
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[])
         mock_uow.user_progress.find_by_user = AsyncMock(return_value=MagicMock(items=[]))
@@ -75,7 +75,7 @@ class TestPersonalizedRecommendations:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_all_nodes_completed(self, engine, mock_uow):
+    async def test_all_nodes_completed(self, engine, mock_uow) -> None:
         """Test returns empty when all nodes completed."""
         from datetime import datetime
 
@@ -89,7 +89,7 @@ class TestPersonalizedRecommendations:
 
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
         mock_uow.user_progress.find_by_user = AsyncMock(
-            return_value=MagicMock(items=[completed_progress])
+            return_value=MagicMock(items=[completed_progress]),
         )
         mock_uow.bookmarks.find_by_user = AsyncMock(return_value=[])
         mock_uow.search_history.find_by_user = AsyncMock(return_value=[])
@@ -101,7 +101,7 @@ class TestPersonalizedRecommendations:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_returns_recommendations_with_breakdown(self, engine, mock_uow):
+    async def test_returns_recommendations_with_breakdown(self, engine, mock_uow) -> None:
         """Test recommendations include score breakdown."""
         node = _make_node(uuid4(), 'Python', 'python')
 
@@ -121,7 +121,7 @@ class TestPersonalizedRecommendations:
             assert 'node' in result[0]
 
     @pytest.mark.asyncio
-    async def test_breakdown_contains_all_signals(self, engine, mock_uow):
+    async def test_breakdown_contains_all_signals(self, engine, mock_uow) -> None:
         """Test score breakdown contains all expected signals."""
         node = _make_node(uuid4(), 'Python', 'python')
 
@@ -151,7 +151,7 @@ class TestPersonalizedRecommendations:
                 assert signal in breakdown
 
     @pytest.mark.asyncio
-    async def test_limit_respects_count(self, engine, mock_uow):
+    async def test_limit_respects_count(self, engine, mock_uow) -> None:
         """Test limit restricts number of results."""
         nodes = [_make_node(uuid4(), f'Node {i}', f'node-{i}') for i in range(10)]
 
@@ -171,7 +171,7 @@ class TestScoringSignals:
     """Test individual scoring signals."""
 
     @pytest.mark.asyncio
-    async def test_weak_topic_score(self, engine, mock_uow):  # noqa: ARG002
+    async def test_weak_topic_score(self, engine, mock_uow) -> None:  # noqa: ARG002
         """Test weak topic scoring."""
         node_id = uuid4()
         node = _make_node(node_id, 'Weak Topic', 'weak')
@@ -180,51 +180,51 @@ class TestScoringSignals:
         score = engine._weak_topic_score(node, weak_topics)
         assert score == 0.9
 
-    def test_weak_topic_score_not_weak(self, engine):
+    def test_weak_topic_score_not_weak(self, engine) -> None:
         """Test non-weak topic gets 0."""
         node = _make_node(uuid4(), 'Normal', 'normal')
         score = engine._weak_topic_score(node, [])
         assert score == 0.0
 
     @pytest.mark.asyncio
-    async def test_bookmark_affinity(self, engine, mock_uow):  # noqa: ARG002
+    async def test_bookmark_affinity(self, engine, mock_uow) -> None:  # noqa: ARG002
         """Test bookmark affinity with many bookmarks."""
         node = _make_node(node_type='concept')
         score = engine._bookmark_affinity_score(node, {uuid4(), uuid4(), uuid4()})
         assert score == 0.3
 
-    def test_bookmark_affinity_empty(self, engine):
+    def test_bookmark_affinity_empty(self, engine) -> None:
         """Test bookmark affinity with no bookmarks."""
         node = _make_node(node_type='concept')
         score = engine._bookmark_affinity_score(node, set())
         assert score == 0.0
 
-    def test_difficulty_score_fast_learner(self, engine):
+    def test_difficulty_score_fast_learner(self, engine) -> None:
         """Test difficulty for fast learners."""
         node = _make_node(difficulty='advanced')
         score = engine._difficulty_score(node, learning_velocity=3.0)
         assert score == 0.7
 
-    def test_difficulty_score_slow_learner(self, engine):
+    def test_difficulty_score_slow_learner(self, engine) -> None:
         """Test difficulty for slow learners."""
         node = _make_node(difficulty='expert')
         score = engine._difficulty_score(node, learning_velocity=0.5)
         assert score == 0.3
 
     @pytest.mark.asyncio
-    async def test_recent_search_score(self, engine, mock_uow):  # noqa: ARG002
+    async def test_recent_search_score(self, engine, mock_uow) -> None:  # noqa: ARG002
         """Test recent search matching."""
         node = _make_node(title='Python Programming', slug='python')
         score = engine._recent_search_score(node, ['python', 'data science'])
         assert score == 0.6
 
-    def test_recent_search_no_match(self, engine):
+    def test_recent_search_no_match(self, engine) -> None:
         """Test recent search no match."""
         node = _make_node(title='Java Programming', slug='java')
         score = engine._recent_search_score(node, ['python'])
         assert score == 0.0
 
-    def test_velocity_boost(self, engine):
+    def test_velocity_boost(self, engine) -> None:
         """Test velocity boost scales with pace."""
         assert engine._velocity_boost(None, 3.0) == 0.5
         assert engine._velocity_boost(None, 1.5) == 0.3
@@ -234,7 +234,7 @@ class TestScoringSignals:
 class TestReasonBuilding:
     """Test build_reasons."""
 
-    def test_top_reasons(self, engine):
+    def test_top_reasons(self, engine) -> None:
         """Test top 3 reasons from breakdown."""
         breakdown = {
             'prerequisite_completion': 0.9,
@@ -252,11 +252,10 @@ class TestReasonBuilding:
         assert len(reasons) <= 3
         assert any('prerequisite' in r.lower() for r in reasons)
 
-    def test_empty_breakdown(self, engine):
+    def test_empty_breakdown(self, engine) -> None:
         """Test empty breakdown returns no reasons."""
-        breakdown = {
-            k: 0.0
-            for k in [
+        breakdown = dict.fromkeys(
+            [
                 'prerequisite_completion',
                 'weak_topic_reinforcement',
                 'bookmark_affinity',
@@ -266,7 +265,8 @@ class TestReasonBuilding:
                 'estimated_time_match',
                 'recent_search_relevance',
                 'learning_velocity',
-            ]
-        }
+            ],
+            0.0,
+        )
         reasons = engine._build_reasons(breakdown)
         assert reasons == []

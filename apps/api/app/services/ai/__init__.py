@@ -1,5 +1,4 @@
-"""
-AI Knowledge Intelligence — embedding, semantic search, hybrid search, and ranking.
+"""AI Knowledge Intelligence — embedding, semantic search, hybrid search, and ranking.
 
 This package provides the AI/ML layer for the SV-OS knowledge graph:
 - ``EmbeddingService`` — vector embedding generation with provider abstraction

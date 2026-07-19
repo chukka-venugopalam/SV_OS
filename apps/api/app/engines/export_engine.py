@@ -27,17 +27,20 @@ import json
 import zipfile
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
-from app.engines.graph_engine import GraphEngine
-from app.engines.traversal_engine import TraversalEngine
+
+if TYPE_CHECKING:
+    from app.engines.graph_engine import GraphEngine
+    from app.engines.traversal_engine import TraversalEngine
 
 
 @dataclass
 class ExportJob:
     """Tracks the progress of an export operation."""
+
     export_id: str = field(default_factory=lambda: str(uuid4()))
     format: str = 'json'
     target: str = 'graph'
@@ -80,8 +83,16 @@ class ExportEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for data'),
-            EngineDependency(engine_name='traversal', required=False, description='Traversal engine for subgraphs'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for data',
+            ),
+            EngineDependency(
+                engine_name='traversal',
+                required=False,
+                description='Traversal engine for subgraphs',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -102,7 +113,9 @@ class ExportEngine(EngineBase):
             message='Export engine is operational',
             details={
                 'total_exports': len(self._exports),
-                'completed_exports': sum(1 for j in self._exports.values() if j.status == 'completed'),
+                'completed_exports': sum(
+                    1 for j in self._exports.values() if j.status == 'completed'
+                ),
             },
         )
 
@@ -131,6 +144,7 @@ class ExportEngine(EngineBase):
 
         Returns:
             Export job result with download info.
+
         """
         if self._graph is None:
             return {'error': 'Graph engine not available'}
@@ -139,9 +153,15 @@ class ExportEngine(EngineBase):
         self._exports[job.export_id] = job
         job.status = 'running'
 
-        await self.publish_event('graph.export.started.v1', {
-            'export_id': job.export_id, 'format': format, 'target': 'graph',
-        }, correlation_id=job.export_id)
+        await self.publish_event(
+            'graph.export.started.v1',
+            {
+                'export_id': job.export_id,
+                'format': format,
+                'target': 'graph',
+            },
+            correlation_id=job.export_id,
+        )
 
         try:
             nodes = await self._graph.all_nodes()
@@ -169,23 +189,37 @@ class ExportEngine(EngineBase):
             result = await self._serialize(job.export_id, data, format, compress)
             job.status = 'completed'
 
-            await self.publish_event('graph.export.completed.v1', {
-                'export_id': job.export_id, 'format': format,
-                'items': job.total_items, 'size_bytes': job.result_size_bytes,
-            }, correlation_id=job.export_id)
+            await self.publish_event(
+                'graph.export.completed.v1',
+                {
+                    'export_id': job.export_id,
+                    'format': format,
+                    'items': job.total_items,
+                    'size_bytes': job.result_size_bytes,
+                },
+                correlation_id=job.export_id,
+            )
 
             return result
 
         except Exception as exc:
             job.status = 'failed'
             job.error_message = str(exc)
-            await self.publish_event('graph.export.failed.v1', {
-                'export_id': job.export_id, 'error': str(exc),
-            }, correlation_id=job.export_id)
+            await self.publish_event(
+                'graph.export.failed.v1',
+                {
+                    'export_id': job.export_id,
+                    'error': str(exc),
+                },
+                correlation_id=job.export_id,
+            )
             return {'error': str(exc), 'export_id': job.export_id}
 
     async def export_subgraph(
-        self, center_node_id: UUID, depth: int = 2, format: str = 'json'
+        self,
+        center_node_id: UUID,
+        depth: int = 2,
+        format: str = 'json',
     ) -> dict:
         """Export a subgraph around a center node."""
         if self._graph is None or self._traversal is None:
@@ -212,9 +246,7 @@ class ExportEngine(EngineBase):
         job.status = 'completed'
         return result
 
-    async def export_career_graph(
-        self, career_node_id: UUID, format: str = 'json'
-    ) -> dict:
+    async def export_career_graph(self, career_node_id: UUID, format: str = 'json') -> dict:
         """Export a career graph — career + all prerequisite nodes."""
         if self._graph is None or self._traversal is None:
             return {'error': 'Required engines not available'}
@@ -259,9 +291,7 @@ class ExportEngine(EngineBase):
         job.status = 'completed'
         return result
 
-    async def export_learning_path(
-        self, path_data: dict, format: str = 'json'
-    ) -> dict:
+    async def export_learning_path(self, path_data: dict, format: str = 'json') -> dict:
         """Export a learning path."""
         job = ExportJob(format=format, target='learning_path')
         self._exports[job.export_id] = job
@@ -280,9 +310,7 @@ class ExportEngine(EngineBase):
         job.status = 'completed'
         return result
 
-    async def export_assessment(
-        self, assessment_data: dict, format: str = 'json'
-    ) -> dict:
+    async def export_assessment(self, assessment_data: dict, format: str = 'json') -> dict:
         """Export an assessment."""
         job = ExportJob(format=format, target='assessment')
         self._exports[job.export_id] = job
@@ -327,7 +355,10 @@ class ExportEngine(EngineBase):
         return result
 
     async def export_dependency_chain(
-        self, node_id: UUID, max_depth: int = 5, format: str = 'json'
+        self,
+        node_id: UUID,
+        max_depth: int = 5,
+        format: str = 'json',
     ) -> dict:
         """Export the dependency chain of a node."""
         if self._graph is None or self._traversal is None:
@@ -382,7 +413,11 @@ class ExportEngine(EngineBase):
     # ═══════════════════════════════════════════════════════════════════
 
     async def _serialize(
-        self, export_id: str, data: dict, format: str = 'json', compress: bool = False
+        self,
+        export_id: str,
+        data: dict,
+        format: str = 'json',
+        compress: bool = False,
     ) -> dict:
         """Serialize data into the requested format and store it."""
         format = format.lower()
@@ -403,13 +438,14 @@ class ExportEngine(EngineBase):
 
         if compress:
             import gzip
+
             result_bytes = result.encode('utf-8') if isinstance(result, str) else result
             result = gzip.compress(result_bytes)
 
         self._export_results[export_id] = result
         job = self._exports.get(export_id)
         if job:
-            job.result_size_bytes = len(result) if isinstance(result, str) else len(result)
+            job.result_size_bytes = len(result) if isinstance(result, str) else len(result)  # noqa: RUF034
 
         return {
             'export_id': export_id,
@@ -430,10 +466,16 @@ class ExportEngine(EngineBase):
             writer.writerow(['--- NODES ---'])
             writer.writerow(['id', 'slug', 'title', 'node_type', 'difficulty', 'description'])
             for n in nodes:
-                writer.writerow([
-                    n.get('id', ''), n.get('slug', ''), n.get('title', ''),
-                    n.get('node_type', ''), n.get('difficulty', ''), n.get('description', ''),
-                ])
+                writer.writerow(
+                    [
+                        n.get('id', ''),
+                        n.get('slug', ''),
+                        n.get('title', ''),
+                        n.get('node_type', ''),
+                        n.get('difficulty', ''),
+                        n.get('description', ''),
+                    ],
+                )
 
         # Write edges
         edges = data.get('edges', [])
@@ -441,10 +483,15 @@ class ExportEngine(EngineBase):
             writer.writerow(['--- EDGES ---'])
             writer.writerow(['id', 'source_id', 'target_id', 'relationship_type', 'weight'])
             for e in edges:
-                writer.writerow([
-                    e.get('id', ''), e.get('source_id', ''), e.get('target_id', ''),
-                    e.get('relationship_type', ''), e.get('weight', ''),
-                ])
+                writer.writerow(
+                    [
+                        e.get('id', ''),
+                        e.get('source_id', ''),
+                        e.get('target_id', ''),
+                        e.get('relationship_type', ''),
+                        e.get('weight', ''),
+                    ],
+                )
 
         return output.getvalue()
 
@@ -471,8 +518,8 @@ class ExportEngine(EngineBase):
             lines.append('|----|-------|------|------------|')
             for n in nodes:
                 lines.append(
-                    f"| {n.get('id', '')[:8]}... | {n.get('title', '')} | "
-                    f"{n.get('node_type', '')} | {n.get('difficulty', '')} |"
+                    f'| {n.get("id", "")[:8]}... | {n.get("title", "")} | '
+                    f'{n.get("node_type", "")} | {n.get("difficulty", "")} |',
                 )
             lines.append('')
 
@@ -483,8 +530,8 @@ class ExportEngine(EngineBase):
             lines.append('|-----|--------|--------|------|')
             for e in edges:
                 lines.append(
-                    f"| {e.get('id', '')[:8]}... | {str(e.get('source_id', ''))[:8]}... | "
-                    f"{str(e.get('target_id', ''))[:8]}... | {e.get('relationship_type', '')} |"
+                    f'| {e.get("id", "")[:8]}... | {str(e.get("source_id", ""))[:8]}... | '
+                    f'{str(e.get("target_id", ""))[:8]}... | {e.get("relationship_type", "")} |',
                 )
             lines.append('')
 
@@ -521,12 +568,18 @@ class ExportEngine(EngineBase):
             zf.writestr('export.md', self._to_markdown(data))
             nodes = data.get('nodes', [])
             edges = data.get('edges', [])
-            zf.writestr('metadata.json', json.dumps({
-                'export_type': data.get('export_type', ''),
-                'exported_at': data.get('exported_at', ''),
-                'node_count': len(nodes),
-                'edge_count': len(edges),
-            }, indent=2))
+            zf.writestr(
+                'metadata.json',
+                json.dumps(
+                    {
+                        'export_type': data.get('export_type', ''),
+                        'exported_at': data.get('exported_at', ''),
+                        'node_count': len(nodes),
+                        'edge_count': len(edges),
+                    },
+                    indent=2,
+                ),
+            )
         return buffer.getvalue()
 
     def _mime_type(self, format: str) -> str:

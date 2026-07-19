@@ -6,10 +6,13 @@ exploration and traversal endpoints.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
-from app.schemas.graph.edge import GraphEdge
-from app.schemas.graph.node import GraphNode
+if TYPE_CHECKING:
+    from app.schemas.graph.edge import GraphEdge
+    from app.schemas.graph.node import GraphNode
 
 
 class Neighborhood(BaseModel):

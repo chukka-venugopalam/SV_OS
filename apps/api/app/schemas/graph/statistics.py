@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
-from app.models.enums import EdgeType, NodeType
+if TYPE_CHECKING:
+    from app.models.enums import EdgeType, NodeType
 
 
 class NodeTypeCount(BaseModel):
@@ -33,11 +36,12 @@ class GraphStatistics(BaseModel):
     total_edges: int = Field(ge=0, description='Total number of edges')
     nodes_by_type: list[NodeTypeCount] = Field(description='Node counts grouped by type')
     edges_by_type: list[EdgeTypeCount] = Field(
-        description='Edge counts grouped by relationship type'
+        description='Edge counts grouped by relationship type',
     )
     max_depth: int = Field(ge=0, description='Maximum prerequisite depth in the graph')
     avg_resources_per_node: float = Field(
-        ge=0.0, description='Average number of learning resources per node'
+        ge=0.0,
+        description='Average number of learning resources per node',
     )
     total_careers: int = Field(ge=0, description='Total number of published careers')
     total_projects: int = Field(ge=0, description='Total number of published projects')

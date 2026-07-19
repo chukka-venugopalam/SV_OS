@@ -7,15 +7,18 @@ the service layer, not here.
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, or_, select
 
 from app.models.knowledge_edge import KnowledgeEdge
 from app.models.knowledge_node import KnowledgeNode
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class GraphRepository(BaseRepository[KnowledgeNode]):
@@ -44,6 +47,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
 
         Returns:
             List of neighbor ``KnowledgeNode`` instances.
+
         """
         if direction == 'outgoing':
             edge_filter = KnowledgeEdge.source_node_id == node_id
@@ -57,9 +61,9 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .join(KnowledgeEdge, KnowledgeNode.id == neighbor_id_col)
             .where(
                 edge_filter,
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
-                KnowledgeNode.is_deleted == False,  # noqa: E712
-                KnowledgeNode.is_published == True,  # noqa: E712
+                not KnowledgeEdge.is_deleted,
+                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_published,
             )
         )
         if relationship_type:
@@ -140,14 +144,15 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
 
         Returns:
             List of dicts with ``node`` and ``edge`` keys.
+
         """
         stmt = (
             select(KnowledgeEdge, KnowledgeNode)
             .join(KnowledgeNode, KnowledgeNode.id == KnowledgeEdge.target_node_id)
             .where(
                 KnowledgeEdge.source_node_id == node_id,
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
-                KnowledgeNode.is_deleted == False,  # noqa: E712
+                not KnowledgeEdge.is_deleted,
+                not KnowledgeNode.is_deleted,
             )
             .order_by(KnowledgeEdge.relationship_type, KnowledgeNode.title)
         )
@@ -200,7 +205,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .select_from(KnowledgeEdge)
             .where(
                 KnowledgeEdge.source_node_id == node_id,
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
+                not KnowledgeEdge.is_deleted,
             )
         )
         # Incoming count
@@ -209,7 +214,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .select_from(KnowledgeEdge)
             .where(
                 KnowledgeEdge.target_node_id == node_id,
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
+                not KnowledgeEdge.is_deleted,
             )
         )
         outgoing_result = await self.session.execute(outgoing_stmt)
@@ -235,7 +240,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
                 KnowledgeEdge.source_node_id.in_(node_ids),
                 KnowledgeEdge.target_node_id.in_(node_ids),
             ),
-            KnowledgeEdge.is_deleted == False,  # noqa: E712
+            not KnowledgeEdge.is_deleted,
         )
         if relationship_type:
             stmt = stmt.where(KnowledgeEdge.relationship_type == relationship_type)
@@ -255,7 +260,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
                     KnowledgeEdge.source_node_id == node_id,
                     KnowledgeEdge.target_node_id == node_id,
                 ),
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
+                not KnowledgeEdge.is_deleted,
             )
             .group_by(KnowledgeEdge.relationship_type)
             .order_by(func.count().desc())

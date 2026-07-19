@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
@@ -11,6 +10,9 @@ from app.models.knowledge_node import KnowledgeNode
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
 from app.repositories.query_helpers import FilterCondition, PageResult, SortDirection
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
@@ -36,7 +38,8 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
         """Find by slug or raise ``EntityNotFoundError``."""
         node = await self.find_by_slug(slug)
         if not node:
-            raise EntityNotFoundError('KnowledgeNode', slug)
+            msg = 'KnowledgeNode'
+            raise EntityNotFoundError(msg, slug)
         return node
 
     # ── Type-Filtered Queries ──────────────────────────────────────
@@ -174,7 +177,6 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
         per_page: int = 20,
     ) -> PageResult[KnowledgeNode]:
         """Full-text search across knowledge nodes with optional filters."""
-
         if not query:
             filters: dict[str, Any] = {'is_published': True}
             if node_type:

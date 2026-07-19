@@ -8,24 +8,29 @@ health checks, authentication endpoints, and GET/HEAD/OPTIONS.
 from __future__ import annotations
 
 import secrets
-from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from starlette.requests import Request
 
 CSRF_COOKIE_NAME = 'csrf_token'
 CSRF_HEADER_NAME = 'X-CSRF-Token'
 SAFE_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS', 'TRACE'})
-EXEMPT_PATHS = frozenset({
-    '/health',
-    '/health/live',
-    '/health/ready',
-    '/api/v1/health',
-    '/api/v1/health/live',
-    '/api/v1/health/ready',
-})
+EXEMPT_PATHS = frozenset(
+    {
+        '/health',
+        '/health/live',
+        '/health/ready',
+        '/api/v1/health',
+        '/api/v1/health/live',
+        '/api/v1/health/ready',
+    },
+)
 
 
 class CSRFMiddleware(BaseHTTPMiddleware):
@@ -41,7 +46,9 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         self._cookie_secure = cookie_secure
 
     async def dispatch(
-        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
         # Skip CSRF for safe methods and exempt paths
         if request.method in SAFE_METHODS or self._is_exempt(request):
@@ -59,10 +66,12 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                     'success': False,
                     'message': 'CSRF token missing or invalid',
                     'data': None,
-                    'errors': [{
-                        'code': 'csrf_error',
-                        'message': 'A valid CSRF token is required. Refresh the page and try again.',
-                    }],
+                    'errors': [
+                        {
+                            'code': 'csrf_error',
+                            'message': 'A valid CSRF token is required. Refresh the page and try again.',  # noqa: E501
+                        },
+                    ],
                     'timestamp': None,
                     'request_id': getattr(request.state, 'request_id', None),
                 },

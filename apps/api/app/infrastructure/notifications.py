@@ -14,12 +14,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Protocol
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 
 @dataclass
 class Notification:
     """A single notification."""
+
     notification_id: str = field(default_factory=lambda: str(uuid4()))
     user_id: str = ''
     title: str = ''
@@ -99,7 +100,7 @@ class NotificationService:
 
         # Send via email adapter (if configured)
         if self._email_adapter and self._get_preference(user_id, 'email'):
-            try:
+            try:  # noqa: SIM105
                 await self._email_adapter.send_email(
                     to=user_id,
                     subject=title,

@@ -7,8 +7,6 @@ from typing import Any
 
 from app.core.config import settings
 from app.infrastructure.container.container import PlatformContainer, get_platform_container
-from app.events.bus import EventBus
-from app.infrastructure.registries.registries import CapabilityRegistry, EngineRegistry, PluginRegistry
 
 
 @dataclass(slots=True)
@@ -40,5 +38,4 @@ class PlatformRuntime:
 
 
 def initialize_platform_runtime() -> PlatformRuntime:
-    runtime = PlatformRuntime()
-    return runtime
+    return PlatformRuntime()

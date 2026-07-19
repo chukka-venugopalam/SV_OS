@@ -100,7 +100,8 @@ class Settings(BaseSettings):
         """Ensure environment is one of the allowed values."""
         allowed = {'development', 'staging', 'production', 'test'}
         if v.lower() not in allowed:
-            raise ValueError(f'ENVIRONMENT must be one of {allowed}')
+            msg = f'ENVIRONMENT must be one of {allowed}'
+            raise ValueError(msg)
         return v.lower()
 
     @field_validator('DATABASE_URL')
@@ -108,7 +109,8 @@ class Settings(BaseSettings):
     def validate_database_url(cls, v: str) -> str:
         """Ensure the database URL starts with the async scheme."""
         if not v.startswith('postgresql+asyncpg://'):
-            raise ValueError('DATABASE_URL must use the asyncpg driver (postgresql+asyncpg://)')
+            msg = 'DATABASE_URL must use the asyncpg driver (postgresql+asyncpg://)'
+            raise ValueError(msg)
         return v
 
     @field_validator('SECRET_KEY')
@@ -117,7 +119,8 @@ class Settings(BaseSettings):
         """Warn (but don't block) if the default secret key is used in production."""
         environment = info.data.get('ENVIRONMENT', 'development')
         if environment == 'production' and v == 'change-me-in-production':
-            raise ValueError('SECRET_KEY must be changed from the default in production')
+            msg = 'SECRET_KEY must be changed from the default in production'
+            raise ValueError(msg)
         return v
 
     @field_validator('CORS_ORIGINS', mode='before')
@@ -151,7 +154,8 @@ class Settings(BaseSettings):
         if isinstance(v, list):
             return [str(item).strip() for item in v if str(item).strip()]
 
-        raise ValueError(f'CORS_ORIGINS must be a string or list, got {type(v).__name__}: {v!r}')
+        msg = f'CORS_ORIGINS must be a string or list, got {type(v).__name__}: {v!r}'
+        raise ValueError(msg)
 
     @field_validator('TRUSTED_HOSTS', mode='before')
     @classmethod

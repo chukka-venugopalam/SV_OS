@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Request
 
 from app.api.deps import get_settings
-from app.core.config import Settings
 from app.infrastructure.container import get_platform_container
 from app.infrastructure.runtime import PlatformRuntime, initialize_platform_runtime
+
+if TYPE_CHECKING:
+    from app.core.config import Settings
 
 router = APIRouter(prefix='/platform', tags=['platform'])
 

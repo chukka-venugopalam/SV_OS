@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
 from app.models.tag import NodeTag, Tag
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class TagRepository(BaseRepository[Tag]):
@@ -46,8 +49,8 @@ class TagRepository(BaseRepository[Tag]):
             .join(NodeTag, NodeTag.tag_id == Tag.id)
             .where(
                 NodeTag.node_id == node_id,
-                NodeTag.is_deleted == False,  # noqa: E712
-                Tag.is_deleted == False,  # noqa: E712
+                not NodeTag.is_deleted,
+                not Tag.is_deleted,
             )
             .order_by(Tag.name)
         )
@@ -70,7 +73,7 @@ class TagRepository(BaseRepository[Tag]):
         stmt = select(NodeTag).where(
             NodeTag.node_id == node_id,
             NodeTag.tag_id == tag_id,
-            NodeTag.is_deleted == False,  # noqa: E712
+            not NodeTag.is_deleted,
         )
         result = await self.session.execute(stmt)
         node_tag = result.scalar_one_or_none()
@@ -84,7 +87,7 @@ class TagRepository(BaseRepository[Tag]):
         """Get all NodeTag associations for a node."""
         stmt = select(NodeTag).where(
             NodeTag.node_id == node_id,
-            NodeTag.is_deleted == False,  # noqa: E712
+            not NodeTag.is_deleted,
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -102,8 +105,8 @@ class TagRepository(BaseRepository[Tag]):
             )
             .join(NodeTag, NodeTag.tag_id == Tag.id)
             .where(
-                Tag.is_deleted == False,  # noqa: E712
-                NodeTag.is_deleted == False,  # noqa: E712
+                not Tag.is_deleted,
+                not NodeTag.is_deleted,
             )
             .group_by(Tag.id, Tag.name, Tag.description)
             .order_by(func.count(NodeTag.node_id).desc())

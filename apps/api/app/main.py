@@ -24,8 +24,8 @@ from app.core.config import settings
 from app.core.logging import configure_logging
 from app.exceptions.handlers import register_exception_handlers
 from app.middleware import (
-    CSRFMiddleware,
     CorrelationIDMiddleware,
+    CSRFMiddleware,
     RateLimitMiddleware,
     RequestIDMiddleware,
     RequestTimingMiddleware,
@@ -39,7 +39,6 @@ logger = get_logger(__name__)
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-
     # ── Logging ─────────────────────────────────────────────────────
     configure_logging()
 
@@ -192,8 +191,7 @@ def create_app() -> FastAPI:
 
     @app.get('/debug/cors', tags=['debug'], include_in_schema=False)
     async def debug_cors(request: Request) -> dict:
-        """
-        Debug endpoint: inspect current CORS configuration at runtime.
+        """Debug endpoint: inspect current CORS configuration at runtime.
 
         This is intentionally gated behind ``/debug/`` so it is not
         accessible from the public API schema (``include_in_schema=False``).

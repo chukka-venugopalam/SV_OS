@@ -20,7 +20,6 @@ from typing import Any
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth, EngineState
 
-
 # ── Cycle Detection Error ──────────────────────────────────────────
 
 
@@ -29,7 +28,7 @@ class DependencyCycleError(ValueError):
 
     def __init__(self, cycle: list[str]) -> None:
         self.cycle = cycle
-        super().__init__(f"Circular dependency detected: {' -> '.join(cycle)}")
+        super().__init__(f'Circular dependency detected: {" -> ".join(cycle)}')
 
 
 # ── Plugin Manifest ────────────────────────────────────────────────
@@ -179,9 +178,11 @@ class EngineRegistry:
 
         Raises:
             ValueError: If the engine is already registered.
+
         """
         if name in self._factories:
-            raise ValueError(f"Engine '{name}' is already registered")
+            msg = f"Engine '{name}' is already registered"
+            raise ValueError(msg)
         self._factories[name] = engine_cls
         self._dependencies[name] = list(dependencies or [])
         dep_names = [d.engine_name for d in (dependencies or [])]
@@ -215,6 +216,7 @@ class EngineRegistry:
 
         Returns:
             Dict mapping engine names to their health status after init.
+
         """
         results: dict[str, EngineHealth] = {}
         order = self.startup_order()
@@ -240,6 +242,7 @@ class EngineRegistry:
 
         Returns:
             Dict mapping engine names to their health status after start.
+
         """
         results: dict[str, EngineHealth] = {}
         order = self.startup_order()
@@ -265,6 +268,7 @@ class EngineRegistry:
 
         Returns:
             Dict mapping engine names to their health status after stop.
+
         """
         results: dict[str, EngineHealth] = {}
         order = self.shutdown_order()
@@ -273,9 +277,9 @@ class EngineRegistry:
             engine = self._engines.get(name)
             if engine is None:
                 continue
-            try:
+            try:  # noqa: SIM105
                 await engine.stop()
-            except Exception as exc:
+            except Exception:
                 pass  # Don't let one engine's stop failure cascade
             results[name] = await engine.health()
 
@@ -286,6 +290,7 @@ class EngineRegistry:
 
         Returns:
             Dict mapping engine names to their health status.
+
         """
         results: dict[str, EngineHealth] = {}
         for name, engine in self._engines.items():
@@ -312,10 +317,12 @@ class EngineRegistry:
 
         Raises:
             KeyError: If the engine is not registered.
+
         """
         if name not in self._engines:
             if name not in self._factories:
-                raise KeyError(f"Engine '{name}' is not registered")
+                msg = f"Engine '{name}' is not registered"
+                raise KeyError(msg)
             self._engines[name] = self._factories[name]()
         return self._engines[name]
 

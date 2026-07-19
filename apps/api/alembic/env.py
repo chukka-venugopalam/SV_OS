@@ -24,9 +24,8 @@ def _should_skip_migrations() -> bool:
     """Return True when migrations should be skipped in local test environments."""
     if os.environ.get('SV_OS_SKIP_MIGRATIONS', '').lower() in {'1', 'true', 'yes'}:
         return True
-    if settings.ENVIRONMENT == 'test':
-        return True
-    return False
+    return settings.ENVIRONMENT == 'test'
+
 
 target_metadata = Base.metadata
 
@@ -44,7 +43,7 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection):
+def do_run_migrations(connection) -> None:
     """Run migrations with the provided connection."""
     context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
@@ -66,7 +65,16 @@ async def run_async_migrations() -> None:
             await connection.run_sync(do_run_migrations)
     except Exception as exc:
         message = str(exc).lower()
-        if any(token in message for token in ('connection refused', 'could not connect', 'database does not exist', 'no such host', 'timeout')):
+        if any(
+            token in message
+            for token in (
+                'connection refused',
+                'could not connect',
+                'database does not exist',
+                'no such host',
+                'timeout',
+            )
+        ):
             return
         raise
     finally:
@@ -83,7 +91,7 @@ def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    try:
+    try:  # noqa: SIM105
         run_migrations_online()
     except Exception:
         # The test environment may not have a reachable PostgreSQL instance.

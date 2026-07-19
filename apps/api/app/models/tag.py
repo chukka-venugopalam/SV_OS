@@ -1,5 +1,4 @@
-"""
-Tag and NodeTag models — content tagging system.
+"""Tag and NodeTag models — content tagging system.
 
 Tags are free-form labels (e.g. "beginner-friendly", "math-heavy").
 NodeTag is the many-to-many join between tags and knowledge nodes.
@@ -8,7 +7,6 @@ NodeTag is the many-to-many join between tags and knowledge nodes.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -18,6 +16,8 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
 
 

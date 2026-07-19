@@ -3,7 +3,7 @@
 New code should import directly from ``app.infrastructure.runtime``.
 """
 
-from app.infrastructure.runtime import (  # noqa: F401
+from app.infrastructure.runtime import (
     PlatformRuntime,
     initialize_platform_runtime,
 )

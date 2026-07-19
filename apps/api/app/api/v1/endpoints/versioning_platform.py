@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
 
@@ -37,15 +39,15 @@ def _get_engine(request: Request):
     return None
 
 
-def _safe(data: dict, msg: str = 'Success') -> dict:
+def _safe(data: dict, _msg: str = 'Success') -> dict:
     return {'success': True, 'data': data, 'errors': None}
 
 
 @router.get('')
 async def list_versions(
     request: Request,
-    branch: str | None = Query(None),
-    limit: int = Query(50, ge=1, le=200),
+    branch: Annotated[str | None, Query()] = None,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -74,7 +76,12 @@ async def create_snapshot(
     engine = _get_engine(request)
     if engine is None:
         return _safe({'error': 'Versioning engine not available'})
-    result = await engine.create_snapshot(notes=body.notes, author=body.author, tags=body.tags, branch=body.branch)
+    result = await engine.create_snapshot(
+        notes=body.notes,
+        author=body.author,
+        tags=body.tags,
+        branch=body.branch,
+    )
     return _safe(result)
 
 

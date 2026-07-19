@@ -1,5 +1,4 @@
-"""
-Skill and SkillRelationship models.
+"""Skill and SkillRelationship models.
 
 Skills are individual abilities (e.g. "SQL Querying", "API Design").
 SkillRelationship describes how skills relate to each other
@@ -9,7 +8,6 @@ SkillRelationship describes how skills relate to each other
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -21,7 +19,8 @@ from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, SkillRelationshipType, pg_enum
 
 if TYPE_CHECKING:
-    pass  # Skill is defined in this file — no forward import needed
+    from uuid import UUID
+    # Skill is defined in this file — no forward import needed
 
 
 class Skill(AppBaseMixin, Base):

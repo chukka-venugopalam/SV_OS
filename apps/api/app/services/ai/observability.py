@@ -1,5 +1,4 @@
-"""
-Observability Service — tracks latency, token usage, cost, and errors for AI calls.
+"""Observability Service — tracks latency, token usage, cost, and errors for AI calls.
 
 Provides:
 - Per-request AI telemetry collection

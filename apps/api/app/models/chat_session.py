@@ -1,5 +1,4 @@
-"""
-ChatSession and ChatMessage models — conversational AI persistence.
+"""ChatSession and ChatMessage models — conversational AI persistence.
 
 chat_sessions: A single conversation belonging to a user.
 chat_messages: Individual messages within a conversation.
@@ -8,7 +7,6 @@ chat_messages: Individual messages within a conversation.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -19,6 +17,8 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from app.models.user import User
 
 

@@ -16,38 +16,31 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 @dataclass
 class CacheEntry:
     """A single cache entry with version tracking."""
+
     key: str
     value: Any
     version: int = 0
     ttl_seconds: int = 300  # 5 minute default TTL
     created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
-    def is_expired(self, current_version: int, current_time: str | None = None) -> bool:
-        """Check if this cache entry is expired based on version or TTL.
-
-        Args:
-            current_version: The current graph version number.
-            current_time: Optional current time string (ISO format).
-
-        Returns:
-            True if the entry should be considered expired.
-        """
-        if self.version < current_version:
-            return True
-        # TTL check (in-memory only — no background eviction)
-        return False
+    def is_expired(self, current_version: int, _current_time: str | None = None) -> bool:
+        """Check if this cache entry is expired based on version or TTL."""
+        return self.version < current_version
 
 
 @dataclass
 class CacheStats:
     """Statistics for cache performance tracking."""
+
     hits: int = 0
     misses: int = 0
     invalidations: int = 0
@@ -123,6 +116,7 @@ class GraphCache:
 
         Returns:
             Cached value or None if not found / expired.
+
         """
         cache = self._get_region(region)
         stats = self._get_stats(region)
@@ -156,6 +150,7 @@ class GraphCache:
             key: Cache key.
             value: Value to cache.
             ttl_seconds: Optional TTL override. Uses default if None.
+
         """
         cache = self._get_region(region)
         entry = CacheEntry(
@@ -174,6 +169,7 @@ class GraphCache:
         Args:
             region: Cache region to invalidate.
             key: Optional specific key to invalidate. If None, invalidates the entire region.
+
         """
         cache = self._get_region(region)
         stats = self._get_stats(region)
@@ -191,6 +187,7 @@ class GraphCache:
 
         Returns:
             Dict of region -> number of entries invalidated.
+
         """
         counts: dict[str, int] = {}
         for name in ('node', 'edge', 'traversal', 'metadata', 'statistics'):
@@ -205,6 +202,7 @@ class GraphCache:
 
         Args:
             node_id: Node UUID to invalidate.
+
         """
         nid_str = str(node_id)
         await self.invalidate('node', nid_str)
@@ -225,6 +223,7 @@ class GraphCache:
 
         Returns:
             Dict of region -> cleared count.
+
         """
         return await self.invalidate_all()
 
@@ -238,6 +237,7 @@ class GraphCache:
 
         Returns:
             Dict of region -> {hits, misses, hit_rate, size, invalidations}.
+
         """
         if region:
             stats = self._get_stats(region)
@@ -245,13 +245,15 @@ class GraphCache:
             stats.size = len(cache)
             total = stats.hits + stats.misses
             stats.hit_rate = round(stats.hits / total, 4) if total > 0 else 0.0
-            return {region: {
-                'hits': stats.hits,
-                'misses': stats.misses,
-                'hit_rate': stats.hit_rate,
-                'size': stats.size,
-                'invalidations': stats.invalidations,
-            }}
+            return {
+                region: {
+                    'hits': stats.hits,
+                    'misses': stats.misses,
+                    'hit_rate': stats.hit_rate,
+                    'size': stats.size,
+                    'invalidations': stats.invalidations,
+                },
+            }
 
         result = {}
         for name in ('node', 'edge', 'traversal', 'metadata', 'statistics'):

@@ -10,7 +10,7 @@ from app.services.ai.cache_service import CacheService
 class TestCacheService:
     """Test the CacheService for AI layer caching."""
 
-    async def test_get_set_local_cache(self):
+    async def test_get_set_local_cache(self) -> None:
         """Cache stores and retrieves values from local cache fallback."""
         cache = CacheService()
         cache._enabled = True
@@ -18,14 +18,14 @@ class TestCacheService:
         result = await cache.get('test_key')
         assert result == {'foo': 'bar'}
 
-    async def test_get_missing_key(self):
+    async def test_get_missing_key(self) -> None:
         """Cache returns None for missing keys."""
         cache = CacheService()
         cache._enabled = True
         result = await cache.get('nonexistent')
         assert result is None
 
-    async def test_get_expired_key(self):
+    async def test_get_expired_key(self) -> None:
         """Cache returns None for expired keys."""
         cache = CacheService()
         cache._enabled = True
@@ -36,7 +36,7 @@ class TestCacheService:
         result = await cache.get('expire_key')
         assert result is None
 
-    async def test_delete_key(self):
+    async def test_delete_key(self) -> None:
         """Cache removes keys on delete."""
         cache = CacheService()
         cache._enabled = True
@@ -45,7 +45,7 @@ class TestCacheService:
         result = await cache.get('del_key')
         assert result is None
 
-    async def test_delete_pattern(self):
+    async def test_delete_pattern(self) -> None:
         """Cache deletes keys matching a pattern."""
         cache = CacheService()
         cache._enabled = True
@@ -57,7 +57,7 @@ class TestCacheService:
         assert await cache.get('embed:def') is None
         assert await cache.get('search:xyz') == 'v3'
 
-    async def test_embedding_cache(self):
+    async def test_embedding_cache(self) -> None:
         """Embedding cache stores and retrieves embeddings."""
         cache = CacheService()
         cache._enabled = True
@@ -66,7 +66,7 @@ class TestCacheService:
         result = await cache.get_embedding('Hello world')
         assert result == embedding
 
-    async def test_search_results_cache(self):
+    async def test_search_results_cache(self) -> None:
         """Search results cache works with user context."""
         cache = CacheService()
         cache._enabled = True
@@ -76,7 +76,7 @@ class TestCacheService:
         cached = await cache.get_search_results('python', user_id=user_id)
         assert cached == results
 
-    async def test_ai_response_cache(self):
+    async def test_ai_response_cache(self) -> None:
         """AI response cache stores responses."""
         cache = CacheService()
         cache._enabled = True
@@ -85,7 +85,7 @@ class TestCacheService:
         response = await cache.get_ai_response(session_id, 'Hello')
         assert response == 'Hi there!'
 
-    async def test_hit_ratio(self):
+    async def test_hit_ratio(self) -> None:
         """Hit ratio is tracked correctly."""
         cache = CacheService()
         cache._enabled = True
@@ -96,7 +96,7 @@ class TestCacheService:
         assert cache.hit_ratio > 0
         assert cache.hit_ratio < 1.0
 
-    async def test_disabled_cache(self):
+    async def test_disabled_cache(self) -> None:
         """Disabled cache returns None for all gets."""
         cache = CacheService()
         cache._enabled = False
@@ -104,7 +104,7 @@ class TestCacheService:
         result = await cache.get('key')
         assert result is None
 
-    async def test_local_cache_eviction(self):
+    async def test_local_cache_eviction(self) -> None:
         """Local cache evicts old entries when storage exceeds limit."""
         cache = CacheService()
         cache._enabled = True
@@ -117,7 +117,7 @@ class TestCacheService:
         cache._evict_stale()
         assert len(cache._local_cache) == 0
 
-    async def test_key_generation(self):
+    async def test_key_generation(self) -> None:
         """Keys are properly namespaced and hashed when long."""
         cache = CacheService()
         key = cache._make_key('embed', 'a' * 300)

@@ -1,5 +1,4 @@
-"""
-Domain-specific AI engines — Tutor, Planner, Career Mentor, Project Mentor, Quiz.
+"""Domain-specific AI engines — Tutor, Planner, Career Mentor, Project Mentor, Quiz.
 
 Each engine has its own system prompt template and uses the context engine
 and RAG engine to inject relevant knowledge graph data before LLM calls.
@@ -8,15 +7,19 @@ and RAG engine to inject relevant knowledge graph data before LLM calls.
 from __future__ import annotations
 
 import json
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
 from app.services.ai.chat_service import ChatService
 from app.services.ai.context_engine import ContextEngine
 from app.services.ai.providers.llm_base import LLMMessage
 from app.services.ai.rag_engine import RAGEngine
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -74,7 +77,7 @@ class TutorEngine:
 
         if context.get('user_progress', {}).get('weak_topics'):
             prompt_parts.append(
-                f'Weak areas: {", ".join(context["user_progress"]["weak_topics"][:3])}'
+                f'Weak areas: {", ".join(context["user_progress"]["weak_topics"][:3])}',
             )
 
         # Use the chat service with a custom system prompt
@@ -363,6 +366,6 @@ Return ONLY valid JSON, no other text.
                         'options': [],
                         'correct_answer': '',
                         'explanation': '',
-                    }
+                    },
                 )
         return questions[:10]

@@ -7,8 +7,11 @@ persistence mapping for this domain concept.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 @dataclass

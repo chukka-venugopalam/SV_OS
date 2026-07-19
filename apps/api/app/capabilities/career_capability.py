@@ -6,8 +6,10 @@ No business logic — delegates to engines.
 
 from __future__ import annotations
 
-from uuid import UUID
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class CareerCapability:
@@ -26,7 +28,7 @@ class CareerCapability:
         self._graph = graph_engine
         self._state = state_engine
 
-    async def get_matches(self, user_id: UUID, limit: int = 10) -> list[dict]:
+    async def get_matches(self, _user_id: UUID, _limit: int = 10) -> list[dict]:
         if self._career is None:
             return []
         # Career matches based on skill gap analysis for all careers
@@ -53,8 +55,11 @@ class CareerCapability:
         return await self._career.search_careers(query, limit=limit)
 
     async def filter_careers(
-        self, industry: str | None = None, seniority: str | None = None,
-        demand: str | None = None, limit: int = 20,
+        self,
+        industry: str | None = None,
+        seniority: str | None = None,
+        demand: str | None = None,
+        limit: int = 20,
     ) -> list[dict]:
         if self._career is None:
             return []

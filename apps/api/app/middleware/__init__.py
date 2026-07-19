@@ -8,10 +8,9 @@ from app.middleware.request_timing import RequestTimingMiddleware
 from app.middleware.security import SecurityHeadersMiddleware
 from app.middleware.trusted_hosts import TrustedHostsMiddleware
 
-
 __all__ = [
-    'CorrelationIDMiddleware',
     'CSRFMiddleware',
+    'CorrelationIDMiddleware',
     'RateLimitMiddleware',
     'RequestIDMiddleware',
     'RequestTimingMiddleware',

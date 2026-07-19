@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
 from app.api.deps import get_optional_user_id
@@ -34,7 +34,11 @@ async def generate_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.generate_path(
         body.goal_node_id,
         user_id or body.user_id,
@@ -50,7 +54,11 @@ async def get_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.get_progress(path_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -62,7 +70,11 @@ async def resume_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.resume_path(path_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -74,7 +86,11 @@ async def pause_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.pause_path(path_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -87,7 +103,11 @@ async def rebuild_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.rebuild_path(path_id, user_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -99,7 +119,11 @@ async def validate_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.validate_path(path_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -111,7 +135,11 @@ async def export_path(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Learning path engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Learning path engine not available'},
+            'errors': None,
+        }
     result = await engine.export_path(path_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -124,7 +152,11 @@ async def career_roadmap(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'career_node_id' not in body:
-        return {'success': True, 'data': {'error': 'Engine or career_node_id missing'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Engine or career_node_id missing'},
+            'errors': None,
+        }
     result = await engine.generate_career_roadmap(UUID(body['career_node_id']), user_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -137,7 +169,11 @@ async def daily_roadmap(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'goal_node_id' not in body:
-        return {'success': True, 'data': {'error': 'Engine or goal_node_id missing'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Engine or goal_node_id missing'},
+            'errors': None,
+        }
     result = await engine.generate_daily_roadmap(UUID(body['goal_node_id']), user_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -150,6 +186,10 @@ async def weekly_roadmap(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'goal_node_id' not in body:
-        return {'success': True, 'data': {'error': 'Engine or goal_node_id missing'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Engine or goal_node_id missing'},
+            'errors': None,
+        }
     result = await engine.generate_weekly_roadmap(UUID(body['goal_node_id']), user_id)
     return {'success': True, 'data': result, 'errors': None}

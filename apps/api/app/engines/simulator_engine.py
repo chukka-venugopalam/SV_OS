@@ -6,8 +6,10 @@ Dependencies: StateEngine, EventEngine
 
 from __future__ import annotations
 
-from uuid import UUID
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class SimulatorEngine:
@@ -24,9 +26,7 @@ class SimulatorEngine:
     async def initialize(self) -> None:
         self._initialized = True
 
-    async def run_simulation(
-        self, scenario: dict[str, Any], user_id: UUID | None = None
-    ) -> dict:
+    async def run_simulation(self, scenario: dict[str, Any], user_id: UUID | None = None) -> dict:
         """Run a simulation scenario and produce outcomes."""
         raise NotImplementedError
 

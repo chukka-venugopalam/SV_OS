@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.models.learning_path import LearningPath
-from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.learning_path import LearningPath
+    from app.repositories import UnitOfWork
+    from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
 
@@ -24,7 +28,8 @@ class LearningPathService:
         """Get a learning path by ID."""
         path = await self._uow.learning_paths.get_by_id(path_id)
         if not path:
-            raise EntityNotFoundError('LearningPath', path_id)
+            msg = 'LearningPath'
+            raise EntityNotFoundError(msg, path_id)
         return path
 
     async def list_paths(

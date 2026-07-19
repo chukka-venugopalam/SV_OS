@@ -1,5 +1,4 @@
-"""
-OpenAI embedding provider — uses OpenAI Embeddings API.
+"""OpenAI embedding provider — uses OpenAI Embeddings API.
 
 Supports text-embedding-3-small, text-embedding-3-large, and
 text-embedding-ada-002 models.
@@ -104,7 +103,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                     model=self._model,
                     dimensions=len(item['embedding']),
                     tokens_used=per_item_tokens,
-                )
+                ),
             )
 
         return results

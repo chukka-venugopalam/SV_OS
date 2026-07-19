@@ -45,7 +45,7 @@ def patch_domain_engines():
                 'career': [],
                 'projects': [],
                 'ai_memory': [],
-            }
+            },
         )
         mock_ctx.build_node_context = AsyncMock(return_value={'knowledge_graph': {}})
         ctx_patch.return_value = mock_ctx
@@ -59,7 +59,7 @@ def patch_domain_engines():
                 mock_provider = MagicMock()
                 mock_provider.model_name = 'test-model'
                 mock_provider.chat = AsyncMock(
-                    return_value=LLMResponse(content='', model='test-model', usage={})
+                    return_value=LLMResponse(content='', model='test-model', usage={}),
                 )
                 mock_chat = MagicMock()
                 mock_chat._provider = mock_provider
@@ -71,12 +71,14 @@ def patch_domain_engines():
 class TestTutorEngine:
     """Test the TutorEngine for concept explanation."""
 
-    async def test_tutor_returns_content(self, mock_uow):
+    async def test_tutor_returns_content(self, mock_uow) -> None:
         engine = TutorEngine(mock_uow)
         engine._chat._provider.chat = AsyncMock(
             return_value=LLMResponse(
-                content='Python is a programming language...', model='test-model', usage={}
-            )
+                content='Python is a programming language...',
+                model='test-model',
+                usage={},
+            ),
         )
         result = await engine.tutor(
             user_id=uuid4(),
@@ -88,10 +90,10 @@ class TestTutorEngine:
         assert 'citations' in result
         assert 'suggestions' in result
 
-    async def test_tutor_includes_node_context(self, mock_uow):
+    async def test_tutor_includes_node_context(self, mock_uow) -> None:
         engine = TutorEngine(mock_uow)
         engine._chat._provider.chat = AsyncMock(
-            return_value=LLMResponse(content='Python Basics content', model='test-model', usage={})
+            return_value=LLMResponse(content='Python Basics content', model='test-model', usage={}),
         )
         result = await engine.tutor(
             user_id=uuid4(),
@@ -104,12 +106,14 @@ class TestTutorEngine:
 class TestLearningPlanner:
     """Test the LearningPlanner for generating learning plans."""
 
-    async def test_generate_plan_returns_plan(self, mock_uow):
+    async def test_generate_plan_returns_plan(self, mock_uow) -> None:
         engine = LearningPlanner(mock_uow)
         engine._chat._provider.chat = AsyncMock(
             return_value=LLMResponse(
-                content='Weekly plan: Study Python...', model='test-model', usage={}
-            )
+                content='Weekly plan: Study Python...',
+                model='test-model',
+                usage={},
+            ),
         )
         result = await engine.generate_plan(
             user_id=uuid4(),
@@ -120,10 +124,10 @@ class TestLearningPlanner:
         assert 'suggestions' in result
         assert result['plan_type'] == 'weekly'
 
-    async def test_generate_plan_includes_goal(self, mock_uow):
+    async def test_generate_plan_includes_goal(self, mock_uow) -> None:
         engine = LearningPlanner(mock_uow)
         engine._chat._provider.chat = AsyncMock(
-            return_value=LLMResponse(content='Plan content', model='test-model', usage={})
+            return_value=LLMResponse(content='Plan content', model='test-model', usage={}),
         )
         result = await engine.generate_plan(
             user_id=uuid4(),
@@ -136,12 +140,14 @@ class TestLearningPlanner:
 class TestCareerMentor:
     """Test the CareerMentor for skill analysis."""
 
-    async def test_analyse_returns_content(self, mock_uow):
+    async def test_analyse_returns_content(self, mock_uow) -> None:
         engine = CareerMentor(mock_uow)
         engine._chat._provider.chat = AsyncMock(
             return_value=LLMResponse(
-                content='Your skills analysis...', model='test-model', usage={}
-            )
+                content='Your skills analysis...',
+                model='test-model',
+                usage={},
+            ),
         )
         result = await engine.analyse(
             user_id=uuid4(),
@@ -150,12 +156,14 @@ class TestCareerMentor:
         assert 'content' in result
         assert 'suggestions' in result
 
-    async def test_analyse_with_career_target(self, mock_uow):
+    async def test_analyse_with_career_target(self, mock_uow) -> None:
         engine = CareerMentor(mock_uow)
         engine._chat._provider.chat = AsyncMock(
             return_value=LLMResponse(
-                content='Data Science requires...', model='test-model', usage={}
-            )
+                content='Data Science requires...',
+                model='test-model',
+                usage={},
+            ),
         )
         result = await engine.analyse(
             user_id=uuid4(),
@@ -168,10 +176,10 @@ class TestCareerMentor:
 class TestProjectMentor:
     """Test the ProjectMentor for project guidance."""
 
-    async def test_mentor_returns_content(self, mock_uow):
+    async def test_mentor_returns_content(self, mock_uow) -> None:
         engine = ProjectMentor(mock_uow)
         engine._chat._provider.chat = AsyncMock(
-            return_value=LLMResponse(content='Build a REST API...', model='test-model', usage={})
+            return_value=LLMResponse(content='Build a REST API...', model='test-model', usage={}),
         )
         result = await engine.mentor(
             user_id=uuid4(),
@@ -181,10 +189,10 @@ class TestProjectMentor:
         assert 'content' in result
         assert 'suggestions' in result
 
-    async def test_mentor_without_tech_stack(self, mock_uow):
+    async def test_mentor_without_tech_stack(self, mock_uow) -> None:
         engine = ProjectMentor(mock_uow)
         engine._chat._provider.chat = AsyncMock(
-            return_value=LLMResponse(content='Start with basics...', model='test-model', usage={})
+            return_value=LLMResponse(content='Start with basics...', model='test-model', usage={}),
         )
         result = await engine.mentor(
             user_id=uuid4(),
@@ -197,14 +205,14 @@ class TestProjectMentor:
 class TestQuizEngine:
     """Test the QuizEngine for generating quizzes."""
 
-    async def test_generate_quiz_returns_questions(self, mock_uow):
+    async def test_generate_quiz_returns_questions(self, mock_uow) -> None:
         engine = QuizEngine(mock_uow)
         quiz_json = (
             '{"quiz": [{"question": "Q?", "options": ["A","B","C","D"],'
             ' "correct_answer": "A", "explanation": "E"}]}'
         )
         engine._chat._provider.chat = AsyncMock(
-            return_value=LLMResponse(content=quiz_json, model='test-model', usage={})
+            return_value=LLMResponse(content=quiz_json, model='test-model', usage={}),
         )
         result = await engine.generate_quiz(
             user_id=uuid4(),
@@ -214,7 +222,7 @@ class TestQuizEngine:
         assert 'questions' in result
         assert len(result['questions']) > 0
 
-    async def test_generate_quiz_fallback_parsing(self, mock_uow):
+    async def test_generate_quiz_fallback_parsing(self, mock_uow) -> None:
         """Quiz engine falls back to basic parsing when JSON fails."""
         engine = QuizEngine(mock_uow)
         engine._chat._provider.chat = AsyncMock(
@@ -222,7 +230,7 @@ class TestQuizEngine:
                 content='What is Python?\n\nWhat is a variable?',
                 model='test-model',
                 usage={},
-            )
+            ),
         )
         result = await engine.generate_quiz(
             user_id=uuid4(),
@@ -230,7 +238,7 @@ class TestQuizEngine:
         )
         assert 'questions' in result
 
-    async def test_generate_quiz_different_types(self, mock_uow):
+    async def test_generate_quiz_different_types(self, mock_uow) -> None:
         """Quiz generates different types."""
         engine = QuizEngine(mock_uow)
         quiz_json = (
@@ -238,7 +246,7 @@ class TestQuizEngine:
             ' "correct_answer": "A", "explanation": "E"}]}'
         )
         engine._chat._provider.chat = AsyncMock(
-            return_value=LLMResponse(content=quiz_json, model='test-model', usage={})
+            return_value=LLMResponse(content=quiz_json, model='test-model', usage={}),
         )
         for qt in ('mcq', 'flashcards', 'true_false'):
             result = await engine.generate_quiz(

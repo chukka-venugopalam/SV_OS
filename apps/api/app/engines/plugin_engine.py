@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
@@ -36,6 +36,7 @@ class PluginStatus(Enum):
 @dataclass
 class PluginManifest:
     """Plugin manifest describing a plugin's metadata and requirements."""
+
     name: str = ''
     version: str = '1.0.0'
     description: str = ''
@@ -50,6 +51,7 @@ class PluginManifest:
 @dataclass
 class Plugin:
     """A plugin instance with its current state."""
+
     plugin_id: str = field(default_factory=lambda: str(uuid4()))
     manifest: PluginManifest = field(default_factory=PluginManifest)
     status: PluginStatus = PluginStatus.UNKNOWN
@@ -63,7 +65,7 @@ def _compare_versions(v1: str, v2: str) -> int:
     """Compare two version strings. Returns -1, 0, or 1."""
     parts1 = [int(p) for p in v1.split('.')]
     parts2 = [int(p) for p in v2.split('.')]
-    for a, b in zip(parts1, parts2):
+    for a, b in zip(parts1, parts2, strict=False):
         if a < b:
             return -1
         if a > b:
@@ -111,13 +113,19 @@ class PluginEngine(EngineBase):
 
     async def health_impl(self) -> EngineHealth:
         return EngineHealth(
-            engine_name=self.engine_name, state=self.engine_state, healthy=True,
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
             message='Plugin engine is operational',
             details={
                 'total_plugins': len(self._plugins),
-                'enabled': sum(1 for p in self._plugins.values() if p.status == PluginStatus.ENABLED),
+                'enabled': sum(
+                    1 for p in self._plugins.values() if p.status == PluginStatus.ENABLED
+                ),
                 'loaded': sum(1 for p in self._plugins.values() if p.status == PluginStatus.LOADED),
-                'disabled': sum(1 for p in self._plugins.values() if p.status == PluginStatus.DISABLED),
+                'disabled': sum(
+                    1 for p in self._plugins.values() if p.status == PluginStatus.DISABLED
+                ),
                 'failed': sum(1 for p in self._plugins.values() if p.status == PluginStatus.FAILED),
             },
         )
@@ -126,13 +134,10 @@ class PluginEngine(EngineBase):
         issues = []
         for plugin in self._plugins.values():
             if plugin.manifest.dependencies:
-                missing = [
-                    dep for dep in plugin.manifest.dependencies
-                    if dep not in self._plugins
-                ]
+                missing = [dep for dep in plugin.manifest.dependencies if dep not in self._plugins]
                 if missing:
                     issues.append(
-                        f"Plugin '{plugin.manifest.name}' has missing dependencies: {missing}"
+                        f"Plugin '{plugin.manifest.name}' has missing dependencies: {missing}",
                     )
         return issues
 
@@ -145,11 +150,14 @@ class PluginEngine(EngineBase):
         self._plugins[plugin.plugin_id] = plugin
         self._plugins[manifest.name] = plugin
 
-        await self.publish_event('plugin.registered.v1', {
-            'plugin_id': plugin.plugin_id,
-            'name': manifest.name,
-            'version': manifest.version,
-        })
+        await self.publish_event(
+            'plugin.registered.v1',
+            {
+                'plugin_id': plugin.plugin_id,
+                'name': manifest.name,
+                'version': manifest.version,
+            },
+        )
 
         return self._plugin_to_dict(plugin)
 
@@ -163,7 +171,7 @@ class PluginEngine(EngineBase):
             return {'error': f'Plugin is in {plugin.status.value} state, cannot load'}
 
         # Validate engine version compatibility
-        if plugin.manifest.min_engine_version:
+        if plugin.manifest.min_engine_version:  # noqa: SIM102
             if _compare_versions('0.1.0', plugin.manifest.min_engine_version) < 0:
                 plugin.status = PluginStatus.FAILED
                 plugin.error_message = (
@@ -175,7 +183,8 @@ class PluginEngine(EngineBase):
         for dep_name in plugin.manifest.dependencies:
             dep_plugin = self._find_plugin(dep_name)
             if dep_plugin is None or dep_plugin.status not in (
-                PluginStatus.LOADED, PluginStatus.ENABLED
+                PluginStatus.LOADED,
+                PluginStatus.ENABLED,
             ):
                 plugin.status = PluginStatus.FAILED
                 plugin.error_message = f"Dependency '{dep_name}' is not available"
@@ -188,11 +197,14 @@ class PluginEngine(EngineBase):
         for cap in plugin.manifest.capabilities:
             self._capability_map[cap] = plugin.plugin_id
 
-        await self.publish_event('plugin.loaded.v1', {
-            'plugin_id': plugin.plugin_id,
-            'name': plugin.manifest.name,
-            'capabilities': plugin.manifest.capabilities,
-        })
+        await self.publish_event(
+            'plugin.loaded.v1',
+            {
+                'plugin_id': plugin.plugin_id,
+                'name': plugin.manifest.name,
+                'capabilities': plugin.manifest.capabilities,
+            },
+        )
 
         return self._plugin_to_dict(plugin)
 
@@ -210,10 +222,13 @@ class PluginEngine(EngineBase):
         plugin.status = PluginStatus.UNLOADED
         plugin.handler = None
 
-        await self.publish_event('plugin.unloaded.v1', {
-            'plugin_id': plugin.plugin_id,
-            'name': plugin.manifest.name,
-        })
+        await self.publish_event(
+            'plugin.unloaded.v1',
+            {
+                'plugin_id': plugin.plugin_id,
+                'name': plugin.manifest.name,
+            },
+        )
 
         return self._plugin_to_dict(plugin)
 
@@ -224,15 +239,20 @@ class PluginEngine(EngineBase):
             return {'error': f'Plugin {plugin_id} not found'}
 
         if plugin.status != PluginStatus.LOADED:
-            return {'error': f'Plugin must be loaded before enabling (current: {plugin.status.value})'}
+            return {
+                'error': f'Plugin must be loaded before enabling (current: {plugin.status.value})',
+            }
 
         plugin.status = PluginStatus.ENABLED
         plugin.enabled_at = datetime.now(UTC).isoformat()
 
-        await self.publish_event('plugin.enabled.v1', {
-            'plugin_id': plugin.plugin_id,
-            'name': plugin.manifest.name,
-        })
+        await self.publish_event(
+            'plugin.enabled.v1',
+            {
+                'plugin_id': plugin.plugin_id,
+                'name': plugin.manifest.name,
+            },
+        )
 
         return self._plugin_to_dict(plugin)
 
@@ -244,10 +264,13 @@ class PluginEngine(EngineBase):
 
         plugin.status = PluginStatus.DISABLED
 
-        await self.publish_event('plugin.disabled.v1', {
-            'plugin_id': plugin.plugin_id,
-            'name': plugin.manifest.name,
-        })
+        await self.publish_event(
+            'plugin.disabled.v1',
+            {
+                'plugin_id': plugin.plugin_id,
+                'name': plugin.manifest.name,
+            },
+        )
 
         return self._plugin_to_dict(plugin)
 
@@ -266,15 +289,17 @@ class PluginEngine(EngineBase):
     async def validate_dependencies(self) -> list[dict]:
         """Validate all plugin dependency chains."""
         results = []
-        for pid, plugin in self._plugins.items():
+        for plugin in self._plugins.values():
             if plugin.manifest.dependencies:
                 for dep in plugin.manifest.dependencies:
                     dep_plugin = self._find_plugin(dep)
-                    results.append({
-                        'plugin': plugin.manifest.name,
-                        'dependency': dep,
-                        'satisfied': dep_plugin is not None,
-                    })
+                    results.append(
+                        {
+                            'plugin': plugin.manifest.name,
+                            'dependency': dep,
+                            'satisfied': dep_plugin is not None,
+                        },
+                    )
         return results
 
     async def get_manifest(self, plugin_id: str) -> dict | None:

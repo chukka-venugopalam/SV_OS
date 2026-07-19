@@ -3,7 +3,7 @@
 New code should import directly from ``app.events.bus``.
 """
 
-from app.events.bus import EventBus, EventEnvelope, EventHandler, EventMetadata  # noqa: F401
+from app.events.bus import EventBus, EventEnvelope, EventHandler, EventMetadata
 
 __all__ = [
     'EventBus',

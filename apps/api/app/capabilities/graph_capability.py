@@ -5,8 +5,10 @@ Orchestrates: GraphEngine, TraversalEngine, KnowledgeEngine
 
 from __future__ import annotations
 
-from uuid import UUID
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class GraphCapability:
@@ -20,9 +22,7 @@ class GraphCapability:
         """Get a single knowledge node with content and metadata."""
         raise NotImplementedError
 
-    async def get_subgraph(
-        self, center_node_id: UUID, depth: int = 2
-    ) -> dict:
+    async def get_subgraph(self, center_node_id: UUID, depth: int = 2) -> dict:
         """Get a subgraph around a center node for visualization."""
         raise NotImplementedError
 

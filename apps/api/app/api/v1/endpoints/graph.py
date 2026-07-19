@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_uow
-from app.repositories import UnitOfWork
 from app.schemas.response import success_response
 from app.services.legacy_graph import GraphService
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -35,8 +38,8 @@ async def get_full_graph(
     nodes_stmt = (
         select(KnowledgeNode)
         .where(
-            KnowledgeNode.is_deleted == False,  # noqa: E712
-            KnowledgeNode.is_published == True,  # noqa: E712
+            not KnowledgeNode.is_deleted,
+            KnowledgeNode.is_published,
         )
         .order_by(KnowledgeNode.title)
     )
@@ -49,7 +52,7 @@ async def get_full_graph(
         edges_stmt = (
             select(KnowledgeEdge)
             .where(
-                KnowledgeEdge.is_deleted == False,  # noqa: E712
+                not KnowledgeEdge.is_deleted,
                 KnowledgeEdge.source_node_id.in_(published_ids),
                 KnowledgeEdge.target_node_id.in_(published_ids),
             )

@@ -18,6 +18,7 @@ Supports:
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
@@ -28,6 +29,7 @@ from app.engines.base import EngineBase, EngineDependency, EngineHealth
 @dataclass
 class CareerProfile:
     """A career with full metadata."""
+
     node_id: str = ''
     title: str = ''
     slug: str = ''
@@ -46,6 +48,7 @@ class CareerProfile:
 @dataclass
 class SkillGap:
     """Identified skill gap between a learner and a career."""
+
     skill_name: str = ''
     status: str = 'missing'  # missing, weak, adequate, strong
     node_id: str = ''
@@ -84,10 +87,26 @@ class CareerEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for node data'),
-            EngineDependency(engine_name='traversal', required=False, description='Traversal engine for dependency chains'),
-            EngineDependency(engine_name='state', required=False, description='State engine for learner progress'),
-            EngineDependency(engine_name='knowledge', required=False, description='Knowledge engine for career metadata'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for node data',
+            ),
+            EngineDependency(
+                engine_name='traversal',
+                required=False,
+                description='Traversal engine for dependency chains',
+            ),
+            EngineDependency(
+                engine_name='state',
+                required=False,
+                description='State engine for learner progress',
+            ),
+            EngineDependency(
+                engine_name='knowledge',
+                required=False,
+                description='Knowledge engine for career metadata',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -202,7 +221,9 @@ class CareerEngine(EngineBase):
 
         # Compare with other careers
         all_nodes = await self._graph.all_nodes()
-        other_careers = [n for n in all_nodes if n.get('node_type') == 'career' and n['id'] != str(career_id)]
+        other_careers = [
+            n for n in all_nodes if n.get('node_type') == 'career' and n['id'] != str(career_id)
+        ]
 
         similarities = []
         for other in other_careers:
@@ -220,8 +241,7 @@ class CareerEngine(EngineBase):
 
         similarities.sort(key=lambda x: x[0], reverse=True)
         return [
-            {**other, 'similarity_score': round(score, 3)}
-            for score, other in similarities[:limit]
+            {**other, 'similarity_score': round(score, 3)} for score, other in similarities[:limit]
         ]
 
     # ═══════════════════════════════════════════════════════════════
@@ -250,7 +270,10 @@ class CareerEngine(EngineBase):
                 learner_state = await self._state.get_learner_state(user_id)
                 active_nodes = getattr(learner_state, 'active_nodes', {})
                 for nid_str, state_info in active_nodes.items():
-                    if isinstance(state_info, dict) and state_info.get('status') in ('completed', 'mastered'):
+                    if isinstance(state_info, dict) and state_info.get('status') in (
+                        'completed',
+                        'mastered',
+                    ):
                         completed.add(nid_str)
             except Exception:
                 pass
@@ -261,13 +284,15 @@ class CareerEngine(EngineBase):
             node = await self._graph.get_node(UUID(nid))
             if node:
                 if nid not in completed:
-                    gaps.append(SkillGap(
-                        skill_name=node.get('title', ''),
-                        status='missing',
-                        node_id=nid,
-                        node_title=node.get('title', ''),
-                        urgency='required',
-                    ))
+                    gaps.append(
+                        SkillGap(
+                            skill_name=node.get('title', ''),
+                            status='missing',
+                            node_id=nid,
+                            node_title=node.get('title', ''),
+                            urgency='required',
+                        ),
+                    )
                 elif self._state:
                     try:
                         learner_state = await self._state.get_learner_state(user_id)
@@ -276,13 +301,15 @@ class CareerEngine(EngineBase):
                         if isinstance(info, dict):
                             conf = info.get('confidence', 1.0)
                             if conf < 0.5:
-                                gaps.append(SkillGap(
-                                    skill_name=node.get('title', ''),
-                                    status='weak',
-                                    node_id=nid,
-                                    node_title=node.get('title', ''),
-                                    urgency='recommended',
-                                ))
+                                gaps.append(
+                                    SkillGap(
+                                        skill_name=node.get('title', ''),
+                                        status='weak',
+                                        node_id=nid,
+                                        node_title=node.get('title', ''),
+                                        urgency='recommended',
+                                    ),
+                                )
                     except Exception:
                         pass
 
@@ -296,9 +323,17 @@ class CareerEngine(EngineBase):
             'completed': len(completed),
             'missing': missing_count,
             'weak': weak_count,
-            'completion_percentage': round(len(completed) / len(all_required) * 100, 1) if all_required else 0.0,
+            'completion_percentage': round(len(completed) / len(all_required) * 100, 1)
+            if all_required
+            else 0.0,
             'gaps': [
-                {'skill_name': g.skill_name, 'status': g.status, 'node_id': g.node_id, 'node_title': g.node_title, 'urgency': g.urgency}
+                {
+                    'skill_name': g.skill_name,
+                    'status': g.status,
+                    'node_id': g.node_id,
+                    'node_title': g.node_title,
+                    'urgency': g.urgency,
+                }
                 for g in gaps
             ],
         }
@@ -343,9 +378,7 @@ class CareerEngine(EngineBase):
     # Roadmap
     # ═══════════════════════════════════════════════════════════════
 
-    async def get_recommended_roadmap(
-        self, career_id: UUID, user_id: UUID | None = None
-    ) -> dict:
+    async def get_recommended_roadmap(self, career_id: UUID, user_id: UUID | None = None) -> dict:
         """Get a recommended learning path toward a career."""
         from app.engines.learning_path_engine import LearningPathEngine
 
@@ -359,8 +392,7 @@ class CareerEngine(EngineBase):
 
         if user_id:
             return await lpe.generate_career_roadmap(career_id, user_id)
-        else:
-            return await lpe.generate_dependency_roadmap(career_id)
+        return await lpe.generate_dependency_roadmap(career_id)
 
     # ═══════════════════════════════════════════════════════════════
     # Missing Items
@@ -371,12 +403,16 @@ class CareerEngine(EngineBase):
         gap = await self.get_skill_gap(user_id, career_id)
         return [g for g in gap.get('gaps', []) if g.get('status') == 'missing']
 
-    async def get_missing_projects(self, user_id: UUID, career_id: UUID) -> list[dict]:
+    async def get_missing_projects(self, _user_id: UUID, career_id: UUID) -> list[dict]:
         """Get projects the learner hasn't completed for a career."""
         if self._knowledge is None:
             return []
 
-        chain_result = await self._traversal.dependency_chain(career_id, max_depth=5) if self._traversal else []
+        chain_result = (
+            await self._traversal.dependency_chain(career_id, max_depth=5)
+            if self._traversal
+            else []
+        )
         missing_projects = []
 
         for level in chain_result:
@@ -384,19 +420,25 @@ class CareerEngine(EngineBase):
                 nid = item.get('node_id', '')
                 projects = await self._knowledge.get_projects_for_node(UUID(nid))
                 for proj in projects:
-                    missing_projects.append({
-                        'project': proj,
-                        'related_node_id': nid,
-                    })
+                    missing_projects.append(
+                        {
+                            'project': proj,
+                            'related_node_id': nid,
+                        },
+                    )
 
         return missing_projects[:20]
 
-    async def get_missing_assessments(self, user_id: UUID, career_id: UUID) -> list[dict]:
+    async def get_missing_assessments(self, _user_id: UUID, career_id: UUID) -> list[dict]:
         """Get assessments the learner hasn't passed for a career."""
         if self._knowledge is None:
             return []
 
-        chain_result = await self._traversal.dependency_chain(career_id, max_depth=5) if self._traversal else []
+        chain_result = (
+            await self._traversal.dependency_chain(career_id, max_depth=5)
+            if self._traversal
+            else []
+        )
         missing_assessments = []
 
         for level in chain_result:
@@ -404,10 +446,12 @@ class CareerEngine(EngineBase):
                 nid = item.get('node_id', '')
                 assessments = await self._knowledge.get_assessments_for_node(UUID(nid))
                 for assessment in assessments:
-                    missing_assessments.append({
-                        'assessment': assessment,
-                        'related_node_id': nid,
-                    })
+                    missing_assessments.append(
+                        {
+                            'assessment': assessment,
+                            'related_node_id': nid,
+                        },
+                    )
 
         return missing_assessments[:20]
 
@@ -425,12 +469,15 @@ class CareerEngine(EngineBase):
             return {'error': 'Career not found'}
 
         meta = career.get('metadata', {})
-        progression = meta.get('progression', [
-            {'level': 'entry', 'title': f'Junior {career.get("title", "")}', 'years': '0-2'},
-            {'level': 'mid', 'title': career.get('title', ''), 'years': '2-5'},
-            {'level': 'senior', 'title': f'Senior {career.get("title", "")}', 'years': '5-8'},
-            {'level': 'lead', 'title': f'Lead {career.get("title", "")}', 'years': '8+'},
-        ])
+        progression = meta.get(
+            'progression',
+            [
+                {'level': 'entry', 'title': f'Junior {career.get("title", "")}', 'years': '0-2'},
+                {'level': 'mid', 'title': career.get('title', ''), 'years': '2-5'},
+                {'level': 'senior', 'title': f'Senior {career.get("title", "")}', 'years': '5-8'},
+                {'level': 'lead', 'title': f'Lead {career.get("title", "")}', 'years': '8+'},
+            ],
+        )
 
         return {
             'career_id': str(career_id),
@@ -440,7 +487,9 @@ class CareerEngine(EngineBase):
         }
 
     async def get_seniority_requirements(
-        self, career_id: UUID, target_seniority: str = 'senior'
+        self,
+        career_id: UUID,
+        target_seniority: str = 'senior',
     ) -> dict:
         """Get the requirements for reaching a specific seniority level."""
         if self._graph is None or self._traversal is None:
@@ -486,7 +535,13 @@ class CareerEngine(EngineBase):
 
         industries: dict[str, int] = {}
         demand_distribution: dict[str, int] = {'low': 0, 'moderate': 0, 'high': 0, 'critical': 0}
-        seniority_distribution: dict[str, int] = {'entry': 0, 'mid': 0, 'senior': 0, 'lead': 0, 'executive': 0}
+        seniority_distribution: dict[str, int] = {
+            'entry': 0,
+            'mid': 0,
+            'senior': 0,
+            'lead': 0,
+            'executive': 0,
+        }
 
         for career in careers:
             meta = career.get('metadata', {})
@@ -516,10 +571,8 @@ class CareerEngine(EngineBase):
 
         skills = []
         if self._knowledge:
-            try:
+            with contextlib.suppress(Exception):
                 skills = await self._knowledge.get_skills_for_node(UUID(node['id']))
-            except Exception:
-                pass
 
         return {
             **node,

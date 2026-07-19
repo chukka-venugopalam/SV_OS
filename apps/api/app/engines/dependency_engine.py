@@ -20,6 +20,7 @@ from app.engines.base import EngineBase, EngineDependency, EngineHealth
 @dataclass
 class DependencyCache:
     """Cached lookup results for a node's dependencies."""
+
     prerequisites: list[UUID] = field(default_factory=list)
     transitive_prerequisites: list[UUID] = field(default_factory=list)
     dependents: list[UUID] = field(default_factory=list)
@@ -51,8 +52,16 @@ class DependencyEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for edge traversal'),
-            EngineDependency(engine_name='state', required=False, description='State engine for readiness evaluation'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for edge traversal',
+            ),
+            EngineDependency(
+                engine_name='state',
+                required=False,
+                description='State engine for readiness evaluation',
+            ),
         ]
 
     # ── Lifecycle ──────────────────────────────────────────────────
@@ -100,9 +109,7 @@ class DependencyEngine(EngineBase):
         self._update_cache(node_id, prerequisites=prereqs)
         return prereqs
 
-    async def get_transitive_prerequisites(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> list[UUID]:
+    async def get_transitive_prerequisites(self, node_id: UUID, max_depth: int = 5) -> list[UUID]:
         """Get all transitive prerequisites (prerequisites of prerequisites).
 
         Uses BFS traversal up to max_depth to collect the full chain.
@@ -143,9 +150,7 @@ class DependencyEngine(EngineBase):
         self._update_cache(node_id, dependents=deps)
         return deps
 
-    async def get_transitive_dependents(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> list[UUID]:
+    async def get_transitive_dependents(self, node_id: UUID, max_depth: int = 5) -> list[UUID]:
         """Get all transitive dependents (dependents of dependents)."""
         cached = self._get_cached(node_id)
         if cached is not None and cached.transitive_dependents:
@@ -216,7 +221,7 @@ class DependencyEngine(EngineBase):
             'node_id': str(node_id),
         }
 
-    async def get_blockers(self, user_id: UUID, node_id: UUID) -> list[dict]:
+    async def get_blockers(self, _user_id: UUID, node_id: UUID) -> list[dict]:
         """Get prerequisite blockers for a node with details."""
         prereqs = await self.get_prerequisites(node_id)
         if not prereqs:
@@ -248,6 +253,7 @@ class DependencyEngine(EngineBase):
         Args:
             node_id: If provided, only invalidates cache for that node.
                      If None, clears the entire cache.
+
         """
         if node_id is None:
             self._cache.clear()
@@ -331,6 +337,7 @@ class DependencyEngine(EngineBase):
     ) -> None:
         """Update the cache for a node."""
         import time
+
         if not self._cache_enabled:
             return
 

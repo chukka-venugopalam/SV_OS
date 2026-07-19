@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import select
 
 from app.models.learning_resource import LearningResource
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class LearningResourceRepository(BaseRepository[LearningResource]):
@@ -92,7 +95,7 @@ class LearningResourceRepository(BaseRepository[LearningResource]):
             select(LearningResource)
             .where(
                 LearningResource.node_id.in_(node_ids),
-                LearningResource.is_deleted == False,  # noqa: E712
+                not LearningResource.is_deleted,
             )
             .order_by(LearningResource.title)
         )

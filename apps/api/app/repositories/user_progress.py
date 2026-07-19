@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
 from app.models.enums import ProgressStatus
 from app.models.user_progress import UserProgress
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class UserProgressRepository(BaseRepository[UserProgress]):
@@ -48,7 +51,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
         stmt = select(UserProgress).where(
             UserProgress.user_id == user_id,
             UserProgress.node_id == node_id,
-            UserProgress.is_deleted == False,  # noqa: E712
+            not UserProgress.is_deleted,
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -143,7 +146,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
             )
             .where(
                 UserProgress.user_id == user_id,
-                UserProgress.is_deleted == False,  # noqa: E712
+                not UserProgress.is_deleted,
             )
             .group_by(UserProgress.status)
         )
@@ -158,7 +161,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
         """Sum total time spent across all progress records for a user."""
         stmt = select(func.coalesce(func.sum(UserProgress.time_spent_minutes), 0)).where(
             UserProgress.user_id == user_id,
-            UserProgress.is_deleted == False,  # noqa: E712
+            not UserProgress.is_deleted,
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0
@@ -171,7 +174,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
             .where(
                 UserProgress.user_id == user_id,
                 UserProgress.status.in_(['completed', 'mastered']),
-                UserProgress.is_deleted == False,  # noqa: E712
+                not UserProgress.is_deleted,
             )
         )
         result = await self.session.execute(stmt)

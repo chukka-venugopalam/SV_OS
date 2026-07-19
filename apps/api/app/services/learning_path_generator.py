@@ -1,5 +1,4 @@
-"""
-Learning Path Generator — dynamic learning path creation from user goals.
+"""Learning Path Generator — dynamic learning path creation from user goals.
 
 Given a goal (target node/career), current knowledge level, and constraints,
 generates an ordered learning roadmap with milestones, estimated duration,
@@ -15,11 +14,14 @@ Algorithm:
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -69,6 +71,7 @@ class LearningPathGenerator:
         Returns:
             A dict with ``goal``, ``milestones``, ``stats``, and
             ``prerequisites``.
+
         """
         goal_node = await self._uow.knowledge_nodes.get_by_id(goal_node_id)
         if not goal_node:
@@ -199,8 +202,7 @@ class LearningPathGenerator:
             diff_idx = DIFFICULTY_ORDER.get(diff.lower(), 0)
             return (depth, diff_idx)
 
-        sorted_nodes = sorted(nodes, key=sort_key)
-        return sorted_nodes
+        return sorted(nodes, key=sort_key)
 
     # ── Node Depth Computation ────────────────────────────────────
     # Time: O(D) where D is prereq chain depth  |  Space: O(1)
@@ -249,7 +251,7 @@ class LearningPathGenerator:
                     'estimated_minutes': estimated_minutes,
                     'estimated_hours': round(estimated_minutes / 60, 1),
                     'nodes': [_node_to_dict(n) for n in chunk],
-                }
+                },
             )
 
         return milestones

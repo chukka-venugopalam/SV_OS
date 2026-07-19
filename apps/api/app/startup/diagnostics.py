@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from structlog.stdlib import get_logger
 
 from app.core.config import settings
-from app.telemetry.health import HealthChecker
+
+if TYPE_CHECKING:
+    from app.telemetry.health import HealthChecker
 
 logger = get_logger(__name__)
 
@@ -30,7 +34,7 @@ class Diagnostics:
             and settings.SECRET_KEY == 'change-me-in-production'
         ):
             warnings.append(
-                'SECRET_KEY is still set to the default value — change it in production.'
+                'SECRET_KEY is still set to the default value — change it in production.',
             )
 
         # Database URL
@@ -40,7 +44,7 @@ class Diagnostics:
         # CORS
         if '*' in settings.CORS_ORIGINS and settings.ENVIRONMENT == 'production':
             warnings.append(
-                'CORS allows all origins (*) in production — restrict to specific domains.'
+                'CORS allows all origins (*) in production — restrict to specific domains.',
             )
 
         # Log warnings

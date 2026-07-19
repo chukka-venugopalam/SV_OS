@@ -1,5 +1,4 @@
-"""
-Bookmark model — user-saved knowledge nodes for quick access.
+"""Bookmark model — user-saved knowledge nodes for quick access.
 
 Maps to the ``bookmarks`` table.
 """
@@ -7,7 +6,6 @@ Maps to the ``bookmarks`` table.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -17,6 +15,8 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
     from app.models.user import User
 

@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.enums import Difficulty, ResourceType
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class LearningResourceSummary(BaseModel):
@@ -19,7 +22,9 @@ class LearningResourceSummary(BaseModel):
     platform: str | None = Field(default=None, description='Platform name', max_length=100)
     is_free: bool = Field(description='Whether freely accessible')
     duration_minutes: int | None = Field(
-        default=None, description='Estimated consumption time', ge=1
+        default=None,
+        description='Estimated consumption time',
+        ge=1,
     )
     difficulty: Difficulty = Field(description='Resource difficulty level')
     language: str = Field(default='en', description='ISO language code', max_length=10)
@@ -36,7 +41,9 @@ class LearningResourceDetail(BaseModel):
     platform: str | None = Field(default=None, description='Platform name', max_length=100)
     is_free: bool = Field(description='Whether freely accessible')
     duration_minutes: int | None = Field(
-        default=None, description='Estimated consumption time', ge=1
+        default=None,
+        description='Estimated consumption time',
+        ge=1,
     )
     difficulty: Difficulty = Field(description='Resource difficulty level')
     language: str = Field(default='en', description='ISO language code', max_length=10)
@@ -51,10 +58,14 @@ class LearningResourceCreate(BaseModel):
     platform: str | None = Field(default=None, max_length=100, description='Platform name')
     is_free: bool = Field(default=True, description='Whether freely accessible')
     duration_minutes: int | None = Field(
-        default=None, ge=1, le=99999, description='Estimated consumption time'
+        default=None,
+        ge=1,
+        le=99999,
+        description='Estimated consumption time',
     )
     difficulty: Difficulty = Field(
-        default=Difficulty.BEGINNER, description='Resource difficulty level'
+        default=Difficulty.BEGINNER,
+        description='Resource difficulty level',
     )
     language: str = Field(default='en', max_length=10, description='ISO language code')
 
@@ -63,5 +74,6 @@ class LearningResourceCreate(BaseModel):
     def validate_url(cls, v: str) -> str:
         """Ensure URL starts with http:// or https://."""
         if not v.startswith(('http://', 'https://')):
-            raise ValueError('URL must start with http:// or https://')
+            msg = 'URL must start with http:// or https://'
+            raise ValueError(msg)
         return v

@@ -67,7 +67,6 @@ depends_on: str | Sequence[str] | None = None
 
 def _create_enums() -> None:
     """Create all PostgreSQL enum types."""
-
     # node_type_enum — Discriminator for knowledge node categories.
     # Values: subject, concept, technology, tool, career, project
     op.execute("""
@@ -227,7 +226,10 @@ def _create_users() -> None:
             comment='Public username (unique)',
         ),
         sa.Column(
-            'display_name', sa.String(200), nullable=True, comment='Display name shown in the UI'
+            'display_name',
+            sa.String(200),
+            nullable=True,
+            comment='Display name shown in the UI',
         ),
         sa.Column('avatar_url', sa.Text, nullable=True, comment='URL of the user profile picture'),
         sa.Column('bio', sa.Text, nullable=True, comment='Short biography text'),
@@ -289,7 +291,6 @@ def _create_users() -> None:
     )
     # No separate indexes on email/username — the unique constraint
     # on each column already creates a unique index in PostgreSQL.
-    pass
 
 
 def _create_knowledge_nodes() -> None:
@@ -315,7 +316,10 @@ def _create_knowledge_nodes() -> None:
             comment='URL-safe unique identifier',
         ),
         sa.Column(
-            'title', sa.String(300), nullable=False, comment='Human-readable title of the node'
+            'title',
+            sa.String(300),
+            nullable=False,
+            comment='Human-readable title of the node',
         ),
         sa.Column(
             'description',
@@ -324,7 +328,10 @@ def _create_knowledge_nodes() -> None:
             comment='Short description / abstract of the node',
         ),
         sa.Column(
-            'content', sa.Text, nullable=True, comment='Full rich-text / Markdown content body'
+            'content',
+            sa.Text,
+            nullable=True,
+            comment='Full rich-text / Markdown content body',
         ),
         sa.Column(
             'node_type',
@@ -561,7 +568,8 @@ def _create_knowledge_edges() -> None:
         ),
         # Check constraint: prevent self-loops (source == target).
         sa.CheckConstraint(
-            'source_node_id != target_node_id', name='ck_knowledge_edges_no_self_loop'
+            'source_node_id != target_node_id',
+            name='ck_knowledge_edges_no_self_loop',
         ),
     )
     # Index on source_node_id — fast outgoing edge traversal.
@@ -570,11 +578,15 @@ def _create_knowledge_edges() -> None:
     op.create_index('ix_knowledge_edges_target_node_id', 'knowledge_edges', ['target_node_id'])
     # Composite index on source+target — optimises graph traversal.
     op.create_index(
-        'ix_knowledge_edges_source_target', 'knowledge_edges', ['source_node_id', 'target_node_id']
+        'ix_knowledge_edges_source_target',
+        'knowledge_edges',
+        ['source_node_id', 'target_node_id'],
     )
     # Index on relationship_type — filters edges by type.
     op.create_index(
-        'ix_knowledge_edges_relationship_type', 'knowledge_edges', ['relationship_type']
+        'ix_knowledge_edges_relationship_type',
+        'knowledge_edges',
+        ['relationship_type'],
     )
 
 
@@ -597,7 +609,10 @@ def _create_tags() -> None:
             comment='Unique tag name (lowercase, hyphenated)',
         ),
         sa.Column(
-            'description', sa.Text, nullable=True, comment='Optional description of the tag intent'
+            'description',
+            sa.Text,
+            nullable=True,
+            comment='Optional description of the tag intent',
         ),
         sa.Column(
             'created_at',
@@ -802,7 +817,10 @@ def _create_skill_relationships() -> None:
             comment='Semantic type of the skill relationship',
         ),
         sa.Column(
-            'weight', sa.Float, nullable=True, comment='Optional strength / relevance weight'
+            'weight',
+            sa.Float,
+            nullable=True,
+            comment='Optional strength / relevance weight',
         ),
         sa.Column(
             'created_at',
@@ -841,11 +859,15 @@ def _create_skill_relationships() -> None:
     )
     # Index for outgoing skill relationship traversal.
     op.create_index(
-        'ix_skill_relationships_source_skill_id', 'skill_relationships', ['source_skill_id']
+        'ix_skill_relationships_source_skill_id',
+        'skill_relationships',
+        ['source_skill_id'],
     )
     # Index for incoming skill relationship traversal.
     op.create_index(
-        'ix_skill_relationships_target_skill_id', 'skill_relationships', ['target_skill_id']
+        'ix_skill_relationships_target_skill_id',
+        'skill_relationships',
+        ['target_skill_id'],
     )
 
 
@@ -979,7 +1001,11 @@ def _create_career_requirements() -> None:
         sa.Column(
             'requirement_type',
             postgresql.ENUM(
-                'required', 'recommended', 'bonus', name='requirement_type_enum', create_type=False
+                'required',
+                'recommended',
+                'bonus',
+                name='requirement_type_enum',
+                create_type=False,
             ),
             nullable=False,
             comment='How strongly the node is required',
@@ -1159,7 +1185,11 @@ def _create_project_requirements() -> None:
         sa.Column(
             'requirement_type',
             postgresql.ENUM(
-                'required', 'recommended', 'bonus', name='requirement_type_enum', create_type=False
+                'required',
+                'recommended',
+                'bonus',
+                name='requirement_type_enum',
+                create_type=False,
             ),
             nullable=False,
             comment='How strongly the node is required',
@@ -1337,7 +1367,10 @@ def _create_learning_paths() -> None:
         ),
         sa.Column('title', sa.String(300), nullable=False, comment='Human-readable path title'),
         sa.Column(
-            'description', sa.Text, nullable=True, comment='Short description of the learning path'
+            'description',
+            sa.Text,
+            nullable=True,
+            comment='Short description of the learning path',
         ),
         sa.Column(
             'difficulty',
@@ -1461,7 +1494,10 @@ def _create_learning_sessions() -> None:
             comment='When the session started',
         ),
         sa.Column(
-            'ended_at', sa.DateTime(timezone=True), nullable=True, comment='When the session ended'
+            'ended_at',
+            sa.DateTime(timezone=True),
+            nullable=True,
+            comment='When the session ended',
         ),
         sa.Column(
             'duration_minutes',
@@ -1929,7 +1965,10 @@ def _create_recommendations() -> None:
             comment='Category of the recommendation',
         ),
         sa.Column(
-            'score', sa.Float, nullable=True, comment='Relevance score (higher = more relevant)'
+            'score',
+            sa.Float,
+            nullable=True,
+            comment='Relevance score (higher = more relevant)',
         ),
         sa.Column('reason', sa.Text, nullable=True, comment='Human-readable explanation'),
         sa.Column(
@@ -1981,7 +2020,9 @@ def _create_recommendations() -> None:
     op.create_index('ix_recommendations_node_id', 'recommendations', ['node_id'])
     # Index for filtering recommendations by type.
     op.create_index(
-        'ix_recommendations_recommendation_type', 'recommendations', ['recommendation_type']
+        'ix_recommendations_recommendation_type',
+        'recommendations',
+        ['recommendation_type'],
     )
 
 

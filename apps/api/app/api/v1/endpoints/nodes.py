@@ -2,17 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_optional_user_id, get_uow
-from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
 from app.schemas.response import success_response
 from app.services.knowledge_node import KnowledgeNodeService
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 

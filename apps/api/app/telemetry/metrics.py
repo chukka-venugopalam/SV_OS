@@ -15,7 +15,6 @@ Supports:
 
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -23,6 +22,7 @@ from typing import Any
 @dataclass
 class MetricCounter:
     """A simple counter metric."""
+
     name: str
     value: int = 0
     labels: dict[str, str] = field(default_factory=dict)
@@ -31,6 +31,7 @@ class MetricCounter:
 @dataclass
 class MetricGauge:
     """A simple gauge metric."""
+
     name: str
     value: float = 0.0
     labels: dict[str, str] = field(default_factory=dict)
@@ -39,6 +40,7 @@ class MetricGauge:
 @dataclass
 class MetricHistogram:
     """A simple histogram metric."""
+
     name: str
     observations: list[float] = field(default_factory=list)
     labels: dict[str, str] = field(default_factory=dict)
@@ -148,8 +150,10 @@ class MetricsCollector:
         return {
             'counters': {k: v.value for k, v in self._counters.items()},
             'gauges': {k: v.value for k, v in self._gauges.items()},
-            'histograms': {k: {'count': v.count, 'sum': v.sum, 'avg': v.avg}
-                          for k, v in self._histograms.items()},
+            'histograms': {
+                k: {'count': v.count, 'sum': v.sum, 'avg': v.avg}
+                for k, v in self._histograms.items()
+            },
         }
 
     def clear(self) -> None:

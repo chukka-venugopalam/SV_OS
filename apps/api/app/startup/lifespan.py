@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
-from fastapi import FastAPI
 from structlog.stdlib import get_logger
 
 from app.api.v1.router import health_checker as router_health_checker
@@ -14,11 +13,16 @@ from app.infrastructure.container import get_platform_container
 from app.infrastructure.runtime import initialize_platform_runtime
 from app.startup.diagnostics import Diagnostics
 
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from fastapi import FastAPI
+
 logger = get_logger(__name__)
 
 
 @asynccontextmanager
-async def Lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # noqa: N802
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """FastAPI application lifespan context manager.
 
     Handles startup initialisation and shutdown teardown.

@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from structlog.stdlib import get_logger
 
-from app.models.knowledge_node import KnowledgeNode
-from app.repositories import UnitOfWork
 from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
-from app.repositories.query_helpers import PageResult
-from app.schemas.knowledge.node import (
-    KnowledgeNodeCreate,
-    KnowledgeNodeUpdate,
-)
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.knowledge_node import KnowledgeNode
+    from app.repositories import UnitOfWork
+    from app.repositories.query_helpers import PageResult
+    from app.schemas.knowledge.node import (
+        KnowledgeNodeCreate,
+        KnowledgeNodeUpdate,
+    )
 
 logger = get_logger(__name__)
 
@@ -31,7 +34,8 @@ class KnowledgeNodeService:
         """Get a node by ID."""
         node = await self._uow.knowledge_nodes.get_by_id(node_id)
         if not node:
-            raise EntityNotFoundError('KnowledgeNode', node_id)
+            msg = 'KnowledgeNode'
+            raise EntityNotFoundError(msg, node_id)
         return node
 
     async def get_by_slug(self, slug: str) -> KnowledgeNode:
@@ -79,7 +83,9 @@ class KnowledgeNodeService:
         )
 
     async def get_popular(
-        self, limit: int = 10, node_type: str | None = None
+        self,
+        limit: int = 10,
+        node_type: str | None = None,
     ) -> list[KnowledgeNode]:
         """Get the most-viewed published nodes."""
         return await self._uow.knowledge_nodes.find_popular(
@@ -92,7 +98,8 @@ class KnowledgeNodeService:
     async def create(self, data: KnowledgeNodeCreate) -> KnowledgeNode:
         """Create a new knowledge node."""
         if await self._uow.knowledge_nodes.slug_exists(data.slug):
-            raise DuplicateEntityError('KnowledgeNode', {'slug': data.slug}) from None
+            msg = 'KnowledgeNode'
+            raise DuplicateEntityError(msg, {'slug': data.slug}) from None
 
         node = await self._uow.knowledge_nodes.create(**data.model_dump(exclude_none=True))
         logger.info('node_created', slug=data.slug, node_type=data.node_type)
@@ -111,7 +118,8 @@ class KnowledgeNodeService:
             and update_data['slug'] != slug
             and await self._uow.knowledge_nodes.slug_exists(update_data['slug'], exclude_id=node.id)
         ):
-            raise DuplicateEntityError('KnowledgeNode', {'slug': update_data['slug']})
+            msg = 'KnowledgeNode'
+            raise DuplicateEntityError(msg, {'slug': update_data['slug']})
 
         updated = await self._uow.knowledge_nodes.update(node.id, **update_data)
         logger.info('node_updated', slug=slug)
@@ -148,7 +156,10 @@ class KnowledgeNodeService:
         return await self._uow.graph.load_all_neighbors(node_id)
 
     async def get_resources(
-        self, node_id: UUID, page: int = 1, per_page: int = 20
+        self,
+        node_id: UUID,
+        page: int = 1,
+        per_page: int = 20,
     ) -> PageResult[Any]:
         """Get learning resources for a node."""
         return await self._uow.learning_resources.find_by_node(

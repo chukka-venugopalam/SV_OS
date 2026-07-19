@@ -1,5 +1,4 @@
-"""
-Graph Traversal Service — BFS, DFS, shortest path, and chain algorithms.
+"""Graph Traversal Service — BFS, DFS, shortest path, and chain algorithms.
 
 All algorithms operate asynchronously and delegate persistence to the
 ``GraphRepository``.  They are designed to scale to 100k+ nodes by using
@@ -12,12 +11,15 @@ and D = max traversal depth.
 from __future__ import annotations
 
 from collections import deque
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
-from app.repositories.graph import GraphRepository
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
+    from app.repositories.graph import GraphRepository
 
 logger = get_logger(__name__)
 
@@ -61,7 +63,7 @@ class GraphTraversalService:
                         'node_id': str(current_id),
                         'depth': depth,
                         'parent_id': str(parent_id) if parent_id else None,
-                    }
+                    },
                 )
 
             if depth >= max_depth:
@@ -105,7 +107,7 @@ class GraphTraversalService:
                     {
                         'node_id': str(current_id),
                         'depth': depth,
-                    }
+                    },
                 )
 
             if depth >= max_depth:

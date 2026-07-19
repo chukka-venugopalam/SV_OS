@@ -24,13 +24,13 @@ from uuid import UUID, uuid4
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
-
 # ── Data Structures ────────────────────────────────────────────────
 
 
 @dataclass
 class Question:
     """A single question within an assessment."""
+
     question_id: str = field(default_factory=lambda: str(uuid4()))
     text: str = ''
     question_type: str = 'multiple_choice'  # multiple_choice, true_false, short_answer, coding
@@ -44,6 +44,7 @@ class Question:
 @dataclass
 class Assessment:
     """An assessment attached to a knowledge node."""
+
     assessment_id: str = field(default_factory=lambda: str(uuid4()))
     node_id: str = ''
     title: str = ''
@@ -61,6 +62,7 @@ class Assessment:
 @dataclass
 class Submission:
     """A learner's attempt at an assessment."""
+
     submission_id: str = field(default_factory=lambda: str(uuid4()))
     assessment_id: str = ''
     user_id: str = ''
@@ -81,6 +83,7 @@ class Submission:
 @dataclass
 class GradingResult:
     """Result of grading a submission."""
+
     submission_id: str
     score: float
     passed: bool
@@ -115,19 +118,31 @@ class AssessmentEngine(EngineBase):
         self._graph = graph_engine
 
         # In-memory storage
-        self._assessments: dict[str, Assessment] = {}       # assessment_id -> Assessment
-        self._node_assessments: dict[str, list[str]] = {}   # node_id -> list of assessment_ids
-        self._submissions: dict[str, Submission] = {}       # submission_id -> Submission
-        self._user_submissions: dict[str, list[str]] = {}   # user_id -> list of submission_ids
+        self._assessments: dict[str, Assessment] = {}  # assessment_id -> Assessment
+        self._node_assessments: dict[str, list[str]] = {}  # node_id -> list of assessment_ids
+        self._submissions: dict[str, Submission] = {}  # submission_id -> Submission
+        self._user_submissions: dict[str, list[str]] = {}  # user_id -> list of submission_ids
 
     def _default_name(self) -> str:
         return 'assessment'
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='state', required=False, description='State engine for confidence updates'),
-            EngineDependency(engine_name='validation', required=False, description='Validation engine for validation'),
-            EngineDependency(engine_name='graph', required=False, description='Graph engine for node data'),
+            EngineDependency(
+                engine_name='state',
+                required=False,
+                description='State engine for confidence updates',
+            ),
+            EngineDependency(
+                engine_name='validation',
+                required=False,
+                description='Validation engine for validation',
+            ),
+            EngineDependency(
+                engine_name='graph',
+                required=False,
+                description='Graph engine for node data',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -172,16 +187,18 @@ class AssessmentEngine(EngineBase):
     ) -> dict:
         """Create a new assessment for a knowledge node."""
         question_objects = []
-        for q_data in (questions or []):
-            question_objects.append(Question(
-                text=q_data.get('text', ''),
-                question_type=q_data.get('question_type', 'multiple_choice'),
-                options=q_data.get('options', []),
-                correct_answer=q_data.get('correct_answer', ''),
-                points=q_data.get('points', 1),
-                difficulty=q_data.get('difficulty', 'intermediate'),
-                tags=q_data.get('tags', []),
-            ))
+        for q_data in questions or []:
+            question_objects.append(
+                Question(
+                    text=q_data.get('text', ''),
+                    question_type=q_data.get('question_type', 'multiple_choice'),
+                    options=q_data.get('options', []),
+                    correct_answer=q_data.get('correct_answer', ''),
+                    points=q_data.get('points', 1),
+                    difficulty=q_data.get('difficulty', 'intermediate'),
+                    tags=q_data.get('tags', []),
+                ),
+            )
 
         total_points = sum(q.points for q in question_objects)
 
@@ -219,7 +236,8 @@ class AssessmentEngine(EngineBase):
         assessment_ids = self._node_assessments.get(str(node_id), [])
         return [
             self._assessment_to_dict(self._assessments[aid], include_answers=False)
-            for aid in assessment_ids if aid in self._assessments
+            for aid in assessment_ids
+            if aid in self._assessments
         ]
 
     # ═══════════════════════════════════════════════════════════════
@@ -245,6 +263,7 @@ class AssessmentEngine(EngineBase):
 
         Returns:
             Dict with submission_id, score, passed, and feedback.
+
         """
         assessment = self._assessments.get(str(assessment_id))
         if assessment is None:
@@ -253,8 +272,10 @@ class AssessmentEngine(EngineBase):
         # Check attempt limit
         submissions_for_user = self._user_submissions.get(str(user_id), [])
         attempt_count = sum(
-            1 for sid in submissions_for_user
-            if self._submissions.get(sid, None) and self._submissions[sid].assessment_id == str(assessment_id)
+            1
+            for sid in submissions_for_user
+            if self._submissions.get(sid, None)
+            and self._submissions[sid].assessment_id == str(assessment_id)
         )
         if attempt_count >= assessment.max_attempts:
             return {
@@ -363,16 +384,18 @@ class AssessmentEngine(EngineBase):
             q_score = question.points if is_correct else 0
             earned += q_score
 
-            question_results.append({
-                'question_id': qid,
-                'question_text': question.text[:100],
-                'question_type': question.question_type,
-                'user_answer': user_answer,
-                'correct_answer': question.correct_answer,
-                'is_correct': is_correct,
-                'points': question.points,
-                'earned': q_score,
-            })
+            question_results.append(
+                {
+                    'question_id': qid,
+                    'question_text': question.text[:100],
+                    'question_type': question.question_type,
+                    'user_answer': user_answer,
+                    'correct_answer': question.correct_answer,
+                    'is_correct': is_correct,
+                    'points': question.points,
+                    'earned': q_score,
+                },
+            )
 
         total_points = assessment.total_points or sum(q.points for q in assessment.questions)
         score = earned / total_points if total_points > 0 else 0.0
@@ -433,13 +456,15 @@ class AssessmentEngine(EngineBase):
         for sid in submission_ids:
             sub = self._submissions.get(sid)
             if sub and sub.node_id == str(node_id):
-                scores.append({
-                    'submission_id': sub.submission_id,
-                    'score': sub.score,
-                    'passed': sub.passed,
-                    'attempted_at': sub.attempted_at,
-                    'time_spent_seconds': sub.time_spent_seconds,
-                })
+                scores.append(
+                    {
+                        'submission_id': sub.submission_id,
+                        'score': sub.score,
+                        'passed': sub.passed,
+                        'attempted_at': sub.attempted_at,
+                        'time_spent_seconds': sub.time_spent_seconds,
+                    },
+                )
         return scores
 
     async def get_assessment_statistics(self, assessment_id: UUID) -> dict:
@@ -570,7 +595,9 @@ class AssessmentEngine(EngineBase):
         }
 
     def _submission_to_dict(
-        self, submission: Submission, question_results: list[dict] | None = None
+        self,
+        submission: Submission,
+        question_results: list[dict] | None = None,
     ) -> dict:
         result = {
             'submission_id': submission.submission_id,

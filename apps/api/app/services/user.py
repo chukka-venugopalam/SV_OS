@@ -6,13 +6,17 @@ logic (login, register, tokens) is in ``auth.py``.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.models.user import User
-from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.user import User
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -33,14 +37,16 @@ class UserService:
         """
         user = await self._uow.users.get_by_id(user_id)
         if not user:
-            raise EntityNotFoundError('User', user_id)
+            msg = 'User'
+            raise EntityNotFoundError(msg, user_id)
         return user
 
     async def get_public_profile(self, username: str) -> User:
         """Get a user's public profile by username."""
         user = await self._uow.users.find_by_username(username)
         if not user:
-            raise EntityNotFoundError('User', username)
+            msg = 'User'
+            raise EntityNotFoundError(msg, username)
         return user
 
     async def update_profile(
@@ -128,7 +134,7 @@ class UserService:
                     'status': p.status.value if hasattr(p.status, 'value') else p.status,
                     'time_spent_minutes': p.time_spent_minutes,
                     'updated_at': p.updated_at.isoformat() if p.updated_at else None,
-                }
+                },
             )
 
         # Recent activity (last 10 progress records)
@@ -160,7 +166,7 @@ class UserService:
                     if node and hasattr(node.difficulty, 'value')
                     else None,
                     'updated_at': p.updated_at.isoformat() if p.updated_at else None,
-                }
+                },
             )
 
         # Learning time stats

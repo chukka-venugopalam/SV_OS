@@ -14,13 +14,15 @@ Queries:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
-from app.engines.graph_engine import GraphEngine
-from app.engines.traversal_engine import TraversalEngine
-from app.engines.knowledge_engine import KnowledgeEngine
+
+if TYPE_CHECKING:
+    from app.engines.graph_engine import GraphEngine
+    from app.engines.knowledge_engine import KnowledgeEngine
+    from app.engines.traversal_engine import TraversalEngine
 
 
 class QueryEngine(EngineBase):
@@ -58,8 +60,16 @@ class QueryEngine(EngineBase):
     def dependencies(self) -> list[EngineDependency]:
         return [
             EngineDependency(engine_name='graph', required=True, description='Graph engine'),
-            EngineDependency(engine_name='traversal', required=True, description='Traversal engine'),
-            EngineDependency(engine_name='knowledge', required=False, description='Knowledge engine'),
+            EngineDependency(
+                engine_name='traversal',
+                required=True,
+                description='Traversal engine',
+            ),
+            EngineDependency(
+                engine_name='knowledge',
+                required=False,
+                description='Knowledge engine',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -106,9 +116,16 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'path', 'found', 'steps', 'source', 'target'.
+
         """
         if self._traversal is None:
-            return {'path': [], 'found': False, 'steps': 0, 'source': str(source_id), 'target': str(target_id)}
+            return {
+                'path': [],
+                'found': False,
+                'steps': 0,
+                'source': str(source_id),
+                'target': str(target_id),
+            }
 
         path = await self._traversal.shortest_path(source_id, target_id, max_depth)
         return {
@@ -122,9 +139,7 @@ class QueryEngine(EngineBase):
 
     # ── Query: Dependency Chain ─────────────────────────────────---
 
-    async def find_dependency_chain(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> dict:
+    async def find_dependency_chain(self, node_id: UUID, max_depth: int = 5) -> dict:
         """Get the full prerequisite chain for a node.
 
         Uses TraversalEngine.dependency_chain internally.
@@ -135,6 +150,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'levels', 'depth', 'node_id'.
+
         """
         if self._traversal is None:
             return {'levels': [], 'depth': 0, 'node_id': str(node_id)}
@@ -148,9 +164,7 @@ class QueryEngine(EngineBase):
 
     # ── Query: Reverse Dependency Chain ────────────────────────────
 
-    async def find_reverse_dependency_chain(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> dict:
+    async def find_reverse_dependency_chain(self, node_id: UUID, max_depth: int = 5) -> dict:
         """Get nodes that depend on this node.
 
         Uses TraversalEngine.reverse_dependency_chain internally.
@@ -161,6 +175,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'levels', 'depth', 'node_id'.
+
         """
         if self._traversal is None:
             return {'levels': [], 'depth': 0, 'node_id': str(node_id)}
@@ -186,6 +201,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'levels', 'depth', 'node_id'.
+
         """
         if self._traversal is None:
             return {'levels': [], 'depth': 0, 'node_id': str(node_id)}
@@ -218,6 +234,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'nodes', 'count', 'center_node_id'.
+
         """
         if self._traversal is None:
             return {'nodes': [], 'count': 0, 'center_node_id': str(node_id)}
@@ -253,6 +270,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'common_nodes', 'shared_edges', 'count'.
+
         """
         if self._traversal is None:
             return {'common_nodes': [], 'shared_edges': [], 'count': 0}
@@ -297,6 +315,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'levels' (each with skills), 'all_skills', 'total_skills'.
+
         """
         if self._traversal is None or self._knowledge is None:
             return {'levels': [], 'all_skills': [], 'total_skills': 0}
@@ -314,11 +333,13 @@ class QueryEngine(EngineBase):
                     skills = await self._knowledge.get_skills_for_node(nid)
                     skill_names = [s.get('name', '') for s in skills if isinstance(s, dict)]
                     all_skills.update(skill_names)
-                    level_with_skills.append({
-                        'node_id': node_data['node_id'],
-                        'skills': skills,
-                        'skill_count': len(skills),
-                    })
+                    level_with_skills.append(
+                        {
+                            'node_id': node_data['node_id'],
+                            'skills': skills,
+                            'skill_count': len(skills),
+                        },
+                    )
                 except (ValueError, AttributeError):
                     level_with_skills.append(node_data)
             levels_with_skills.append(level_with_skills)
@@ -345,6 +366,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'levels', 'depth', 'node_id'.
+
         """
         return await self.find_dependency_chain(career_node_id, max_depth)
 
@@ -361,6 +383,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'relationships', 'count'.
+
         """
         if self._knowledge is None:
             return {'relationships': [], 'count': 0}
@@ -372,7 +395,7 @@ class QueryEngine(EngineBase):
         seen: set[str] = set()
         all_relationships = []
         for rel in hidden + cross_domain:
-            key = f"{rel.get('source_id')}:{rel.get('target_id')}:{rel.get('relationship_type')}"
+            key = f'{rel.get("source_id")}:{rel.get("target_id")}:{rel.get("relationship_type")}'
             if key not in seen:
                 seen.add(key)
                 all_relationships.append(rel)
@@ -387,9 +410,7 @@ class QueryEngine(EngineBase):
 
     # ── Query: Reverse Dependencies ────────────────────────────────
 
-    async def find_reverse_dependencies(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> dict:
+    async def find_reverse_dependencies(self, node_id: UUID, max_depth: int = 5) -> dict:
         """Alias for find_reverse_dependency_chain."""
         return await self.find_reverse_dependency_chain(node_id, max_depth)
 
@@ -406,6 +427,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'bottlenecks', 'count'.
+
         """
         if self._traversal is None or self._graph is None:
             return {'bottlenecks': [], 'count': 0}
@@ -419,11 +441,13 @@ class QueryEngine(EngineBase):
                 dependents = await self._traversal.reverse_dependency_chain(nid, max_depth=2)
                 dependent_count = sum(len(level) for level in dependents)
                 if dependent_count > 0:
-                    bottlenecks.append({
-                        'node_id': str(nid),
-                        'title': node.get('title', ''),
-                        'dependent_count': dependent_count,
-                    })
+                    bottlenecks.append(
+                        {
+                            'node_id': str(nid),
+                            'title': node.get('title', ''),
+                            'dependent_count': dependent_count,
+                        },
+                    )
             except (ValueError, AttributeError):
                 pass
 
@@ -446,6 +470,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'orphans', 'count', 'total_nodes'.
+
         """
         if self._graph is None:
             return {'orphans': [], 'count': 0, 'total_nodes': 0}
@@ -480,6 +505,7 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'has_cycle' (bool), 'cycle' (path if found).
+
         """
         if self._traversal is None:
             return {'has_cycle': False, 'cycle': None}
@@ -510,13 +536,12 @@ class QueryEngine(EngineBase):
 
         Returns:
             Dict with 'nodes', 'edges', 'center_node_id', 'depth'.
+
         """
         if self._traversal is None:
             return {'nodes': [], 'edges': [], 'center_node_id': str(center_node_id), 'depth': depth}
 
-        subgraph_result = await self._traversal.subgraph(
-            center_node_id, depth, relationship_type
-        )
+        subgraph_result = await self._traversal.subgraph(center_node_id, depth, relationship_type)
         subgraph_result['query'] = 'subgraph'
         return subgraph_result
 

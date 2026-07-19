@@ -1,5 +1,4 @@
-"""
-Abstract embedding provider — pluggable interface for embedding models.
+"""Abstract embedding provider — pluggable interface for embedding models.
 
 All concrete providers (OpenAI, Gemini, Ollama) implement this interface,
 allowing the EmbeddingService to be provider-agnostic.

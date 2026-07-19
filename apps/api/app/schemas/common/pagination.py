@@ -50,7 +50,8 @@ class SortParams(BaseModel):
     def validate_sort_direction(cls, v: str) -> str:
         """Ensure sort direction is valid."""
         if v.lower() not in ('asc', 'desc'):
-            raise ValueError("sort_direction must be 'asc' or 'desc'")
+            msg = "sort_direction must be 'asc' or 'desc'"
+            raise ValueError(msg)
         return v.lower()
 
 

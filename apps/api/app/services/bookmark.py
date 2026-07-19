@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.models.bookmark import Bookmark
-from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.bookmark import Bookmark
+    from app.repositories import UnitOfWork
+    from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
 
@@ -50,7 +54,8 @@ class BookmarkService:
         # Verify node exists
         node = await self._uow.knowledge_nodes.get_by_id(node_id)
         if not node:
-            raise EntityNotFoundError('KnowledgeNode', node_id)
+            msg = 'KnowledgeNode'
+            raise EntityNotFoundError(msg, node_id)
 
         return await self._uow.bookmarks.toggle(
             user_id=user_id,

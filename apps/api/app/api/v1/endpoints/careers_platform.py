@@ -5,9 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request
-
-from app.api.deps import get_optional_user_id
+from fastapi import APIRouter, Query, Request
 
 router = APIRouter(prefix='/careers-platform', tags=['careers-platform'])
 

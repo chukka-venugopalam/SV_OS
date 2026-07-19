@@ -7,7 +7,7 @@ This module re-exports all repository classes from the canonical location
 at ``app.repositories``, which holds the actual implementations.
 """
 
-from app.repositories import (  # noqa: F401
+from app.repositories import (
     AuditLogRepository,
     BaseRepository,
     BookmarkRepository,
@@ -29,13 +29,13 @@ from app.repositories import (  # noqa: F401
     UserProgressRepository,
     UserRepository,
 )
-from app.repositories.errors import (  # noqa: F401
+from app.repositories.errors import (
     ConcurrentModificationError,
     DuplicateEntityError,
     EntityNotFoundError,
     RepositoryError,
 )
-from app.repositories.query_helpers import (  # noqa: F401
+from app.repositories.query_helpers import (
     CursorPageResult,
     FilterCondition,
     PageResult,

@@ -8,25 +8,25 @@ This module is kept for backward compatibility. New code should import directly 
 - ``app.infrastructure.runtime`` for PlatformRuntime
 """
 
-from app.events.bus import EventBus, EventEnvelope, EventMetadata  # noqa: F401
-from app.infrastructure.cache import (  # noqa: F401
+from app.events.bus import EventBus, EventEnvelope, EventMetadata
+from app.infrastructure.cache import (
     CacheBackend,
     InMemoryCache,
     RedisCache,
     get_cache_backend,
 )
-from app.infrastructure.container import (  # noqa: F401
+from app.infrastructure.container import (
     PlatformContainer,
     build_platform_container,
     get_platform_container,
 )
-from app.infrastructure.registries import (  # noqa: F401
+from app.infrastructure.registries import (
     CapabilityRegistry,
     EngineRegistry,
     PluginManifest,
     PluginRegistry,
 )
-from app.infrastructure.runtime import (  # noqa: F401
+from app.infrastructure.runtime import (
     PlatformRuntime,
     initialize_platform_runtime,
 )

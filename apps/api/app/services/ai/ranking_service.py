@@ -1,5 +1,4 @@
-"""
-Ranking Service — configurable multi-signal ranking for recommendations and search.
+"""Ranking Service — configurable multi-signal ranking for recommendations and search.
 
 Provides a flexible scoring framework where signals are computed
 and combined with configurable weights. Used internally by
@@ -16,8 +15,10 @@ from __future__ import annotations
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-from app.repositories import UnitOfWork
+if TYPE_CHECKING:
+    from app.repositories import UnitOfWork
 
 type SignalFunction = Callable[[object, dict], float]
 
@@ -62,13 +63,14 @@ class RankingService:
 
         Returns:
             self for chaining.
+
         """
         self._signals.append(
             {
                 'name': name,
                 'function': function,
                 'weight': weight,
-            }
+            },
         )
         return self
 
@@ -87,6 +89,7 @@ class RankingService:
 
         Returns:
             List of RankedResult sorted by score descending.
+
         """
         if not candidates:
             return []
@@ -117,7 +120,7 @@ class RankingService:
 
             node_id = str(
                 getattr(candidate, 'id', None)
-                or (candidate.get('id') if isinstance(candidate, dict) else '')
+                or (candidate.get('id') if isinstance(candidate, dict) else ''),
             )
 
             results.append(
@@ -125,7 +128,7 @@ class RankingService:
                     node_id=node_id,
                     score=round(composite, 4),
                     signals=signals,
-                )
+                ),
             )
 
         results.sort(key=lambda r: r.score, reverse=True)

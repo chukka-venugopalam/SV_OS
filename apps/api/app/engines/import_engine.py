@@ -20,7 +20,6 @@ Never mutates graph before validation passes.
 from __future__ import annotations
 
 import csv
-import hashlib
 import io
 import json
 from dataclasses import dataclass, field
@@ -34,6 +33,7 @@ from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
 class ImportStage(Enum):
     """Stages of the import pipeline."""
+
     PENDING = 'pending'
     LOADING = 'loading'
     PARSING = 'parsing'
@@ -52,6 +52,7 @@ class ImportStage(Enum):
 @dataclass
 class ImportJob:
     """Tracks the state of an import operation with progress."""
+
     import_id: UUID = field(default_factory=uuid4)
     stage: ImportStage = ImportStage.PENDING
     source: str = ''
@@ -78,6 +79,7 @@ class ImportJob:
 @dataclass
 class ConflictReport:
     """Report of conflicts between import data and existing graph."""
+
     has_conflicts: bool = False
     duplicate_slugs: list[str] = field(default_factory=list)
     duplicate_node_ids: list[str] = field(default_factory=list)
@@ -116,9 +118,17 @@ class ImportEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='validation', required=True, description='Validation engine'),
+            EngineDependency(
+                engine_name='validation',
+                required=True,
+                description='Validation engine',
+            ),
             EngineDependency(engine_name='graph', required=True, description='Graph engine'),
-            EngineDependency(engine_name='knowledge', required=False, description='Knowledge engine'),
+            EngineDependency(
+                engine_name='knowledge',
+                required=False,
+                description='Knowledge engine',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -132,13 +142,27 @@ class ImportEngine(EngineBase):
         self._committed_imports.clear()
 
     async def health_impl(self) -> EngineHealth:
-        active = sum(1 for j in self._jobs.values() if j.stage not in
-                     (ImportStage.COMMITTED, ImportStage.ROLLED_BACK, ImportStage.FAILED, ImportStage.CANCELLED))
+        active = sum(
+            1
+            for j in self._jobs.values()
+            if j.stage
+            not in (
+                ImportStage.COMMITTED,
+                ImportStage.ROLLED_BACK,
+                ImportStage.FAILED,
+                ImportStage.CANCELLED,
+            )
+        )
         return EngineHealth(
-            engine_name=self.engine_name, state=self.engine_state, healthy=True,
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
             message='Import engine is operational',
-            details={'total_jobs': len(self._jobs), 'active_jobs': active,
-                     'committed_imports': len(self._committed_imports)},
+            details={
+                'total_jobs': len(self._jobs),
+                'active_jobs': active,
+                'committed_imports': len(self._committed_imports),
+            },
         )
 
     async def validate_configuration(self) -> list[str]:
@@ -172,18 +196,25 @@ class ImportEngine(EngineBase):
 
         Returns:
             Summary with import_id, stage, and results.
+
         """
         # Backward compat: payload can contain 'source' key
         resolved_source = (payload or {}).get('source', source or 'api')
         job = ImportJob(
-            source=resolved_source, source_format=source_format,
-            raw_content=raw_content, payload=payload or {},
+            source=resolved_source,
+            source_format=source_format,
+            raw_content=raw_content,
+            payload=payload or {},
         )
         self._jobs[job.import_id] = job
 
         try:
             # Stage 1: LOAD
-            job.stage, job.progress, job.progress_message = ImportStage.LOADING, 0.05, 'Loading content'
+            job.stage, job.progress, job.progress_message = (
+                ImportStage.LOADING,
+                0.05,
+                'Loading content',
+            )
             job = await self._stage_load(job)
 
             if job.payload.get('nodes') or job.payload.get('edges'):
@@ -192,30 +223,53 @@ class ImportEngine(EngineBase):
 
             # Stage 2: PARSE (only if raw_content provided)
             if raw_content:
-                job.stage, job.progress, job.progress_message = ImportStage.PARSING, 0.15, 'Parsing content'
+                job.stage, job.progress, job.progress_message = (
+                    ImportStage.PARSING,
+                    0.15,
+                    'Parsing content',
+                )
                 job = await self._stage_parse(job)
 
             # Stage 3: VALIDATE
-            job.stage, job.progress, job.progress_message = ImportStage.VALIDATING, 0.30, 'Validating data'
+            job.stage, job.progress, job.progress_message = (
+                ImportStage.VALIDATING,
+                0.30,
+                'Validating data',
+            )
             job = await self._stage_validate(job)
 
             if job.validation_errors:
                 job.stage, job.progress = ImportStage.FAILED, 0.35
                 job.error_message = 'Validation failed — see errors'
                 job.completed_at = datetime.now(UTC).isoformat()
-                await self.publish_event('import.failed.v1', {'import_id': str(job.import_id), 'errors': job.validation_errors})
+                await self.publish_event(
+                    'import.failed.v1',
+                    {'import_id': str(job.import_id), 'errors': job.validation_errors},
+                )
                 return self._job_to_summary(job)
 
             # Stage 4: CONFLICT DETECTION
-            job.stage, job.progress, job.progress_message = ImportStage.CONFLICT_DETECTION, 0.45, 'Detecting conflicts'
+            job.stage, job.progress, job.progress_message = (
+                ImportStage.CONFLICT_DETECTION,
+                0.45,
+                'Detecting conflicts',
+            )
             job = await self._stage_conflict_detection(job)
 
             # Stage 5: PREVIEW
             if dry_run:
-                job.stage, job.progress, job.progress_message = ImportStage.PREVIEW, 0.55, 'Preview ready'
+                job.stage, job.progress, job.progress_message = (
+                    ImportStage.PREVIEW,
+                    0.55,
+                    'Preview ready',
+                )
                 job.dry_run_passed = True
             else:
-                job.stage, job.progress, job.progress_message = ImportStage.COMMITTING, 0.70, 'Committing data'
+                job.stage, job.progress, job.progress_message = (
+                    ImportStage.COMMITTING,
+                    0.70,
+                    'Committing data',
+                )
                 job = await self._stage_commit(job)
                 job.stage, job.progress = ImportStage.COMMITTED, 1.0
                 job.committed = True
@@ -223,7 +277,10 @@ class ImportEngine(EngineBase):
         except Exception as exc:
             job.stage, job.progress = ImportStage.FAILED, 0.0
             job.error_message = str(exc)
-            await self.publish_event('import.failed.v1', {'import_id': str(job.import_id), 'error': str(exc)})
+            await self.publish_event(
+                'import.failed.v1',
+                {'import_id': str(job.import_id), 'error': str(exc)},
+            )
 
         job.completed_at = datetime.now(UTC).isoformat()
         job.updated_at = datetime.now(UTC).isoformat()
@@ -253,7 +310,8 @@ class ImportEngine(EngineBase):
         if job.stage != ImportStage.FAILED:
             return {'error': f'Import {import_id} is not in failed state'}
         return await self.start_import(
-            payload=job.payload, source_format=job.source_format,
+            payload=job.payload,
+            source_format=job.source_format,
             source=job.source,
         )
 
@@ -270,7 +328,11 @@ class ImportEngine(EngineBase):
         try:
             if job.source_format == 'json':
                 parsed = json.loads(job.raw_content)
-                job.payload = parsed if isinstance(parsed, dict) else {'nodes': parsed if isinstance(parsed, list) else []}
+                job.payload = (
+                    parsed
+                    if isinstance(parsed, dict)
+                    else {'nodes': parsed if isinstance(parsed, list) else []}
+                )
             elif job.source_format == 'csv':
                 parsed = self._parse_csv(job.raw_content)
                 job.payload = parsed
@@ -278,7 +340,9 @@ class ImportEngine(EngineBase):
                 # Fallback: try comma-separated key=value pairs
                 job.payload = self._parse_simple_text(job.raw_content)
             else:
-                job.validation_errors.append({'message': f'Unsupported format: {job.source_format}'})
+                job.validation_errors.append(
+                    {'message': f'Unsupported format: {job.source_format}'},
+                )
         except json.JSONDecodeError as exc:
             job.validation_errors.append({'message': f'JSON parse error: {exc}'})
         except Exception as exc:
@@ -289,16 +353,17 @@ class ImportEngine(EngineBase):
         """Parse CSV content into nodes/edges."""
         nodes, edges = [], []
         reader = csv.DictReader(io.StringIO(content))
-        current_section = 'nodes'
         for row in reader:
             row_lower = {k.lower(): v for k, v in row.items()}
             if any('slug' in k or 'title' in k for k in row_lower):
-                nodes.append({
-                    'slug': row_lower.get('slug', row_lower.get('title', '')),
-                    'title': row_lower.get('title', ''),
-                    'node_type': row_lower.get('node_type', 'concept'),
-                    'difficulty': row_lower.get('difficulty', 'beginner'),
-                })
+                nodes.append(
+                    {
+                        'slug': row_lower.get('slug', row_lower.get('title', '')),
+                        'title': row_lower.get('title', ''),
+                        'node_type': row_lower.get('node_type', 'concept'),
+                        'difficulty': row_lower.get('difficulty', 'beginner'),
+                    },
+                )
             elif any('source' in k or 'target' in k for k in row_lower):
                 edges.append(row_lower)
         return {'nodes': nodes, 'edges': edges}
@@ -319,11 +384,13 @@ class ImportEngine(EngineBase):
                 elif key in ('edge', 'e'):
                     edge_parts = value.split('->')
                     if len(edge_parts) == 2:
-                        edges.append({
-                            'source_slug': edge_parts[0].strip(),
-                            'target_slug': edge_parts[1].strip(),
-                            'relationship_type': 'related_to',
-                        })
+                        edges.append(
+                            {
+                                'source_slug': edge_parts[0].strip(),
+                                'target_slug': edge_parts[1].strip(),
+                                'relationship_type': 'related_to',
+                            },
+                        )
         return {'nodes': nodes, 'edges': edges}
 
     async def _stage_validate(self, job: ImportJob) -> ImportJob:
@@ -333,7 +400,10 @@ class ImportEngine(EngineBase):
         try:
             result = await self._validation.validate_import(job.payload)
             job.validation_errors = result.get('errors', [])
-            job.validation_warnings = result.get('warnings', result.get('report', {}).get('warnings', []))
+            job.validation_warnings = result.get(
+                'warnings',
+                result.get('report', {}).get('warnings', []),
+            )
         except Exception as exc:
             job.validation_errors.append({'message': f'Validation error: {exc}'})
         return job
@@ -349,12 +419,14 @@ class ImportEngine(EngineBase):
             if slug:
                 existing = await self._graph.get_node_by_slug(slug)
                 if existing:
-                    job.conflicts.append({
-                        'type': 'slug_conflict',
-                        'slug': slug,
-                        'existing_id': existing.get('id'),
-                        'message': f'Node with slug "{slug}" already exists',
-                    })
+                    job.conflicts.append(
+                        {
+                            'type': 'slug_conflict',
+                            'slug': slug,
+                            'existing_id': existing.get('id'),
+                            'message': f'Node with slug "{slug}" already exists',
+                        },
+                    )
 
         return job
 
@@ -393,10 +465,15 @@ class ImportEngine(EngineBase):
             'committed_at': datetime.now(UTC).isoformat(),
         }
 
-        await self.publish_event('import.started.v1', {
-            'import_id': str(job.import_id), 'source': job.source,
-            'nodes_loaded': job.nodes_loaded, 'edges_loaded': job.edges_loaded,
-        })
+        await self.publish_event(
+            'import.started.v1',
+            {
+                'import_id': str(job.import_id),
+                'source': job.source,
+                'nodes_loaded': job.nodes_loaded,
+                'edges_loaded': job.edges_loaded,
+            },
+        )
 
         return job
 
@@ -424,8 +501,6 @@ class ImportEngine(EngineBase):
         if self._graph is None:
             return report
 
-        existing_slugs: set[str] = set()
-
         for node in payload.get('nodes', []):
             if isinstance(node, dict):
                 slug = node.get('slug', '')
@@ -439,7 +514,9 @@ class ImportEngine(EngineBase):
 
         report.has_conflicts = len(report.duplicate_slugs) > 0
         if report.has_conflicts:
-            report.warnings.append(f'{report.existing_nodes_overwritten} existing nodes would be overwritten')
+            report.warnings.append(
+                f'{report.existing_nodes_overwritten} existing nodes would be overwritten',
+            )
 
         return report
 

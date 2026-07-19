@@ -14,14 +14,12 @@ graph.  It provides:
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 from uuid import UUID
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.core.config import settings as app_settings
@@ -62,6 +60,11 @@ from app.services.learning_path_generator import LearningPathGenerator
 from app.services.progress_intelligence import ProgressIntelligence
 from app.services.recommendation_engine import RecommendationEngine
 from app.services.user import UserService
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 security_scheme = HTTPBearer(auto_error=False)
 
@@ -427,7 +430,6 @@ async def get_current_user(
 
     Raises ``HTTPException(401)`` if not authenticated.
     """
-
     user = await uow.users.get_by_id(current_user_id)
     if not user or not user.is_active:
         from fastapi import HTTPException, status

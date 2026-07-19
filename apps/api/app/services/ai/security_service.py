@@ -1,5 +1,4 @@
-"""
-Security Service — protects the AI layer from prompt injection, abuse, and leakage.
+"""Security Service — protects the AI layer from prompt injection, abuse, and leakage.
 
 Provides:
 - Prompt injection detection (heuristic + pattern-based)
@@ -15,10 +14,12 @@ import contextlib
 import os
 import re
 import time
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from structlog.stdlib import get_logger
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = get_logger(__name__)
 

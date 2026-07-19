@@ -1,5 +1,4 @@
-"""
-Similarity Service — concept similarity and relationship discovery.
+"""Similarity Service — concept similarity and relationship discovery.
 
 Provides:
 - Similar concepts to a given node (semantic + graph + popularity)
@@ -9,12 +8,15 @@ Provides:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
 from app.services.ai.semantic_search import SemanticSearchService
+
+if TYPE_CHECKING:
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -50,6 +52,7 @@ class SimilarityService:
 
         Returns:
             List of similar nodes with scores and reasons.
+
         """
         node = await self._uow.knowledge_nodes.get_by_id(node_id)
         if not node:
@@ -115,7 +118,7 @@ class SimilarityService:
 
         # 3. Compute composite scores
         scored = []
-        for _nid, data in candidates.items():
+        for data in candidates.values():
             composite = (
                 data.get('semantic_score', 0.0) * 0.40
                 + data['graph_score'] * 0.35
@@ -140,7 +143,7 @@ class SimilarityService:
                         'type': round(data['type_score'], 4),
                     },
                     'reasons': reasons[:2],  # Top 2 reasons
-                }
+                },
             )
 
         scored.sort(key=lambda x: x['score'], reverse=True)

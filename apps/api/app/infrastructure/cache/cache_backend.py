@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import MutableMapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
 
 
 class CacheBackend:
@@ -13,7 +15,12 @@ class CacheBackend:
     async def get(self, key: str) -> Any:  # pragma: no cover - interface
         raise NotImplementedError
 
-    async def set(self, key: str, value: Any, ttl_seconds: int | None = None) -> None:  # pragma: no cover - interface
+    async def set(
+        self,
+        key: str,
+        value: Any,
+        ttl_seconds: int | None = None,
+    ) -> None:  # pragma: no cover - interface
         raise NotImplementedError
 
     async def delete(self, key: str) -> None:  # pragma: no cover - interface
@@ -34,7 +41,9 @@ class InMemoryCache(CacheBackend):
         return value
 
     async def set(self, key: str, value: Any, ttl_seconds: int | None = None) -> None:
-        expires_at = None if ttl_seconds is None else asyncio.get_running_loop().time() + ttl_seconds
+        expires_at = (
+            None if ttl_seconds is None else asyncio.get_running_loop().time() + ttl_seconds
+        )
         self._store[key] = (value, expires_at)
 
     async def delete(self, key: str) -> None:
@@ -52,8 +61,7 @@ class RedisCache(CacheBackend):
         if self._client is None:
             return await self._fallback.get(key)
         try:
-            value = self._client.get(key)
-            return value
+            return self._client.get(key)
         except Exception:
             return await self._fallback.get(key)
 

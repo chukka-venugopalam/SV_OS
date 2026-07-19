@@ -112,8 +112,16 @@ class SearchEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for node data'),
-            EngineDependency(engine_name='knowledge', required=False, description='Knowledge engine for content indexing'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for node data',
+            ),
+            EngineDependency(
+                engine_name='knowledge',
+                required=False,
+                description='Knowledge engine for content indexing',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -148,7 +156,7 @@ class SearchEngine(EngineBase):
         filters: dict[str, Any] | None = None,
         page: int = 1,
         per_page: int = 20,
-        sort_by: str = 'relevance',
+        sort_by: str = 'relevance',  # noqa: ARG002
         sort_order: str = 'desc',
     ) -> dict:
         """Execute a search across graph nodes.
@@ -164,6 +172,7 @@ class SearchEngine(EngineBase):
 
         Returns:
             Dict with 'items', 'total', 'page', 'per_page', 'total_pages'.
+
         """
         if not query:
             return {'items': [], 'total': 0, 'page': page, 'per_page': per_page, 'total_pages': 0}
@@ -196,7 +205,7 @@ class SearchEngine(EngineBase):
         per_page = min(max(per_page, 1), 100)
         total_pages = max(1, (total + per_page - 1) // per_page) if total else 0
         offset = (page - 1) * per_page
-        items = [item for _, item in scored[offset:offset + per_page]]
+        items = [item for _, item in scored[offset : offset + per_page]]
 
         return {
             'items': items,
@@ -230,12 +239,21 @@ class SearchEngine(EngineBase):
 
     async def search_by_type(self, node_type: str, **kwargs) -> dict:
         """Search for nodes of a specific type."""
-        return await self.search(node_type, mode='fulltext', filters={'node_type': node_type}, **kwargs)
+        return await self.search(
+            node_type,
+            mode='fulltext',
+            filters={'node_type': node_type},
+            **kwargs,
+        )
 
     # ── Internal Scoring ──────────────────────────────────────────
 
     async def _score_node(
-        self, node: dict, query: str, mode: str, filters: dict[str, Any]
+        self,
+        node: dict,
+        query: str,
+        mode: str,
+        filters: dict[str, Any],  # noqa: ARG002
     ) -> float:
         """Compute a relevance score for a node given a query and mode."""
         title = node.get('title', '')

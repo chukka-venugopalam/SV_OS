@@ -1,5 +1,4 @@
-"""
-History models for AI-generated content — quiz, planner, and project history.
+"""History models for AI-generated content — quiz, planner, and project history.
 
 Stores generated quizzes, learning plans, and project roadmaps for
 reference, review, and iteration.
@@ -7,7 +6,7 @@ reference, review, and iteration.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -16,6 +15,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 from app.models.base import AppBaseMixin
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class QuizHistory(AppBaseMixin, Base):

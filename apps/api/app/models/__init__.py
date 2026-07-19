@@ -1,5 +1,4 @@
-"""
-SV-OS Domain Models — complete SQLAlchemy ORM layer.
+"""SV-OS Domain Models — complete SQLAlchemy ORM layer.
 
 All models inherit from ``AppBaseMixin`` (UUID PK, timestamps,
 soft-delete, version) and ``Base`` (declarative base from

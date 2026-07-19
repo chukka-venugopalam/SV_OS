@@ -1,5 +1,4 @@
-"""
-Embedding Service — generates and manages vector embeddings for the knowledge graph.
+"""Embedding Service — generates and manages vector embeddings for the knowledge graph.
 
 Provides:
 - Single and batch embedding generation
@@ -13,14 +12,18 @@ All API endpoints use this service rather than providers directly.
 from __future__ import annotations
 
 from enum import StrEnum
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
-from app.services.ai.providers.base import EmbeddingProvider, EmbeddingResult
 from app.services.ai.providers.ollama import OllamaEmbeddingProvider
 from app.services.ai.providers.openai import OpenAIEmbeddingProvider
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
+    from app.services.ai.providers.base import EmbeddingProvider, EmbeddingResult
 
 logger = get_logger(__name__)
 
@@ -78,6 +81,7 @@ class EmbeddingService:
 
         Returns:
             A list of floats representing the embedding vector.
+
         """
         if use_cache and text in self._cache:
             self._cache_hits += 1

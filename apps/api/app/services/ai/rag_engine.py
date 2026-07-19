@@ -1,5 +1,4 @@
-"""
-RAG Engine — Retrieval-Augmented Generation pipeline for grounded answers.
+"""RAG Engine — Retrieval-Augmented Generation pipeline for grounded answers.
 
 Pipeline:
 1. Question → embedding → Semantic Search (top K results)
@@ -11,14 +10,17 @@ Pipeline:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
 from app.services.ai.embedding_service import EmbeddingService
 from app.services.ai.hybrid_search import HybridSearchService
 from app.services.ai.semantic_search import SemanticSearchService
+
+if TYPE_CHECKING:
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -55,6 +57,7 @@ class RAGEngine:
 
         Returns:
             List of enriched knowledge node results with citations.
+
         """
         # 1. Generate query embedding
         try:
@@ -93,7 +96,7 @@ class RAGEngine:
                         'node': r['node'],
                         'similarity': r.get('similarity', 0),
                         'source': 'semantic',
-                    }
+                    },
                 )
 
         for r in hybrid_results.get('items', []):
@@ -105,7 +108,7 @@ class RAGEngine:
                         'node': r['node'],
                         'similarity': r.get('score', 0),
                         'source': 'hybrid',
-                    }
+                    },
                 )
 
         # Sort by similarity descending
@@ -130,7 +133,7 @@ class RAGEngine:
                         'node_type': node.get('node_type', ''),
                         'difficulty': node.get('difficulty', ''),
                     },
-                }
+                },
             )
 
         return results

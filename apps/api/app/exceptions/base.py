@@ -1,5 +1,4 @@
-"""
-Base exception hierarchy for the SV-OS API.
+"""Base exception hierarchy for the SV-OS API.
 
 Every custom exception extends ``AppError``, which carries
 a human-readable ``message``, an HTTP ``status_code``, and an

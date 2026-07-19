@@ -3,7 +3,7 @@
 New code should import directly from ``app.infrastructure.registries``.
 """
 
-from app.infrastructure.registries import (  # noqa: F401
+from app.infrastructure.registries import (
     CapabilityRegistry,
     EngineRegistry,
     PluginManifest,

@@ -1,5 +1,4 @@
-"""
-KnowledgeNode model — the central entity of the knowledge graph.
+"""KnowledgeNode model — the central entity of the knowledge graph.
 
 Every piece of knowledge (subject, concept, technology, tool) is stored
 in the ``knowledge_nodes`` table and typed via the ``node_type``

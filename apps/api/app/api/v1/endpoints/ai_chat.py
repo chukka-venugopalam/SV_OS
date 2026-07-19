@@ -1,5 +1,4 @@
-"""
-AI Chat API endpoints — complete conversational AI layer.
+"""AI Chat API endpoints — complete conversational AI layer.
 
 Endpoints:
 - POST /ai/chat — Non-streaming chat
@@ -21,24 +20,13 @@ Endpoints:
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import StreamingResponse
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_uow
-from app.repositories import UnitOfWork
-from app.schemas.chat import (
-    CareerMentorRequest,
-    ChatRequest,
-    PlannerRequest,
-    ProjectMentorRequest,
-    QuizRequest,
-    TutorRequest,
-    UpdateConversationRequest,
-)
 from app.schemas.response import build_success_response
 from app.services.ai.chat_service import ChatService
 from app.services.ai.domain_engines import (
@@ -48,6 +36,20 @@ from app.services.ai.domain_engines import (
     QuizEngine,
     TutorEngine,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
+    from app.schemas.chat import (
+        CareerMentorRequest,
+        ChatRequest,
+        PlannerRequest,
+        ProjectMentorRequest,
+        QuizRequest,
+        TutorRequest,
+        UpdateConversationRequest,
+    )
 
 logger = get_logger(__name__)
 
@@ -268,7 +270,7 @@ async def list_conversations(
                 'message_count': row[3],
                 'is_archived': row[4],
                 'created_at': row[5].isoformat() if row[5] else None,
-            }
+            },
         )
 
     count = await uow.session.execute(
@@ -346,7 +348,8 @@ async def get_conversation_messages(
     ]
 
     return build_success_response(
-        data={'items': messages, 'count': len(messages)}, message='Messages retrieved'
+        data={'items': messages, 'count': len(messages)},
+        message='Messages retrieved',
     )
 
 
@@ -382,14 +385,13 @@ async def delete_conversation(
     session_id: UUID,
     current_user_id: Annotated[UUID, Depends(get_current_user_id)],
     uow: Annotated[UnitOfWork, Depends(get_uow)],
-):
+) -> None:
     """Soft-delete a conversation."""
     await uow.session.execute(
         'UPDATE chat_sessions SET is_deleted = true WHERE id = :sid AND user_id = :uid',
         {'sid': session_id, 'uid': current_user_id},
     )
     await uow.flush()
-    return None
 
 
 # ── AI Preferences ─────────────────────────────────────────────────
@@ -457,14 +459,16 @@ async def update_ai_preferences(
             set_clause = ', '.join(f'{k} = :{k}' for k in updates)
             updates['uid'] = current_user_id
             await uow.session.execute(
-                f'UPDATE ai_preferences SET {set_clause} WHERE user_id = :uid', updates
+                f'UPDATE ai_preferences SET {set_clause} WHERE user_id = :uid',
+                updates,
             )
         else:
             updates['user_id'] = current_user_id
             cols = ', '.join(updates.keys())
             vals = ', '.join(f':{k}' for k in updates)
             await uow.session.execute(
-                f'INSERT INTO ai_preferences ({cols}) VALUES ({vals})', updates
+                f'INSERT INTO ai_preferences ({cols}) VALUES ({vals})',
+                updates,
             )
         await uow.flush()
 

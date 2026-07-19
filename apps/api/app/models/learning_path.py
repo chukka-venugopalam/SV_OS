@@ -1,5 +1,4 @@
-"""
-LearningPath and LearningSession models.
+"""LearningPath and LearningSession models.
 
 A LearningPath is a curated sequence of knowledge nodes (like a
 playlist or curriculum).  A LearningSession tracks a single study
@@ -8,9 +7,7 @@ session within a path.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -23,6 +20,9 @@ from app.models.enums import Difficulty, LearningStatus, pg_enum
 from app.utils.date_utils import utc_now
 
 if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
     from app.models.user import User
 

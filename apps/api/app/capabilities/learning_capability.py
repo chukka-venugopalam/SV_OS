@@ -6,8 +6,10 @@ No business logic — delegates to engines.
 
 from __future__ import annotations
 
-from uuid import UUID
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class LearningPathCapability:
@@ -66,7 +68,11 @@ class LearningPathCapability:
             return {'error': 'Learning path engine not available'}
         return await self._learning_path.export_path(path_id, format=format)
 
-    async def generate_career_roadmap(self, career_node_id: UUID, user_id: UUID | None = None) -> dict:
+    async def generate_career_roadmap(
+        self,
+        career_node_id: UUID,
+        user_id: UUID | None = None,
+    ) -> dict:
         if self._learning_path is None:
             return {'error': 'Learning path engine not available'}
         return await self._learning_path.generate_career_roadmap(career_node_id, user_id)
@@ -81,7 +87,11 @@ class LearningPathCapability:
             return {'error': 'Learning path engine not available'}
         return await self._learning_path.generate_daily_roadmap(goal_node_id, user_id)
 
-    async def generate_weekly_roadmap(self, goal_node_id: UUID, user_id: UUID | None = None) -> dict:
+    async def generate_weekly_roadmap(
+        self,
+        goal_node_id: UUID,
+        user_id: UUID | None = None,
+    ) -> dict:
         if self._learning_path is None:
             return {'error': 'Learning path engine not available'}
         return await self._learning_path.generate_weekly_roadmap(goal_node_id, user_id)

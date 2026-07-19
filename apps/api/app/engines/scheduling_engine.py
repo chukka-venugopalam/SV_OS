@@ -13,15 +13,18 @@ Supports:
 from __future__ import annotations
 
 import asyncio
-import math
+import contextlib
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any, Callable
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Any
+from uuid import uuid4
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class JobStatus(Enum):
@@ -64,15 +67,22 @@ class ScheduledJob:
     next_run_at: str | None = None
 
 
-CRON_PATTERN = re.compile(r'^(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?$')
+CRON_PATTERN = re.compile(
+    r'^(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?\s+(\*|\d+)(/(\d+))?$',
+)
 
 
 def _parse_cron(expr: str) -> dict[str, set[int]]:
     """Parse a cron expression into sets of allowed values."""
     parts = expr.strip().split()
     if len(parts) != 5:
-        return {'minute': set(range(60)), 'hour': set(range(24)), 'day': set(range(1, 32)),
-                'month': set(range(1, 13)), 'dow': set(range(7))}
+        return {
+            'minute': set(range(60)),
+            'hour': set(range(24)),
+            'day': set(range(1, 32)),
+            'month': set(range(1, 13)),
+            'dow': set(range(7)),
+        }
     fields = ['minute', 'hour', 'day', 'month', 'dow']
     ranges = [(0, 59), (0, 23), (1, 31), (1, 12), (0, 6)]
     result = {}
@@ -122,14 +132,14 @@ class SchedulingEngine(EngineBase):
         self._running = False
         if self._worker_task:
             self._worker_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._worker_task
-            except asyncio.CancelledError:
-                pass
 
     async def health_impl(self) -> EngineHealth:
         return EngineHealth(
-            engine_name=self.engine_name, state=self.engine_state, healthy=True,
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
             message='Scheduler is operational',
             details={
                 'total_jobs': len(self._jobs),
@@ -146,27 +156,63 @@ class SchedulingEngine(EngineBase):
     def register_handler(self, name: str, handler: Callable) -> None:
         self._handlers[name] = handler
 
-    async def schedule_once(self, name: str, delay_seconds: int = 0, handler_name: str = '', payload: dict | None = None, priority: JobPriority = JobPriority.NORMAL) -> dict:
+    async def schedule_once(
+        self,
+        name: str,
+        delay_seconds: int = 0,
+        handler_name: str = '',
+        payload: dict | None = None,
+        priority: JobPriority = JobPriority.NORMAL,
+    ) -> dict:
         now = datetime.now(UTC)
         scheduled = now + timedelta(seconds=delay_seconds)
-        job = ScheduledJob(name=name, job_type='once', delay_seconds=delay_seconds,
-                           priority=priority, handler_name=handler_name, payload=payload or {},
-                           scheduled_at=scheduled.isoformat())
+        job = ScheduledJob(
+            name=name,
+            job_type='once',
+            delay_seconds=delay_seconds,
+            priority=priority,
+            handler_name=handler_name,
+            payload=payload or {},
+            scheduled_at=scheduled.isoformat(),
+        )
         self._jobs[job.id] = job
         await self.publish_event('scheduler.job.created.v1', {'job_id': job.id, 'name': name})
         return self._job_to_dict(job)
 
-    async def schedule_recurring(self, name: str, interval_seconds: int = 3600, handler_name: str = '', payload: dict | None = None) -> dict:
+    async def schedule_recurring(
+        self,
+        name: str,
+        interval_seconds: int = 3600,
+        handler_name: str = '',
+        payload: dict | None = None,
+    ) -> dict:
         now = datetime.now(UTC)
-        job = ScheduledJob(name=name, job_type='recurring', interval_seconds=interval_seconds,
-                           handler_name=handler_name, payload=payload or {},
-                           scheduled_at=now.isoformat(), next_run_at=now.isoformat())
+        job = ScheduledJob(
+            name=name,
+            job_type='recurring',
+            interval_seconds=interval_seconds,
+            handler_name=handler_name,
+            payload=payload or {},
+            scheduled_at=now.isoformat(),
+            next_run_at=now.isoformat(),
+        )
         self._jobs[job.id] = job
         return self._job_to_dict(job)
 
-    async def schedule_cron(self, name: str, cron_expression: str, handler_name: str = '', payload: dict | None = None) -> dict:
-        job = ScheduledJob(name=name, job_type='cron', cron_expression=cron_expression,
-                           handler_name=handler_name, payload=payload or {})
+    async def schedule_cron(
+        self,
+        name: str,
+        cron_expression: str,
+        handler_name: str = '',
+        payload: dict | None = None,
+    ) -> dict:
+        job = ScheduledJob(
+            name=name,
+            job_type='cron',
+            cron_expression=cron_expression,
+            handler_name=handler_name,
+            payload=payload or {},
+        )
         self._jobs[job.id] = job
         return self._job_to_dict(job)
 
@@ -221,20 +267,28 @@ class SchedulingEngine(EngineBase):
             'failed': sum(1 for j in self._jobs.values() if j.status == JobStatus.FAILED),
             'cancelled': sum(1 for j in self._jobs.values() if j.status == JobStatus.CANCELLED),
             'paused': sum(1 for j in self._jobs.values() if j.status == JobStatus.PAUSED),
-            'avg_duration_ms': sum(j.duration_ms for j in self._jobs.values() if j.status == JobStatus.COMPLETED) / max(sum(1 for j in self._jobs.values() if j.status == JobStatus.COMPLETED), 1),
+            'avg_duration_ms': sum(
+                j.duration_ms for j in self._jobs.values() if j.status == JobStatus.COMPLETED
+            )
+            / max(sum(1 for j in self._jobs.values() if j.status == JobStatus.COMPLETED), 1),
         }
 
     async def get_job_history(self, limit: int = 50) -> list[dict]:
-        return [self._job_to_dict(j) for j in sorted(self._jobs.values(), key=lambda j: j.created_at, reverse=True)[:limit]]
+        return [
+            self._job_to_dict(j)
+            for j in sorted(self._jobs.values(), key=lambda j: j.created_at, reverse=True)[:limit]
+        ]
 
     async def _worker_loop(self) -> None:
         while self._running:
             try:
                 now = datetime.now(UTC)
-                for job_id, job in list(self._jobs.items()):
+                for _job_id, job in list(self._jobs.items()):
                     if job.status not in (JobStatus.PENDING, JobStatus.FAILED):
                         continue
-                    scheduled = datetime.fromisoformat(job.scheduled_at) if job.scheduled_at else now
+                    scheduled = (
+                        datetime.fromisoformat(job.scheduled_at) if job.scheduled_at else now
+                    )
                     if scheduled <= now:
                         await self._execute_job(job)
                 await asyncio.sleep(1)
@@ -257,7 +311,10 @@ class SchedulingEngine(EngineBase):
                     handler(job.payload)
             job.status = JobStatus.COMPLETED
             job.completed_at = datetime.now(UTC).isoformat()
-            await self.publish_event('scheduler.job.completed.v1', {'job_id': job.id, 'name': job.name})
+            await self.publish_event(
+                'scheduler.job.completed.v1',
+                {'job_id': job.id, 'name': job.name},
+            )
 
             if job.job_type in ('recurring', 'cron'):
                 interval = job.interval_seconds or 3600
@@ -276,18 +333,30 @@ class SchedulingEngine(EngineBase):
             else:
                 job.status = JobStatus.FAILED
                 job.last_error = str(exc)
-                await self.publish_event('scheduler.job.failed.v1', {'job_id': job.id, 'name': job.name, 'error': str(exc)})
+                await self.publish_event(
+                    'scheduler.job.failed.v1',
+                    {'job_id': job.id, 'name': job.name, 'error': str(exc)},
+                )
 
         job.duration_ms = (datetime.now(UTC) - start).total_seconds() * 1000
 
     def _job_to_dict(self, job: ScheduledJob) -> dict:
         return {
-            'id': job.id, 'name': job.name, 'job_type': job.job_type,
-            'cron_expression': job.cron_expression, 'interval_seconds': job.interval_seconds,
-            'priority': job.priority.value, 'max_retries': job.max_retries,
-            'retry_count': job.retry_count, 'status': job.status.value,
-            'handler_name': job.handler_name, 'payload': job.payload,
-            'created_at': job.created_at, 'scheduled_at': job.scheduled_at,
-            'started_at': job.started_at, 'completed_at': job.completed_at,
-            'last_error': job.last_error, 'duration_ms': job.duration_ms,
+            'id': job.id,
+            'name': job.name,
+            'job_type': job.job_type,
+            'cron_expression': job.cron_expression,
+            'interval_seconds': job.interval_seconds,
+            'priority': job.priority.value,
+            'max_retries': job.max_retries,
+            'retry_count': job.retry_count,
+            'status': job.status.value,
+            'handler_name': job.handler_name,
+            'payload': job.payload,
+            'created_at': job.created_at,
+            'scheduled_at': job.scheduled_at,
+            'started_at': job.started_at,
+            'completed_at': job.completed_at,
+            'last_error': job.last_error,
+            'duration_ms': job.duration_ms,
         }

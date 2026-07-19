@@ -40,7 +40,7 @@ class TestDegreeCentrality:
     """Test degree_centrality."""
 
     @pytest.mark.asyncio
-    async def test_degree_centrality_executes_query(self, analytics_service, mock_uow):
+    async def test_degree_centrality_executes_query(self, analytics_service, mock_uow) -> None:
         """Test degree centrality calls the database."""
         mock_result = MagicMock()
         mock_result.all.return_value = []
@@ -52,7 +52,9 @@ class TestDegreeCentrality:
         mock_uow.session.execute.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_degree_centrality_returns_ranked_results(self, analytics_service, mock_uow):
+    async def test_degree_centrality_returns_ranked_results(
+        self, analytics_service, mock_uow
+    ) -> None:
         """Test degree centrality returns properly formatted results."""
         row1 = MagicMock()
         row1.id = uuid4()
@@ -84,7 +86,7 @@ class TestIsolatedNodes:
     """Test isolated_nodes."""
 
     @pytest.mark.asyncio
-    async def test_isolated_nodes_returns_nodes(self, analytics_service, mock_uow):
+    async def test_isolated_nodes_returns_nodes(self, analytics_service, mock_uow) -> None:
         """Test isolated nodes returns nodes with no edges."""
         mock_result = MagicMock()
         mock_result.scalars.return_value.all.return_value = []
@@ -95,7 +97,7 @@ class TestIsolatedNodes:
         assert isinstance(result, list)
 
     @pytest.mark.asyncio
-    async def test_isolated_nodes_empty(self, analytics_service, mock_uow):
+    async def test_isolated_nodes_empty(self, analytics_service, mock_uow) -> None:
         """Test isolated nodes returns empty list when none are isolated."""
         mock_result = MagicMock()
         mock_result.scalars.return_value.all.return_value = []
@@ -113,7 +115,7 @@ class TestPrerequisiteBottlenecks:
     """Test prerequisite_bottlenecks."""
 
     @pytest.mark.asyncio
-    async def test_bottlenecks_executes_query(self, analytics_service, mock_uow):
+    async def test_bottlenecks_executes_query(self, analytics_service, mock_uow) -> None:
         """Test bottlenecks calls the database."""
         mock_result = MagicMock()
         mock_result.all.return_value = []
@@ -125,7 +127,7 @@ class TestPrerequisiteBottlenecks:
         mock_uow.session.execute.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_bottlenecks_returns_dependent_count(self, analytics_service, mock_uow):
+    async def test_bottlenecks_returns_dependent_count(self, analytics_service, mock_uow) -> None:
         """Test bottleneck results include dependent_count."""
         row1 = MagicMock()
         row1.id = uuid4()
@@ -156,7 +158,7 @@ class TestConceptDepth:
     """Test concept_depth_distribution."""
 
     @pytest.mark.asyncio
-    async def test_concept_depth_no_nodes(self, analytics_service, mock_uow):
+    async def test_concept_depth_no_nodes(self, analytics_service, mock_uow) -> None:
         """Test depth distribution returns zeros when no nodes."""
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[])
         mock_uow.graph.load_prerequisites = AsyncMock(return_value=[])
@@ -169,7 +171,7 @@ class TestConceptDepth:
         assert result['root_node_count'] == 0
 
     @pytest.mark.asyncio
-    async def test_concept_depth_with_roots(self, analytics_service, mock_uow):
+    async def test_concept_depth_with_roots(self, analytics_service, mock_uow) -> None:
         """Test depth identifies root nodes correctly."""
         root_node = MagicMock()
         root_node.id = uuid4()
@@ -190,7 +192,7 @@ class TestGraphDensity:
     """Test graph_density."""
 
     @pytest.mark.asyncio
-    async def test_density_single_node(self, analytics_service, mock_uow):
+    async def test_density_single_node(self, analytics_service, mock_uow) -> None:
         """Test density is 0 when only one node."""
         mock_uow.knowledge_nodes.count = AsyncMock(return_value=1)
         mock_uow.knowledge_edges.count = AsyncMock(return_value=0)
@@ -201,7 +203,7 @@ class TestGraphDensity:
         assert result['density'] == 0.0
 
     @pytest.mark.asyncio
-    async def test_density_two_nodes_one_edge(self, analytics_service, mock_uow):
+    async def test_density_two_nodes_one_edge(self, analytics_service, mock_uow) -> None:
         """Test density with two nodes and one edge."""
         mock_uow.knowledge_nodes.count = AsyncMock(return_value=2)
         mock_uow.knowledge_edges.count = AsyncMock(return_value=1)
@@ -214,7 +216,7 @@ class TestGraphDensity:
         assert result['density'] == 1.0
 
     @pytest.mark.asyncio
-    async def test_density_sparse_graph(self, analytics_service, mock_uow):
+    async def test_density_sparse_graph(self, analytics_service, mock_uow) -> None:
         """Test density for a sparse graph."""
         mock_uow.knowledge_nodes.count = AsyncMock(return_value=10)
         mock_uow.knowledge_edges.count = AsyncMock(return_value=5)
@@ -235,7 +237,7 @@ class TestBranchingFactor:
     """Test average_branching_factor."""
 
     @pytest.mark.asyncio
-    async def test_branching_factor_returns_histogram(self, analytics_service, mock_uow):
+    async def test_branching_factor_returns_histogram(self, analytics_service, mock_uow) -> None:
         """Test branching factor returns histogram structure."""
         mock_result = MagicMock()
         mock_result.scalar.return_value = 2.0
@@ -258,7 +260,7 @@ class TestGraphStatistics:
     """Test graph_statistics (combined metrics)."""
 
     @pytest.mark.asyncio
-    async def test_graph_statistics_combines_metrics(self, analytics_service, mock_uow):
+    async def test_graph_statistics_combines_metrics(self, analytics_service, mock_uow) -> None:
         """Test graph statistics combines density, branching, and depth."""
         mock_uow.knowledge_nodes.count = AsyncMock(return_value=10)
         mock_uow.knowledge_edges.count = AsyncMock(return_value=5)

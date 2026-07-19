@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import or_, select
 
@@ -11,6 +10,9 @@ from app.models.user import User
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
 from app.repositories.query_helpers import PageResult, SortDirection
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class UserRepository(BaseRepository[User]):
@@ -81,7 +83,8 @@ class UserRepository(BaseRepository[User]):
         if not update_data:
             user = await self.get_by_id(user_id)
             if not user:
-                raise EntityNotFoundError('User', user_id)
+                msg = 'User'
+                raise EntityNotFoundError(msg, user_id)
             return user
 
         return await self.update(user_id, **update_data)

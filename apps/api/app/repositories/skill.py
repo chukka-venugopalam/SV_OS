@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
 from app.models.skill import Skill, SkillRelationship
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class SkillRepository(BaseRepository[Skill]):
@@ -28,7 +31,8 @@ class SkillRepository(BaseRepository[Skill]):
         """Find by name or raise ``EntityNotFoundError``."""
         skill = await self.find_by_name(name)
         if not skill:
-            raise EntityNotFoundError('Skill', name)
+            msg = 'Skill'
+            raise EntityNotFoundError(msg, name)
         return skill
 
     async def find_by_category(
@@ -67,7 +71,7 @@ class SkillRepository(BaseRepository[Skill]):
             select(Skill.category)
             .where(
                 Skill.category.isnot(None),
-                Skill.is_deleted == False,  # noqa: E712
+                not Skill.is_deleted,
             )
             .distinct()
             .order_by(Skill.category)
@@ -82,7 +86,7 @@ class SkillRepository(BaseRepository[Skill]):
                 Skill.category,
                 func.count().label('count'),
             )
-            .where(Skill.is_deleted == False)  # noqa: E712
+            .where(not Skill.is_deleted)
             .group_by(Skill.category)
             .order_by(Skill.category)
         )
@@ -100,12 +104,12 @@ class SkillRepository(BaseRepository[Skill]):
         if direction == 'incoming':
             stmt = select(SkillRelationship).where(
                 SkillRelationship.target_skill_id == skill_id,
-                SkillRelationship.is_deleted == False,  # noqa: E712
+                not SkillRelationship.is_deleted,
             )
         else:
             stmt = select(SkillRelationship).where(
                 SkillRelationship.source_skill_id == skill_id,
-                SkillRelationship.is_deleted == False,  # noqa: E712
+                not SkillRelationship.is_deleted,
             )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -162,7 +166,7 @@ class SkillRepository(BaseRepository[Skill]):
         stmt = select(SkillRelationship).where(
             SkillRelationship.source_skill_id.in_(skill_ids),
             SkillRelationship.target_skill_id.in_(skill_ids),
-            SkillRelationship.is_deleted == False,  # noqa: E712
+            not SkillRelationship.is_deleted,
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

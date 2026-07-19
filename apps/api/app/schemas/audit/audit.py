@@ -8,10 +8,13 @@ create/update contracts needed for the general case).
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
 
 
 class AuditLogEntry(BaseModel):
@@ -49,7 +52,9 @@ class AuditLogDetail(BaseModel):
         examples=['user.login', 'node.create', 'progress.update'],
     )
     entity_type: str | None = Field(
-        default=None, description='Type of entity affected', max_length=50
+        default=None,
+        description='Type of entity affected',
+        max_length=50,
     )
     entity_id: UUID | None = Field(default=None, description='UUID of the entity affected')
     user_id: UUID | None = Field(default=None, description='User who performed the action')
@@ -66,18 +71,24 @@ class AuditLogFilter(BaseModel):
     """
 
     action: str | None = Field(
-        default=None, max_length=100, description='Filter by action identifier'
+        default=None,
+        max_length=100,
+        description='Filter by action identifier',
     )
     entity_type: str | None = Field(
-        default=None, max_length=50, description='Filter by entity type'
+        default=None,
+        max_length=50,
+        description='Filter by entity type',
     )
     entity_id: UUID | None = Field(default=None, description='Filter by entity UUID')
     user_id: UUID | None = Field(default=None, description='Filter by user UUID')
     start_date: datetime | None = Field(
-        default=None, description='Include events after this timestamp'
+        default=None,
+        description='Include events after this timestamp',
     )
     end_date: datetime | None = Field(
-        default=None, description='Include events before this timestamp'
+        default=None,
+        description='Include events before this timestamp',
     )
 
 

@@ -1,16 +1,17 @@
-"""
-PasswordResetRepository — data access for password reset tokens.
-"""
+"""PasswordResetRepository — data access for password reset tokens."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 
 from app.models.password_reset import PasswordResetToken
 from app.repositories.base import BaseRepository
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class PasswordResetRepository(BaseRepository[PasswordResetToken]):
@@ -23,8 +24,8 @@ class PasswordResetRepository(BaseRepository[PasswordResetToken]):
         stmt = (
             select(self.model)
             .where(self.model.token_hash == token_hash)
-            .where(self.model.is_used == False)  # noqa: E712
-            .where(self.model.is_deleted == False)  # noqa: E712
+            .where(not self.model.is_used)
+            .where(not self.model.is_deleted)
             .where(self.model.expires_at > datetime.now(UTC))
         )
         result = await self.session.execute(stmt)
@@ -45,8 +46,8 @@ class PasswordResetRepository(BaseRepository[PasswordResetToken]):
         stmt = (
             select(self.model)
             .where(self.model.user_id == user_id)
-            .where(self.model.is_used == False)  # noqa: E712
-            .where(self.model.is_deleted == False)  # noqa: E712
+            .where(not self.model.is_used)
+            .where(not self.model.is_deleted)
         )
         result = await self.session.execute(stmt)
         tokens = list(result.scalars().all())

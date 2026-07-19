@@ -16,9 +16,8 @@ No predictive analytics. No AI. Pure deterministic aggregation.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
-from uuid import UUID
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
@@ -26,6 +25,7 @@ from app.engines.base import EngineBase, EngineDependency, EngineHealth
 @dataclass
 class AnalyticsSnapshot:
     """A point-in-time snapshot of platform analytics."""
+
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     graph: dict[str, Any] = field(default_factory=dict)
     learning: dict[str, Any] = field(default_factory=dict)
@@ -78,7 +78,9 @@ class AnalyticsEngine(EngineBase):
 
     async def health_impl(self) -> EngineHealth:
         return EngineHealth(
-            engine_name=self.engine_name, state=self.engine_state, healthy=True,
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
             message='Analytics engine is operational',
             details={'snapshots_taken': len(self._snapshots)},
         )
@@ -110,14 +112,18 @@ class AnalyticsEngine(EngineBase):
             # Type counts
             type_counts: dict[str, int] = {}
             for node in nodes.values():
-                ntype = getattr(node, 'node_type', None) or (node.get('node_type') if isinstance(node, dict) else 'unknown')
+                ntype = getattr(node, 'node_type', None) or (
+                    node.get('node_type') if isinstance(node, dict) else 'unknown'
+                )
                 type_counts[str(ntype)] = type_counts.get(str(ntype), 0) + 1
             stats['type_counts'] = type_counts
 
             # Relationship counts
             rel_counts: dict[str, int] = {}
             for edge in edges.values():
-                rtype = getattr(edge, 'relationship_type', None) or (edge.get('relationship_type') if isinstance(edge, dict) else 'unknown')
+                rtype = getattr(edge, 'relationship_type', None) or (
+                    edge.get('relationship_type') if isinstance(edge, dict) else 'unknown'
+                )
                 rel_counts[str(rtype)] = rel_counts.get(str(rtype), 0) + 1
             stats['relationship_counts'] = rel_counts
 
@@ -125,9 +131,11 @@ class AnalyticsEngine(EngineBase):
             if stats['node_count'] > 1:
                 max_edges = stats['node_count'] * (stats['node_count'] - 1)
                 stats['density'] = round(stats['edge_count'] / max_edges, 4) if max_edges else 0.0
-                stats['avg_degree'] = round(
-                    (stats['edge_count'] * 2) / stats['node_count'], 2
-                ) if stats['node_count'] else 0.0
+                stats['avg_degree'] = (
+                    round((stats['edge_count'] * 2) / stats['node_count'], 2)
+                    if stats['node_count']
+                    else 0.0
+                )
 
         return stats
 

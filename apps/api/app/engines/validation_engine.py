@@ -22,14 +22,13 @@ Supports both:
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from typing import Any, Protocol
 from uuid import UUID
 
 from app.domain.validation_report import ValidationReport
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
-
 
 # ── Validator Protocol ─────────────────────────────────────────────
 
@@ -52,6 +51,7 @@ class Validator(Protocol):
 @dataclass
 class ValidationResult:
     """Result from a single validation check."""
+
     name: str
     passed: bool
     errors: list[dict] = field(default_factory=list)
@@ -62,6 +62,7 @@ class ValidationResult:
 @dataclass
 class GraphHealthScore:
     """Overall health assessment of a knowledge graph."""
+
     score: float  # 0.0 (worst) to 1.0 (best)
     node_count: int = 0
     edge_count: int = 0
@@ -93,12 +94,14 @@ class DuplicateEdgeValidator:
             rel_type = str(item.get('relationship_type', ''))
             key = (source, target, rel_type)
             if key in seen:
-                errors.append({
-                    'field': 'edge',
-                    'index': i,
-                    'message': f'Duplicate edge: {source} -> {target} ({rel_type})',
-                    'value': str(key),
-                })
+                errors.append(
+                    {
+                        'field': 'edge',
+                        'index': i,
+                        'message': f'Duplicate edge: {source} -> {target} ({rel_type})',
+                        'value': str(key),
+                    },
+                )
             seen.add(key)
         return errors
 
@@ -129,10 +132,8 @@ class CycleDetectionValidator:
         node_ids: dict[str, UUID] = {}
         for node in nodes:
             if isinstance(node, dict) and node.get('id'):
-                try:
+                with contextlib.suppress(ValueError, AttributeError):
                     node_ids[str(node['id'])] = UUID(str(node['id']))
-                except (ValueError, AttributeError):
-                    pass
 
         adj: dict[UUID, list[UUID]] = {nid: [] for nid in node_ids.values()}
         for edge in edges:
@@ -173,13 +174,15 @@ class CycleDetectionValidator:
                 dfs(nid, [])
 
         for i, cycle in enumerate(self._found_cycles[:10]):  # Limit to 10 reported cycles
-            errors.append({
-                'field': 'graph',
-                'index': i,
-                'message': f'Cycle detected: {" -> ".join(str(n) for n in cycle)}',
-                'cycle': [str(n) for n in cycle],
-                'severity': 'critical',
-            })
+            errors.append(
+                {
+                    'field': 'graph',
+                    'index': i,
+                    'message': f'Cycle detected: {" -> ".join(str(n) for n in cycle)}',
+                    'cycle': [str(n) for n in cycle],
+                    'severity': 'critical',
+                },
+            )
 
         return errors
 
@@ -251,12 +254,14 @@ class DisconnectedGraphValidator:
             # Sort by size descending
             components.sort(key=len, reverse=True)
             for i, comp in enumerate(components[1:], 1):
-                warnings.append({
-                    'field': 'graph',
-                    'message': f'Disconnected component {i}: {len(comp)} nodes are not connected to the main graph',
-                    'component_size': len(comp),
-                    'severity': 'warning',
-                })
+                warnings.append(
+                    {
+                        'field': 'graph',
+                        'message': f'Disconnected component {i}: {len(comp)} nodes are not connected to the main graph',  # noqa: E501
+                        'component_size': len(comp),
+                        'severity': 'warning',
+                    },
+                )
 
         return warnings
 
@@ -295,12 +300,14 @@ class OrphanNodeValidator:
                     nid = UUID(str(node['id']))
                     if nid not in connected_nodes:
                         title = node.get('title', str(nid))
-                        warnings.append({
-                            'field': 'node',
-                            'message': f'Orphan node: {title} ({nid}) has no edges',
-                            'node_id': str(nid),
-                            'severity': 'warning',
-                        })
+                        warnings.append(
+                            {
+                                'field': 'node',
+                                'message': f'Orphan node: {title} ({nid}) has no edges',
+                                'node_id': str(nid),
+                                'severity': 'warning',
+                            },
+                        )
                 except (ValueError, AttributeError):
                     pass
 
@@ -352,14 +359,15 @@ class DecompositionValidator:
             return False
 
         for nid in list(dec_adj.keys()):
-            if nid not in visited:
-                if dfs(nid):
-                    errors.append({
+            if nid not in visited and dfs(nid):
+                errors.append(
+                    {
                         'field': 'decomposition',
                         'message': f'Cycle detected in decomposition tree involving node {nid}',
                         'severity': 'critical',
-                    })
-                    break
+                    },
+                )
+                break
 
         return errors
 
@@ -379,7 +387,11 @@ class ValidationEngine(EngineBase):
         get_validation_diagnostics
     """
 
-    def __init__(self, graph_engine: Any | None = None, knowledge_engine: Any | None = None) -> None:
+    def __init__(
+        self,
+        graph_engine: Any | None = None,
+        knowledge_engine: Any | None = None,
+    ) -> None:
         super().__init__()
         self._graph: Any = graph_engine
         self._knowledge: Any = knowledge_engine
@@ -397,8 +409,16 @@ class ValidationEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for structure validation'),
-            EngineDependency(engine_name='knowledge', required=False, description='Knowledge engine for content validation'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for structure validation',
+            ),
+            EngineDependency(
+                engine_name='knowledge',
+                required=False,
+                description='Knowledge engine for content validation',
+            ),
         ]
 
     # ── Lifecycle ──────────────────────────────────────────────────
@@ -409,7 +429,6 @@ class ValidationEngine(EngineBase):
 
     async def _start_impl(self) -> None:
         """Start the validation engine."""
-        pass
 
     async def _stop_impl(self) -> None:
         """Stop the validation engine."""
@@ -451,14 +470,17 @@ class ValidationEngine(EngineBase):
         self._validators['node'].append(DuplicateIdValidator(id_field='id', label='node'))
         self._validators['node'].append(MissingIdValidator(id_field='id', label='node'))
         self._validators['node'].append(
-            SchemaValidator(required_fields=['id', 'slug', 'title', 'node_type'], label='node')
+            SchemaValidator(required_fields=['id', 'slug', 'title', 'node_type'], label='node'),
         )
 
         # Edge validators
         self._validators['edge'].append(DuplicateIdValidator(id_field='id', label='edge'))
         self._validators['edge'].append(MissingIdValidator(id_field='id', label='edge'))
         self._validators['edge'].append(
-            SchemaValidator(required_fields=['id', 'source_node_id', 'target_node_id'], label='edge')
+            SchemaValidator(
+                required_fields=['id', 'source_node_id', 'target_node_id'],
+                label='edge',
+            ),
         )
         self._validators['edge'].append(DuplicateEdgeValidator())
 
@@ -484,6 +506,7 @@ class ValidationEngine(EngineBase):
         Returns:
             A dict with 'valid' (bool), 'report' (ValidationReport),
             'errors', 'warnings', and 'summary'.
+
         """
         report = ValidationReport(
             entity_type='graph_change',
@@ -498,10 +521,8 @@ class ValidationEngine(EngineBase):
         known_node_ids: set[UUID] = set()
         for node in nodes:
             if isinstance(node, dict) and node.get('id'):
-                try:
+                with contextlib.suppress(ValueError, AttributeError):
                     known_node_ids.add(UUID(str(node['id'])))
-                except (ValueError, AttributeError):
-                    pass
 
         # Run node validators
         for validator in self._validators.get('node', []):
@@ -561,6 +582,7 @@ class ValidationEngine(EngineBase):
         Returns:
             A dict with 'valid' (bool), 'report' (ValidationReport),
             and 'errors' (list of error dicts).
+
         """
         report = ValidationReport(
             entity_type='import',
@@ -575,10 +597,8 @@ class ValidationEngine(EngineBase):
         known_node_ids: set[UUID] = set()
         for node in nodes:
             if isinstance(node, dict) and node.get('id'):
-                try:
+                with contextlib.suppress(ValueError, AttributeError):
                     known_node_ids.add(UUID(str(node['id'])))
-                except (ValueError, AttributeError):
-                    pass
 
         # Run all validators against all categories
         for category in ('node', 'edge', 'import', 'graph'):
@@ -634,6 +654,7 @@ class ValidationEngine(EngineBase):
 
         Returns:
             Validation result dict.
+
         """
         # Only run node + edge validators, skip graph-level (orphans, components)
         report = ValidationReport(entity_type='graph_change_incremental', passed=True)
@@ -643,10 +664,8 @@ class ValidationEngine(EngineBase):
         known_node_ids: set[UUID] = set()
         for node in nodes:
             if isinstance(node, dict) and node.get('id'):
-                try:
+                with contextlib.suppress(ValueError, AttributeError):
                     known_node_ids.add(UUID(str(node['id'])))
-                except (ValueError, AttributeError):
-                    pass
 
         for validator in self._validators.get('node', []):
             if isinstance(validator, EdgeValidator):
@@ -685,6 +704,7 @@ class ValidationEngine(EngineBase):
 
         Returns:
             Validation result dict with complete diagnostics.
+
         """
         return await self.validate_graph_change(full_data)
 
@@ -700,6 +720,7 @@ class ValidationEngine(EngineBase):
 
         Returns:
             GraphHealthScore with score, counts, and issues.
+
         """
         if full_data is None and self._graph:
             try:
@@ -843,11 +864,13 @@ class DuplicateIdValidator:
         for item in data:
             item_id = str(item.get(self._id_field, '')) if isinstance(item, dict) else ''
             if item_id in seen:
-                errors.append({
-                    'field': self._id_field,
-                    'message': f'Duplicate {self._label} ID: {item_id}',
-                    'value': item_id,
-                })
+                errors.append(
+                    {
+                        'field': self._id_field,
+                        'message': f'Duplicate {self._label} ID: {item_id}',
+                        'value': item_id,
+                    },
+                )
             seen.add(item_id)
         return errors
 
@@ -866,11 +889,13 @@ class MissingIdValidator:
 
         for i, item in enumerate(data):
             if isinstance(item, dict) and not item.get(self._id_field):
-                errors.append({
-                    'field': self._id_field,
-                    'index': i,
-                    'message': f'Missing {self._label} ID at index {i}',
-                })
+                errors.append(
+                    {
+                        'field': self._id_field,
+                        'index': i,
+                        'message': f'Missing {self._label} ID at index {i}',
+                    },
+                )
         return errors
 
 
@@ -888,18 +913,22 @@ class SchemaValidator:
 
         for i, item in enumerate(data):
             if not isinstance(item, dict):
-                errors.append({
-                    'index': i,
-                    'message': f'{self._label} at index {i} is not a dict',
-                })
-                continue
-            for field in self._required_fields:
-                if field not in item or item[field] is None:
-                    errors.append({
-                        'field': field,
+                errors.append(
+                    {
                         'index': i,
-                        'message': f'Missing required field "{field}" in {self._label} at index {i}',
-                    })
+                        'message': f'{self._label} at index {i} is not a dict',
+                    },
+                )
+                continue
+            for field in self._required_fields:  # noqa: F402
+                if field not in item or item[field] is None:
+                    errors.append(
+                        {
+                            'field': field,
+                            'index': i,
+                            'message': f'Missing required field "{field}" in {self._label} at index {i}',  # noqa: E501
+                        },
+                    )
         return errors
 
 
@@ -925,26 +954,32 @@ class EdgeValidator:
             target_id = item.get('target_node_id')
 
             if source_id and source_id not in self._node_ids:
-                errors.append({
-                    'field': 'source_node_id',
-                    'index': i,
-                    'message': f'Source node {source_id} does not exist',
-                })
+                errors.append(
+                    {
+                        'field': 'source_node_id',
+                        'index': i,
+                        'message': f'Source node {source_id} does not exist',
+                    },
+                )
 
             if target_id and target_id not in self._node_ids:
-                errors.append({
-                    'field': 'target_node_id',
-                    'index': i,
-                    'message': f'Target node {target_id} does not exist',
-                })
+                errors.append(
+                    {
+                        'field': 'target_node_id',
+                        'index': i,
+                        'message': f'Target node {target_id} does not exist',
+                    },
+                )
 
             # Self-loop check
             if source_id and target_id and source_id == target_id:
-                errors.append({
-                    'field': 'source_node_id',
-                    'index': i,
-                    'message': f'Self-loop edge detected: {source_id} -> {target_id}',
-                })
+                errors.append(
+                    {
+                        'field': 'source_node_id',
+                        'index': i,
+                        'message': f'Self-loop edge detected: {source_id} -> {target_id}',
+                    },
+                )
         return errors
 
 
@@ -964,18 +999,22 @@ class MetadataValidator:
                 continue
             metadata = item.get('metadata', {})
             if not isinstance(metadata, dict):
-                errors.append({
-                    'field': 'metadata',
-                    'index': i,
-                    'message': f'metadata is not a dict at index {i}',
-                })
+                errors.append(
+                    {
+                        'field': 'metadata',
+                        'index': i,
+                        'message': f'metadata is not a dict at index {i}',
+                    },
+                )
                 continue
             if self._allowed_keys:
                 for key in metadata:
                     if key not in self._allowed_keys:
-                        errors.append({
-                            'field': 'metadata',
-                            'index': i,
-                            'message': f'Unexpected metadata key "{key}" at index {i}',
-                        })
+                        errors.append(
+                            {
+                                'field': 'metadata',
+                                'index': i,
+                                'message': f'Unexpected metadata key "{key}" at index {i}',
+                            },
+                        )
         return errors

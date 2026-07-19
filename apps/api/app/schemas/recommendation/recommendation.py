@@ -11,16 +11,20 @@ Note:
     ``CareerRecommendation`` (in ``app.schemas.career.recommendation``) is
     the career-specific variant. This module provides the generic
     recommendation list/feed contract.
+
 """
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import RecommendationType
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
+    from app.models.enums import RecommendationType
 
 
 class RecommendationSummary(BaseModel):
@@ -49,7 +53,8 @@ class RecommendationDetail(BaseModel):
     score: float | None = Field(default=None, ge=0.0, le=1.0, description='Relevance score')
     reason: str | None = Field(default=None, description='Human-readable explanation')
     metadata: dict = Field(
-        default_factory=dict, description='Engine metadata (signals, model version)'
+        default_factory=dict,
+        description='Engine metadata (signals, model version)',
     )
     is_dismissed: bool = Field(default=False, description='Whether the user dismissed this')
     created_at: datetime = Field(description='When the recommendation was generated')

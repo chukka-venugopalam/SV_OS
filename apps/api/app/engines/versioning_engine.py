@@ -22,13 +22,11 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
-from app.engines.graph_engine import GraphEngine, GraphNodeRecord, GraphEdgeRecord
-
+from app.engines.graph_engine import GraphEdgeRecord, GraphEngine, GraphNodeRecord
 
 # ── Snapshot Storage ───────────────────────────────────────────────
 
@@ -36,6 +34,7 @@ from app.engines.graph_engine import GraphEngine, GraphNodeRecord, GraphEdgeReco
 @dataclass
 class VersionSnapshot:
     """An immutable point-in-time snapshot of the graph state."""
+
     version_id: str = field(default_factory=lambda: str(uuid4()))
     version_number: str = '1.0.0'
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
@@ -55,6 +54,7 @@ class VersionSnapshot:
 @dataclass
 class GraphDiff:
     """Result of comparing two graph versions."""
+
     source_version: str = ''
     target_version: str = ''
     nodes_added: list[dict] = field(default_factory=list)
@@ -98,7 +98,11 @@ class VersioningEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for snapshots'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for snapshots',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -155,6 +159,7 @@ class VersioningEngine(EngineBase):
 
         Returns:
             Dict with version_id, version_number, checksum, and metadata.
+
         """
         if self._graph is None:
             return {'error': 'Graph engine not available'}
@@ -194,7 +199,7 @@ class VersioningEngine(EngineBase):
         self._branches.setdefault(branch, []).append(snapshot.version_id)
 
         # Apply tags
-        for tag in (tags or [version_number]):
+        for tag in tags or [version_number]:
             self._tags[tag] = snapshot.version_id
 
         # Enforce retention policy
@@ -258,9 +263,7 @@ class VersioningEngine(EngineBase):
         result['edges'] = snapshot.edges
         return result
 
-    async def list_snapshots(
-        self, branch: str | None = None, limit: int = 50
-    ) -> list[dict]:
+    async def list_snapshots(self, branch: str | None = None, limit: int = 50) -> list[dict]:
         """List snapshots, optionally filtered by branch."""
         snapshots = list(self._snapshots.values())
 
@@ -280,7 +283,7 @@ class VersioningEngine(EngineBase):
             return {'error': 'Snapshot is immutable and cannot be deleted', 'success': False}
 
         # Remove from branch
-        for branch_name, version_ids in self._branches.items():
+        for version_ids in self._branches.values():
             if version_id in version_ids:
                 version_ids.remove(version_id)
 
@@ -323,28 +326,32 @@ class VersioningEngine(EngineBase):
         # Restore from snapshot data
         node_records = []
         for n in snapshot.nodes:
-            node_records.append(GraphNodeRecord(
-                node_id=UUID(n['id']),
-                slug=n.get('slug', ''),
-                title=n.get('title', ''),
-                node_type=n.get('node_type', ''),
-                difficulty=n.get('difficulty', 'beginner'),
-                description=n.get('description', ''),
-                metadata=n.get('metadata', {}),
-            ))
+            node_records.append(
+                GraphNodeRecord(
+                    node_id=UUID(n['id']),
+                    slug=n.get('slug', ''),
+                    title=n.get('title', ''),
+                    node_type=n.get('node_type', ''),
+                    difficulty=n.get('difficulty', 'beginner'),
+                    description=n.get('description', ''),
+                    metadata=n.get('metadata', {}),
+                ),
+            )
 
         edge_records = []
         for e in snapshot.edges:
-            edge_records.append(GraphEdgeRecord(
-                edge_id=UUID(e['id']),
-                source_node_id=UUID(e['source_id']),
-                target_node_id=UUID(e['target_id']),
-                relationship_type=e.get('relationship_type', 'related_to'),
-                weight=e.get('weight', 1.0),
-                metadata=e.get('metadata', {}),
-            ))
+            edge_records.append(
+                GraphEdgeRecord(
+                    edge_id=UUID(e['id']),
+                    source_node_id=UUID(e['source_id']),
+                    target_node_id=UUID(e['target_id']),
+                    relationship_type=e.get('relationship_type', 'related_to'),
+                    weight=e.get('weight', 1.0),
+                    metadata=e.get('metadata', {}),
+                ),
+            )
 
-        count = await self._graph.load_graph(node_records, edge_records, snapshot.version_number)
+        await self._graph.load_graph(node_records, edge_records, snapshot.version_number)
 
         await self.publish_event(
             'graph.snapshot.restored.v1',
@@ -409,9 +416,7 @@ class VersioningEngine(EngineBase):
         return {
             'safe': len(lost) <= 10,  # Allow limited data loss
             'errors': [],
-            'warnings': [
-                f'{len(lost)} nodes added since snapshot would be lost'
-            ] if lost else [],
+            'warnings': [f'{len(lost)} nodes added since snapshot would be lost'] if lost else [],
             'nodes_to_lose': len(lost),
             'nodes_to_restore': len(snapshot.nodes),
             'edges_to_restore': len(snapshot.edges),
@@ -421,9 +426,7 @@ class VersioningEngine(EngineBase):
     # Diff & Comparison
     # ═══════════════════════════════════════════════════════════════
 
-    async def diff_versions(
-        self, source_version_id: str, target_version_id: str
-    ) -> dict:
+    async def diff_versions(self, source_version_id: str, target_version_id: str) -> dict:
         """Compute a structured diff between two graph versions.
 
         Args:
@@ -432,6 +435,7 @@ class VersioningEngine(EngineBase):
 
         Returns:
             GraphDiff with added/removed/modified nodes and edges.
+
         """
         source = self._snapshots.get(source_version_id)
         if source is None:
@@ -471,11 +475,13 @@ class VersioningEngine(EngineBase):
         for nid, target_node in target_nodes.items():
             source_node = source_nodes.get(nid)
             if source_node and self._is_node_modified(source_node, target_node):
-                diff.nodes_modified.append({
-                    'id': nid,
-                    'before': source_node,
-                    'after': target_node,
-                })
+                diff.nodes_modified.append(
+                    {
+                        'id': nid,
+                        'before': source_node,
+                        'after': target_node,
+                    },
+                )
 
         # Edge diffs (same logic)
         for eid, edge in target_edges.items():
@@ -487,11 +493,13 @@ class VersioningEngine(EngineBase):
         for eid, target_edge in target_edges.items():
             source_edge = source_edges.get(eid)
             if source_edge and self._is_edge_modified(source_edge, target_edge):
-                diff.edges_modified.append({
-                    'id': eid,
-                    'before': source_edge,
-                    'after': target_edge,
-                })
+                diff.edges_modified.append(
+                    {
+                        'id': eid,
+                        'before': source_edge,
+                        'after': target_edge,
+                    },
+                )
 
         diff.summary = {
             'nodes_added': len(diff.nodes_added),
@@ -501,8 +509,12 @@ class VersioningEngine(EngineBase):
             'edges_removed': len(diff.edges_removed),
             'edges_modified': len(diff.edges_modified),
             'total_changes': (
-                len(diff.nodes_added) + len(diff.nodes_removed) + len(diff.nodes_modified) +
-                len(diff.edges_added) + len(diff.edges_removed) + len(diff.edges_modified)
+                len(diff.nodes_added)
+                + len(diff.nodes_removed)
+                + len(diff.nodes_modified)
+                + len(diff.edges_added)
+                + len(diff.edges_removed)
+                + len(diff.edges_modified)
             ),
         }
 
@@ -520,9 +532,7 @@ class VersioningEngine(EngineBase):
             'summary': diff.summary,
         }
 
-    async def compare_versions(
-        self, version_id_a: str, version_id_b: str
-    ) -> dict:
+    async def compare_versions(self, version_id_a: str, version_id_b: str) -> dict:
         """Compare two versions side by side."""
         return await self.diff_versions(version_id_a, version_id_b)
 
@@ -540,7 +550,11 @@ class VersioningEngine(EngineBase):
         if not branch_ids:
             return None
         latest_id = branch_ids[-1]
-        return self._snapshot_to_dict(self._snapshots[latest_id]) if latest_id in self._snapshots else None
+        return (
+            self._snapshot_to_dict(self._snapshots[latest_id])
+            if latest_id in self._snapshots
+            else None
+        )
 
     async def version_history(self, limit: int = 20) -> list[dict]:
         """Get full version history."""
@@ -581,6 +595,7 @@ class VersioningEngine(EngineBase):
 
         Returns:
             Dict with branch name and fork point.
+
         """
         if branch_name in self._branches:
             return {'error': f'Branch {branch_name} already exists', 'success': False}
@@ -604,10 +619,7 @@ class VersioningEngine(EngineBase):
 
     async def list_branches(self) -> list[dict]:
         """List all branches and their snapshot counts."""
-        return [
-            {'name': name, 'snapshot_count': len(ids)}
-            for name, ids in self._branches.items()
-        ]
+        return [{'name': name, 'snapshot_count': len(ids)} for name, ids in self._branches.items()]
 
     async def merge_validation(self, source_branch: str, target_branch: str = 'main') -> dict:
         """Validate whether a branch can be merged into another.
@@ -688,10 +700,7 @@ class VersioningEngine(EngineBase):
 
     def _is_edge_modified(self, a: dict, b: dict) -> bool:
         """Check if two edge dicts differ in meaningful fields."""
-        for key in ('relationship_type', 'weight'):
-            if a.get(key) != b.get(key):
-                return True
-        return False
+        return any(a.get(key) != b.get(key) for key in ('relationship_type', 'weight'))
 
     async def _enforce_retention_policy(self) -> None:
         """Delete old snapshots based on retention policy."""

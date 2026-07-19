@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import LearningStatus
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
+    from app.models.enums import LearningStatus
 
 
 class LearningSessionCreate(BaseModel):
@@ -23,7 +26,10 @@ class LearningSessionUpdate(BaseModel):
     status: LearningStatus | None = Field(default=None, description='New session status')
     ended_at: datetime | None = Field(default=None, description='When the session ended')
     duration_minutes: int | None = Field(
-        default=None, ge=1, le=9999, description='Minutes spent studying'
+        default=None,
+        ge=1,
+        le=9999,
+        description='Minutes spent studying',
     )
     notes: str | None = Field(default=None, max_length=5000, description='Session notes')
 

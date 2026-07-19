@@ -34,7 +34,7 @@ class TestActivityFeed:
     """Test get_feed."""
 
     @pytest.mark.asyncio
-    async def test_empty_feed(self, feed_service, mock_uow):
+    async def test_empty_feed(self, feed_service, mock_uow) -> None:
         """Test returns empty feed for user with no activity."""
         mock_execute = AsyncMock()
         mock_result = MagicMock()
@@ -54,7 +54,7 @@ class TestActivityFeed:
         assert result['page'] == 1
 
     @pytest.mark.asyncio
-    async def test_feed_pagination(self, feed_service, mock_uow):
+    async def test_feed_pagination(self, feed_service, mock_uow) -> None:
         """Test feed respects pagination parameters."""
         mock_execute = AsyncMock()
         mock_count = MagicMock()
@@ -76,7 +76,7 @@ class TestActivityFeed:
         assert result['total_pages'] == 5
 
     @pytest.mark.asyncio
-    async def test_feed_with_activity_items(self, feed_service, mock_uow):
+    async def test_feed_with_activity_items(self, feed_service, mock_uow) -> None:
         """Test feed returns properly formatted activity items."""
         from datetime import datetime
 
@@ -114,7 +114,7 @@ class TestActivityFeed:
         assert 'metadata' in item
 
     @pytest.mark.asyncio
-    async def test_feed_returns_all_activity_types(self, feed_service, mock_uow):
+    async def test_feed_returns_all_activity_types(self, feed_service, mock_uow) -> None:
         """Test feed handles various activity types."""
         from datetime import datetime
 
@@ -172,7 +172,7 @@ class TestEdgeCases:
     """Test edge cases."""
 
     @pytest.mark.asyncio
-    async def test_large_page_number(self, feed_service, mock_uow):
+    async def test_large_page_number(self, feed_service, mock_uow) -> None:
         """Test large page number returns empty items."""
         mock_execute = AsyncMock()
         mock_count = MagicMock()
@@ -188,7 +188,7 @@ class TestEdgeCases:
         assert result['total'] == 5
 
     @pytest.mark.asyncio
-    async def test_excessive_per_page(self, feed_service, mock_uow):
+    async def test_excessive_per_page(self, feed_service, mock_uow) -> None:
         """Test that per_page is passed through (validation at endpoint level)."""
         mock_execute = AsyncMock()
         mock_count = MagicMock()

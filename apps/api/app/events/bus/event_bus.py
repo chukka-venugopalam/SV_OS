@@ -8,8 +8,7 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
-
-EventHandler = Callable[["EventEnvelope"], Awaitable[None]]
+EventHandler = Callable[['EventEnvelope'], Awaitable[None]]
 
 
 @dataclass(slots=True)

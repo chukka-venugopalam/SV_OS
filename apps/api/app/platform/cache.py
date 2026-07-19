@@ -3,7 +3,7 @@
 New code should import directly from ``app.infrastructure.cache``.
 """
 
-from app.infrastructure.cache import (  # noqa: F401
+from app.infrastructure.cache import (
     CacheBackend,
     InMemoryCache,
     RedisCache,

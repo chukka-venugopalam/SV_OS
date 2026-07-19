@@ -1,5 +1,4 @@
-"""
-Hybrid Search Service — multi-signal search combining keyword, semantic,
+"""Hybrid Search Service — multi-signal search combining keyword, semantic,
 graph proximity, popularity, and difficulty signals into a single ranking.
 
 Scoring formula:
@@ -15,11 +14,14 @@ All weights are configurable via constructor.
 from __future__ import annotations
 
 import math
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -76,6 +78,7 @@ class HybridSearchService:
 
         Returns:
             Paginated results with scores and signal breakdown.
+
         """
         nodes = await self._uow.knowledge_nodes.find_published()
         user_progress_ids: set[UUID] = set()
@@ -127,7 +130,7 @@ class HybridSearchService:
                             'is_in_progress': node.id in user_progress_ids,
                             'is_bookmarked': node.id in user_bookmark_ids,
                         },
-                    )
+                    ),
                 )
 
         scored.sort(key=lambda x: x[0], reverse=True)
@@ -207,13 +210,13 @@ class HybridSearchService:
         view_count = getattr(node, 'view_count', 0) or 0
         if view_count > 500:
             return 1.0
-        elif view_count > 100:
+        if view_count > 100:
             return 0.8
-        elif view_count > 50:
+        if view_count > 50:
             return 0.5
-        elif view_count > 10:
+        if view_count > 10:
             return 0.3
-        elif view_count > 0:
+        if view_count > 0:
             return 0.1
         return 0.0
 
@@ -226,9 +229,9 @@ class HybridSearchService:
         diff_str = diff.value if hasattr(diff, 'value') else str(diff)
         if diff_str.lower() in ('beginner', 'intermediate'):
             return 0.7
-        elif diff_str.lower() == 'advanced':
+        if diff_str.lower() == 'advanced':
             return 0.4
-        elif diff_str.lower() == 'expert':
+        if diff_str.lower() == 'expert':
             return 0.1
         return 0.3
 

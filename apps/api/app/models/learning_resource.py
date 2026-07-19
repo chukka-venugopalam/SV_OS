@@ -1,5 +1,4 @@
-"""
-LearningResource model — an external learning material linked to a node.
+"""LearningResource model — an external learning material linked to a node.
 
 Maps to the ``learning_resources`` table.
 """
@@ -7,7 +6,6 @@ Maps to the ``learning_resources`` table.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -18,6 +16,8 @@ from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, ResourceType, pg_enum
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
 
 

@@ -6,19 +6,18 @@ No CRUD endpoints — capability-based queries only.
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Query, Request
 from structlog.stdlib import get_logger
 
-from app.engines.graph_engine import GraphEngine
-from app.engines.query_engine import QueryEngine
-from app.engines.traversal_engine import TraversalEngine
-from app.engines.search_engine import SearchEngine
-from app.engines.validation_engine import ValidationEngine
-from app.infrastructure.container import get_platform_container
-from app.infrastructure.cache.graph_cache import GraphCache
+if TYPE_CHECKING:
+    from app.engines.graph_engine import GraphEngine
+    from app.engines.query_engine import QueryEngine
+    from app.engines.traversal_engine import TraversalEngine
+    from app.engines.validation_engine import ValidationEngine
+    from app.infrastructure.cache.graph_cache import GraphCache
 
 logger = get_logger(__name__)
 
@@ -267,7 +266,10 @@ async def query_validate_graph(
     """Validate graph structure and return health score."""
     validation = _get_validation_engine(request)
     if validation is None:
-        return _safe_result({'error': 'Validation engine not available'}, 'Validation engine not available')
+        return _safe_result(
+            {'error': 'Validation engine not available'},
+            'Validation engine not available',
+        )
 
     result = await validation.validate_import(body)
     return _safe_result(result, 'Graph validation completed')
@@ -291,6 +293,7 @@ async def query_search(
     per_page = body.get('per_page', 20)
 
     from app.services.graph_query_service import GraphQueryService
+
     service = GraphQueryService(graph_engine=engine)
     result = await service.search_nodes(query, page, per_page)
     return _safe_result(result, 'Search completed')
@@ -307,11 +310,14 @@ async def cache_statistics(request: Request) -> dict:
         return _safe_result({}, 'Graph cache not available')
 
     stats = cache.get_stats()
-    return _safe_result({
-        'stats': stats,
-        'total_size': cache.total_size(),
-        'graph_version': cache.graph_version,
-    }, 'Cache statistics retrieved')
+    return _safe_result(
+        {
+            'stats': stats,
+            'total_size': cache.total_size(),
+            'graph_version': cache.graph_version,
+        },
+        'Cache statistics retrieved',
+    )
 
 
 # ── Bottlenecks ─────────────────────────────────────────────────-

@@ -7,16 +7,18 @@ standard health endpoints required by orchestration platforms.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Request
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_settings
-from app.core.config import Settings
 from app.core.database import check_database_connection
 from app.platform.api import router as platform_router
 from app.telemetry.health import HealthChecker, HealthStatus
+
+if TYPE_CHECKING:
+    from app.core.config import Settings
 
 logger = get_logger(__name__)
 
@@ -176,22 +178,28 @@ from app.api.v1.endpoints import (  # noqa: E402
     auth,
     bookmarks,
     careers,
-    careers_platform as careers_platform,
-    export_platform as exports_platform,
+    careers_platform,
     favorites,
     graph,
     graph_intelligence,
     graph_platform,
-    import_platform as imports_platform,
     learning_paths,
-    learning_paths_platform as learning_paths_platform,
+    learning_paths_platform,
     nodes,
     progress,
     projects,
     recommendations,
-    recommendations_platform as recommendations_platform,
+    recommendations_platform,
     search,
     skills,
+)
+from app.api.v1.endpoints import (  # noqa: E402
+    export_platform as exports_platform,
+)
+from app.api.v1.endpoints import (  # noqa: E402
+    import_platform as imports_platform,
+)
+from app.api.v1.endpoints import (  # noqa: E402
     versioning_platform as versions_platform,
 )
 

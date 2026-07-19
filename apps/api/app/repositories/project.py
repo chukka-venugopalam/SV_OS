@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import select
 
 from app.models.project import Project, ProjectRequirement
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class ProjectRepository(BaseRepository[Project]):
@@ -28,7 +31,8 @@ class ProjectRepository(BaseRepository[Project]):
         """Find by slug or raise ``EntityNotFoundError``."""
         project = await self.find_by_slug(slug)
         if not project:
-            raise EntityNotFoundError('Project', slug)
+            msg = 'Project'
+            raise EntityNotFoundError(msg, slug)
         return project
 
     async def find_by_difficulty(
@@ -69,7 +73,7 @@ class ProjectRepository(BaseRepository[Project]):
         stmt = (
             select(ProjectRequirement)
             .where(ProjectRequirement.project_id == project_id)
-            .where(ProjectRequirement.is_deleted == False)  # noqa: E712
+            .where(not ProjectRequirement.is_deleted)
             .order_by(ProjectRequirement.order_index)
         )
         result = await self.session.execute(stmt)

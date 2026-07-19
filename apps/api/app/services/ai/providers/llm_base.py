@@ -1,5 +1,4 @@
-"""
-Abstract LLM provider — pluggable interface for chat/completion LLMs.
+"""Abstract LLM provider — pluggable interface for chat/completion LLMs.
 
 All concrete providers (OpenAI, Anthropic, Gemini, DeepSeek, Ollama)
 implement this interface, allowing the AI chat service to be provider-agnostic.
@@ -8,8 +7,11 @@ implement this interface, allowing the AI chat service to be provider-agnostic.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 
 @dataclass

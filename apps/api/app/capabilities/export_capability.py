@@ -6,8 +6,10 @@ No business logic — delegates to engines.
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class ExportCapability:
@@ -19,12 +21,26 @@ class ExportCapability:
     def __init__(self, export_engine: Any | None = None) -> None:
         self._export = export_engine
 
-    async def export_graph(self, format: str = 'json', compress: bool = False, filter_criteria: dict | None = None) -> dict:
+    async def export_graph(
+        self,
+        format: str = 'json',
+        compress: bool = False,
+        filter_criteria: dict | None = None,
+    ) -> dict:
         if self._export is None:
             return {'error': 'Export engine not available'}
-        return await self._export.export_graph(format=format, compress=compress, filter_criteria=filter_criteria)
+        return await self._export.export_graph(
+            format=format,
+            compress=compress,
+            filter_criteria=filter_criteria,
+        )
 
-    async def export_subgraph(self, center_node_id: UUID, depth: int = 2, format: str = 'json') -> dict:
+    async def export_subgraph(
+        self,
+        center_node_id: UUID,
+        depth: int = 2,
+        format: str = 'json',
+    ) -> dict:
         if self._export is None:
             return {'error': 'Export engine not available'}
         return await self._export.export_subgraph(center_node_id, depth, format=format)
@@ -39,7 +55,12 @@ class ExportCapability:
             return {'error': 'Export engine not available'}
         return await self._export.export_node(node_id, format=format)
 
-    async def export_dependency_chain(self, node_id: UUID, max_depth: int = 5, format: str = 'json') -> dict:
+    async def export_dependency_chain(
+        self,
+        node_id: UUID,
+        max_depth: int = 5,
+        format: str = 'json',
+    ) -> dict:
         if self._export is None:
             return {'error': 'Export engine not available'}
         return await self._export.export_dependency_chain(node_id, max_depth, format=format)

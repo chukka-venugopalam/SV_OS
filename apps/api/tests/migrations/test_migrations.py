@@ -74,7 +74,7 @@ class TestExtensions:
     ]
 
     @pytest.mark.parametrize('ext_name', EXTENSIONS)
-    async def test_extension_available(self, db_connection: AsyncConnection, ext_name: str):
+    async def test_extension_available(self, db_connection: AsyncConnection, ext_name: str) -> None:
         """Each extension should be installed and available."""
         result = await db_connection.execute(
             text("""
@@ -145,7 +145,7 @@ class TestEnumTypes:
     }
 
     @pytest.mark.parametrize('enum_name', ENUMS.keys())
-    async def test_enum_exists(self, db_connection: AsyncConnection, enum_name: str):
+    async def test_enum_exists(self, db_connection: AsyncConnection, enum_name: str) -> None:
         """Each enum type should exist in the database."""
         result = await db_connection.execute(
             text("""
@@ -159,7 +159,7 @@ class TestEnumTypes:
         assert result.scalar() is True, f"Enum type '{enum_name}' does not exist"
 
     @pytest.mark.parametrize('enum_name', ENUMS.keys())
-    async def test_enum_values(self, db_connection: AsyncConnection, enum_name: str):
+    async def test_enum_values(self, db_connection: AsyncConnection, enum_name: str) -> None:
         """Each enum should have the correct values."""
         expected_values = self.ENUMS[enum_name]
         result = await db_connection.execute(
@@ -211,7 +211,7 @@ class TestTables:
     }
 
     @pytest.mark.parametrize('table_name', TABLES.keys())
-    async def test_table_exists(self, db_connection: AsyncConnection, table_name: str):
+    async def test_table_exists(self, db_connection: AsyncConnection, table_name: str) -> None:
         """Each table should exist in the database."""
         inspector = inspect(db_connection)
         tables = await inspector.get_table_names()
@@ -280,7 +280,7 @@ class TestConstraints:
     }
 
     @pytest.mark.parametrize('table_name', FOREIGN_KEYS.keys())
-    async def test_foreign_keys(self, db_connection: AsyncConnection, table_name: str):
+    async def test_foreign_keys(self, db_connection: AsyncConnection, table_name: str) -> None:
         """Foreign keys should be correctly defined."""
         expected_fks = self.FOREIGN_KEYS[table_name]
         result = await db_connection.execute(
@@ -318,7 +318,9 @@ class TestConstraints:
     }
 
     @pytest.mark.parametrize('table_name', UNIQUE_CONSTRAINTS.keys())
-    async def test_unique_constraints(self, db_connection: AsyncConnection, table_name: str):
+    async def test_unique_constraints(
+        self, db_connection: AsyncConnection, table_name: str
+    ) -> None:
         """Unique constraints should be correctly defined."""
         expected_constraints = self.UNIQUE_CONSTRAINTS[table_name]
         result = await db_connection.execute(
@@ -356,7 +358,7 @@ class TestTriggers:
         'trigger_user_progress_updated_at': 'user_progress',
     }
 
-    async def test_search_trigger_exists(self, db_connection: AsyncConnection):
+    async def test_search_trigger_exists(self, db_connection: AsyncConnection) -> None:
         """The full-text search trigger should exist on knowledge_nodes."""
         result = await db_connection.execute(
             text("""
@@ -365,11 +367,11 @@ class TestTriggers:
                     WHERE trigger_name = 'trigger_update_search_vector'
                         AND event_object_table = 'knowledge_nodes'
                 )
-            """)
+            """),
         )
         assert result.scalar() is True, 'Search vector trigger not found'
 
-    async def test_update_functions_exist(self, db_connection: AsyncConnection):
+    async def test_update_functions_exist(self, db_connection: AsyncConnection) -> None:
         """Both trigger functions should exist."""
         for func_name in ['update_search_vector', 'update_updated_at_column']:
             result = await db_connection.execute(
@@ -396,7 +398,7 @@ class TestViews:
     EXPECTED_VIEWS: ClassVar[list[str]] = ['v_node_statistics', 'v_user_progress_summary']
 
     @pytest.mark.parametrize('view_name', EXPECTED_VIEWS)
-    async def test_view_exists(self, db_connection: AsyncConnection, view_name: str):
+    async def test_view_exists(self, db_connection: AsyncConnection, view_name: str) -> None:
         """Each view should exist in the database."""
         result = await db_connection.execute(
             text("""
@@ -430,7 +432,7 @@ class TestMigrationRoundTrip:
     """
 
     @pytest.mark.slow
-    def test_upgrade_succeeds(self):
+    def test_upgrade_succeeds(self) -> None:
         """Running alembic upgrade head should succeed."""
         from alembic.config import Config
 
@@ -443,7 +445,7 @@ class TestMigrationRoundTrip:
             pytest.fail(f'Alembic upgrade failed: {e}')
 
     @pytest.mark.slow
-    def test_downgrade_succeeds(self):
+    def test_downgrade_succeeds(self) -> None:
         """Running alembic downgrade to base should succeed."""
         from alembic.config import Config
 
@@ -456,7 +458,7 @@ class TestMigrationRoundTrip:
             pytest.fail(f'Alembic downgrade failed: {e}')
 
     @pytest.mark.slow
-    def test_full_round_trip(self):
+    def test_full_round_trip(self) -> None:
         """Full upgrade then downgrade should succeed."""
         from alembic.config import Config
 

@@ -3,7 +3,7 @@
 New code should import directly from ``app.infrastructure.container``.
 """
 
-from app.infrastructure.container import (  # noqa: F401
+from app.infrastructure.container import (
     PlatformContainer,
     build_platform_container,
     get_platform_container,

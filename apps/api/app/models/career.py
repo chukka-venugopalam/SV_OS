@@ -1,5 +1,4 @@
-"""
-Career and CareerRequirement models.
+"""Career and CareerRequirement models.
 
 Careers represent professional paths (e.g. "Frontend Developer").
 CareerRequirement is the many-to-many join between careers and
@@ -9,7 +8,6 @@ knowledge nodes, with a typed requirement strength.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -21,6 +19,8 @@ from app.models.base import AppBaseMixin
 from app.models.enums import DemandLevel, RequirementType, pg_enum
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
 
 

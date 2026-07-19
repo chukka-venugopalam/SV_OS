@@ -148,6 +148,7 @@ def _alter_enum_to_varchar(
         column: Column name.
         check_values: List of valid string values for the CHECK constraint.
         constraint_name: Name for the CHECK constraint.
+
     """
     # Step 1: Cast the native enum column to VARCHAR(50).
     # Native enum values are stored as strings, so this is a safe cast.
@@ -158,8 +159,8 @@ def _alter_enum_to_varchar(
     op.execute(
         text(
             f'ALTER TABLE {table} ADD CONSTRAINT {constraint_name} '
-            f'CHECK ({column} IN ({values_sql}))'
-        )
+            f'CHECK ({column} IN ({values_sql}))',
+        ),
     )
 
 
@@ -180,6 +181,7 @@ def _drop_check_and_restore_enum(
         enum_values: List of valid enum values.
         constraint_name: Name of the CHECK constraint to drop.
         default_sql: Optional DEFAULT clause to set after type change.
+
     """
     # Step 1: Drop the CHECK constraint
     op.execute(text(f'ALTER TABLE {table} DROP CONSTRAINT IF EXISTS {constraint_name}'))
@@ -195,15 +197,15 @@ def _drop_check_and_restore_enum(
                 END IF;
             END
             $$;
-        """)
+        """),
     )
 
     # Step 3: Cast VARCHAR back to the native enum
     op.execute(
         text(
             f'ALTER TABLE {table} ALTER COLUMN {column} '
-            f'TYPE {enum_name} USING {column}::{enum_name}'
-        )
+            f'TYPE {enum_name} USING {column}::{enum_name}',
+        ),
     )
 
     # Step 4: Restore default if provided

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 router = APIRouter(prefix='/import', tags=['import-platform'])
 
@@ -25,7 +28,7 @@ def _get_engine(request: Request):
     return None
 
 
-def _safe(data: dict, msg: str = 'Success') -> dict:
+def _safe(data: dict, _msg: str = 'Success') -> dict:
     return {'success': True, 'data': data, 'errors': None}
 
 
@@ -94,7 +97,7 @@ async def cancel_import(
 @router.get('/jobs')
 async def list_import_jobs(
     request: Request,
-    limit: int = Query(20, ge=1, le=100),
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:

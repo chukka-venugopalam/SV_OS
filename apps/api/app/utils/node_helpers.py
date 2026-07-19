@@ -22,6 +22,7 @@ def node_to_dict(node: Any) -> dict[str, Any]:
     Returns:
         Dict with id, slug, title, description, node_type, difficulty,
         estimated_minutes, icon, color, and optional view_count.
+
     """
     if node is None:
         return {}
@@ -75,6 +76,7 @@ def edge_to_dict(edge: Any) -> dict[str, Any]:
 
     Returns:
         Dict with id, source_id, target_id, relationship_type, direction.
+
     """
     if edge is None:
         return {}
@@ -84,9 +86,7 @@ def edge_to_dict(edge: Any) -> dict[str, Any]:
         'source_id': str(edge.source_node_id),
         'target_id': str(edge.target_node_id),
         'relationship_type': _enum_value(edge.relationship_type),
-        'direction': _enum_value(
-            getattr(edge, 'direction', None)
-        ) or 'forward',
+        'direction': _enum_value(getattr(edge, 'direction', None)) or 'forward',
     }
 
 

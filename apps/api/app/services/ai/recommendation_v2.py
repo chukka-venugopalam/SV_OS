@@ -1,5 +1,4 @@
-"""
-Recommendation V2 — enhanced recommendation engine with semantic signals.
+"""Recommendation V2 — enhanced recommendation engine with semantic signals.
 
 Builds on the phase 3.1 RecommendationEngine by adding:
 - Semantic embedding similarity
@@ -13,12 +12,16 @@ from __future__ import annotations
 
 import math
 from datetime import UTC
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
 from app.services.recommendation_engine import RecommendationEngine
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -58,6 +61,7 @@ class RecommendationV2:
 
         Returns:
             List of recommended nodes with scores and reasons.
+
         """
         # Gather user context
         completed_ids = await self._get_completed_ids(user_id)
@@ -95,7 +99,7 @@ class RecommendationV2:
                         'score': round(score, 4),
                         'breakdown': breakdown,
                         'reasons': reasons,
-                    }
+                    },
                 )
 
         scored.sort(key=lambda x: x['score'], reverse=True)
@@ -116,7 +120,6 @@ class RecommendationV2:
         all_nodes: list,  # noqa: ARG002
     ) -> tuple[float, dict]:
         """Compute V2 composite score with full breakdown."""
-
         # Use V1 for prerequisite and graph distance
         prereq_score, _ = await self._v1._prerequisite_score(node, completed_ids)
         distance_score, _ = await self._v1._graph_distance_score(node, completed_ids)
@@ -177,7 +180,10 @@ class RecommendationV2:
         return 0.0
 
     async def _semantic_score(
-        self, node, completed_ids: set[UUID], bookmarked_ids: set[UUID]
+        self,
+        node,
+        completed_ids: set[UUID],
+        bookmarked_ids: set[UUID],
     ) -> float:
         """Semantic similarity to user's completed/bookmarked nodes."""
         # Find a representative embedding from completed/bookmarked nodes
@@ -215,10 +221,10 @@ class RecommendationV2:
         # Fast learners can handle advanced content
         if learning_velocity > 2.0:  # >2 nodes/day
             return 0.7 if diff_str.lower() in ('intermediate', 'advanced') else 0.5
-        elif learning_velocity > 1.0:  # 1-2 nodes/day
+        if learning_velocity > 1.0:  # 1-2 nodes/day
             return 0.7 if diff_str.lower() in ('beginner', 'intermediate') else 0.3
-        else:  # Slow learners
-            return 0.7 if diff_str.lower() == 'beginner' else 0.3
+        # Slow learners
+        return 0.7 if diff_str.lower() == 'beginner' else 0.3
 
     def _estimated_time_score(self, node, learning_velocity: float) -> float:
         """Score based on estimated time vs available time."""
@@ -245,7 +251,7 @@ class RecommendationV2:
         """Boost for fast learners (recommend more content)."""
         if learning_velocity > 2.0:
             return 0.5
-        elif learning_velocity > 1.0:
+        if learning_velocity > 1.0:
             return 0.3
         return 0.1
 

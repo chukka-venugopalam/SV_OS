@@ -1,12 +1,10 @@
-"""
-User model — represents a platform user (learner or admin).
+"""User model — represents a platform user (learner or admin).
 
 Maps to the ``users`` table.
 """
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, String, Text, text
@@ -18,6 +16,8 @@ from app.models.base import AppBaseMixin
 from app.models.enums import UserRole, pg_enum
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from app.models.ai_memory import AIMemory, AIPreference
     from app.models.audit_log import AuditLog
     from app.models.bookmark import Bookmark

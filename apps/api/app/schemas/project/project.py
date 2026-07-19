@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.enums import Difficulty
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
 
 
 class ProjectCard(BaseModel):
@@ -27,7 +30,8 @@ class ProjectCard(BaseModel):
     @classmethod
     def validate_color(cls, v: str | None) -> str | None:
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v
 
 
@@ -64,10 +68,14 @@ class ProjectCreate(BaseModel):
     title: str = Field(description='Project title', max_length=300, min_length=1)
     description: str = Field(description='Detailed project description', max_length=10000)
     difficulty: Difficulty = Field(
-        default=Difficulty.INTERMEDIATE, description='Project difficulty level'
+        default=Difficulty.INTERMEDIATE,
+        description='Project difficulty level',
     )
     estimated_hours: int = Field(
-        default=10, ge=1, le=9999, description='Estimated time to complete'
+        default=10,
+        ge=1,
+        le=9999,
+        description='Estimated time to complete',
     )
     tech_stack: list[str] = Field(default_factory=list, description='Technologies used')
     icon: str | None = Field(default=None, max_length=50, description='UI icon identifier')
@@ -79,14 +87,16 @@ class ProjectCreate(BaseModel):
     @classmethod
     def validate_slug(cls, v: str) -> str:
         if v != v.lower():
-            raise ValueError('Slug must be lowercase')
+            msg = 'Slug must be lowercase'
+            raise ValueError(msg)
         return v
 
     @field_validator('color')
     @classmethod
     def validate_color(cls, v: str | None) -> str | None:
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v
 
 
@@ -107,5 +117,6 @@ class ProjectUpdate(BaseModel):
     @classmethod
     def validate_color(cls, v: str | None) -> str | None:
         if v is not None and not v.startswith('#'):
-            raise ValueError('Color must start with #')
+            msg = 'Color must start with #'
+            raise ValueError(msg)
         return v

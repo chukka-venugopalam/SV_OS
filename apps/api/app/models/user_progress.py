@@ -1,14 +1,11 @@
-"""
-UserProgress model — tracks a user's learning status on a knowledge node.
+"""UserProgress model — tracks a user's learning status on a knowledge node.
 
 Maps to the ``user_progress`` table.
 """
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, Integer, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -19,6 +16,9 @@ from app.models.base import AppBaseMixin
 from app.models.enums import ProgressStatus, pg_enum
 
 if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
     from app.models.user import User
 

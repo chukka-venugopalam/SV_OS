@@ -40,7 +40,7 @@ def validate_password_strength(password: str) -> list[str]:
     if not PASSWORD_PATTERN.match(password):
         errors.append(
             'Password must contain at least one uppercase letter, '
-            'one lowercase letter, one digit, and one special character'
+            'one lowercase letter, one digit, and one special character',
         )
 
     return errors
@@ -109,4 +109,5 @@ def create_token(_payload: dict[str, Any]) -> str:
 
     Full JWT creation will be implemented in Phase 4.
     """
-    raise NotImplementedError('JWT creation is not yet implemented')
+    msg = 'JWT creation is not yet implemented'
+    raise NotImplementedError(msg)

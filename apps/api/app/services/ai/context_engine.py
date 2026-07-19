@@ -1,5 +1,4 @@
-"""
-Context Engine — gathers comprehensive context before every AI call.
+"""Context Engine — gathers comprehensive context before every AI call.
 
 Collects from:
 - Knowledge graph (current node, prerequisites, dependents)
@@ -17,15 +16,19 @@ All context is formatted for injection into LLM prompts.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
 from app.services.activity_feed import ActivityFeedService
 from app.services.ai.semantic_search import SemanticSearchService
 from app.services.progress_intelligence import ProgressIntelligence
 from app.services.recommendation_engine import RecommendationEngine
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -68,6 +71,7 @@ class ContextEngine:
         Returns:
             Dict with sections: user, graph, progress, activity,
             recommendations, memory, career, projects.
+
         """
         context: dict = {
             'knowledge_graph': {},
@@ -193,14 +197,13 @@ class ContextEngine:
         _max_depth: int = 2,
     ) -> dict:
         """Build focused context around a specific knowledge node."""
-        context = await self.build_context(
+        return await self.build_context(
             user_id=None,
             node_slug=node_slug,
             include_progress=False,
             include_recommendations=False,
             _include_graph=True,
         )
-        return context
 
 
 def _node_summary(node) -> dict:

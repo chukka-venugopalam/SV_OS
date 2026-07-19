@@ -22,7 +22,7 @@ Features:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -32,6 +32,7 @@ from app.engines.base import EngineBase, EngineDependency, EngineHealth
 @dataclass
 class PathNode:
     """A single node within a learning path."""
+
     node_id: str
     title: str
     slug: str
@@ -45,6 +46,7 @@ class PathNode:
 @dataclass
 class Milestone:
     """A milestone within a learning path."""
+
     level: int
     title: str
     description: str = ''
@@ -57,6 +59,7 @@ class Milestone:
 @dataclass
 class LearningPath:
     """A complete learning path."""
+
     path_id: str = field(default_factory=lambda: str(uuid4()))
     goal_node_id: str = ''
     goal_title: str = ''
@@ -117,9 +120,21 @@ class LearningPathEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for node data'),
-            EngineDependency(engine_name='traversal', required=True, description='Traversal engine for dependency chains'),
-            EngineDependency(engine_name='state', required=False, description='State engine for learner progress'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for node data',
+            ),
+            EngineDependency(
+                engine_name='traversal',
+                required=True,
+                description='Traversal engine for dependency chains',
+            ),
+            EngineDependency(
+                engine_name='state',
+                required=False,
+                description='State engine for learner progress',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -138,7 +153,10 @@ class LearningPathEngine(EngineBase):
             state=self.engine_state,
             healthy=True,
             message='Learning path engine is operational',
-            details={'total_paths': len(self._paths), 'active_paths': sum(1 for p in self._paths.values() if p.status == 'active')},
+            details={
+                'total_paths': len(self._paths),
+                'active_paths': sum(1 for p in self._paths.values() if p.status == 'active'),
+            },
         )
 
     async def validate_configuration(self) -> list[str]:
@@ -169,6 +187,7 @@ class LearningPathEngine(EngineBase):
 
         Returns:
             Path dict with milestones, stats, and progress.
+
         """
         strategy_map = {
             'dependency_roadmap': self.generate_dependency_roadmap,
@@ -185,38 +204,62 @@ class LearningPathEngine(EngineBase):
         return await generator(goal_node_id, user_id, **kwargs)
 
     async def generate_dependency_roadmap(
-        self, goal_node_id: UUID, user_id: UUID | None = None, **kwargs: Any
+        self,
+        goal_node_id: UUID,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate a roadmap by ordering nodes by prerequisite depth.
 
         Pure topological sort — foundational nodes first, goal last.
         """
-        return await self._build_path(goal_node_id, user_id, strategy='dependency_roadmap',
-                                       milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE))
+        return await self._build_path(
+            goal_node_id,
+            user_id,
+            strategy='dependency_roadmap',
+            milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE),
+        )
 
     async def generate_shortest_roadmap(
-        self, goal_node_id: UUID, user_id: UUID | None = None, **kwargs: Any
+        self,
+        goal_node_id: UUID,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate the shortest-time roadmap.
 
         Orders nodes by estimated time, shortest first.
         """
-        return await self._build_path(goal_node_id, user_id, strategy='shortest_roadmap',
-                                       sort_by='estimated_minutes',
-                                       milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE))
+        return await self._build_path(
+            goal_node_id,
+            user_id,
+            strategy='shortest_roadmap',
+            sort_by='estimated_minutes',
+            milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE),
+        )
 
     async def generate_career_roadmap(
-        self, career_node_id: UUID, user_id: UUID | None = None, **kwargs: Any
+        self,
+        career_node_id: UUID,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate a career roadmap — all prerequisites for a career.
 
         Includes all nodes required to prepare for a career path.
         """
-        return await self._build_path(career_node_id, user_id, strategy='career_roadmap',
-                                       milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE))
+        return await self._build_path(
+            career_node_id,
+            user_id,
+            strategy='career_roadmap',
+            milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE),
+        )
 
     async def generate_skill_roadmap(
-        self, skill_name: str, user_id: UUID | None = None, **kwargs: Any
+        self,
+        skill_name: str,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate a skill roadmap — nodes that teach a specific skill."""
         # Find nodes related to the skill
@@ -224,19 +267,30 @@ class LearningPathEngine(EngineBase):
             return {'error': 'Graph engine not available', 'path': None}
 
         all_nodes = await self._graph.all_nodes()
-        skill_nodes = [n for n in all_nodes if skill_name.lower() in n.get('title', '').lower()
-                       or skill_name.lower() in n.get('description', '').lower()]
+        skill_nodes = [
+            n
+            for n in all_nodes
+            if skill_name.lower() in n.get('title', '').lower()
+            or skill_name.lower() in n.get('description', '').lower()
+        ]
 
         if not skill_nodes:
             return {'error': f'No nodes found for skill: {skill_name}', 'path': None}
 
         # Use the most relevant node as the goal
         goal_node_id = UUID(skill_nodes[0]['id'])
-        return await self._build_path(goal_node_id, user_id, strategy='skill_roadmap',
-                                       milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE))
+        return await self._build_path(
+            goal_node_id,
+            user_id,
+            strategy='skill_roadmap',
+            milestone_size=kwargs.get('milestone_size', DEFAULT_MILESTONE_SIZE),
+        )
 
     async def generate_custom_roadmap(
-        self, node_ids: list[UUID], user_id: UUID | None = None, **kwargs: Any
+        self,
+        node_ids: list[UUID],
+        user_id: UUID | None = None,
+        **kwargs: Any,  # noqa: ARG002
     ) -> dict:
         """Generate a custom roadmap from a user-provided list of nodes."""
         if self._graph is None:
@@ -251,33 +305,56 @@ class LearningPathEngine(EngineBase):
         if not nodes:
             return {'error': 'No valid nodes provided', 'path': None}
 
-        path_nodes = [PathNode(
-            node_id=n['id'], title=n.get('title', ''),
-            slug=n.get('slug', ''), node_type=n.get('node_type', ''),
-            difficulty=n.get('difficulty', 'beginner'),
-            estimated_minutes=n.get('estimated_minutes', 30),
-        ) for n in nodes]
+        path_nodes = [
+            PathNode(
+                node_id=n['id'],
+                title=n.get('title', ''),
+                slug=n.get('slug', ''),
+                node_type=n.get('node_type', ''),
+                difficulty=n.get('difficulty', 'beginner'),
+                estimated_minutes=n.get('estimated_minutes', 30),
+            )
+            for n in nodes
+        ]
 
-        return await self._save_path(path_nodes, user_id, strategy='custom_roadmap',
-                                      goal_title='Custom Roadmap')
+        return await self._save_path(
+            path_nodes,
+            user_id,
+            strategy='custom_roadmap',
+            goal_title='Custom Roadmap',
+        )
 
     async def generate_semester_roadmap(
-        self, goal_node_id: UUID, user_id: UUID | None = None, **kwargs: Any
+        self,
+        goal_node_id: UUID,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate a roadmap structured by semester (12-week blocks)."""
-        return await self._build_path(goal_node_id, user_id, strategy='semester_roadmap',
-                                       milestone_size=kwargs.get('milestone_size', 24))
+        return await self._build_path(
+            goal_node_id,
+            user_id,
+            strategy='semester_roadmap',
+            milestone_size=kwargs.get('milestone_size', 24),
+        )
 
     async def generate_daily_roadmap(
-        self, goal_node_id: UUID, user_id: UUID | None = None, **kwargs: Any
+        self,
+        goal_node_id: UUID,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate a day-by-day roadmap.
 
         Each day contains at most `daily_max_minutes` of content.
         """
         daily_max = kwargs.get('daily_max_minutes', 60)
-        result = await self._build_path(goal_node_id, user_id, strategy='daily_roadmap',
-                                         milestone_size=DEFAULT_MILESTONE_SIZE)
+        result = await self._build_path(
+            goal_node_id,
+            user_id,
+            strategy='daily_roadmap',
+            milestone_size=DEFAULT_MILESTONE_SIZE,
+        )
 
         if result.get('milestones'):
             # Rebuild milestones as daily blocks
@@ -294,12 +371,18 @@ class LearningPathEngine(EngineBase):
             for node in flat_nodes:
                 mins = node.get('estimated_minutes', 30)
                 if current_day_minutes + mins > daily_max and current_day_nodes:
-                    daily_milestones.append(Milestone(
-                        level=day, title=f'Day {day}',
-                        node_count=len(current_day_nodes),
-                        estimated_minutes=current_day_minutes,
-                        nodes=[PathNode(**n) if isinstance(n, dict) else n for n in current_day_nodes],
-                    ))
+                    daily_milestones.append(
+                        Milestone(
+                            level=day,
+                            title=f'Day {day}',
+                            node_count=len(current_day_nodes),
+                            estimated_minutes=current_day_minutes,
+                            nodes=[
+                                PathNode(**n) if isinstance(n, dict) else n
+                                for n in current_day_nodes
+                            ],
+                        ),
+                    )
                     day += 1
                     current_day_nodes = []
                     current_day_minutes = 0
@@ -307,24 +390,36 @@ class LearningPathEngine(EngineBase):
                 current_day_minutes += mins
 
             if current_day_nodes:
-                daily_milestones.append(Milestone(
-                    level=day, title=f'Day {day}',
-                    node_count=len(current_day_nodes),
-                    estimated_minutes=current_day_minutes,
-                    nodes=[PathNode(**n) if isinstance(n, dict) else n for n in current_day_nodes],
-                ))
+                daily_milestones.append(
+                    Milestone(
+                        level=day,
+                        title=f'Day {day}',
+                        node_count=len(current_day_nodes),
+                        estimated_minutes=current_day_minutes,
+                        nodes=[
+                            PathNode(**n) if isinstance(n, dict) else n for n in current_day_nodes
+                        ],
+                    ),
+                )
 
             result['milestones'] = [self._milestone_to_dict(m) for m in daily_milestones]
 
         return result
 
     async def generate_weekly_roadmap(
-        self, goal_node_id: UUID, user_id: UUID | None = None, **kwargs: Any
+        self,
+        goal_node_id: UUID,
+        user_id: UUID | None = None,
+        **kwargs: Any,
     ) -> dict:
         """Generate a week-by-week roadmap."""
         weekly_max = kwargs.get('weekly_max_minutes', 300)
-        result = await self._build_path(goal_node_id, user_id, strategy='weekly_roadmap',
-                                         milestone_size=DEFAULT_MILESTONE_SIZE)
+        result = await self._build_path(
+            goal_node_id,
+            user_id,
+            strategy='weekly_roadmap',
+            milestone_size=DEFAULT_MILESTONE_SIZE,
+        )
 
         if result.get('milestones'):
             flat_nodes = []
@@ -340,12 +435,18 @@ class LearningPathEngine(EngineBase):
             for node in flat_nodes:
                 mins = node.get('estimated_minutes', 30)
                 if current_week_minutes + mins > weekly_max and current_week_nodes:
-                    weekly_milestones.append(Milestone(
-                        level=week, title=f'Week {week}',
-                        node_count=len(current_week_nodes),
-                        estimated_minutes=current_week_minutes,
-                        nodes=[PathNode(**n) if isinstance(n, dict) else n for n in current_week_nodes],
-                    ))
+                    weekly_milestones.append(
+                        Milestone(
+                            level=week,
+                            title=f'Week {week}',
+                            node_count=len(current_week_nodes),
+                            estimated_minutes=current_week_minutes,
+                            nodes=[
+                                PathNode(**n) if isinstance(n, dict) else n
+                                for n in current_week_nodes
+                            ],
+                        ),
+                    )
                     week += 1
                     current_week_nodes = []
                     current_week_minutes = 0
@@ -353,12 +454,17 @@ class LearningPathEngine(EngineBase):
                 current_week_minutes += mins
 
             if current_week_nodes:
-                weekly_milestones.append(Milestone(
-                    level=week, title=f'Week {week}',
-                    node_count=len(current_week_nodes),
-                    estimated_minutes=current_week_minutes,
-                    nodes=[PathNode(**n) if isinstance(n, dict) else n for n in current_week_nodes],
-                ))
+                weekly_milestones.append(
+                    Milestone(
+                        level=week,
+                        title=f'Week {week}',
+                        node_count=len(current_week_nodes),
+                        estimated_minutes=current_week_minutes,
+                        nodes=[
+                            PathNode(**n) if isinstance(n, dict) else n for n in current_week_nodes
+                        ],
+                    ),
+                )
 
             result['milestones'] = [self._milestone_to_dict(m) for m in weekly_milestones]
 
@@ -389,9 +495,7 @@ class LearningPathEngine(EngineBase):
         path.updated_at = datetime.now(UTC).isoformat()
         return self._path_to_dict(path)
 
-    async def rebuild_path(
-        self, path_id: UUID, user_id: UUID | None = None
-    ) -> dict:
+    async def rebuild_path(self, path_id: UUID, user_id: UUID | None = None) -> dict:
         """Rebuild a learning path, recalculating progress."""
         path = self._paths.get(str(path_id))
         if path is None:
@@ -399,8 +503,11 @@ class LearningPathEngine(EngineBase):
 
         goal_id = UUID(path.goal_node_id) if path.goal_node_id else None
         if goal_id:
-            return await self._build_path(goal_id, user_id or UUID(path.user_id) if path.user_id else None,
-                                           strategy=path.strategy)
+            return await self._build_path(
+                goal_id,
+                user_id or UUID(path.user_id) if path.user_id else None,
+                strategy=path.strategy,
+            )
 
         return self._path_to_dict(path)
 
@@ -487,14 +594,16 @@ class LearningPathEngine(EngineBase):
         for nid in node_ids_in_order:
             node = await self._graph.get_node(UUID(nid))
             if node:
-                path_nodes.append(PathNode(
-                    node_id=node['id'],
-                    title=node.get('title', ''),
-                    slug=node.get('slug', ''),
-                    node_type=node.get('node_type', ''),
-                    difficulty=node.get('difficulty', 'beginner'),
-                    estimated_minutes=node.get('estimated_minutes', 30),
-                ))
+                path_nodes.append(
+                    PathNode(
+                        node_id=node['id'],
+                        title=node.get('title', ''),
+                        slug=node.get('slug', ''),
+                        node_type=node.get('node_type', ''),
+                        difficulty=node.get('difficulty', 'beginner'),
+                        estimated_minutes=node.get('estimated_minutes', 30),
+                    ),
+                )
 
         # 4. Sort if needed
         if sort_by == 'estimated_minutes':
@@ -503,15 +612,17 @@ class LearningPathEngine(EngineBase):
         # 5. Group into milestones
         milestones = []
         for i in range(0, len(path_nodes), milestone_size):
-            chunk = path_nodes[i:i + milestone_size]
+            chunk = path_nodes[i : i + milestone_size]
             chunk_minutes = sum(n.estimated_minutes for n in chunk)
-            milestones.append(Milestone(
-                level=len(milestones) + 1,
-                title=f'Milestone {len(milestones) + 1}',
-                node_count=len(chunk),
-                estimated_minutes=chunk_minutes,
-                nodes=chunk,
-            ))
+            milestones.append(
+                Milestone(
+                    level=len(milestones) + 1,
+                    title=f'Milestone {len(milestones) + 1}',
+                    node_count=len(chunk),
+                    estimated_minutes=chunk_minutes,
+                    nodes=chunk,
+                ),
+            )
 
         # 6. Calculate completion
         completed_nodes = 0
@@ -522,7 +633,10 @@ class LearningPathEngine(EngineBase):
                 for n in path_nodes:
                     if n.node_id in active_nodes:
                         state_info = active_nodes[n.node_id]
-                        if isinstance(state_info, dict) and state_info.get('status') in ('completed', 'mastered'):
+                        if isinstance(state_info, dict) and state_info.get('status') in (
+                            'completed',
+                            'mastered',
+                        ):
                             n.completed = True
                             completed_nodes += 1
                 for ms in milestones:
@@ -573,15 +687,17 @@ class LearningPathEngine(EngineBase):
         """Save a path from pre-built nodes."""
         milestones = []
         for i in range(0, len(path_nodes), DEFAULT_MILESTONE_SIZE):
-            chunk = path_nodes[i:i + DEFAULT_MILESTONE_SIZE]
+            chunk = path_nodes[i : i + DEFAULT_MILESTONE_SIZE]
             chunk_minutes = sum(n.estimated_minutes for n in chunk)
-            milestones.append(Milestone(
-                level=len(milestones) + 1,
-                title=f'Step {len(milestones) + 1}',
-                node_count=len(chunk),
-                estimated_minutes=chunk_minutes,
-                nodes=chunk,
-            ))
+            milestones.append(
+                Milestone(
+                    level=len(milestones) + 1,
+                    title=f'Step {len(milestones) + 1}',
+                    node_count=len(chunk),
+                    estimated_minutes=chunk_minutes,
+                    nodes=chunk,
+                ),
+            )
 
         total_minutes = sum(n.estimated_minutes for n in path_nodes)
 
@@ -619,7 +735,10 @@ class LearningPathEngine(EngineBase):
                     for node in ms.nodes:
                         if node.node_id in active_nodes:
                             info = active_nodes[node.node_id]
-                            if isinstance(info, dict) and info.get('status') in ('completed', 'mastered'):
+                            if isinstance(info, dict) and info.get('status') in (
+                                'completed',
+                                'mastered',
+                            ):
                                 node.completed = True
                                 completed_nodes += 1
                     ms.completed = all(n.completed for n in ms.nodes if ms.nodes)

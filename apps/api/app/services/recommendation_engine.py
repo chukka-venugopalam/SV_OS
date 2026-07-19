@@ -1,5 +1,4 @@
-"""
-Recommendation Engine — content-based + graph-based recommendation service.
+"""Recommendation Engine — content-based + graph-based recommendation service.
 
 The engine combines multiple signals to generate ranked recommendations:
 
@@ -19,11 +18,14 @@ Scoring formula:
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -63,6 +65,7 @@ class RecommendationEngine:
 
         Returns:
             A list of dicts with ``node``, ``score``, and ``reason`` keys.
+
         """
         # 1. Get user context
         completed_node_ids = await self._get_completed_node_ids(user_id)
@@ -100,7 +103,7 @@ class RecommendationEngine:
                             'score': round(score, 4),
                             'reasons': reasons,
                         },
-                    )
+                    ),
                 )
 
         # 3. Sort by score descending and return top results
@@ -127,7 +130,8 @@ class RecommendationEngine:
 
         # Graph distance score
         distance_score, _distance_detail = await self._graph_distance_score(
-            node, completed_node_ids
+            node,
+            completed_node_ids,
         )
 
         # Popularity score
@@ -137,7 +141,9 @@ class RecommendationEngine:
 
         # Difficulty score
         difficulty_score, difficulty_detail = self._difficulty_score(
-            node, completed_node_ids, all_nodes
+            node,
+            completed_node_ids,
+            all_nodes,
         )
         if difficulty_detail:
             reasons.append(difficulty_detail)
@@ -163,7 +169,9 @@ class RecommendationEngine:
     #        0.0 if none are completed.
 
     async def _prerequisite_score(
-        self, node, completed_node_ids: set[UUID]
+        self,
+        node,
+        completed_node_ids: set[UUID],
     ) -> tuple[float, str | None]:
         prereqs = await self._uow.graph.load_prerequisites(node.id)
         if not prereqs:
@@ -178,11 +186,11 @@ class RecommendationEngine:
         ratio = completed / total
         if ratio >= 1.0:
             return 1.0, 'All prerequisites completed'
-        elif ratio >= 0.75:
+        if ratio >= 0.75:
             return 0.7, f'Most prerequisites completed ({completed}/{total})'
-        elif ratio >= 0.5:
+        if ratio >= 0.5:
             return 0.5, f'Some prerequisites completed ({completed}/{total})'
-        elif ratio > 0:
+        if ratio > 0:
             return 0.2, f'Few prerequisites completed ({completed}/{total})'
 
         return 0.0, 'No prerequisites completed'
@@ -191,7 +199,9 @@ class RecommendationEngine:
     # Score: Higher when close to user's completed nodes.
 
     async def _graph_distance_score(
-        self, node, completed_node_ids: set[UUID]
+        self,
+        node,
+        completed_node_ids: set[UUID],
     ) -> tuple[float, str | None]:
         if not completed_node_ids:
             return 0.0, None
@@ -222,11 +232,11 @@ class RecommendationEngine:
 
         if total > 100:
             return 1.0, 'Highly popular topic'
-        elif total > 50:
+        if total > 50:
             return 0.7, 'Popular topic'
-        elif total > 10:
+        if total > 10:
             return 0.4, 'Moderately popular'
-        elif total > 0:
+        if total > 0:
             return 0.1, None
 
         return 0.0, None
@@ -235,7 +245,10 @@ class RecommendationEngine:
     # Score: Higher when difficulty matches the user's current level.
 
     def _difficulty_score(
-        self, node, _completed_node_ids: set[UUID], _all_nodes: list
+        self,
+        node,
+        _completed_node_ids: set[UUID],
+        _all_nodes: list,
     ) -> tuple[float, str | None]:
         difficulty = getattr(node, 'difficulty', None)
         if difficulty is None:
@@ -247,9 +260,9 @@ class RecommendationEngine:
         # Beginner and intermediate are generally recommended
         if diff_lower in ('beginner', 'intermediate'):
             return 0.7, f'Good {diff_str} level'
-        elif diff_lower == 'advanced':
+        if diff_lower == 'advanced':
             return 0.4, 'Advanced topic'
-        elif diff_lower == 'expert':
+        if diff_lower == 'expert':
             return 0.1, 'Expert level'
 
         return 0.3, None
@@ -325,7 +338,7 @@ class RecommendationEngine:
                         'match_score': round(match_ratio, 4),
                         'completed_required': completed_required,
                         'total_required': total_required,
-                    }
+                    },
                 )
 
         scored_careers.sort(key=lambda x: x['match_score'], reverse=True)
@@ -342,10 +355,9 @@ class RecommendationEngine:
             user_id=user_id,
             status='mastered',
         )
-        completed = {p.node_id for p in progress_records.items if p} | {
+        return {p.node_id for p in progress_records.items if p} | {
             p.node_id for p in mastered.items if p
         }
-        return completed
 
     # ── Helper: Get Bookmarked Node IDs ────────────────────────────
 

@@ -33,7 +33,7 @@ def mock_provider():
             content='This is a test response.',
             model='test-model',
             usage={'total_tokens': 10, 'prompt_tokens': 5, 'completion_tokens': 5},
-        )
+        ),
     )
     provider.chat_stream = AsyncMock()
     return provider
@@ -69,11 +69,13 @@ class TestChatService:
                         'max_tokens': 2048,
                         'auto_generate_titles': False,
                         'include_citations': True,
-                    }
+                    },
                 ),
             ),
             patch.object(
-                ChatService, '_get_or_create_session', AsyncMock(return_value=mock_session)
+                ChatService,
+                '_get_or_create_session',
+                AsyncMock(return_value=mock_session),
             ),
             patch.object(ChatService, '_create_session', AsyncMock(return_value=mock_session)),
         ]
@@ -97,13 +99,13 @@ class TestChatService:
                 'career': [],
                 'projects': [],
                 'ai_memory': [],
-            }
+            },
         )
         service._rag = MagicMock()
         service._rag.search = AsyncMock(return_value=[])
         return service
 
-    async def test_chat_returns_response(self, mock_uow, mock_provider):
+    async def test_chat_returns_response(self, mock_uow, mock_provider) -> None:
         """Chat returns a dict with session_id, message, suggestions."""
         service = self._make_service(mock_uow, mock_provider)
         user_id = uuid4()
@@ -114,7 +116,7 @@ class TestChatService:
         assert result['message']['role'] == 'assistant'
         assert result['message']['content'] == 'This is a test response.'
 
-    async def test_chat_with_existing_session(self, mock_uow, mock_provider):
+    async def test_chat_with_existing_session(self, mock_uow, mock_provider) -> None:
         """Chat reuses an existing session."""
         service = self._make_service(mock_uow, mock_provider)
         session_id = uuid4()
@@ -126,7 +128,7 @@ class TestChatService:
         )
         assert result['session_id'] is not None
 
-    async def test_chat_with_citations(self, mock_uow, mock_provider):
+    async def test_chat_with_citations(self, mock_uow, mock_provider) -> None:
         """Citations are returned when RAG finds results."""
         service = self._make_service(mock_uow, mock_provider)
         service._rag.search = AsyncMock(
@@ -135,14 +137,14 @@ class TestChatService:
                     'node': {'title': 'Test Node', 'slug': 'test-node', 'node_type': 'concept'},
                     'similarity': 0.95,
                 },
-            ]
+            ],
         )
         user_id = uuid4()
         result = await service.chat(user_id=user_id, message='Hello')
         assert len(result.get('citations', [])) > 0
         assert result['citations'][0]['title'] == 'Test Node'
 
-    async def test_chat_stream_yields_tokens(self, mock_uow, mock_provider):
+    async def test_chat_stream_yields_tokens(self, mock_uow, mock_provider) -> None:
         """Chat stream yields token events."""
         service = self._make_service(mock_uow, mock_provider)
 
@@ -161,7 +163,7 @@ class TestChatService:
         token_events = [e for e in events if '"type":"token"' in e]
         assert len(token_events) > 0
 
-    async def test_system_prompt_building(self, mock_uow, mock_provider):
+    async def test_system_prompt_building(self, mock_uow, mock_provider) -> None:
         """System prompt includes knowledge graph and user progress data."""
         service = self._make_service(mock_uow, mock_provider)
         context = {
@@ -186,7 +188,7 @@ class TestChatService:
         assert '45%' in prompt
         assert 'Software Engineer' in prompt
 
-    async def test_system_prompt_styles(self, mock_uow, mock_provider):
+    async def test_system_prompt_styles(self, mock_uow, mock_provider) -> None:
         """System prompt adapts to explanation style preferences."""
         service = self._make_service(mock_uow, mock_provider)
         for style, expected in [
@@ -198,13 +200,14 @@ class TestChatService:
             prompt = service._build_system_prompt({}, [], {'explanation_style': style})
             assert expected in prompt.lower()
 
-    async def test_title_generation(self, mock_uow, mock_provider):
+    async def test_title_generation(self, mock_uow, mock_provider) -> None:
         """Auto-generates short titles from first message."""
         service = self._make_service(mock_uow, mock_provider)
         title = await service._generate_title('Can you explain Python?')
-        assert title and len(title) <= 80
+        assert title
+        assert len(title) <= 80
 
-    async def test_suggestions_extraction(self, mock_uow, mock_provider):
+    async def test_suggestions_extraction(self, mock_uow, mock_provider) -> None:
         """Suggestions are extracted from bullet points in response."""
         service = self._make_service(mock_uow, mock_provider)
         response = 'Key points:\n- Learn Python\n- Then Django\n- Finally deploy'
@@ -212,7 +215,7 @@ class TestChatService:
         assert len(suggestions) > 0
         assert any('Learn Python' in s for s in suggestions)
 
-    async def test_suggestions_fallback(self, mock_uow, mock_provider):
+    async def test_suggestions_fallback(self, mock_uow, mock_provider) -> None:
         """Suggestions fallback when no bullet points found."""
         service = self._make_service(mock_uow, mock_provider)
         suggestions = await service._generate_suggestions('', 'Just a plain response')

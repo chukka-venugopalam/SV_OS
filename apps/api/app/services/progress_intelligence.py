@@ -1,5 +1,4 @@
-"""
-Progress Intelligence — analytics and predictions for user learning progress.
+"""Progress Intelligence — analytics and predictions for user learning progress.
 
 Provides:
 - ``next_best_node()`` — the optimal next concept to learn
@@ -12,12 +11,16 @@ Provides:
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
 from app.services.recommendation_engine import RecommendationEngine
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -45,6 +48,7 @@ class ProgressIntelligence:
         Returns:
             A dict with ``node`` and explanation, or ``None`` if no
             suitable node is found.
+
         """
         recommendations = await self._recommender.get_recommendations(
             user_id=user_id,
@@ -70,6 +74,7 @@ class ProgressIntelligence:
 
         Returns:
             A list of prerequisite node dicts that haven't been completed.
+
         """
         completed_ids = await self._get_completed_ids(user_id)
         missing: list[dict] = []
@@ -111,6 +116,7 @@ class ProgressIntelligence:
 
         Returns:
             A list of weak topic node dicts with a ``weakness_score``.
+
         """
         all_progress = await self._uow.user_progress.find_by_user(
             user_id=user_id,
@@ -130,7 +136,7 @@ class ProgressIntelligence:
                     if updated_at.tzinfo is None:
                         updated_at = updated_at.replace(tzinfo=UTC)
                 else:
-                    updated_at = datetime.fromisoformat(str(updated_at).replace('Z', '+00:00'))
+                    updated_at = datetime.fromisoformat(str(updated_at))
 
                 days_since_update = (datetime.now(UTC) - updated_at).days
                 if days_since_update > 7:
@@ -141,7 +147,7 @@ class ProgressIntelligence:
                                 'node': _node_to_dict(node),
                                 'weakness_score': round(min(days_since_update / 30, 1.0), 3),
                                 'reason': f'Started but not updated in {days_since_update} days',
-                            }
+                            },
                         )
 
         # Sort by weakness score descending
@@ -166,6 +172,7 @@ class ProgressIntelligence:
 
         Returns:
             A dict with estimated minutes, hours, days, and pace info.
+
         """
         # Get missing prerequisites for the goal
         missing = await self.missing_prerequisites(
@@ -210,6 +217,7 @@ class ProgressIntelligence:
 
         Returns:
             A dict with overall stats and projected completion.
+
         """
         # Get top recommendations as proxy for active goals
         recommendations = await self._recommender.get_recommendations(
@@ -270,7 +278,7 @@ class ProgressIntelligence:
         times = [
             p.updated_at
             if isinstance(p.updated_at, datetime)
-            else datetime.fromisoformat(str(p.updated_at).replace('Z', '+00:00'))
+            else datetime.fromisoformat(str(p.updated_at))
             for p in all_done
             if p and p.updated_at
         ]

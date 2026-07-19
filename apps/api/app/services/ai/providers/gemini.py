@@ -1,5 +1,4 @@
-"""
-Gemini embedding provider — uses Google Gemini Embedding API.
+"""Gemini embedding provider — uses Google Gemini Embedding API.
 
 Supports embedding-001 and text-embedding-004 models.
 """

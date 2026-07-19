@@ -96,7 +96,7 @@ class TestBFS:
     """Test BFS traversal."""
 
     @pytest.mark.asyncio
-    async def test_bfs_single_level(self, traversal_service, mock_uow):
+    async def test_bfs_single_level(self, traversal_service, mock_uow) -> None:
         """Test BFS returns immediate neighbors."""
         node_a = uuid4()
         node_b = uuid4()
@@ -112,7 +112,7 @@ class TestBFS:
         assert result[0]['parent_id'] == str(node_a)
 
     @pytest.mark.asyncio
-    async def test_bfs_respects_max_depth(self, traversal_service, mock_uow):
+    async def test_bfs_respects_max_depth(self, traversal_service, mock_uow) -> None:
         """Test BFS respects max_depth parameter."""
         node_a = uuid4()
         node_b = uuid4()
@@ -123,7 +123,7 @@ class TestBFS:
         def load_edges_side_effect(nid, **_kwargs):
             if nid == node_a:
                 return _mock_page_result([edge_ab])
-            elif nid == node_b:
+            if nid == node_b:
                 return _mock_page_result([edge_bc])
             return _mock_page_result([])
 
@@ -135,7 +135,7 @@ class TestBFS:
         assert result[0]['node_id'] == str(node_b)
 
     @pytest.mark.asyncio
-    async def test_bfs_avoids_cycles(self, traversal_service, mock_uow):
+    async def test_bfs_avoids_cycles(self, traversal_service, mock_uow) -> None:
         """Test BFS avoids revisiting nodes in a cycle."""
         node_a = uuid4()
         node_b = uuid4()
@@ -145,7 +145,7 @@ class TestBFS:
         def load_edges_side_effect(nid, **_kwargs):
             if nid == node_a:
                 return _mock_page_result([edge_ab])
-            elif nid == node_b:
+            if nid == node_b:
                 return _mock_page_result([edge_ba])
             return _mock_page_result([])
 
@@ -158,7 +158,7 @@ class TestBFS:
         assert str(node_b) in node_ids
 
     @pytest.mark.asyncio
-    async def test_bfs_filters_by_type(self, traversal_service, mock_uow):
+    async def test_bfs_filters_by_type(self, traversal_service, mock_uow) -> None:
         """Test BFS filters edges by relationship_type."""
         node_a = uuid4()
         mock_uow.graph.load_outgoing_edges.return_value = _mock_page_result([])
@@ -184,7 +184,7 @@ class TestDFS:
     """Test DFS traversal."""
 
     @pytest.mark.asyncio
-    async def test_dfs_returns_nodes(self, traversal_service, mock_uow):
+    async def test_dfs_returns_nodes(self, traversal_service, mock_uow) -> None:
         """Test DFS returns nodes in depth-first order."""
         node_a = uuid4()
         node_b = uuid4()
@@ -198,7 +198,7 @@ class TestDFS:
         assert any(r['node_id'] == str(node_b) for r in result)
 
     @pytest.mark.asyncio
-    async def test_dfs_respects_max_depth(self, traversal_service, mock_uow):
+    async def test_dfs_respects_max_depth(self, traversal_service, mock_uow) -> None:
         """Test DFS respects max_depth."""
         node_a = uuid4()
         node_b = uuid4()
@@ -208,7 +208,7 @@ class TestDFS:
         def load_edges_side_effect(nid, **_kwargs):
             if nid == node_a:
                 return _mock_page_result([edge_ab])
-            elif nid == node_b:
+            if nid == node_b:
                 edge_bc = _make_edge(source_id=nid, target_id=node_c)
                 return _mock_page_result([edge_bc])
             return _mock_page_result([])
@@ -227,7 +227,7 @@ class TestShortestPath:
     """Test shortest_learning_path algorithm."""
 
     @pytest.mark.asyncio
-    async def test_shortest_path_direct(self, traversal_service, mock_uow):
+    async def test_shortest_path_direct(self, traversal_service, mock_uow) -> None:
         """Test shortest path between directly connected nodes."""
         node_a = uuid4()
         node_b = uuid4()
@@ -244,7 +244,7 @@ class TestShortestPath:
         assert result[-1]['node_id'] == str(node_b)
 
     @pytest.mark.asyncio
-    async def test_shortest_path_multihop(self, traversal_service, mock_uow):
+    async def test_shortest_path_multihop(self, traversal_service, mock_uow) -> None:
         """Test shortest path through multiple hops."""
         node_a = uuid4()
         node_b = uuid4()
@@ -275,7 +275,7 @@ class TestShortestPath:
         assert node_ids.index(str(node_b)) < node_ids.index(str(node_d))
 
     @pytest.mark.asyncio
-    async def test_no_path_exists(self, traversal_service, mock_uow):
+    async def test_no_path_exists(self, traversal_service, mock_uow) -> None:
         """Test returns empty list when no path exists."""
         node_a = uuid4()
         node_b = uuid4()
@@ -298,7 +298,7 @@ class TestShortestPath:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_same_node_returns_empty(self, traversal_service, mock_uow):  # noqa: ARG002
+    async def test_same_node_returns_empty(self, traversal_service, mock_uow) -> None:  # noqa: ARG002
         """Test returns empty when source equals target."""
         node_a = uuid4()
 
@@ -317,7 +317,7 @@ class TestPrerequisiteChain:
     """Test prerequisite_chain algorithm."""
 
     @pytest.mark.asyncio
-    async def test_prerequisite_chain_single_level(self, traversal_service, mock_uow):
+    async def test_prerequisite_chain_single_level(self, traversal_service, mock_uow) -> None:
         """Test chain returns direct prerequisites."""
         node_a = uuid4()
         node_b = uuid4()
@@ -334,7 +334,7 @@ class TestPrerequisiteChain:
         assert any(n['id'] == str(node_b) for n in level_0)
 
     @pytest.mark.asyncio
-    async def test_prerequisite_chain_multilevel(self, traversal_service, mock_uow):
+    async def test_prerequisite_chain_multilevel(self, traversal_service, mock_uow) -> None:
         """Test chain traverses multiple prerequisite levels."""
         node_a = uuid4()
         node_b = uuid4()
@@ -345,7 +345,7 @@ class TestPrerequisiteChain:
         def load_prereqs_side_effect(nid):
             if nid == node_a:
                 return [node_b_obj]
-            elif nid == node_b:
+            if nid == node_b:
                 return [node_c_obj]
             return []
 
@@ -361,7 +361,7 @@ class TestPrerequisiteChain:
         assert len(result) >= 2  # Two levels of prerequisites
 
     @pytest.mark.asyncio
-    async def test_prerequisite_no_prereqs(self, traversal_service, mock_uow):
+    async def test_prerequisite_no_prereqs(self, traversal_service, mock_uow) -> None:
         """Test chain returns empty when no prerequisites exist."""
         mock_uow.graph.load_prerequisites.return_value = []
 
@@ -380,7 +380,7 @@ class TestDependentChain:
     """Test dependent_chain algorithm."""
 
     @pytest.mark.asyncio
-    async def test_dependent_chain(self, traversal_service, mock_uow):
+    async def test_dependent_chain(self, traversal_service, mock_uow) -> None:
         """Test dependent chain returns nodes that depend on this node."""
         node_a = uuid4()
         node_b = uuid4()
@@ -404,7 +404,7 @@ class TestNeighbors:
     """Test neighbors_at_depth."""
 
     @pytest.mark.asyncio
-    async def test_neighbors_returns_outgoing_incoming(self, traversal_service, mock_uow):
+    async def test_neighbors_returns_outgoing_incoming(self, traversal_service, mock_uow) -> None:
         """Test neighbors returns both outgoing and incoming."""
         node_a = uuid4()
         node_b = uuid4()
@@ -437,7 +437,7 @@ class TestSubgraph:
     """Test extract_subgraph."""
 
     @pytest.mark.asyncio
-    async def test_extract_subgraph_returns_nodes_edges(self, traversal_service, mock_uow):
+    async def test_extract_subgraph_returns_nodes_edges(self, traversal_service, mock_uow) -> None:
         """Test subgraph returns nodes, edges, and center."""
         node_a = uuid4()
         node_b = uuid4()
@@ -447,10 +447,10 @@ class TestSubgraph:
 
         mock_uow.graph.load_outgoing_edges.return_value = _mock_page_result([edge_ab])
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
-            side_effect=lambda nid: {
+            side_effect={
                 node_a: node_a_obj,
                 node_b: node_b_obj,
-            }.get(nid)
+            }.get,
         )
 
         result = await traversal_service.extract_subgraph(

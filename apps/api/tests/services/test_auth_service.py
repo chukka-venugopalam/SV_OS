@@ -63,32 +63,32 @@ def sample_user():
 class TestPasswordHashing:
     """Test password hashing and verification."""
 
-    def test_hash_password_returns_string(self):
+    def test_hash_password_returns_string(self) -> None:
         """Test hash_password returns a non-empty string."""
         hashed = hash_password('my-password')
         assert isinstance(hashed, str)
         assert len(hashed) > 0
 
-    def test_hash_password_is_different_from_input(self):
+    def test_hash_password_is_different_from_input(self) -> None:
         """Test the hash is different from the original password."""
         hashed = hash_password('my-password')
         assert hashed != 'my-password'
 
-    def test_verify_password_correct(self):
+    def test_verify_password_correct(self) -> None:
         """Test verify_password returns True for correct password."""
         hashed = hash_password('my-password')
         assert verify_password('my-password', hashed) is True
 
-    def test_verify_password_incorrect(self):
+    def test_verify_password_incorrect(self) -> None:
         """Test verify_password returns False for incorrect password."""
         hashed = hash_password('my-password')
         assert verify_password('wrong-password', hashed) is False
 
-    def test_verify_password_none_hash(self):
+    def test_verify_password_none_hash(self) -> None:
         """Test verify_password returns False when hash is None."""
         assert verify_password('password', None) is False
 
-    def test_hash_is_different_for_same_password(self):
+    def test_hash_is_different_for_same_password(self) -> None:
         """Test each hash is unique (bcrypt salt)."""
         hash1 = hash_password('same-password')
         hash2 = hash_password('same-password')
@@ -102,7 +102,7 @@ class TestRegistration:
     """Test user registration logic."""
 
     @pytest.mark.asyncio
-    async def test_register_creates_user(self, auth_service, mock_uow):
+    async def test_register_creates_user(self, auth_service, mock_uow) -> None:
         """Test registration creates a user successfully."""
         mock_uow.users.find_by_email = AsyncMock(return_value=None)
         mock_uow.users.find_by_username = AsyncMock(return_value=None)
@@ -124,7 +124,7 @@ class TestRegistration:
         mock_uow.users.create.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_register_raises_on_duplicate_email(self, auth_service, mock_uow):
+    async def test_register_raises_on_duplicate_email(self, auth_service, mock_uow) -> None:
         """Test registration raises DuplicateEntityError for existing email."""
         mock_uow.users.find_by_email = AsyncMock(return_value=MagicMock())
         mock_uow.users.find_by_username = AsyncMock(return_value=None)
@@ -137,7 +137,7 @@ class TestRegistration:
             )
 
     @pytest.mark.asyncio
-    async def test_register_raises_on_duplicate_username(self, auth_service, mock_uow):
+    async def test_register_raises_on_duplicate_username(self, auth_service, mock_uow) -> None:
         """Test registration raises DuplicateEntityError for existing username."""
         mock_uow.users.find_by_email = AsyncMock(return_value=None)
         mock_uow.users.find_by_username = AsyncMock(return_value=MagicMock())
@@ -150,7 +150,7 @@ class TestRegistration:
             )
 
     @pytest.mark.asyncio
-    async def test_register_hashes_password(self, auth_service, mock_uow):
+    async def test_register_hashes_password(self, auth_service, mock_uow) -> None:
         """Test registration hashes the password before storing."""
         mock_uow.users.find_by_email = AsyncMock(return_value=None)
         mock_uow.users.find_by_username = AsyncMock(return_value=None)
@@ -182,7 +182,7 @@ class TestLogin:
     """Test login logic."""
 
     @pytest.mark.asyncio
-    async def test_login_success(self, auth_service, mock_uow, sample_user):
+    async def test_login_success(self, auth_service, mock_uow, sample_user) -> None:
         """Test successful login returns user and tokens."""
         mock_uow.users.find_by_email = AsyncMock(return_value=sample_user)
 
@@ -198,7 +198,7 @@ class TestLogin:
         assert expires_at is not None
 
     @pytest.mark.asyncio
-    async def test_login_invalid_email(self, auth_service, mock_uow):
+    async def test_login_invalid_email(self, auth_service, mock_uow) -> None:
         """Test login raises AuthenticationError for unknown email."""
         mock_uow.users.find_by_email = AsyncMock(return_value=None)
 
@@ -209,7 +209,7 @@ class TestLogin:
             )
 
     @pytest.mark.asyncio
-    async def test_login_wrong_password(self, auth_service, mock_uow, sample_user):
+    async def test_login_wrong_password(self, auth_service, mock_uow, sample_user) -> None:
         """Test login raises AuthenticationError for wrong password."""
         mock_uow.users.find_by_email = AsyncMock(return_value=sample_user)
 
@@ -220,7 +220,7 @@ class TestLogin:
             )
 
     @pytest.mark.asyncio
-    async def test_login_inactive_user(self, auth_service, mock_uow, sample_user):
+    async def test_login_inactive_user(self, auth_service, mock_uow, sample_user) -> None:
         """Test login raises AuthenticationError for inactive user."""
         sample_user.is_active = False
         mock_uow.users.find_by_email = AsyncMock(return_value=sample_user)
@@ -232,7 +232,7 @@ class TestLogin:
             )
 
     @pytest.mark.asyncio
-    async def test_login_deleted_user(self, auth_service, mock_uow, sample_user):
+    async def test_login_deleted_user(self, auth_service, mock_uow, sample_user) -> None:
         """Test login raises AuthenticationError for deleted user."""
         sample_user.is_deleted = True
         mock_uow.users.find_by_email = AsyncMock(return_value=sample_user)
@@ -244,7 +244,7 @@ class TestLogin:
             )
 
     @pytest.mark.asyncio
-    async def test_login_updates_last_login(self, auth_service, mock_uow, sample_user):
+    async def test_login_updates_last_login(self, auth_service, mock_uow, sample_user) -> None:
         """Test login updates the last_login_at timestamp."""
         mock_uow.users.find_by_email = AsyncMock(return_value=sample_user)
 
@@ -263,20 +263,20 @@ class TestLogin:
 class TestJWT:
     """Test JWT token creation and validation."""
 
-    def test_create_access_token_returns_string(self, auth_service):
+    def test_create_access_token_returns_string(self, auth_service) -> None:
         """Test create_access_token returns a token string."""
         token, expires_at = auth_service.create_access_token(uuid4(), 'learner')
         assert isinstance(token, str)
         assert len(token) > 0
         assert expires_at is not None
 
-    def test_create_refresh_token_returns_string(self, auth_service):
+    def test_create_refresh_token_returns_string(self, auth_service) -> None:
         """Test create_refresh_token returns a token string."""
         token = auth_service.create_refresh_token(uuid4())
         assert isinstance(token, str)
         assert len(token) > 0
 
-    def test_decode_valid_token(self, auth_service):
+    def test_decode_valid_token(self, auth_service) -> None:
         """Test decode_token returns the payload for a valid token."""
         user_id = uuid4()
         token, _ = auth_service.create_access_token(user_id, 'learner')
@@ -285,19 +285,19 @@ class TestJWT:
         assert payload['type'] == 'access'
         assert payload['role'] == 'learner'
 
-    def test_decode_invalid_token(self, auth_service):
+    def test_decode_invalid_token(self, auth_service) -> None:
         """Test decode_token raises AuthenticationError for invalid token."""
         with pytest.raises(AuthenticationError):
             auth_service.decode_token('invalid-token')
 
-    def test_get_user_id_from_token(self, auth_service):
+    def test_get_user_id_from_token(self, auth_service) -> None:
         """Test get_user_id_from_token extracts the user ID."""
         user_id = uuid4()
         token, _ = auth_service.create_access_token(user_id, 'learner')
         extracted = auth_service.get_user_id_from_token(token)
         assert extracted == user_id
 
-    def test_access_and_refresh_tokens_differ(self, auth_service):
+    def test_access_and_refresh_tokens_differ(self, auth_service) -> None:
         """Test access and refresh tokens are different."""
         user_id = uuid4()
         access_token, _ = auth_service.create_access_token(user_id, 'learner')
@@ -312,13 +312,13 @@ class TestTokenRefresh:
     """Test token refresh logic."""
 
     @pytest.mark.asyncio
-    async def test_refresh_with_valid_token(self, auth_service, mock_uow, sample_user):
+    async def test_refresh_with_valid_token(self, auth_service, mock_uow, sample_user) -> None:
         """Test refresh_tokens returns new tokens for a valid refresh token."""
         refresh_token = auth_service.create_refresh_token(sample_user.id)
         mock_uow.users.get_by_id = AsyncMock(return_value=sample_user)
 
         user, new_access, new_refresh, _expires_at = await auth_service.refresh_tokens(
-            refresh_token
+            refresh_token,
         )
 
         assert user.id == sample_user.id
@@ -326,7 +326,7 @@ class TestTokenRefresh:
         assert isinstance(new_refresh, str)
 
     @pytest.mark.asyncio
-    async def test_refresh_with_access_token_fails(self, auth_service):
+    async def test_refresh_with_access_token_fails(self, auth_service) -> None:
         """Test refresh_tokens fails when using an access token."""
         access_token, _ = auth_service.create_access_token(uuid4(), 'learner')
 
@@ -334,7 +334,7 @@ class TestTokenRefresh:
             await auth_service.refresh_tokens(access_token)
 
     @pytest.mark.asyncio
-    async def test_refresh_with_expired_token_fails(self, auth_service):
+    async def test_refresh_with_expired_token_fails(self, auth_service) -> None:
         """Test refresh_tokens fails with an expired token."""
         # Create a token that's already expired by manipulating time
         with patch('app.services.auth.datetime') as mock_datetime:
@@ -356,7 +356,7 @@ class TestPasswordChange:
     """Test password change logic."""
 
     @pytest.mark.asyncio
-    async def test_change_password_success(self, auth_service, mock_uow, sample_user):
+    async def test_change_password_success(self, auth_service, mock_uow, sample_user) -> None:
         """Test changing password with correct current password."""
         mock_uow.users.get_by_id = AsyncMock(return_value=sample_user)
         mock_uow.users.update = AsyncMock()
@@ -374,7 +374,7 @@ class TestPasswordChange:
         assert verify_password('new-password', call_kwargs['password_hash']) is True
 
     @pytest.mark.asyncio
-    async def test_change_password_wrong_current(self, auth_service, mock_uow, sample_user):
+    async def test_change_password_wrong_current(self, auth_service, mock_uow, sample_user) -> None:
         """Test changing password fails with wrong current password."""
         mock_uow.users.get_by_id = AsyncMock(return_value=sample_user)
 
@@ -386,7 +386,7 @@ class TestPasswordChange:
             )
 
     @pytest.mark.asyncio
-    async def test_change_password_user_not_found(self, auth_service, mock_uow):
+    async def test_change_password_user_not_found(self, auth_service, mock_uow) -> None:
         """Test changing password fails for non-existent user."""
         mock_uow.users.get_by_id = AsyncMock(return_value=None)
 
@@ -404,20 +404,20 @@ class TestPasswordChange:
 class TestAuthorization:
     """Test role-based authorization logic."""
 
-    def test_require_role_admin_allowed(self):
+    def test_require_role_admin_allowed(self) -> None:
         """Test require_role passes for admin users."""
         user = MagicMock()
         user.role = 'admin'
         AuthService.require_role(user, 'admin')  # Should not raise
 
-    def test_require_role_learner_denied_admin(self):
+    def test_require_role_learner_denied_admin(self) -> None:
         """Test require_role raises for non-admin users."""
         user = MagicMock()
         user.role = 'learner'
         with pytest.raises(AuthorizationError, match='Admin access required'):
             AuthService.require_role(user, 'admin')
 
-    def test_require_role_no_role(self):
+    def test_require_role_no_role(self) -> None:
         """Test require_role raises for users without role."""
         user = MagicMock(spec=[])  # No role attribute
         with pytest.raises(AuthorizationError, match='has no role'):

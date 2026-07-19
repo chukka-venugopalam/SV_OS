@@ -17,10 +17,8 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
-from uuid import UUID, uuid4
 
-from app.events.bus import EventBus, EventEnvelope, EventMetadata
-
+from app.events.bus import EventBus, EventEnvelope
 
 # ── Event Type Constants ───────────────────────────────────────────
 
@@ -179,6 +177,7 @@ class EventEngine:
 
         Returns:
             List of published EventEnvelopes.
+
         """
         envelopes = await self._bus.publish(
             event_name=event_name,
@@ -193,7 +192,7 @@ class EventEngine:
             self._event_history.append(envelope)
             # Trim history if it exceeds the limit
             if len(self._event_history) > self._history_limit:
-                self._event_history = self._event_history[-self._history_limit:]
+                self._event_history = self._event_history[-self._history_limit :]
 
         return envelopes
 
@@ -208,6 +207,7 @@ class EventEngine:
 
         Returns:
             A callable that unsubscribes the handler when invoked.
+
         """
         self._bus.subscribe(event_name, handler)
 
@@ -242,6 +242,7 @@ class EventEngine:
 
         Returns:
             Number of events replayed.
+
         """
         events_to_replay = list(self._event_history)
 
@@ -249,9 +250,7 @@ class EventEngine:
             events_to_replay = [e for e in events_to_replay if e.name == event_type]
 
         if event_ids:
-            events_to_replay = [
-                e for e in events_to_replay if e.metadata.event_id in event_ids
-            ]
+            events_to_replay = [e for e in events_to_replay if e.metadata.event_id in event_ids]
 
         replayed = 0
         for envelope in events_to_replay:
@@ -265,7 +264,12 @@ class EventEngine:
 
         return replayed
 
-    def register_replay_hook(self, event_type: str, handler: EventHandlerFn, description: str = '') -> None:
+    def register_replay_hook(
+        self,
+        event_type: str,
+        handler: EventHandlerFn,
+        description: str = '',
+    ) -> None:
         """Register a hook to be called during replay for a specific event type."""
         hook = ReplayHook(event_type=event_type, handler=handler, description=description)
         self._replay_hooks.setdefault(event_type, []).append(hook)
@@ -287,6 +291,7 @@ class EventEngine:
 
         Returns:
             List of event dicts with metadata and payload.
+
         """
         events = list(self._event_history)
 
@@ -326,6 +331,7 @@ class EventEngine:
 
         Returns:
             True if the event was found and retried, False otherwise.
+
         """
         for i, entry in enumerate(self._dead_letter_queue):
             if entry.envelope.metadata.event_id == event_id:

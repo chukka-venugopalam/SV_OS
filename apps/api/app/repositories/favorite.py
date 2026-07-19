@@ -6,13 +6,17 @@ Favorites serve as explicit like/save signals for the recommendation engine.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 
 from app.models.favorite import Favorite
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class FavoriteRepository(BaseRepository[Favorite]):
@@ -46,7 +50,7 @@ class FavoriteRepository(BaseRepository[Favorite]):
         stmt = select(Favorite).where(
             Favorite.user_id == user_id,
             Favorite.node_id == node_id,
-            Favorite.is_deleted == False,  # noqa: E712
+            not Favorite.is_deleted,
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()

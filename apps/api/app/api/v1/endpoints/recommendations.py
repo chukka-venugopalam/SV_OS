@@ -7,17 +7,20 @@ so the frontend can be developed against stable endpoints.
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_uow
-from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
 from app.schemas.response import build_success_response
 from app.services.recommendation import RecommendationService
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -29,7 +32,8 @@ async def get_recommendations(
     _current_user_id: Annotated[UUID, Depends(get_current_user_id)],
     uow: Annotated[UnitOfWork, Depends(get_uow)],
     _recommendation_type: Annotated[
-        str | None, Query(description='Filter by recommendation type')
+        str | None,
+        Query(description='Filter by recommendation type'),
     ] = None,
     page: Annotated[int, Query(ge=1, description='Page number')] = 1,
     per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
@@ -80,7 +84,8 @@ async def dismiss_recommendation(
         await service.dismiss(recommendation_id)
     except EntityNotFoundError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Recommendation not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Recommendation not found',
         ) from e
 
     return build_success_response(message='Recommendation dismissed')

@@ -6,8 +6,8 @@ No business logic — delegates to engines.
 
 from __future__ import annotations
 
-from uuid import UUID
 from typing import Any
+from uuid import UUID
 
 
 class RecommendationCapability:
@@ -61,7 +61,7 @@ class RecommendationCapability:
             return []
         return await self._recommendation.recommend_after_assessment(user_id, results)
 
-    async def get_recommended_careers(self, user_id: UUID, limit: int = 5) -> list[dict]:
+    async def get_recommended_careers(self, _user_id: UUID, limit: int = 5) -> list[dict]:
         """Get career recommendations based on completed nodes."""
         if self._recommendation is None:
             return []

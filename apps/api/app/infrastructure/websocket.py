@@ -12,16 +12,16 @@ Supports:
 from __future__ import annotations
 
 import asyncio
-import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 
 @dataclass
 class WebSocketClient:
     """A connected WebSocket client."""
+
     client_id: str = field(default_factory=lambda: str(uuid4()))
     channels: list[str] = field(default_factory=lambda: ['all'])
     connected_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
@@ -92,11 +92,13 @@ class WebSocketManager:
         if client is None:
             return False
         try:
-            await client.queue.put({
-                'type': event_type,
-                'data': data,
-                'timestamp': datetime.now(UTC).isoformat(),
-            })
+            await client.queue.put(
+                {
+                    'type': event_type,
+                    'data': data,
+                    'timestamp': datetime.now(UTC).isoformat(),
+                },
+            )
             return True
         except Exception:
             return False
@@ -115,32 +117,62 @@ class WebSocketManager:
                 break
         return messages
 
-    async def broadcast_engine_status(self, engine_name: str, status: str, details: dict[str, Any] | None = None) -> None:
+    async def broadcast_engine_status(
+        self,
+        engine_name: str,
+        status: str,
+        details: dict[str, Any] | None = None,
+    ) -> None:
         """Broadcast engine status change."""
-        await self.broadcast('engine.status', 'engine_status', {
-            'engine': engine_name,
-            'status': status,
-            'details': details or {},
-        })
+        await self.broadcast(
+            'engine.status',
+            'engine_status',
+            {
+                'engine': engine_name,
+                'status': status,
+                'details': details or {},
+            },
+        )
 
-    async def broadcast_job_progress(self, job_id: str, job_type: str, progress: float, status: str, message: str = '') -> None:
+    async def broadcast_job_progress(
+        self,
+        job_id: str,
+        job_type: str,
+        progress: float,
+        status: str,
+        message: str = '',
+    ) -> None:
         """Broadcast job progress update."""
-        await self.broadcast('job.progress', 'job_progress', {
-            'job_id': job_id,
-            'job_type': job_type,
-            'progress': progress,
-            'status': status,
-            'message': message,
-        })
+        await self.broadcast(
+            'job.progress',
+            'job_progress',
+            {
+                'job_id': job_id,
+                'job_type': job_type,
+                'progress': progress,
+                'status': status,
+                'message': message,
+            },
+        )
 
-    async def broadcast_notification(self, user_id: str, title: str, body: str, notification_type: str = 'info') -> None:
+    async def broadcast_notification(
+        self,
+        user_id: str,
+        title: str,
+        body: str,
+        notification_type: str = 'info',
+    ) -> None:
         """Broadcast a notification to a user."""
-        await self.broadcast('notifications', 'notification', {
-            'user_id': user_id,
-            'title': title,
-            'body': body,
-            'type': notification_type,
-        })
+        await self.broadcast(
+            'notifications',
+            'notification',
+            {
+                'user_id': user_id,
+                'title': title,
+                'body': body,
+                'type': notification_type,
+            },
+        )
 
     async def get_statistics(self) -> dict:
         """Get WebSocket connection statistics."""

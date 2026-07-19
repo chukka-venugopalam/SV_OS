@@ -15,8 +15,11 @@ import asyncio
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class WorkerTaskStatus(Enum):
@@ -30,6 +33,7 @@ class WorkerTaskStatus(Enum):
 @dataclass
 class WorkerTask:
     """A task to be executed by a worker."""
+
     task_id: str = field(default_factory=lambda: str(uuid4()))
     name: str = ''
     handler_name: str = ''
@@ -64,8 +68,7 @@ class WorkerManager:
         """Start the worker pool."""
         self._running = True
         self._workers = [
-            asyncio.create_task(self._worker_loop(i))
-            for i in range(self._max_workers)
+            asyncio.create_task(self._worker_loop(i)) for i in range(self._max_workers)
         ]
 
     async def stop(self) -> None:
@@ -80,7 +83,12 @@ class WorkerManager:
         """Register a handler function for task execution."""
         self._handlers[name] = handler
 
-    async def submit_task(self, name: str, handler_name: str, payload: dict[str, Any] | None = None) -> str:
+    async def submit_task(
+        self,
+        name: str,
+        handler_name: str,
+        payload: dict[str, Any] | None = None,
+    ) -> str:
         """Submit a task to the worker queue."""
         task = WorkerTask(name=name, handler_name=handler_name, payload=payload or {})
         self._tasks[task.task_id] = task
@@ -124,13 +132,13 @@ class WorkerManager:
             'cancelled': sum(1 for t in tasks if t.status == WorkerTaskStatus.CANCELLED),
         }
 
-    async def _worker_loop(self, worker_id: int) -> None:
+    async def _worker_loop(self, _worker_id: int) -> None:
         """Main worker loop — consume tasks from the queue."""
         while self._running:
             try:
                 task = await asyncio.wait_for(self._queue.get(), timeout=1.0)
                 await self._execute_task(task)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
             except asyncio.CancelledError:
                 break
@@ -147,9 +155,9 @@ class WorkerManager:
             handler = self._handlers.get(task.handler_name)
             if handler:
                 if asyncio.iscoroutinefunction(handler):
-                    result = await handler(task.payload)
+                    await handler(task.payload)
                 else:
-                    result = handler(task.payload)
+                    handler(task.payload)
                 task.status = WorkerTaskStatus.COMPLETED
             else:
                 task.status = WorkerTaskStatus.COMPLETED
@@ -158,7 +166,7 @@ class WorkerManager:
             if task.retry_count <= task.max_retries:
                 task.status = WorkerTaskStatus.PENDING
                 task.error_message = f'{exc} (retry {task.retry_count}/{task.max_retries})'
-                await asyncio.sleep(2 ** task.retry_count)
+                await asyncio.sleep(2**task.retry_count)
                 await self._queue.put(task)
             else:
                 task.status = WorkerTaskStatus.FAILED

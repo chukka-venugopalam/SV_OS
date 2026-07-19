@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
-from app.models.skill import Skill
-from app.repositories import UnitOfWork
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.skill import Skill
+    from app.repositories import UnitOfWork
+    from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
 
@@ -24,7 +28,8 @@ class SkillService:
         """Get a skill by ID."""
         skill = await self._uow.skills.get_by_id(skill_id)
         if not skill:
-            raise EntityNotFoundError('Skill', skill_id)
+            msg = 'Skill'
+            raise EntityNotFoundError(msg, skill_id)
         return skill
 
     async def list_skills(

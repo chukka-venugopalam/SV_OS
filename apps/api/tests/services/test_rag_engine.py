@@ -24,7 +24,7 @@ def mock_uow():
 class TestRAGEngine:
     """Test the RAG search pipeline."""
 
-    async def test_search_empty_query(self, mock_uow):
+    async def test_search_empty_query(self, mock_uow) -> None:
         """Search returns empty results for empty query."""
         engine = RAGEngine(mock_uow)
         with (
@@ -35,7 +35,7 @@ class TestRAGEngine:
             results = await engine.search(query='')
             assert isinstance(results, list)
 
-    async def test_search_returns_results(self, mock_uow):
+    async def test_search_returns_results(self, mock_uow) -> None:
         """Search returns ranked results from semantic + hybrid."""
         engine = RAGEngine(mock_uow)
         sample_node = {
@@ -55,7 +55,7 @@ class TestRAGEngine:
                 AsyncMock(
                     return_value=[
                         {'node': sample_node, 'similarity': 0.95},
-                    ]
+                    ],
                 ),
             ),
             patch.object(engine._hybrid, 'search', AsyncMock(return_value={'items': []})),
@@ -64,7 +64,7 @@ class TestRAGEngine:
             assert len(results) > 0
             assert 'citation' in results[0]
 
-    async def test_search_deduplicates_results(self, mock_uow):
+    async def test_search_deduplicates_results(self, mock_uow) -> None:
         """Duplicate results from semantic and hybrid are merged."""
         engine = RAGEngine(mock_uow)
         node_id = str(uuid4())
@@ -84,7 +84,7 @@ class TestRAGEngine:
                 AsyncMock(
                     return_value=[
                         {'node': sample_node, 'similarity': 0.95},
-                    ]
+                    ],
                 ),
             ),
             patch.object(
@@ -95,7 +95,7 @@ class TestRAGEngine:
                         'items': [
                             {'node': sample_node, 'score': 0.90},
                         ],
-                    }
+                    },
                 ),
             ),
         ):
@@ -103,7 +103,7 @@ class TestRAGEngine:
             # Should be deduplicated
             assert len(results) == 1
 
-    async def test_search_with_graph_expansion(self, mock_uow):
+    async def test_search_with_graph_expansion(self, mock_uow) -> None:
         """Graph expansion adds prerequisite/dependent context."""
         engine = RAGEngine(mock_uow)
         node_id = str(uuid4())
@@ -128,7 +128,7 @@ class TestRAGEngine:
                 AsyncMock(
                     return_value=[
                         {'node': sample_node, 'similarity': 0.95},
-                    ]
+                    ],
                 ),
             ),
             patch.object(engine._hybrid, 'search', AsyncMock(return_value={'items': []})),
@@ -138,7 +138,7 @@ class TestRAGEngine:
             assert 'prerequisites' in results[0]
             assert len(results[0]['prerequisites']) > 0
 
-    async def test_search_handles_embedding_failure(self, mock_uow):
+    async def test_search_handles_embedding_failure(self, mock_uow) -> None:
         """Search falls back to hybrid only when embedding fails."""
         engine = RAGEngine(mock_uow)
         with (
@@ -158,16 +158,16 @@ class TestRAGEngine:
                                     'difficulty': 'beginner',
                                 },
                                 'score': 0.8,
-                            }
+                            },
                         ],
-                    }
+                    },
                 ),
             ),
         ):
             results = await engine.search(query='Python')
             assert len(results) > 0
 
-    async def test_search_respects_top_k(self, mock_uow):
+    async def test_search_respects_top_k(self, mock_uow) -> None:
         """Search limits results to top_k."""
         engine = RAGEngine(mock_uow)
         # Make more results than top_k
@@ -193,7 +193,7 @@ class TestRAGEngine:
             results = await engine.search(query='test', top_k=3)
             assert len(results) <= 3
 
-    async def test_search_sorts_by_similarity(self, mock_uow):
+    async def test_search_sorts_by_similarity(self, mock_uow) -> None:
         """Results are sorted by similarity descending."""
         engine = RAGEngine(mock_uow)
         results_list = [

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.deps import get_optional_user_id
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 router = APIRouter(prefix='/recommendations', tags=['recommendations-platform'])
 

@@ -1,4 +1,4 @@
-"""Graph edge DTO for visualisation and exploration.
+r"""Graph edge DTO for visualisation and exploration.
 
 The ``GraphEdge`` is the connection between two ``GraphNode``\'s,
 carrying the relationship type, direction, and weight.
@@ -6,11 +6,14 @@ carrying the relationship type, direction, and weight.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 from app.models.enums import EdgeDirection, EdgeType
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class GraphEdge(BaseModel):
@@ -31,8 +34,12 @@ class GraphEdge(BaseModel):
         description='Directionality of the edge',
     )
     description: str = Field(
-        default='', description='Human-readable description of the relationship'
+        default='',
+        description='Human-readable description of the relationship',
     )
     weight: float = Field(
-        default=1.0, ge=0.0, le=1.0, description='Relationship strength for layout'
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+        description='Relationship strength for layout',
     )

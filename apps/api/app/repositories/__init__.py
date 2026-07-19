@@ -1,4 +1,4 @@
-"""Data access layer — repositories abstract database operations.
+r"""Data access layer — repositories abstract database operations.
 
 This module provides the complete repository layer for all domain
 entities.  Repositories consume SQLAlchemy models and perform

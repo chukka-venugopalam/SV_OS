@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
-from app.models.enums import Difficulty, NodeType
+if TYPE_CHECKING:
+    from app.models.enums import Difficulty, NodeType
 
 
 class HighlightFragment(BaseModel):

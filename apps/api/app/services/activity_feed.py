@@ -1,5 +1,4 @@
-"""
-Activity Feed Service — builds a chronological user activity feed.
+"""Activity Feed Service — builds a chronological user activity feed.
 
 Sources activity from:
 - Progress updates (started, completed, mastered)
@@ -13,12 +12,15 @@ avoid N+1 queries.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import text
 from structlog.stdlib import get_logger
 
-from app.repositories import UnitOfWork
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -60,6 +62,7 @@ class ActivityFeedService:
         Returns:
             A dict with ``items``, ``total``, ``page``, ``per_page``,
             ``total_pages``.
+
         """
         offset = (page - 1) * per_page
 
@@ -225,8 +228,8 @@ class ActivityFeedService:
                     'node_id': str(row[4]) if row[4] else None,
                     'node_slug': row[5],
                     'timestamp': row[6].isoformat() if row[6] else None,
-                    'metadata': row[7] if row[7] else {},
-                }
+                    'metadata': row[7] or {},
+                },
             )
 
         total_pages = max(1, (total + per_page - 1) // per_page) if total else 1

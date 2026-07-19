@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
 from app.api.deps import get_optional_user_id
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 router = APIRouter(prefix='/assessments-platform', tags=['assessments-platform'])
 
@@ -40,10 +42,17 @@ async def create_assessment(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Assessment engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Assessment engine not available'},
+            'errors': None,
+        }
     result = await engine.create_assessment(
-        body.node_id, body.title, body.description,
-        body.questions, body.passing_score,
+        body.node_id,
+        body.title,
+        body.description,
+        body.questions,
+        body.passing_score,
     )
     return {'success': True, 'data': result, 'errors': None}
 
@@ -55,7 +64,11 @@ async def get_assessment(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Assessment engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Assessment engine not available'},
+            'errors': None,
+        }
     result = await engine.get_assessment(assessment_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -92,7 +105,11 @@ async def grade_assessment(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Assessment engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Assessment engine not available'},
+            'errors': None,
+        }
     result = await engine.grade_assessment(submission_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -117,7 +134,11 @@ async def assessment_statistics(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Assessment engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Assessment engine not available'},
+            'errors': None,
+        }
     result = await engine.get_assessment_statistics(assessment_id)
     return {'success': True, 'data': result, 'errors': None}
 
@@ -129,6 +150,10 @@ async def update_knowledge(
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
-        return {'success': True, 'data': {'error': 'Assessment engine not available'}, 'errors': None}
+        return {
+            'success': True,
+            'data': {'error': 'Assessment engine not available'},
+            'errors': None,
+        }
     result = await engine.update_knowledge(submission_id)
     return {'success': True, 'data': result, 'errors': None}

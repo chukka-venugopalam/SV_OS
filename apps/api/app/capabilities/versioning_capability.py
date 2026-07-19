@@ -7,7 +7,6 @@ No business logic — delegates to engines.
 from __future__ import annotations
 
 from typing import Any
-from uuid import UUID
 
 
 class VersioningCapability:
@@ -19,10 +18,21 @@ class VersioningCapability:
     def __init__(self, versioning_engine: Any | None = None) -> None:
         self._versioning = versioning_engine
 
-    async def create_snapshot(self, notes: str = '', author: str = 'system', tags: list[str] | None = None, branch: str = 'main') -> dict:
+    async def create_snapshot(
+        self,
+        notes: str = '',
+        author: str = 'system',
+        tags: list[str] | None = None,
+        branch: str = 'main',
+    ) -> dict:
         if self._versioning is None:
             return {'error': 'Versioning engine not available'}
-        return await self._versioning.create_snapshot(notes=notes, author=author, tags=tags, branch=branch)
+        return await self._versioning.create_snapshot(
+            notes=notes,
+            author=author,
+            tags=tags,
+            branch=branch,
+        )
 
     async def get_snapshot(self, version_id: str) -> dict | None:
         if self._versioning is None:

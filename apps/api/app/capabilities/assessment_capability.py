@@ -6,8 +6,10 @@ No business logic — delegates to engines.
 
 from __future__ import annotations
 
-from uuid import UUID
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class AssessmentCapability:
@@ -37,20 +39,31 @@ class AssessmentCapability:
         return await self._assessment.get_assessments_for_node(node_id)
 
     async def submit_assessment(
-        self, user_id: UUID, assessment_id: UUID, answers: list[dict]
+        self,
+        user_id: UUID,
+        assessment_id: UUID,
+        answers: list[dict],
     ) -> dict:
         if self._assessment is None:
             return {'error': 'Assessment engine not available'}
         return await self._assessment.submit_assessment(user_id, assessment_id, answers)
 
     async def create_assessment(
-        self, node_id: UUID, title: str, description: str = '',
-        questions: list[dict] | None = None, passing_score: float = 0.7,
+        self,
+        node_id: UUID,
+        title: str,
+        description: str = '',
+        questions: list[dict] | None = None,
+        passing_score: float = 0.7,
     ) -> dict:
         if self._assessment is None:
             return {'error': 'Assessment engine not available'}
         return await self._assessment.create_assessment(
-            node_id, title, description, questions, passing_score,
+            node_id,
+            title,
+            description,
+            questions,
+            passing_score,
         )
 
     async def grade_assessment(self, submission_id: UUID) -> dict:

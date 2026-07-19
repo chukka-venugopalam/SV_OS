@@ -1,5 +1,4 @@
-"""
-Cache Service — Redis-backed caching for the AI layer.
+"""Cache Service — Redis-backed caching for the AI layer.
 
 Provides:
 - Embedding cache (LRU with TTL)
@@ -16,10 +15,12 @@ import hashlib
 import json
 import os
 import time
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from structlog.stdlib import get_logger
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 logger = get_logger(__name__)
 

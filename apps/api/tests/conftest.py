@@ -8,13 +8,17 @@ Provides pytest fixtures for:
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 
 import pytest
-from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from app.main import create_app
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from fastapi import FastAPI
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -27,6 +31,7 @@ def _setup_database() -> None:
     bootstrapping.
     """
     from pathlib import Path
+
     from alembic.config import Config
 
     from alembic import command
@@ -47,7 +52,16 @@ def _setup_database() -> None:
         command.upgrade(alembic_cfg, 'head')
     except Exception as exc:
         message = str(exc).lower()
-        if any(token in message for token in ('connection refused', 'could not connect', 'database does not exist', 'no such host', 'timeout')):
+        if any(
+            token in message
+            for token in (
+                'connection refused',
+                'could not connect',
+                'database does not exist',
+                'no such host',
+                'timeout',
+            )
+        ):
             return
         raise
 

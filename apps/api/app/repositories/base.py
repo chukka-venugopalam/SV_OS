@@ -13,11 +13,9 @@ the SQLAlchemy model class::
 
 from __future__ import annotations
 
-from typing import Any, TypeVar
-from uuid import UUID
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from sqlalchemy import Select, func, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import Base
 from app.repositories.errors import (
@@ -33,6 +31,11 @@ from app.repositories.query_helpers import (
     QueryBuilder,
     SortDirection,
 )
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 ModelT = TypeVar('ModelT', bound=Base)
 
@@ -61,7 +64,7 @@ class BaseRepository[ModelT: Base]:
     def _active_filter(self) -> Any:
         """Return the soft-delete filter expression, if applicable."""
         if hasattr(self.model, 'is_deleted'):
-            return self.model.is_deleted == False  # noqa: E712
+            return not self.model.is_deleted
         return None
 
     def _apply_active_filter(self, stmt: Select) -> Select:
@@ -112,7 +115,8 @@ class BaseRepository[ModelT: Base]:
         """
         column = getattr(self.model, field, None)
         if column is None:
-            raise RepositoryError(f'Unknown field: {field} on {self.model.__name__}')
+            msg = f'Unknown field: {field} on {self.model.__name__}'
+            raise RepositoryError(msg)
 
         stmt = select(self.model).where(column == value)
         stmt = self._apply_active_filter(stmt)
@@ -166,6 +170,7 @@ class BaseRepository[ModelT: Base]:
 
         Returns:
             List of matching model instances.
+
         """
         builder = self._query()
         if not include_deleted:
@@ -332,6 +337,7 @@ class BaseRepository[ModelT: Base]:
                   ``is_deleted = True``.
 
         Raises ``EntityNotFoundError`` if the record does not exist.
+
         """
         instance = await self.get_by_id_including_deleted(id)
         if not instance:
@@ -339,11 +345,10 @@ class BaseRepository[ModelT: Base]:
 
         if hard:
             await self.session.delete(instance)
+        elif hasattr(instance, 'is_deleted'):
+            instance.is_deleted = True
         else:
-            if hasattr(instance, 'is_deleted'):
-                instance.is_deleted = True
-            else:
-                await self.session.delete(instance)
+            await self.session.delete(instance)
 
         try:
             await self.session.flush()
@@ -368,11 +373,7 @@ class BaseRepository[ModelT: Base]:
             for instance in instances:
                 await self.session.delete(instance)
         else:
-            stmt = (
-                select(self.model)
-                .where(self.model.id.in_(ids))
-                .where(self.model.is_deleted == False)  # noqa: E712
-            )
+            stmt = select(self.model).where(self.model.id.in_(ids)).where(not self.model.is_deleted)
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
             for instance in instances:
@@ -436,6 +437,7 @@ class BaseRepository[ModelT: Base]:
 
         Returns:
             ``PageResult`` with items, total, page, per_page metadata.
+
         """
         per_page = min(max(per_page, 1), 100)
         page = max(page, 1)
@@ -486,11 +488,13 @@ class BaseRepository[ModelT: Base]:
 
         Returns:
             ``CursorPageResult`` with items and a cursor for the next page.
+
         """
         limit = min(max(limit, 1), 100)
         cursor_column = getattr(self.model, cursor_field, None)
         if cursor_column is None:
-            raise RepositoryError(f'Unknown cursor field: {cursor_field} on {self.model.__name__}')
+            msg = f'Unknown cursor field: {cursor_field} on {self.model.__name__}'
+            raise RepositoryError(msg)
 
         builder = self._query().active()
         if filters:
@@ -543,6 +547,7 @@ class BaseRepository[ModelT: Base]:
 
         Returns:
             ``PageResult`` with matching items.
+
         """
         if not query:
             return await self.paginate(page=page, per_page=per_page)
@@ -595,14 +600,16 @@ class BaseRepository[ModelT: Base]:
         Returns:
             ``PageResult`` with matching items ordered by relevance
             (if ``rank=True``).
+
         """
         if not query:
             return await self.paginate(page=page, per_page=per_page)
 
         vector_col = getattr(self.model, search_vector_column, None)
         if vector_col is None:
+            msg = f'Model {self.model.__name__} has no column named {search_vector_column}'
             raise RepositoryError(
-                f'Model {self.model.__name__} has no column named {search_vector_column}',
+                msg,
             )
 
         tsquery = func.plainto_tsquery('english', query)
@@ -646,6 +653,7 @@ class BaseRepository[ModelT: Base]:
 
         Returns:
             The same instances with the relationship populated.
+
         """
         from sqlalchemy.orm import selectinload
 
@@ -655,8 +663,9 @@ class BaseRepository[ModelT: Base]:
         ids = [i.id for i in instances]
         relation = getattr(self.model, relation_name, None)
         if relation is None:
+            msg = f'Model {self.model.__name__} has no relationship named {relation_name}'
             raise RepositoryError(
-                f'Model {self.model.__name__} has no relationship named {relation_name}',
+                msg,
             )
 
         stmt = select(self.model).options(selectinload(relation)).where(self.model.id.in_(ids))

@@ -16,13 +16,13 @@ Canonical domain entities:
 See app.models for the ORM implementations of these domain concepts.
 """
 
-from app.domain.knowledge_node import KnowledgeNode as DomainKnowledgeNode
+from app.domain.assessment_submission import AssessmentSubmission
+from app.domain.domain_event import DomainEvent
+from app.domain.import_job import ImportJob
 from app.domain.knowledge_edge import KnowledgeEdge as DomainKnowledgeEdge
+from app.domain.knowledge_node import KnowledgeNode as DomainKnowledgeNode
 from app.domain.learner_state import LearnerState as DomainLearnerState
 from app.domain.validation_report import ValidationReport
-from app.domain.assessment_submission import AssessmentSubmission
-from app.domain.import_job import ImportJob
-from app.domain.domain_event import DomainEvent
 
 __all__ = [
     'AssessmentSubmission',

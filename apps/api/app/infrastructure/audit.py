@@ -17,8 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
-from uuid import UUID, uuid4
-
+from uuid import uuid4
 
 AUDIT_CATEGORIES = {
     'graph_mutation': 'Graph mutations (node/edge CRUD)',
@@ -35,6 +34,7 @@ AUDIT_CATEGORIES = {
 @dataclass(frozen=True)
 class AuditEntry:
     """An immutable audit log entry."""
+
     entry_id: str = field(default_factory=lambda: str(uuid4()))
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     category: str = 'system'
@@ -107,7 +107,7 @@ class AuditLogger:
             results = [e for e in results if e.resource_id == resource_id]
 
         results.reverse()  # Most recent first
-        return [self._entry_to_dict(e) for e in results[offset:offset + limit]]
+        return [self._entry_to_dict(e) for e in results[offset : offset + limit]]
 
     def get_entry(self, entry_id: str) -> dict[str, Any] | None:
         """Get a single audit entry by ID."""
@@ -121,10 +121,9 @@ class AuditLogger:
         return {
             'total_entries': len(self._entries),
             'by_category': {
-                cat: sum(1 for e in self._entries if e.category == cat)
-                for cat in AUDIT_CATEGORIES
+                cat: sum(1 for e in self._entries if e.category == cat) for cat in AUDIT_CATEGORIES
             },
-            'unique_actors': len(set(e.actor for e in self._entries)),
+            'unique_actors': len({e.actor for e in self._entries}),
             'date_range': {
                 'earliest': self._entries[0].timestamp if self._entries else None,
                 'latest': self._entries[-1].timestamp if self._entries else None,
@@ -141,7 +140,7 @@ class AuditLogger:
             for e in entries:
                 lines.append(
                     f'{e["entry_id"]},{e["timestamp"]},{e["category"]},'
-                    f'{e["action"]},{e["actor"]},{e["resource_type"]},{e["resource_id"]}'
+                    f'{e["action"]},{e["actor"]},{e["resource_type"]},{e["resource_id"]}',
                 )
             return '\n'.join(lines)
         return entries

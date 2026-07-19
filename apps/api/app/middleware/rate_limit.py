@@ -11,14 +11,16 @@ Supports:
 
 from __future__ import annotations
 
-import asyncio
 import time
-from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from starlette.requests import Request
 
 
 class TokenBucket:
@@ -83,14 +85,20 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._authenticated_limit = authenticated_limit
         self._buckets: dict[str, TokenBucket] = {}
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         # Skip health endpoints
         if request.url.path in ('/health', '/health/live', '/health/ready', '/metrics'):
             return await call_next(request)
 
         # Determine client identifier
         client_id = self._get_client_id(request)
-        limit = self._authenticated_limit if self._is_authenticated(request) else self._default_limit
+        limit = (
+            self._authenticated_limit if self._is_authenticated(request) else self._default_limit
+        )
         burst = self._default_burst
 
         bucket = self._get_bucket(client_id, limit, burst)
@@ -103,7 +111,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     'success': False,
                     'message': 'Rate limit exceeded',
                     'data': {'retry_after_seconds': retry_after},
-                    'errors': [{'code': 'rate_limit_exceeded', 'message': f'Rate limit exceeded. Retry after {retry_after} seconds.'}],
+                    'errors': [
+                        {
+                            'code': 'rate_limit_exceeded',
+                            'message': f'Rate limit exceeded. Retry after {retry_after} seconds.',
+                        },
+                    ],
                     'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                 },
                 headers={
@@ -128,7 +141,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Fall back to IP
         forwarded = request.headers.get('X-Forwarded-For', '')
-        ip = forwarded.split(',')[0].strip() if forwarded else request.client.host if request.client else 'unknown'
+        ip = (
+            forwarded.split(',')[0].strip()
+            if forwarded
+            else request.client.host
+            if request.client
+            else 'unknown'
+        )
         return f'ip:{ip}'
 
     def _is_authenticated(self, request: Request) -> bool:

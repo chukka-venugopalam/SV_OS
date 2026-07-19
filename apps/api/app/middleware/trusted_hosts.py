@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.requests import Request
 from starlette.responses import PlainTextResponse, Response
+
+if TYPE_CHECKING:
+    from starlette.requests import Request
 
 
 class TrustedHostsMiddleware(BaseHTTPMiddleware):

@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from app.models.enums import UserRole
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
+    from app.models.enums import UserRole
 
 
 class UserSummary(BaseModel):
@@ -26,7 +29,9 @@ class UserProfile(BaseModel):
     email: EmailStr = Field(description='Verified email address')
     username: str = Field(description='Public username', max_length=100)
     display_name: str | None = Field(
-        default=None, description='Display name shown in UI', max_length=200
+        default=None,
+        description='Display name shown in UI',
+        max_length=200,
     )
     avatar_url: str | None = Field(default=None, description='Profile picture URL')
     bio: str | None = Field(default=None, description='Short biography', max_length=5000)
@@ -44,34 +49,44 @@ class UserSettings(BaseModel):
     """
 
     theme: str | None = Field(
-        default=None, description='UI theme preference', examples=['light', 'dark', 'system']
+        default=None,
+        description='UI theme preference',
+        examples=['light', 'dark', 'system'],
     )
     font_size: str | None = Field(
-        default=None, description='UI font size preference', examples=['sm', 'md', 'lg']
+        default=None,
+        description='UI font size preference',
+        examples=['sm', 'md', 'lg'],
     )
     reduced_motion: bool | None = Field(default=None, description='Whether to minimize animations')
     language: str | None = Field(
-        default=None, description='UI language preference', examples=['en', 'es', 'fr']
+        default=None,
+        description='UI language preference',
+        examples=['en', 'es', 'fr'],
     )
     email_notifications: bool | None = Field(
-        default=None, description='Whether to receive email notifications'
+        default=None,
+        description='Whether to receive email notifications',
     )
     learning_reminders: bool | None = Field(
-        default=None, description='Whether to receive learning reminders'
+        default=None,
+        description='Whether to receive learning reminders',
     )
 
     @field_validator('theme')
     @classmethod
     def validate_theme(cls, v: str | None) -> str | None:
         if v is not None and v.lower() not in ('light', 'dark', 'system'):
-            raise ValueError("Theme must be 'light', 'dark', or 'system'")
+            msg = "Theme must be 'light', 'dark', or 'system'"
+            raise ValueError(msg)
         return v.lower() if v else v
 
     @field_validator('font_size')
     @classmethod
     def validate_font_size(cls, v: str | None) -> str | None:
         if v is not None and v.lower() not in ('sm', 'md', 'lg'):
-            raise ValueError("Font size must be 'sm', 'md', or 'lg'")
+            msg = "Font size must be 'sm', 'md', or 'lg'"
+            raise ValueError(msg)
         return v.lower() if v else v
 
 

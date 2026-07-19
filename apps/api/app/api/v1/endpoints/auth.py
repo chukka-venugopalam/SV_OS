@@ -12,14 +12,12 @@ Provides routes for:
 
 from __future__ import annotations
 
-from typing import Annotated
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_uow
-from app.repositories import UnitOfWork
 from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
 from app.schemas.auth.auth import (
     ChangePasswordRequest,
@@ -35,6 +33,11 @@ from app.schemas.response import success_response
 from app.schemas.user.profile import ProfileUpdate, UserProfile, UserSettings
 from app.services.auth import AuthenticationError, AuthService
 from app.services.user import UserService
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 

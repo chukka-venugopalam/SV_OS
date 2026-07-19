@@ -1,5 +1,4 @@
-"""
-AI Knowledge Intelligence API endpoints — embedding, search, and recommendations.
+"""AI Knowledge Intelligence API endpoints — embedding, search, and recommendations.
 
 Endpoints:
 - ``GET /knowledge/{slug}/similar`` — Similar concepts
@@ -12,8 +11,7 @@ Endpoints:
 
 from __future__ import annotations
 
-from typing import Annotated, Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from structlog.stdlib import get_logger
@@ -23,13 +21,17 @@ from app.api.deps import (
     get_uow,
     require_admin,
 )
-from app.repositories import UnitOfWork
 from app.schemas.response import build_success_response
 from app.services.ai.embedding_service import EmbeddingService
 from app.services.ai.hybrid_search import HybridSearchService
 from app.services.ai.recommendation_v2 import RecommendationV2
 from app.services.ai.semantic_search import SemanticSearchService
 from app.services.ai.similarity import SimilarityService
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -151,7 +153,7 @@ async def hybrid_search(
         query=query,
         query_embedding=query_embedding,
         user_id=user_id,
-        filters=filters if filters else None,
+        filters=filters or None,
         page=page,
         per_page=per_page,
     )

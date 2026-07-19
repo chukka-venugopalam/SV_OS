@@ -17,15 +17,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 @dataclass
 class NodeContentRecord:
     """In-memory record for a knowledge node's content."""
+
     node_id: UUID
     title: str = ''
     description: str = ''
@@ -40,6 +43,7 @@ class NodeContentRecord:
 @dataclass
 class ResourceRecord:
     """In-memory record for a learning resource."""
+
     resource_id: UUID
     node_id: UUID
     title: str = ''
@@ -53,6 +57,7 @@ class ResourceRecord:
 @dataclass
 class ContentIndexEntry:
     """An entry in the content index for fast lookups."""
+
     node_id: UUID
     title: str
     description: str
@@ -85,12 +90,15 @@ class KnowledgeEngine(EngineBase):
         self._skills: dict[UUID, list[dict]] = {}  # node_id -> skill list
 
         # Phase 3 additions: career/project/simulator/progress lookups
-        self._node_careers: dict[UUID, list[dict]] = {}       # node_id -> career list
-        self._node_projects: dict[UUID, list[dict]] = {}      # node_id -> project list
-        self._node_simulators: dict[UUID, list[dict]] = {}    # node_id -> simulator list
-        self._node_progress: dict[UUID, dict] = {}            # node_id -> progress data
-        self._hidden_relationships: dict[UUID, list[dict]] = {}   # node_id -> hidden rels
-        self._cross_domain_relationships: dict[UUID, list[dict]] = {}  # node_id -> cross-domain rels
+        self._node_careers: dict[UUID, list[dict]] = {}  # node_id -> career list
+        self._node_projects: dict[UUID, list[dict]] = {}  # node_id -> project list
+        self._node_simulators: dict[UUID, list[dict]] = {}  # node_id -> simulator list
+        self._node_progress: dict[UUID, dict] = {}  # node_id -> progress data
+        self._hidden_relationships: dict[UUID, list[dict]] = {}  # node_id -> hidden rels
+        self._cross_domain_relationships: dict[
+            UUID,
+            list[dict],
+        ] = {}  # node_id -> cross-domain rels
 
         # Content index for fast search
         self._content_index: dict[str, list[ContentIndexEntry]] = {}  # keyword -> entries
@@ -102,18 +110,20 @@ class KnowledgeEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='Graph engine for node structure'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='Graph engine for node structure',
+            ),
         ]
 
     # ── Lifecycle ──────────────────────────────────────────────────
 
     async def _initialize_impl(self) -> None:
         """Initialize the knowledge engine."""
-        pass
 
     async def _start_impl(self) -> None:
         """Start the knowledge engine."""
-        pass
 
     async def _stop_impl(self) -> None:
         """Stop the knowledge engine."""
@@ -177,7 +187,7 @@ class KnowledgeEngine(EngineBase):
                 'type': 'text',
                 'content': record.content,
                 'metadata': {'content_type': record.content_type},
-            }
+            },
         ]
 
     async def content_exists(self, node_id: UUID) -> bool:
@@ -196,7 +206,9 @@ class KnowledgeEngine(EngineBase):
 
         for node_id, record in self._contents.items():
             tags = self._tags.get(node_id, [])
-            skills = [s.get('name', '') for s in self._skills.get(node_id, []) if isinstance(s, dict)]
+            skills = [
+                s.get('name', '') for s in self._skills.get(node_id, []) if isinstance(s, dict)
+            ]
 
             entry = ContentIndexEntry(
                 node_id=node_id,
@@ -240,6 +252,7 @@ class KnowledgeEngine(EngineBase):
 
         Returns:
             List of matching node dicts with relevance scores.
+
         """
         if not query or not self._content_index:
             return []
@@ -268,13 +281,15 @@ class KnowledgeEngine(EngineBase):
         for node_id, score in sorted_results[:limit]:
             record = self._contents.get(node_id)
             if record:
-                items.append({
-                    'node_id': str(node_id),
-                    'title': record.title,
-                    'description': record.description,
-                    'relevance_score': round(score, 2),
-                    'tags': self._tags.get(node_id, []),
-                })
+                items.append(
+                    {
+                        'node_id': str(node_id),
+                        'title': record.title,
+                        'description': record.description,
+                        'relevance_score': round(score, 2),
+                        'tags': self._tags.get(node_id, []),
+                    },
+                )
 
         return items
 
@@ -329,7 +344,7 @@ class KnowledgeEngine(EngineBase):
 
     # ── Assessments ────────────────────────────────────────────────
 
-    async def get_assessments_for_node(self, node_id: UUID) -> list[dict]:
+    async def get_assessments_for_node(self, node_id: UUID) -> list[dict]:  # noqa: ARG002
         """Get assessments associated with a node.
 
         TODO: Implement assessment storage in later milestones.
@@ -363,9 +378,9 @@ class KnowledgeEngine(EngineBase):
 
     # ── Project Lookup (Phase 3) ───────────────────────────────────
 
-    async def get_projects_for_node(self, node_id: UUID) -> list[dict]:
+    async def get_projects_for_node(self, _node_id: UUID) -> list[dict]:
         """Get projects that exercise or are related to this node."""
-        return list(self._node_projects.get(node_id, []))
+        return list(self._node_projects.get(node_id, []))  # noqa: F821
 
     async def set_projects_for_node(self, node_id: UUID, projects: list[dict]) -> None:
         """Set projects for a node."""

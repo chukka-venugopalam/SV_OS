@@ -58,31 +58,31 @@ def _make_node(
 class TestKeywordScore:
     """Test keyword scoring signal."""
 
-    def test_exact_title_match(self, search_service):
+    def test_exact_title_match(self, search_service) -> None:
         """Test exact title match gives maximum score."""
         node = _make_node(title='Python Basics')
         score = search_service._keyword_score('Python Basics', node)
         assert score == 1.0
 
-    def test_partial_title_match(self, search_service):
+    def test_partial_title_match(self, search_service) -> None:
         """Test partial title match."""
         node = _make_node(title='Advanced Python Programming')
         score = search_service._keyword_score('Python', node)
         assert score == 0.8
 
-    def test_description_match(self, search_service):
+    def test_description_match(self, search_service) -> None:
         """Test description match (word overlap bonuses apply)."""
         node = _make_node(title='Node', description='Learn Python programming')
         score = search_service._keyword_score('Python', node)
         assert score == 0.6  # 0.5 from desc match + word overlap boost
 
-    def test_no_match(self, search_service):
+    def test_no_match(self, search_service) -> None:
         """Test no match returns 0."""
         node = _make_node(title='Java', description='Java programming')
         score = search_service._keyword_score('Python', node)
         assert score == 0.0
 
-    def test_empty_query(self, search_service):
+    def test_empty_query(self, search_service) -> None:
         """Test empty query returns 0."""
         node = _make_node(title='Python')
         score = search_service._keyword_score('', node)
@@ -92,25 +92,25 @@ class TestKeywordScore:
 class TestDifficultyScore:
     """Test difficulty scoring signal."""
 
-    def test_beginner(self, search_service):
+    def test_beginner(self, search_service) -> None:
         """Test beginner difficulty."""
         node = _make_node(difficulty='beginner')
         score = search_service._difficulty_score(node)
         assert score == 0.7
 
-    def test_intermediate(self, search_service):
+    def test_intermediate(self, search_service) -> None:
         """Test intermediate difficulty."""
         node = _make_node(difficulty='intermediate')
         score = search_service._difficulty_score(node)
         assert score == 0.7
 
-    def test_advanced(self, search_service):
+    def test_advanced(self, search_service) -> None:
         """Test advanced difficulty."""
         node = _make_node(difficulty='advanced')
         score = search_service._difficulty_score(node)
         assert score == 0.4
 
-    def test_expert(self, search_service):
+    def test_expert(self, search_service) -> None:
         """Test expert difficulty."""
         node = _make_node(difficulty='expert')
         score = search_service._difficulty_score(node)
@@ -120,19 +120,19 @@ class TestDifficultyScore:
 class TestPopularityScore:
     """Test popularity scoring signal."""
 
-    def test_highly_popular(self, search_service):
+    def test_highly_popular(self, search_service) -> None:
         """Test >500 views."""
         node = _make_node(view_count=600)
         score = search_service._popularity_score(node)
         assert score == 1.0
 
-    def test_moderately_popular(self, search_service):
+    def test_moderately_popular(self, search_service) -> None:
         """Test >100 views."""
         node = _make_node(view_count=150)
         score = search_service._popularity_score(node)
         assert score == 0.8
 
-    def test_unpopular(self, search_service):
+    def test_unpopular(self, search_service) -> None:
         """Test 0 views."""
         node = _make_node(view_count=0)
         score = search_service._popularity_score(node)
@@ -143,7 +143,7 @@ class TestHybridSearch:
     """Test full hybrid search."""
 
     @pytest.mark.asyncio
-    async def test_search_empty(self, search_service, mock_uow):
+    async def test_search_empty(self, search_service, mock_uow) -> None:
         """Test search returns empty when no nodes match."""
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[])
 
@@ -153,7 +153,7 @@ class TestHybridSearch:
         assert result['total'] == 0
 
     @pytest.mark.asyncio
-    async def test_search_with_keyword_match(self, search_service, mock_uow):
+    async def test_search_with_keyword_match(self, search_service, mock_uow) -> None:
         """Test search returns nodes with keyword matches."""
         node = _make_node(title='Python Basics', slug='python-basics')
 
@@ -170,7 +170,7 @@ class TestHybridSearch:
         assert 'signals' in result['items'][0]
 
     @pytest.mark.asyncio
-    async def test_search_pagination(self, search_service, mock_uow):
+    async def test_search_pagination(self, search_service, mock_uow) -> None:
         """Test search paginates results."""
         nodes = [
             _make_node(uuid4(), f'Node {i}', f'node-{i}', description='Python programming')
@@ -191,7 +191,7 @@ class TestHybridSearch:
         assert result['total_pages'] == 3
 
     @pytest.mark.asyncio
-    async def test_search_with_filters(self, search_service, mock_uow):
+    async def test_search_with_filters(self, search_service, mock_uow) -> None:
         """Test search applies type and difficulty filters."""
         concept_node = _make_node(title='Python', node_type='concept', view_count=0)
         tool_node = _make_node(title='VSCode', node_type='tool', view_count=0)
@@ -210,7 +210,7 @@ class TestHybridSearch:
         assert result['items'][0]['node']['node_type'] == 'concept'
 
     @pytest.mark.asyncio
-    async def test_search_with_user_context(self, search_service, mock_uow):
+    async def test_search_with_user_context(self, search_service, mock_uow) -> None:
         """Test search includes user progress/bookmark flags."""
         node_id = uuid4()
         node = _make_node(node_id, 'Python', 'python-basics')
@@ -219,7 +219,7 @@ class TestHybridSearch:
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[node])
         mock_uow.graph.load_edges_for_nodes = AsyncMock(return_value=[])
         mock_uow.user_progress.find_by_user = AsyncMock(
-            return_value=MagicMock(items=[MagicMock(node_id=node_id)])
+            return_value=MagicMock(items=[MagicMock(node_id=node_id)]),
         )
         mock_uow.bookmarks.find_by_user = AsyncMock(return_value=[])
 
@@ -230,7 +230,7 @@ class TestHybridSearch:
         assert result['items'][0]['is_bookmarked'] is False
 
     @pytest.mark.asyncio
-    async def test_search_with_embedding(self, search_service, mock_uow):
+    async def test_search_with_embedding(self, search_service, mock_uow) -> None:
         """Test search uses semantic signal when embedding provided."""
         node = _make_node(title='Python', slug='python')
         node.extra_metadata = {'embedding': [0.9, 0.0, 0.0]}
@@ -253,7 +253,7 @@ class TestEdgeCases:
     """Test edge cases."""
 
     @pytest.mark.asyncio
-    async def test_no_nodes_published(self, search_service, mock_uow):
+    async def test_no_nodes_published(self, search_service, mock_uow) -> None:
         """Test with no published nodes."""
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[])
 
@@ -263,14 +263,14 @@ class TestEdgeCases:
         assert result['total'] == 0
 
     @pytest.mark.asyncio
-    async def test_empty_query(self, search_service, mock_uow):
+    async def test_empty_query(self, search_service, mock_uow) -> None:
         """Test with empty query."""
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[])
         result = await search_service.search(query='')
         assert result['total'] == 0
 
     @pytest.mark.asyncio
-    async def test_custom_weights(self, mock_uow):
+    async def test_custom_weights(self, mock_uow) -> None:
         """Test custom weight configuration."""
         service = HybridSearchService(
             mock_uow,

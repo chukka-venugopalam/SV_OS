@@ -1,5 +1,4 @@
-"""
-Chat, conversation, and AI schemas — API contracts for Phase 4 AI layer.
+"""Chat, conversation, and AI schemas — API contracts for Phase 4 AI layer.
 
 Defines request/response schemas for:
 - Chat messages and sessions
@@ -12,10 +11,13 @@ Defines request/response schemas for:
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
 
 # ── Chat Messages ──────────────────────────────────────────────────
 
@@ -126,7 +128,8 @@ class TutorRequest(BaseModel):
     node_slug: str | None = Field(default=None, description='Specific knowledge node slug')
     difficulty: str = Field(default='intermediate', description='beginner, intermediate, advanced')
     style: str | None = Field(
-        default=None, description='simple, detailed, socratic, example_driven'
+        default=None,
+        description='simple, detailed, socratic, example_driven',
     )
 
 
@@ -171,7 +174,8 @@ class QuizRequest(BaseModel):
 
     topic: str = Field(..., min_length=1, description='Topic to quiz on')
     quiz_type: str = Field(
-        default='mcq', description='mcq, flashcards, coding, interview, fill_blanks, true_false'
+        default='mcq',
+        description='mcq, flashcards, coding, interview, fill_blanks, true_false',
     )
     difficulty: str = Field(default='intermediate')
     question_count: int = Field(default=5, ge=1, le=20)

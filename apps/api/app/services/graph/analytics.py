@@ -1,5 +1,4 @@
-"""
-Graph Analytics Service — graph-level metrics and analysis.
+"""Graph Analytics Service — graph-level metrics and analysis.
 
 Provides algorithms for computing:
 - Central nodes (high degree centrality)
@@ -15,15 +14,19 @@ designed for graphs with up to 100k+ nodes.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import func, select
 from structlog.stdlib import get_logger
 
 from app.models.knowledge_edge import KnowledgeEdge
 from app.models.knowledge_node import KnowledgeNode
-from app.repositories import UnitOfWork
-from app.repositories.graph import GraphRepository
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
+    from app.repositories.graph import GraphRepository
 
 logger = get_logger(__name__)
 
@@ -92,7 +95,7 @@ class GraphAnalyticsService:
             )
             .order_by(
                 func.coalesce(outgoing_stmt.c.edge_count, 0)
-                + func.coalesce(incoming_stmt.c.edge_count, 0).desc()
+                + func.coalesce(incoming_stmt.c.edge_count, 0).desc(),
             )
             .limit(limit)
         )
@@ -323,8 +326,8 @@ class GraphAnalyticsService:
                         KnowledgeEdge.source_node_id == KnowledgeNode.id,
                         not KnowledgeEdge.is_deleted,
                     )
-                    .scalar_subquery()
-                ).label('avg_outgoing')
+                    .scalar_subquery(),
+                ).label('avg_outgoing'),
             )
             .select_from(KnowledgeNode)
             .where(

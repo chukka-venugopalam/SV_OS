@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 
 import httpx
 from structlog.stdlib import get_logger
 
 from app.services.ai.providers.llm_base import LLMMessage, LLMProvider, LLMResponse
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 logger = get_logger(__name__)
 

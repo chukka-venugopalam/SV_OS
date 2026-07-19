@@ -1,5 +1,4 @@
-"""
-Ollama embedding provider — local embedding models via Ollama API.
+"""Ollama embedding provider — local embedding models via Ollama API.
 
 Uses Ollama's embedding endpoint to generate embeddings from
 locally-run models like nomic-embed-text, mxbai-embed-large, etc.
@@ -97,7 +96,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
                     model=self._model,
                     dimensions=len(vec),
                     tokens_used=data.get('prompt_eval_count', 0) // max(len(texts), 1),
-                )
+                ),
             )
 
         # Pad with zero vectors if response has fewer embeddings than input
@@ -107,7 +106,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
                     vector=[0.0] * self._dimensions,
                     model=self._model,
                     dimensions=self._dimensions,
-                )
+                ),
             )
 
         return results

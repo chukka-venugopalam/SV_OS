@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from secrets import token_urlsafe
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from jose import JWTError, jwt
@@ -20,9 +20,11 @@ from structlog.stdlib import get_logger
 from app.core.config import settings
 from app.exceptions.base import AppError
 from app.models.enums import UserRole
-from app.models.user import User
-from app.repositories import UnitOfWork
 from app.repositories.errors import DuplicateEntityError, EntityNotFoundError
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -120,10 +122,10 @@ class AuthService:
         Raises ``AuthenticationError`` if the token is invalid or expired.
         """
         try:
-            payload = jwt.decode(token, self._secret_key, algorithms=[self._algorithm])
-            return payload
+            return jwt.decode(token, self._secret_key, algorithms=[self._algorithm])
         except JWTError as exc:
-            raise AuthenticationError(f'Invalid or expired token: {exc}') from exc
+            msg = f'Invalid or expired token: {exc}'
+            raise AuthenticationError(msg) from exc
 
     def get_user_id_from_token(self, token: str) -> UUID:
         """Extract the user ID from a JWT token (access or refresh).
@@ -133,11 +135,13 @@ class AuthService:
         payload = self.decode_token(token)
         sub = payload.get('sub')
         if not sub:
-            raise AuthenticationError('Token missing subject claim')
+            msg = 'Token missing subject claim'
+            raise AuthenticationError(msg)
         try:
             return UUID(sub)
         except ValueError as exc:
-            raise AuthenticationError(f'Invalid user ID in token: {exc}') from exc
+            msg = f'Invalid user ID in token: {exc}'
+            raise AuthenticationError(msg) from exc
 
     # ── Registration ───────────────────────────────────────────────
 
@@ -161,16 +165,19 @@ class AuthService:
 
         Raises:
             ``DuplicateEntityError`` if email or username already exists.
+
         """
         # Check for existing email
         existing_email = await self._uow.users.find_by_email(email)
         if existing_email:
-            raise DuplicateEntityError('User', {'email': email})
+            msg = 'User'
+            raise DuplicateEntityError(msg, {'email': email})
 
         # Check for existing username
         existing_username = await self._uow.users.find_by_username(username)
         if existing_username:
-            raise DuplicateEntityError('User', {'username': username})
+            msg = 'User'
+            raise DuplicateEntityError(msg, {'username': username})
 
         # Create user
         password_hash = self.hash_password(password)
@@ -201,19 +208,24 @@ class AuthService:
         Raises:
             ``AuthenticationError`` if credentials are invalid or
             the account is inactive/deleted.
+
         """
         user = await self._uow.users.find_by_email(email)
         if not user:
-            raise AuthenticationError('Invalid email or password')
+            msg = 'Invalid email or password'
+            raise AuthenticationError(msg)
 
         if user.is_deleted:
-            raise AuthenticationError('Account not found')
+            msg = 'Account not found'
+            raise AuthenticationError(msg)
 
         if not user.is_active:
-            raise AuthenticationError('Account is deactivated')
+            msg = 'Account is deactivated'
+            raise AuthenticationError(msg)
 
         if not self.verify_password(password, user.password_hash):
-            raise AuthenticationError('Invalid email or password')
+            msg = 'Invalid email or password'
+            raise AuthenticationError(msg)
 
         # Record login
         user.last_login_at = datetime.now(UTC)
@@ -236,18 +248,22 @@ class AuthService:
 
         Returns:
             A tuple of ``(user, access_token, refresh_token, expires_at)``.
+
         """
         payload = self.decode_token(refresh_token)
         if payload.get('type') != 'refresh':
-            raise AuthenticationError('Invalid token type for refresh')
+            msg = 'Invalid token type for refresh'
+            raise AuthenticationError(msg)
 
         user_id = self.get_user_id_from_token(refresh_token)
         user = await self._uow.users.get_by_id(user_id)
         if not user:
-            raise AuthenticationError('User not found')
+            msg = 'User not found'
+            raise AuthenticationError(msg)
 
         if not user.is_active:
-            raise AuthenticationError('Account is deactivated')
+            msg = 'Account is deactivated'
+            raise AuthenticationError(msg)
 
         # Generate new token pair
         access_token, expires_at = self.create_access_token(user.id, user.role)
@@ -266,10 +282,12 @@ class AuthService:
         """Change a user's password after verifying the current password."""
         user = await self._uow.users.get_by_id(user_id)
         if not user:
-            raise EntityNotFoundError('User', user_id)
+            msg = 'User'
+            raise EntityNotFoundError(msg, user_id)
 
         if not self.verify_password(current_password, user.password_hash):
-            raise AuthenticationError('Current password is incorrect')
+            msg = 'Current password is incorrect'
+            raise AuthenticationError(msg)
 
         await self._uow.users.update(
             user_id,
@@ -301,11 +319,13 @@ class AuthService:
         Raises:
             ``EntityNotFoundError`` if the email is not registered.
             Note: In production, always return success to prevent email enumeration.
+
         """
         user = await self._uow.users.find_by_email(email)
         if not user:
             # Don't reveal whether the email exists
-            raise EntityNotFoundError('User', email)
+            msg = 'User'
+            raise EntityNotFoundError(msg, email)
 
         # Invalidate any existing tokens for this user
         await self._uow.password_reset_tokens.invalidate_user_tokens(user.id)
@@ -340,12 +360,14 @@ class AuthService:
 
         Raises:
             ``AuthenticationError`` if the token is invalid, expired, or already used.
+
         """
         token_hash = sha256(token.encode()).hexdigest()
         reset_token = await self._uow.password_reset_tokens.find_valid_token(token_hash)
 
         if not reset_token:
-            raise AuthenticationError('Invalid or expired reset token')
+            msg = 'Invalid or expired reset token'
+            raise AuthenticationError(msg)
 
         # Change the password
         password_hash = self.hash_password(new_password)
@@ -370,11 +392,13 @@ class AuthService:
         """
         user_role = getattr(user, 'role', None)
         if user_role is None:
-            raise AuthorizationError('User has no role assigned')
+            msg = 'User has no role assigned'
+            raise AuthorizationError(msg)
 
         role_value = user_role.value if hasattr(user_role, 'value') else str(user_role)
         if role_value != required_role and required_role == 'admin':
-            raise AuthorizationError('Admin access required')
+            msg = 'Admin access required'
+            raise AuthorizationError(msg)
 
 
 # Convenience function for password hashing (used by seed scripts, etc.)

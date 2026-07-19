@@ -16,31 +16,30 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
 from uuid import UUID
 
-from app.engines.base import EngineBase, EngineDependency, EngineHealth, EngineState
-from app.engines.scheduling_engine import (
-    SchedulingEngine,
-    JobPriority,
-    JobStatus,
-    ScheduledJob,
-)
-from app.engines.revision_engine import RevisionEngine, RevisionItem, RevisionPlan
+import pytest
+
 from app.engines.analytics_engine import AnalyticsEngine
-from app.engines.plugin_engine import PluginEngine, PluginManifest, PluginStatus
-from app.middleware.rate_limit import RateLimitMiddleware, TokenBucket
+from app.engines.base import EngineBase, EngineState
+from app.engines.plugin_engine import PluginEngine, PluginManifest
+from app.engines.revision_engine import RevisionEngine
+from app.engines.scheduling_engine import (
+    JobPriority,
+    SchedulingEngine,
+)
+from app.infrastructure.audit import AuditLogger
+from app.infrastructure.notifications import NotificationService
+from app.infrastructure.websocket import WebSocketManager
+from app.infrastructure.workers import WorkerManager
+from app.middleware.rate_limit import TokenBucket
 from app.telemetry.metrics import MetricsCollector
 from app.telemetry.tracing import Tracer
-from app.infrastructure.workers import WorkerManager, WorkerTask
-from app.infrastructure.notifications import NotificationService
-from app.infrastructure.audit import AuditLogger
-from app.infrastructure.websocket import WebSocketManager
-
 
 # ════════════════════════════════════════════════════════════════
 # 1. SchedulingEngine Tests
 # ════════════════════════════════════════════════════════════════
+
 
 class TestSchedulingEngine:
     """Tests for SchedulingEngine."""
@@ -50,12 +49,12 @@ class TestSchedulingEngine:
         return SchedulingEngine()
 
     @pytest.mark.asyncio
-    async def test_engine_base_inheritance(self, engine: SchedulingEngine):
+    async def test_engine_base_inheritance(self, engine: SchedulingEngine) -> None:
         assert isinstance(engine, EngineBase)
         assert engine.engine_name == 'scheduler'
 
     @pytest.mark.asyncio
-    async def test_lifecycle(self, engine: SchedulingEngine):
+    async def test_lifecycle(self, engine: SchedulingEngine) -> None:
         assert engine.engine_state == EngineState.UNINITIALIZED
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
@@ -65,7 +64,7 @@ class TestSchedulingEngine:
         assert engine.engine_state == EngineState.STOPPED
 
     @pytest.mark.asyncio
-    async def test_schedule_once(self, engine: SchedulingEngine):
+    async def test_schedule_once(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         result = await engine.schedule_once('test-job', delay_seconds=0)
         assert result['name'] == 'test-job'
@@ -73,7 +72,7 @@ class TestSchedulingEngine:
         assert result['status'] == 'pending'
 
     @pytest.mark.asyncio
-    async def test_schedule_recurring(self, engine: SchedulingEngine):
+    async def test_schedule_recurring(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         result = await engine.schedule_recurring('recurring-job', interval_seconds=60)
         assert result['name'] == 'recurring-job'
@@ -81,21 +80,21 @@ class TestSchedulingEngine:
         assert result['status'] == 'pending'
 
     @pytest.mark.asyncio
-    async def test_schedule_cron(self, engine: SchedulingEngine):
+    async def test_schedule_cron(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         result = await engine.schedule_cron('cron-job', '0 8 * * 1-5')
         assert result['name'] == 'cron-job'
         assert result['job_type'] == 'cron'
 
     @pytest.mark.asyncio
-    async def test_cancel_job(self, engine: SchedulingEngine):
+    async def test_cancel_job(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         job = await engine.schedule_once('cancel-test')
         result = await engine.cancel(job['id'])
         assert result['status'] == 'cancelled'
 
     @pytest.mark.asyncio
-    async def test_pause_and_resume(self, engine: SchedulingEngine):
+    async def test_pause_and_resume(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         job = await engine.schedule_once('pause-test')
         paused = await engine.pause(job['id'])
@@ -104,7 +103,7 @@ class TestSchedulingEngine:
         assert resumed['status'] == 'pending'
 
     @pytest.mark.asyncio
-    async def test_get_job(self, engine: SchedulingEngine):
+    async def test_get_job(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         job = await engine.schedule_once('get-test')
         fetched = await engine.get_job(job['id'])
@@ -112,7 +111,7 @@ class TestSchedulingEngine:
         assert fetched['id'] == job['id']
 
     @pytest.mark.asyncio
-    async def test_list_jobs(self, engine: SchedulingEngine):
+    async def test_list_jobs(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         await engine.schedule_once('job-a')
         await engine.schedule_once('job-b')
@@ -120,7 +119,7 @@ class TestSchedulingEngine:
         assert len(jobs) >= 2
 
     @pytest.mark.asyncio
-    async def test_retry_job(self, engine: SchedulingEngine):
+    async def test_retry_job(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         job = await engine.schedule_once('retry-test')
         result = await engine.retry_job(job['id'])
@@ -128,7 +127,7 @@ class TestSchedulingEngine:
         assert result['retry_count'] == 0
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, engine: SchedulingEngine):
+    async def test_get_statistics(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         await engine.schedule_once('stat-test')
         stats = await engine.get_statistics()
@@ -137,39 +136,39 @@ class TestSchedulingEngine:
         assert 'completed' in stats
 
     @pytest.mark.asyncio
-    async def test_get_job_history(self, engine: SchedulingEngine):
+    async def test_get_job_history(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         await engine.schedule_once('history-test')
         history = await engine.get_job_history()
         assert len(history) >= 1
 
     @pytest.mark.asyncio
-    async def test_priorities(self, engine: SchedulingEngine):
+    async def test_priorities(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
-        low = await engine.schedule_once('low', priority=JobPriority.LOW)
-        high = await engine.schedule_once('high', priority=JobPriority.HIGH)
+        await engine.schedule_once('low', priority=JobPriority.LOW)
+        await engine.schedule_once('high', priority=JobPriority.HIGH)
         jobs = await engine.list_jobs()
         assert jobs[0]['name'] == 'high'  # Higher priority first
 
     @pytest.mark.asyncio
-    async def test_health(self, engine: SchedulingEngine):
+    async def test_health(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
         assert health.engine_name == 'scheduler'
 
     @pytest.mark.asyncio
-    async def test_diagnostics(self, engine: SchedulingEngine):
+    async def test_diagnostics(self, engine: SchedulingEngine) -> None:
         await engine.initialize()
         diag = await engine.diagnostics()
         assert diag['engine_name'] == 'scheduler'
         assert 'state' in diag
 
     @pytest.mark.asyncio
-    async def test_register_handler(self, engine: SchedulingEngine):
+    async def test_register_handler(self, engine: SchedulingEngine) -> None:
         called = False
 
-        async def handler(payload):
+        async def handler(payload) -> None:  # noqa: ARG001
             nonlocal called
             called = True
 
@@ -181,6 +180,7 @@ class TestSchedulingEngine:
 # 2. RevisionEngine Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestRevisionEngine:
     """Tests for RevisionEngine."""
 
@@ -189,26 +189,26 @@ class TestRevisionEngine:
         return RevisionEngine()
 
     @pytest.mark.asyncio
-    async def test_engine_base_inheritance(self, engine: RevisionEngine):
+    async def test_engine_base_inheritance(self, engine: RevisionEngine) -> None:
         assert isinstance(engine, EngineBase)
         assert engine.engine_name == 'revision'
 
     @pytest.mark.asyncio
-    async def test_lifecycle(self, engine: RevisionEngine):
+    async def test_lifecycle(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
         await engine.start()
         await engine.stop()
 
     @pytest.mark.asyncio
-    async def test_build_queue(self, engine: RevisionEngine):
+    async def test_build_queue(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         result = await engine.build_queue(UUID(int=1), node_ids=['node-1', 'node-2'])
         assert len(result) == 2
         assert result[0]['node_id'] == 'node-1'
 
     @pytest.mark.asyncio
-    async def test_get_daily_plan(self, engine: RevisionEngine):
+    async def test_get_daily_plan(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['node-1'])
         plan = await engine.get_daily_plan(UUID(int=1))
@@ -216,23 +216,26 @@ class TestRevisionEngine:
         assert 'items' in plan
 
     @pytest.mark.asyncio
-    async def test_get_weekly_plan(self, engine: RevisionEngine):
+    async def test_get_weekly_plan(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['node-1'])
         plan = await engine.get_weekly_plan(UUID(int=1))
         assert plan['plan_type'] == 'weekly'
 
     @pytest.mark.asyncio
-    async def test_mark_completed(self, engine: RevisionEngine):
+    async def test_mark_completed(self, engine: RevisionEngine) -> None:
         await engine.initialize()
-        items = await engine.build_queue(UUID(int=1), node_ids=['00000000-0000-0000-0000-000000000001'])
+        await engine.build_queue(
+            UUID(int=1),
+            node_ids=['00000000-0000-0000-0000-000000000001'],
+        )
         result = await engine.mark_completed(UUID(int=1), UUID(int=1), confidence=0.9)
         assert result is not None
         assert result.get('completed') is True
         assert result.get('confidence') == 0.9
 
     @pytest.mark.asyncio
-    async def test_mark_skipped(self, engine: RevisionEngine):
+    async def test_mark_skipped(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['00000000-0000-0000-0000-000000000001'])
         result = await engine.mark_skipped(UUID(int=1), UUID(int=1))
@@ -240,14 +243,14 @@ class TestRevisionEngine:
         assert result.get('skipped') is True
 
     @pytest.mark.asyncio
-    async def test_get_overdue(self, engine: RevisionEngine):
+    async def test_get_overdue(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['node-1'])
         overdue = await engine.get_overdue(UUID(int=1))
         assert isinstance(overdue, list)
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, engine: RevisionEngine):
+    async def test_get_statistics(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['node-1', 'node-2'])
         stats = await engine.get_statistics(UUID(int=1))
@@ -255,7 +258,7 @@ class TestRevisionEngine:
         assert 'completion_rate' in stats
 
     @pytest.mark.asyncio
-    async def test_get_history(self, engine: RevisionEngine):
+    async def test_get_history(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['00000000-0000-0000-0000-000000000002'])
         await engine.mark_completed(UUID(int=1), UUID(int=2))
@@ -263,23 +266,23 @@ class TestRevisionEngine:
         assert len(history) >= 1
 
     @pytest.mark.asyncio
-    async def test_health(self, engine: RevisionEngine):
+    async def test_health(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
 
     @pytest.mark.asyncio
-    async def test_diagnostics(self, engine: RevisionEngine):
+    async def test_diagnostics(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         diag = await engine.diagnostics()
         assert diag['engine_name'] == 'revision'
 
     @pytest.mark.asyncio
-    async def test_spaced_intervals_increase(self, engine: RevisionEngine):
+    async def test_spaced_intervals_increase(self, engine: RevisionEngine) -> None:
         await engine.initialize()
         await engine.build_queue(UUID(int=1), node_ids=['00000000-0000-0000-0000-000000000042'])
         await engine.mark_completed(UUID(int=1), UUID(int=0x42), confidence=0.9)
-        result = await engine.mark_completed(UUID(int=1), UUID(int=0x42), confidence=0.9)
+        await engine.mark_completed(UUID(int=1), UUID(int=0x42), confidence=0.9)
 
         # Check interval increased
         stats = await engine.get_statistics(UUID(int=1))
@@ -291,6 +294,7 @@ class TestRevisionEngine:
 # 3. AnalyticsEngine Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestAnalyticsEngine:
     """Tests for AnalyticsEngine."""
 
@@ -299,19 +303,19 @@ class TestAnalyticsEngine:
         return AnalyticsEngine()
 
     @pytest.mark.asyncio
-    async def test_engine_base_inheritance(self, engine: AnalyticsEngine):
+    async def test_engine_base_inheritance(self, engine: AnalyticsEngine) -> None:
         assert isinstance(engine, EngineBase)
         assert engine.engine_name == 'analytics'
 
     @pytest.mark.asyncio
-    async def test_lifecycle(self, engine: AnalyticsEngine):
+    async def test_lifecycle(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
         await engine.start()
         await engine.stop()
 
     @pytest.mark.asyncio
-    async def test_get_graph_statistics(self, engine: AnalyticsEngine):
+    async def test_get_graph_statistics(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         stats = await engine.get_graph_statistics()
         assert 'node_count' in stats
@@ -319,39 +323,39 @@ class TestAnalyticsEngine:
         assert 'type_counts' in stats
 
     @pytest.mark.asyncio
-    async def test_get_learning_statistics(self, engine: AnalyticsEngine):
+    async def test_get_learning_statistics(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         stats = await engine.get_learning_statistics()
         assert 'total_paths' in stats
         assert 'active_paths' in stats
 
     @pytest.mark.asyncio
-    async def test_get_career_statistics(self, engine: AnalyticsEngine):
+    async def test_get_career_statistics(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         stats = await engine.get_career_statistics()
         assert 'total_careers' in stats
 
     @pytest.mark.asyncio
-    async def test_get_assessment_statistics(self, engine: AnalyticsEngine):
+    async def test_get_assessment_statistics(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         stats = await engine.get_assessment_statistics()
         assert 'total_assessments' in stats
         assert 'pass_rate' in stats
 
     @pytest.mark.asyncio
-    async def test_get_import_export_statistics(self, engine: AnalyticsEngine):
+    async def test_get_import_export_statistics(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         stats = await engine.get_import_export_statistics()
         assert 'total_imports' in stats
 
     @pytest.mark.asyncio
-    async def test_get_platform_statistics(self, engine: AnalyticsEngine):
+    async def test_get_platform_statistics(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         stats = await engine.get_platform_statistics()
         assert 'active_engines' in stats
 
     @pytest.mark.asyncio
-    async def test_get_full_snapshot(self, engine: AnalyticsEngine):
+    async def test_get_full_snapshot(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         snapshot = await engine.get_full_snapshot()
         assert 'timestamp' in snapshot
@@ -359,21 +363,21 @@ class TestAnalyticsEngine:
         assert 'platform' in snapshot
 
     @pytest.mark.asyncio
-    async def test_get_summary(self, engine: AnalyticsEngine):
+    async def test_get_summary(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         summary = await engine.get_summary()
         assert 'total_nodes' in summary
         assert 'total_edges' in summary
 
     @pytest.mark.asyncio
-    async def test_record_event(self, engine: AnalyticsEngine):
+    async def test_record_event(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         engine.record_event('test.event')
         engine.record_event('test.event')
         assert engine._event_counts.get('test.event') == 2
 
     @pytest.mark.asyncio
-    async def test_health(self, engine: AnalyticsEngine):
+    async def test_health(self, engine: AnalyticsEngine) -> None:
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
@@ -383,6 +387,7 @@ class TestAnalyticsEngine:
 # 4. PluginEngine Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestPluginEngine:
     """Tests for PluginEngine."""
 
@@ -391,19 +396,19 @@ class TestPluginEngine:
         return PluginEngine()
 
     @pytest.mark.asyncio
-    async def test_engine_base_inheritance(self, engine: PluginEngine):
+    async def test_engine_base_inheritance(self, engine: PluginEngine) -> None:
         assert isinstance(engine, EngineBase)
         assert engine.engine_name == 'plugin'
 
     @pytest.mark.asyncio
-    async def test_lifecycle(self, engine: PluginEngine):
+    async def test_lifecycle(self, engine: PluginEngine) -> None:
         await engine.initialize()
         assert engine.engine_state == EngineState.READY
         await engine.start()
         await engine.stop()
 
     @pytest.mark.asyncio
-    async def test_register_plugin(self, engine: PluginEngine):
+    async def test_register_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(
             name='test-plugin',
@@ -416,7 +421,7 @@ class TestPluginEngine:
         assert result['status'] == 'registered'
 
     @pytest.mark.asyncio
-    async def test_register_duplicate_plugin(self, engine: PluginEngine):
+    async def test_register_duplicate_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='dup-plugin')
         await engine.register_plugin(manifest)
@@ -424,7 +429,7 @@ class TestPluginEngine:
         assert 'error' in result
 
     @pytest.mark.asyncio
-    async def test_load_plugin(self, engine: PluginEngine):
+    async def test_load_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='loadable', capabilities=['test.cap'])
         registered = await engine.register_plugin(manifest)
@@ -432,7 +437,7 @@ class TestPluginEngine:
         assert result['status'] in ('loaded', 'failed')
 
     @pytest.mark.asyncio
-    async def test_enable_plugin(self, engine: PluginEngine):
+    async def test_enable_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='enableable')
         registered = await engine.register_plugin(manifest)
@@ -441,7 +446,7 @@ class TestPluginEngine:
         assert result['status'] == 'enabled'
 
     @pytest.mark.asyncio
-    async def test_disable_plugin(self, engine: PluginEngine):
+    async def test_disable_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='disableable')
         registered = await engine.register_plugin(manifest)
@@ -451,7 +456,7 @@ class TestPluginEngine:
         assert result['status'] == 'disabled'
 
     @pytest.mark.asyncio
-    async def test_unload_plugin(self, engine: PluginEngine):
+    async def test_unload_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='unloadable')
         registered = await engine.register_plugin(manifest)
@@ -460,7 +465,7 @@ class TestPluginEngine:
         assert result['status'] == 'unloaded'
 
     @pytest.mark.asyncio
-    async def test_get_plugin(self, engine: PluginEngine):
+    async def test_get_plugin(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='gettable')
         registered = await engine.register_plugin(manifest)
@@ -469,7 +474,7 @@ class TestPluginEngine:
         assert result['name'] == 'gettable'
 
     @pytest.mark.asyncio
-    async def test_list_plugins(self, engine: PluginEngine):
+    async def test_list_plugins(self, engine: PluginEngine) -> None:
         await engine.initialize()
         await engine.register_plugin(PluginManifest(name='list-a'))
         await engine.register_plugin(PluginManifest(name='list-b'))
@@ -477,7 +482,7 @@ class TestPluginEngine:
         assert len(plugins) >= 2
 
     @pytest.mark.asyncio
-    async def test_get_manifest(self, engine: PluginEngine):
+    async def test_get_manifest(self, engine: PluginEngine) -> None:
         await engine.initialize()
         manifest = PluginManifest(name='manifest-test', version='2.0.0')
         registered = await engine.register_plugin(manifest)
@@ -486,7 +491,7 @@ class TestPluginEngine:
         assert result['version'] == '2.0.0'
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, engine: PluginEngine):
+    async def test_get_statistics(self, engine: PluginEngine) -> None:
         await engine.initialize()
         await engine.register_plugin(PluginManifest(name='stat-plugin'))
         stats = await engine.get_statistics()
@@ -494,19 +499,19 @@ class TestPluginEngine:
         assert 'registered' in stats
 
     @pytest.mark.asyncio
-    async def test_validate_dependencies(self, engine: PluginEngine):
+    async def test_validate_dependencies(self, engine: PluginEngine) -> None:
         await engine.initialize()
         results = await engine.validate_dependencies()
         assert isinstance(results, list)
 
     @pytest.mark.asyncio
-    async def test_validate_configuration(self, engine: PluginEngine):
+    async def test_validate_configuration(self, engine: PluginEngine) -> None:
         await engine.initialize()
         issues = await engine.validate_configuration()
         assert isinstance(issues, list)
 
     @pytest.mark.asyncio
-    async def test_health(self, engine: PluginEngine):
+    async def test_health(self, engine: PluginEngine) -> None:
         await engine.initialize()
         health = await engine.health()
         assert health.healthy
@@ -516,31 +521,32 @@ class TestPluginEngine:
 # 5. RateLimit / TokenBucket Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestTokenBucket:
     """Tests for TokenBucket rate limiter."""
 
-    def test_consume_allows_within_capacity(self):
+    def test_consume_allows_within_capacity(self) -> None:
         bucket = TokenBucket(capacity=5, rate=10.0)
         for _ in range(5):
             assert bucket.consume()
 
-    def test_consume_blocks_when_exhausted(self):
+    def test_consume_blocks_when_exhausted(self) -> None:
         bucket = TokenBucket(capacity=2, rate=10.0)
         bucket.consume()
         bucket.consume()
         assert not bucket.consume()
 
-    def test_remaining_decreases(self):
+    def test_remaining_decreases(self) -> None:
         bucket = TokenBucket(capacity=10, rate=10.0)
         assert bucket.remaining() == 10
         bucket.consume()
         assert bucket.remaining() == 9
 
-    def test_reset_time_returns_zero_when_full(self):
+    def test_reset_time_returns_zero_when_full(self) -> None:
         bucket = TokenBucket(capacity=10, rate=1.0)
         assert bucket.reset_time() == 0.0
 
-    def test_refill_over_time(self):
+    def test_refill_over_time(self) -> None:
         bucket = TokenBucket(capacity=1, rate=1000.0)
         bucket.consume()
         assert bucket.remaining() < 1
@@ -551,6 +557,7 @@ class TestTokenBucket:
 # 6. MetricsCollector Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestMetricsCollector:
     """Tests for MetricsCollector."""
 
@@ -558,36 +565,36 @@ class TestMetricsCollector:
     def metrics(self) -> MetricsCollector:
         return MetricsCollector()
 
-    def test_increment_counter(self, metrics: MetricsCollector):
+    def test_increment_counter(self, metrics: MetricsCollector) -> None:
         metrics.increment('test_counter')
         assert metrics.get_counter('test_counter') == 1
 
-    def test_increment_multiple(self, metrics: MetricsCollector):
+    def test_increment_multiple(self, metrics: MetricsCollector) -> None:
         metrics.increment('multi')
         metrics.increment('multi')
         metrics.increment('multi')
         assert metrics.get_counter('multi') == 3
 
-    def test_increment_with_labels(self, metrics: MetricsCollector):
+    def test_increment_with_labels(self, metrics: MetricsCollector) -> None:
         metrics.increment('labeled', {'env': 'test'})
         assert metrics.get_counter('labeled', {'env': 'test'}) == 1
         assert metrics.get_counter('labeled') == 0
 
-    def test_set_gauge(self, metrics: MetricsCollector):
+    def test_set_gauge(self, metrics: MetricsCollector) -> None:
         metrics.gauge('test_gauge', 42.0)
         assert metrics.get_gauge('test_gauge') == 42.0
 
-    def test_update_gauge(self, metrics: MetricsCollector):
+    def test_update_gauge(self, metrics: MetricsCollector) -> None:
         metrics.gauge('updatable', 10.0)
         metrics.gauge('updatable', 20.0)
         assert metrics.get_gauge('updatable') == 20.0
 
-    def test_histogram(self, metrics: MetricsCollector):
+    def test_histogram(self, metrics: MetricsCollector) -> None:
         metrics.histogram('request_latency', 100.0)
         metrics.histogram('request_latency', 200.0)
         assert metrics.get_histogram_count('request_latency') == 2
 
-    def test_histogram_stats(self, metrics: MetricsCollector):
+    def test_histogram_stats(self, metrics: MetricsCollector) -> None:
         metrics.histogram('stats_test', 100.0)
         metrics.histogram('stats_test', 200.0)
         metrics.histogram('stats_test', 300.0)
@@ -599,18 +606,18 @@ class TestMetricsCollector:
         assert hist[key]['sum'] == 600.0
         assert hist[key]['avg'] == 200.0
 
-    def test_timing(self, metrics: MetricsCollector):
+    def test_timing(self, metrics: MetricsCollector) -> None:
         metrics.timing('request_time', 150.0)
         assert metrics.get_histogram_count('request_time') == 1
 
-    def test_export_format(self, metrics: MetricsCollector):
+    def test_export_format(self, metrics: MetricsCollector) -> None:
         metrics.increment('export_test')
         export = metrics.export_metrics()
         assert '# HELP export_test' in export
         assert '# TYPE export_test counter' in export
         assert 'export_test 1' in export
 
-    def test_clear(self, metrics: MetricsCollector):
+    def test_clear(self, metrics: MetricsCollector) -> None:
         metrics.increment('clearable')
         metrics.clear()
         assert metrics.get_counter('clearable') == 0
@@ -620,6 +627,7 @@ class TestMetricsCollector:
 # 7. Tracer Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestTracer:
     """Tests for Tracer."""
 
@@ -628,21 +636,20 @@ class TestTracer:
         return Tracer()
 
     @pytest.mark.asyncio
-    async def test_span_creation(self, tracer: Tracer):
+    async def test_span_creation(self, tracer: Tracer) -> None:
         async with tracer.span('test_span') as span:
             assert span.name == 'test_span'
             assert span.span_id is not None
             assert span.trace_id is not None
 
     @pytest.mark.asyncio
-    async def test_span_nesting(self, tracer: Tracer):
-        async with tracer.span('parent') as parent:
-            async with tracer.span('child') as child:
-                assert child.parent_span_id == parent.span_id
-                assert child.trace_id == parent.trace_id
+    async def test_span_nesting(self, tracer: Tracer) -> None:
+        async with tracer.span('parent') as parent, tracer.span('child') as child:
+            assert child.parent_span_id == parent.span_id
+            assert child.trace_id == parent.trace_id
 
     @pytest.mark.asyncio
-    async def test_set_attribute(self, tracer: Tracer):
+    async def test_set_attribute(self, tracer: Tracer) -> None:
         async with tracer.span('attr_test'):
             tracer.set_attribute('key', 'value')
             span = tracer.get_current_span()
@@ -650,7 +657,7 @@ class TestTracer:
             assert span.attributes.get('key') == 'value'
 
     @pytest.mark.asyncio
-    async def test_add_event(self, tracer: Tracer):
+    async def test_add_event(self, tracer: Tracer) -> None:
         async with tracer.span('event_test'):
             tracer.add_event('test_event', {'data': 'test'})
             span = tracer.get_current_span()
@@ -659,14 +666,14 @@ class TestTracer:
             assert span.events[0].name == 'test_event'
 
     @pytest.mark.asyncio
-    async def test_span_duration(self, tracer: Tracer):
+    async def test_span_duration(self, tracer: Tracer) -> None:
         async with tracer.span('duration_test'):
             pass
         spans = tracer.export_traces()
         assert any(s['name'] == 'duration_test' for s in spans)
 
     @pytest.mark.asyncio
-    async def test_get_trace(self, tracer: Tracer):
+    async def test_get_trace(self, tracer: Tracer) -> None:
         async with tracer.span('trace_test'):
             pass
         spans = tracer.export_traces()
@@ -675,7 +682,7 @@ class TestTracer:
         assert len(trace) >= 1
 
     @pytest.mark.asyncio
-    async def test_clear(self, tracer: Tracer):
+    async def test_clear(self, tracer: Tracer) -> None:
         async with tracer.span('clear_test'):
             pass
         assert tracer.span_count > 0
@@ -683,7 +690,7 @@ class TestTracer:
         assert tracer.span_count == 0
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, tracer: Tracer):
+    async def test_get_statistics(self, tracer: Tracer) -> None:
         async with tracer.span('stat_test'):
             pass
         stats = tracer.get_statistics()
@@ -691,10 +698,11 @@ class TestTracer:
         assert stats['export_enabled'] is True
 
     @pytest.mark.asyncio
-    async def test_error_span(self, tracer: Tracer):
+    async def test_error_span(self, tracer: Tracer) -> None:
         try:
             async with tracer.span('error_test'):
-                raise ValueError('test error')
+                msg = 'test error'
+                raise ValueError(msg)
         except ValueError:
             pass
         spans = tracer.export_traces()
@@ -706,6 +714,7 @@ class TestTracer:
 # 8. WorkerManager Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestWorkerManager:
     """Tests for WorkerManager."""
 
@@ -714,14 +723,14 @@ class TestWorkerManager:
         return WorkerManager(max_workers=2)
 
     @pytest.mark.asyncio
-    async def test_start_stop(self, worker: WorkerManager):
+    async def test_start_stop(self, worker: WorkerManager) -> None:
         await worker.start()
         assert len(worker._workers) == 2
         await worker.stop()
         assert len(worker._workers) == 0
 
     @pytest.mark.asyncio
-    async def test_submit_task(self, worker: WorkerManager):
+    async def test_submit_task(self, worker: WorkerManager) -> None:
         await worker.start()
         task_id = await worker.submit_task('test', 'handler', {'key': 'value'})
         assert task_id is not None
@@ -731,12 +740,12 @@ class TestWorkerManager:
         await worker.stop()
 
     @pytest.mark.asyncio
-    async def test_get_task_not_found(self, worker: WorkerManager):
+    async def test_get_task_not_found(self, worker: WorkerManager) -> None:
         result = await worker.get_task('nonexistent')
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_list_tasks(self, worker: WorkerManager):
+    async def test_list_tasks(self, worker: WorkerManager) -> None:
         await worker.start()
         await worker.submit_task('a', 'h1')
         await worker.submit_task('b', 'h2')
@@ -745,7 +754,7 @@ class TestWorkerManager:
         await worker.stop()
 
     @pytest.mark.asyncio
-    async def test_cancel_task(self, worker: WorkerManager):
+    async def test_cancel_task(self, worker: WorkerManager) -> None:
         await worker.start()
         task_id = await worker.submit_task('cancel', 'h')
         result = await worker.cancel_task(task_id)
@@ -754,7 +763,7 @@ class TestWorkerManager:
         await worker.stop()
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, worker: WorkerManager):
+    async def test_get_statistics(self, worker: WorkerManager) -> None:
         await worker.start()
         stats = await worker.get_statistics()
         assert stats['max_workers'] == 2
@@ -762,7 +771,7 @@ class TestWorkerManager:
         await worker.stop()
 
     @pytest.mark.asyncio
-    async def test_register_handler(self, worker: WorkerManager):
+    async def test_register_handler(self, worker: WorkerManager) -> None:
         def handler(payload):
             return payload
 
@@ -774,6 +783,7 @@ class TestWorkerManager:
 # 9. NotificationService Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestNotificationService:
     """Tests for NotificationService."""
 
@@ -782,7 +792,7 @@ class TestNotificationService:
         return NotificationService()
 
     @pytest.mark.asyncio
-    async def test_send_notification(self, service: NotificationService):
+    async def test_send_notification(self, service: NotificationService) -> None:
         result = await service.send_notification(
             user_id='user-1',
             title='Test Title',
@@ -794,33 +804,33 @@ class TestNotificationService:
         assert result['read'] is False
 
     @pytest.mark.asyncio
-    async def test_mark_read(self, service: NotificationService):
+    async def test_mark_read(self, service: NotificationService) -> None:
         sent = await service.send_notification('user-1', 'Title', 'Body')
         result = await service.mark_read('user-1', sent['notification_id'])
         assert result is not None
         assert result['read'] is True
 
     @pytest.mark.asyncio
-    async def test_mark_all_read(self, service: NotificationService):
+    async def test_mark_all_read(self, service: NotificationService) -> None:
         await service.send_notification('user-1', 'A', 'Body')
         await service.send_notification('user-1', 'B', 'Body')
         count = await service.mark_all_read('user-1')
         assert count == 2
 
     @pytest.mark.asyncio
-    async def test_get_notifications(self, service: NotificationService):
+    async def test_get_notifications(self, service: NotificationService) -> None:
         await service.send_notification('user-1', 'A', 'Body')
         notifications = await service.get_notifications('user-1')
         assert len(notifications) == 1
 
     @pytest.mark.asyncio
-    async def test_get_unread_count(self, service: NotificationService):
+    async def test_get_unread_count(self, service: NotificationService) -> None:
         await service.send_notification('user-1', 'A', 'Body')
         count = await service.get_unread_count('user-1')
         assert count == 1
 
     @pytest.mark.asyncio
-    async def test_delete_notification(self, service: NotificationService):
+    async def test_delete_notification(self, service: NotificationService) -> None:
         sent = await service.send_notification('user-1', 'A', 'Body')
         result = await service.delete_notification('user-1', sent['notification_id'])
         assert result is True
@@ -828,7 +838,7 @@ class TestNotificationService:
         assert count == 0
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, service: NotificationService):
+    async def test_get_statistics(self, service: NotificationService) -> None:
         await service.send_notification('user-1', 'A', 'Body', 'info')
         await service.send_notification('user-1', 'B', 'Body', 'warning')
         stats = await service.get_statistics()
@@ -837,19 +847,19 @@ class TestNotificationService:
         assert stats['by_type']['warning'] == 1
 
     @pytest.mark.asyncio
-    async def test_preferences(self, service: NotificationService):
+    async def test_preferences(self, service: NotificationService) -> None:
         service.set_preference('user-1', 'email', False)
         assert service._get_preference('user-1', 'email') is False
         assert service._get_preference('user-1', 'in_app') is True  # default
 
     @pytest.mark.asyncio
-    async def test_mark_read_wrong_user(self, service: NotificationService):
+    async def test_mark_read_wrong_user(self, service: NotificationService) -> None:
         sent = await service.send_notification('user-1', 'Title', 'Body')
         result = await service.mark_read('user-2', sent['notification_id'])
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_delete_not_found(self, service: NotificationService):
+    async def test_delete_not_found(self, service: NotificationService) -> None:
         result = await service.delete_notification('user-1', 'nonexistent')
         assert result is False
 
@@ -858,6 +868,7 @@ class TestNotificationService:
 # 10. AuditLogger Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestAuditLogger:
     """Tests for AuditLogger."""
 
@@ -865,31 +876,31 @@ class TestAuditLogger:
     def audit(self) -> AuditLogger:
         return AuditLogger()
 
-    def test_record_entry(self, audit: AuditLogger):
+    def test_record_entry(self, audit: AuditLogger) -> None:
         entry_id = audit.record('graph_mutation', 'create_node', actor='admin')
         assert entry_id is not None
 
-    def test_get_entry(self, audit: AuditLogger):
+    def test_get_entry(self, audit: AuditLogger) -> None:
         entry_id = audit.record('system', 'restart', details={'reason': 'deploy'})
         entry = audit.get_entry(entry_id)
         assert entry is not None
         assert entry['action'] == 'restart'
         assert entry['details']['reason'] == 'deploy'
 
-    def test_query_by_category(self, audit: AuditLogger):
+    def test_query_by_category(self, audit: AuditLogger) -> None:
         audit.record('auth', 'login', actor='user1')
         audit.record('graph_mutation', 'create', actor='user1')
         audit.record('auth', 'logout', actor='user1')
         results = audit.query(category='auth')
         assert len(results) == 2
 
-    def test_query_by_actor(self, audit: AuditLogger):
+    def test_query_by_actor(self, audit: AuditLogger) -> None:
         audit.record('system', 'event', actor='user-a')
         audit.record('system', 'event', actor='user-b')
         results = audit.query(actor='user-a')
         assert len(results) == 1
 
-    def test_query_with_limit_and_offset(self, audit: AuditLogger):
+    def test_query_with_limit_and_offset(self, audit: AuditLogger) -> None:
         for i in range(10):
             audit.record('system', f'event-{i}')
         results = audit.query(limit=3)
@@ -897,39 +908,39 @@ class TestAuditLogger:
         results2 = audit.query(limit=3, offset=5)
         assert len(results2) == 3
 
-    def test_get_statistics(self, audit: AuditLogger):
+    def test_get_statistics(self, audit: AuditLogger) -> None:
         audit.record('auth', 'login')
         audit.record('graph_mutation', 'create')
         stats = audit.get_statistics()
         assert stats['total_entries'] == 2
         assert stats['by_category']['auth'] == 1
 
-    def test_entry_count(self, audit: AuditLogger):
+    def test_entry_count(self, audit: AuditLogger) -> None:
         assert audit.entry_count == 0
         audit.record('system', 'test')
         assert audit.entry_count == 1
 
-    def test_export_json(self, audit: AuditLogger):
+    def test_export_json(self, audit: AuditLogger) -> None:
         audit.record('system', 'test')
         entries = audit.export(format='json')
         assert isinstance(entries, list)
         assert len(entries) == 1
 
-    def test_export_csv(self, audit: AuditLogger):
+    def test_export_csv(self, audit: AuditLogger) -> None:
         audit.record('system', 'test')
         csv = audit.export(format='csv')
         assert isinstance(csv, str)
         assert 'entry_id' in csv
         assert 'system' in csv
 
-    def test_immutable(self, audit: AuditLogger):
+    def test_immutable(self, audit: AuditLogger) -> None:
         """Verify audit entries can't be modified after creation."""
         entry_id = audit.record('system', 'test', details={'initial': 'value'})
         entry = audit.get_entry(entry_id)
         assert entry is not None
         assert entry['details']['initial'] == 'value'
 
-    def test_query_multiple_filters(self, audit: AuditLogger):
+    def test_query_multiple_filters(self, audit: AuditLogger) -> None:
         audit.record('auth', 'login', actor='user1', resource_type='session')
         audit.record('auth', 'login', actor='user2', resource_type='session')
         results = audit.query(category='auth', actor='user1')
@@ -940,6 +951,7 @@ class TestAuditLogger:
 # 11. WebSocketManager Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestWebSocketManager:
     """Tests for WebSocketManager."""
 
@@ -948,25 +960,25 @@ class TestWebSocketManager:
         return WebSocketManager()
 
     @pytest.mark.asyncio
-    async def test_connect(self, ws: WebSocketManager):
+    async def test_connect(self, ws: WebSocketManager) -> None:
         client = await ws.connect()
         assert client.client_id in ws._clients
         assert client.client_id in ws._channel_clients['all']
 
     @pytest.mark.asyncio
-    async def test_connect_with_channels(self, ws: WebSocketManager):
+    async def test_connect_with_channels(self, ws: WebSocketManager) -> None:
         client = await ws.connect(channels=['engine.status', 'jobs'])
         assert 'engine.status' in ws._channel_clients
         assert client.client_id in ws._channel_clients['engine.status']
 
     @pytest.mark.asyncio
-    async def test_disconnect(self, ws: WebSocketManager):
+    async def test_disconnect(self, ws: WebSocketManager) -> None:
         client = await ws.connect()
         await ws.disconnect(client.client_id)
         assert client.client_id not in ws._clients
 
     @pytest.mark.asyncio
-    async def test_broadcast(self, ws: WebSocketManager):
+    async def test_broadcast(self, ws: WebSocketManager) -> None:
         client = await ws.connect()
         count = await ws.broadcast('all', 'test_event', {'data': 'value'})
         assert count == 1
@@ -975,58 +987,58 @@ class TestWebSocketManager:
         assert messages[0]['type'] == 'test_event'
 
     @pytest.mark.asyncio
-    async def test_broadcast_to_channel(self, ws: WebSocketManager):
-        client = await ws.connect(channels=['engine.status'])
+    async def test_broadcast_to_channel(self, ws: WebSocketManager) -> None:
+        await ws.connect(channels=['engine.status'])
         count = await ws.broadcast('engine.status', 'status_update', {'engine': 'test'})
         assert count == 1
 
     @pytest.mark.asyncio
-    async def test_broadcast_all(self, ws: WebSocketManager):
-        client = await ws.connect()
+    async def test_broadcast_all(self, ws: WebSocketManager) -> None:
+        await ws.connect()
         count = await ws.broadcast_all('system_event', {'msg': 'hello'})
         assert count == 1
 
     @pytest.mark.asyncio
-    async def test_send_to_client(self, ws: WebSocketManager):
+    async def test_send_to_client(self, ws: WebSocketManager) -> None:
         client = await ws.connect()
         result = await ws.send_to_client(client.client_id, 'direct', {'msg': 'hello'})
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_send_to_invalid_client(self, ws: WebSocketManager):
+    async def test_send_to_invalid_client(self, ws: WebSocketManager) -> None:
         result = await ws.send_to_client('invalid', 'test', {})
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_heartbeat(self, ws: WebSocketManager):
+    async def test_heartbeat(self, ws: WebSocketManager) -> None:
         client = await ws.connect()
         result = ws.heartbeat(client.client_id)
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_heartbeat_invalid(self, ws: WebSocketManager):
+    async def test_heartbeat_invalid(self, ws: WebSocketManager) -> None:
         result = ws.heartbeat('invalid')
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_get_statistics(self, ws: WebSocketManager):
+    async def test_get_statistics(self, ws: WebSocketManager) -> None:
         await ws.connect()
         stats = await ws.get_statistics()
         assert stats['connected_clients'] >= 1
         assert stats['total_channels'] >= 1
 
     @pytest.mark.asyncio
-    async def test_broadcast_engine_status(self, ws: WebSocketManager):
-        client = await ws.connect(channels=['engine.status'])
+    async def test_broadcast_engine_status(self, ws: WebSocketManager) -> None:
+        await ws.connect(channels=['engine.status'])
         await ws.broadcast_engine_status('graph', 'running', {'healthy': True})
 
     @pytest.mark.asyncio
-    async def test_broadcast_job_progress(self, ws: WebSocketManager):
-        client = await ws.connect(channels=['job.progress'])
+    async def test_broadcast_job_progress(self, ws: WebSocketManager) -> None:
+        await ws.connect(channels=['job.progress'])
         await ws.broadcast_job_progress('job-1', 'import', 50.0, 'running', 'Processing')
 
     @pytest.mark.asyncio
-    async def test_messages_preserve_order(self, ws: WebSocketManager):
+    async def test_messages_preserve_order(self, ws: WebSocketManager) -> None:
         client = await ws.connect()
         await ws.broadcast('all', 'event1', {})
         await ws.broadcast('all', 'event2', {})
@@ -1040,11 +1052,12 @@ class TestWebSocketManager:
 # 12. Cross-Engine Integration Tests
 # ════════════════════════════════════════════════════════════════
 
+
 class TestCrossEngineIntegration:
     """Tests for integration between Milestone 8 engines."""
 
     @pytest.mark.asyncio
-    async def test_scheduler_with_worker(self):
+    async def test_scheduler_with_worker(self) -> None:
         """SchedulingEngine + WorkerManager integration."""
         scheduler = SchedulingEngine()
         worker = WorkerManager(max_workers=1)
@@ -1059,7 +1072,7 @@ class TestCrossEngineIntegration:
         await worker.stop()
 
     @pytest.mark.asyncio
-    async def test_revision_with_notification(self):
+    async def test_revision_with_notification(self) -> None:
         """RevisionEngine + NotificationService integration."""
         revision = RevisionEngine()
         notifications = NotificationService()
@@ -1078,7 +1091,7 @@ class TestCrossEngineIntegration:
         assert result['title'] == 'Revision Plan Ready'
 
     @pytest.mark.asyncio
-    async def test_plugin_analytics_integration(self):
+    async def test_plugin_analytics_integration(self) -> None:
         """PluginEngine + AnalyticsEngine integration."""
         plugin = PluginEngine()
         analytics = AnalyticsEngine()
@@ -1096,7 +1109,7 @@ class TestCrossEngineIntegration:
         assert 'active_engines' in stats
 
     @pytest.mark.asyncio
-    async def test_audit_logging_pipeline(self):
+    async def test_audit_logging_pipeline(self) -> None:
         """AuditLogger recording events from scheduler and plugin."""
         audit = AuditLogger()
         scheduler = SchedulingEngine()
@@ -1107,22 +1120,30 @@ class TestCrossEngineIntegration:
 
         # Audit scheduler and plugin operations
         job = await scheduler.schedule_once('audit-job')
-        audit.record('system', 'schedule_job', resource_id=job['id'],
-                     details={'job_name': 'audit-job'})
+        audit.record(
+            'system',
+            'schedule_job',
+            resource_id=job['id'],
+            details={'job_name': 'audit-job'},
+        )
 
         manifest = PluginManifest(name='audit-plugin')
         registered = await plugin.register_plugin(manifest)
-        audit.record('system', 'register_plugin', resource_id=registered['plugin_id'],
-                     details={'plugin_name': 'audit-plugin'})
+        audit.record(
+            'system',
+            'register_plugin',
+            resource_id=registered['plugin_id'],
+            details={'plugin_name': 'audit-plugin'},
+        )
 
         # Verify audit trail
         entries = audit.query()
         assert len(entries) >= 2
-        categories = set(e['category'] for e in entries)
+        categories = {e['category'] for e in entries}
         assert 'system' in categories
 
     @pytest.mark.asyncio
-    async def test_websocket_notification_pipeline(self):
+    async def test_websocket_notification_pipeline(self) -> None:
         """WebSocketManager + NotificationService integration."""
         ws = WebSocketManager()
         notifications = NotificationService()
@@ -1137,14 +1158,10 @@ class TestCrossEngineIntegration:
         )
         assert result['title'] == 'Alert'
 
-        await ws.broadcast_notification(
-            'user-1', 'Alert', 'Something happened'
-        )
+        await ws.broadcast_notification('user-1', 'Alert', 'Something happened')
 
         # Verify message
         messages = await ws.get_messages(client.client_id)
         assert len(messages) >= 1
-        notification_msg = next(
-            (m for m in messages if m['type'] == 'notification'), None
-        )
+        notification_msg = next((m for m in messages if m['type'] == 'notification'), None)
         assert notification_msg is not None

@@ -1,5 +1,4 @@
-"""
-Chat Service — production conversational AI with streaming, RAG, and citations.
+"""Chat Service — production conversational AI with streaming, RAG, and citations.
 
 Manages:
 - Multiple conversation sessions
@@ -14,19 +13,23 @@ Manages:
 from __future__ import annotations
 
 import os
-from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from structlog.stdlib import get_logger
 
 from app.models.chat_session import ChatMessage, ChatSession
-from app.repositories import UnitOfWork
 from app.services.ai.context_engine import ContextEngine
 from app.services.ai.providers.llm_anthropic import AnthropicChatProvider
 from app.services.ai.providers.llm_base import LLMMessage, LLMProvider
 from app.services.ai.providers.llm_deepseek import DeepSeekChatProvider
 from app.services.ai.providers.llm_openai import OpenAIChatProvider
 from app.services.ai.rag_engine import RAGEngine
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 
@@ -50,9 +53,9 @@ class ChatService:
         provider = os.getenv('AI_CHAT_PROVIDER', 'openai').lower()
         if provider == 'anthropic':
             return AnthropicChatProvider()
-        elif provider == 'deepseek':
+        if provider == 'deepseek':
             return DeepSeekChatProvider()
-        elif provider == 'ollama':
+        if provider == 'ollama':
             from app.services.ai.providers.llm_ollama import OllamaChatProvider
 
             return OllamaChatProvider()
@@ -281,7 +284,7 @@ class ChatService:
             parts.append(f'- Current topic: {n["title"]} ({n["difficulty"]}, {n["node_type"]})')
         if kg.get('prerequisites'):
             parts.append(
-                f'- Prerequisites: {", ".join(n["title"] for n in kg["prerequisites"][:5])}'
+                f'- Prerequisites: {", ".join(n["title"] for n in kg["prerequisites"][:5])}',
             )
         if kg.get('related_nodes'):
             parts.append(f'- Related: {", ".join(n["title"] for n in kg["related_nodes"][:5])}')
@@ -295,7 +298,7 @@ class ChatService:
                     f'- Overall: {up.get("completion_percentage", 0)}% complete',
                     f'- Completed: {up.get("completed_nodes", 0)} nodes',
                     f'- Remaining: {up.get("remaining_nodes", 0)} nodes',
-                ]
+                ],
             )
             if up.get('weak_topics'):
                 parts.append(f'- Areas needing review: {", ".join(up["weak_topics"][:3])}')
@@ -321,7 +324,7 @@ class ChatService:
                 '- Suggest 2-3 follow-up questions at the end.',
                 '- Be concise but thorough.',
                 '- If referencing a knowledge node, mention its slug.',
-            ]
+            ],
         )
 
         return '\n'.join(parts)
@@ -427,7 +430,7 @@ class ChatService:
         suggestions = []
         lines = response.strip().split('\n')
         for line in reversed(lines):
-            if line.startswith('- ') or line.startswith('* '):
+            if line.startswith(('- ', '* ')):
                 suggestion = line[2:].strip()
                 if len(suggestion) > 10 and len(suggestion) < 120:
                     suggestions.append(suggestion)

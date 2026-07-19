@@ -58,7 +58,7 @@ class TestFindSimilar:
     """Test find_similar."""
 
     @pytest.mark.asyncio
-    async def test_node_not_found(self, similarity_service, mock_uow):
+    async def test_node_not_found(self, similarity_service, mock_uow) -> None:
         """Test returns empty when source node not found."""
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=None)
 
@@ -66,7 +66,7 @@ class TestFindSimilar:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_no_embedding_no_neighbors(self, similarity_service, mock_uow):
+    async def test_no_embedding_no_neighbors(self, similarity_service, mock_uow) -> None:
         """Test returns empty when no signals available."""
         node = _make_node(uuid4(), 'Lonely Node', 'lonely')
 
@@ -75,7 +75,7 @@ class TestFindSimilar:
             return_value={
                 'outgoing': [],
                 'incoming': [],
-            }
+            },
         )
 
         result = await similarity_service.find_similar(node.id)
@@ -83,7 +83,7 @@ class TestFindSimilar:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_graph_neighbor_found(self, similarity_service, mock_uow):
+    async def test_graph_neighbor_found(self, similarity_service, mock_uow) -> None:
         """Test finds similar via graph proximity."""
         source_id = uuid4()
         neighbor_id = uuid4()
@@ -91,13 +91,13 @@ class TestFindSimilar:
         neighbor = _make_node(neighbor_id, 'Neighbor', 'neighbor')
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
-            side_effect=lambda nid: {source_id: source, neighbor_id: neighbor}.get(nid)
+            side_effect={source_id: source, neighbor_id: neighbor}.get,
         )
         mock_uow.graph.load_all_neighbors = AsyncMock(
             return_value={
                 'outgoing': [neighbor],
                 'incoming': [],
-            }
+            },
         )
 
         result = await similarity_service.find_similar(source_id)
@@ -106,7 +106,7 @@ class TestFindSimilar:
         assert any(r['node']['slug'] == 'neighbor' for r in result)
 
     @pytest.mark.asyncio
-    async def test_semantic_similarity_used(self, similarity_service, mock_uow):
+    async def test_semantic_similarity_used(self, similarity_service, mock_uow) -> None:
         """Test semantic signal is used when embeddings available."""
         source_id = uuid4()
         similar_id = uuid4()
@@ -114,14 +114,14 @@ class TestFindSimilar:
         similar = _make_node(similar_id, 'Similar', 'similar', embedding=[0.85, 0.0, 0.0])
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
-            side_effect=lambda nid: {source_id: source, similar_id: similar}.get(nid)
+            side_effect={source_id: source, similar_id: similar}.get,
         )
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[source, similar])
         mock_uow.graph.load_all_neighbors = AsyncMock(
             return_value={
                 'outgoing': [],
                 'incoming': [],
-            }
+            },
         )
 
         result = await similarity_service.find_similar(
@@ -133,24 +133,28 @@ class TestFindSimilar:
         assert len(result) >= 1
 
     @pytest.mark.asyncio
-    async def test_composite_scoring(self, similarity_service, mock_uow):
+    async def test_composite_scoring(self, similarity_service, mock_uow) -> None:
         """Test composite score includes all signals."""
         source_id = uuid4()
         neighbor_id = uuid4()
         source = _make_node(source_id, 'Source', 'source', embedding=[0.9, 0.0, 0.0])
         neighbor = _make_node(
-            neighbor_id, 'Neighbor', 'neighbor', node_type='concept', embedding=[0.85, 0.0, 0.0]
+            neighbor_id,
+            'Neighbor',
+            'neighbor',
+            node_type='concept',
+            embedding=[0.85, 0.0, 0.0],
         )
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
-            side_effect=lambda nid: {source_id: source, neighbor_id: neighbor}.get(nid)
+            side_effect={source_id: source, neighbor_id: neighbor}.get,
         )
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[source, neighbor])
         mock_uow.graph.load_all_neighbors = AsyncMock(
             return_value={
                 'outgoing': [neighbor],
                 'incoming': [],
-            }
+            },
         )
 
         result = await similarity_service.find_similar(source_id)
@@ -170,20 +174,20 @@ class TestEdgeCases:
     """Test edge cases."""
 
     @pytest.mark.asyncio
-    async def test_limit_respected(self, similarity_service, mock_uow):
+    async def test_limit_respected(self, similarity_service, mock_uow) -> None:
         """Test limit restricts results."""
         source_id = uuid4()
         neighbors = [_make_node(uuid4(), f'Neighbor {i}', f'neighbor-{i}') for i in range(10)]
         source = _make_node(source_id, 'Source', 'source')
 
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(
-            side_effect=lambda nid: {source_id: source, **{n.id: n for n in neighbors}}.get(nid)
+            side_effect={source_id: source, **{n.id: n for n in neighbors}}.get,
         )
         mock_uow.graph.load_all_neighbors = AsyncMock(
             return_value={
                 'outgoing': neighbors,
                 'incoming': [],
-            }
+            },
         )
 
         result = await similarity_service.find_similar(source_id, limit=3)

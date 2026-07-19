@@ -6,12 +6,15 @@ login, signup, token refresh, and password management.
 
 from __future__ import annotations
 
-from datetime import datetime
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from app.models.enums import UserRole
+if TYPE_CHECKING:
+    from datetime import datetime
+    from uuid import UUID
+
+    from app.models.enums import UserRole
 
 
 class LoginRequest(BaseModel):
@@ -26,7 +29,10 @@ class SignupRequest(BaseModel):
 
     email: EmailStr = Field(description='Email address')
     username: str = Field(
-        description='Public username', min_length=3, max_length=100, pattern=r'^[a-zA-Z0-9_]+$'
+        description='Public username',
+        min_length=3,
+        max_length=100,
+        pattern=r'^[a-zA-Z0-9_]+$',
     )
     password: str = Field(description='Password', min_length=8, max_length=128)
     display_name: str | None = Field(default=None, description='Display name', max_length=200)
@@ -35,14 +41,16 @@ class SignupRequest(BaseModel):
     @classmethod
     def validate_username(cls, v: str) -> str:
         if not v.strip():
-            raise ValueError('Username cannot be empty')
+            msg = 'Username cannot be empty'
+            raise ValueError(msg)
         return v.strip().lower()
 
     @field_validator('password')
     @classmethod
     def validate_password(cls, v: str) -> str:
         if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters')
+            msg = 'Password must be at least 8 characters'
+            raise ValueError(msg)
         return v
 
 

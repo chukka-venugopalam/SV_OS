@@ -12,11 +12,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
+if TYPE_CHECKING:
+    from uuid import UUID
 
 # ── Valid State Transitions ────────────────────────────────────────
 
@@ -44,6 +45,7 @@ PROGRESS_VALUES: dict[str, float] = {
 @dataclass
 class StateRecord:
     """In-memory record of a learner's state on a node."""
+
     user_id: UUID
     node_id: UUID
     status: str = 'not_started'
@@ -83,7 +85,11 @@ class StateEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='event', required=False, description='Event engine for publishing state events'),
+            EngineDependency(
+                engine_name='event',
+                required=False,
+                description='Event engine for publishing state events',
+            ),
         ]
 
     # ── Lifecycle ──────────────────────────────────────────────────
@@ -141,6 +147,7 @@ class StateEngine(EngineBase):
 
         Raises:
             ValueError: If the transition is not valid.
+
         """
         key = (user_id, node_id)
         record = self._states.get(key)
@@ -158,13 +165,16 @@ class StateEngine(EngineBase):
         if record.status != status and record.status in VALID_TRANSITIONS:
             allowed = VALID_TRANSITIONS.get(record.status, set())
             if status not in allowed:
-                raise ValueError(
+                msg = (
                     f"Invalid state transition: '{record.status}' -> '{status}'. "
                     f"Allowed transitions from '{record.status}': {allowed}"
                 )
+                raise ValueError(
+                    msg,
+                )
 
         old_status = record.status
-        now = datetime.now(UTC).isoformat()
+        datetime.now(UTC).isoformat()
 
         # Update timestamps
         now_ts = datetime.now(UTC).isoformat()
@@ -186,13 +196,15 @@ class StateEngine(EngineBase):
             record.time_spent_minutes += time_spent_minutes
 
         # Record transition history
-        record.history.append({
-            'from_status': old_status,
-            'to_status': status,
-            'timestamp': now_ts,
-            'confidence': record.confidence,
-            'time_spent_minutes': record.time_spent_minutes,
-        })
+        record.history.append(
+            {
+                'from_status': old_status,
+                'to_status': status,
+                'timestamp': now_ts,
+                'confidence': record.confidence,
+                'time_spent_minutes': record.time_spent_minutes,
+            },
+        )
 
         # Publish state update event
         await self.publish_event(
@@ -246,6 +258,7 @@ class StateEngine(EngineBase):
 
         Returns:
             The new confidence value.
+
         """
         key = (user_id, node_id)
         record = self._states.get(key)

@@ -37,7 +37,10 @@ def upgrade() -> None:
             index=True,
         ),
         sa.Column(
-            'title', sa.String(300), nullable=False, server_default=sa.text("'New Conversation'")
+            'title',
+            sa.String(300),
+            nullable=False,
+            server_default=sa.text("'New Conversation'"),
         ),
         sa.Column('session_type', sa.String(50), nullable=False, server_default=sa.text("'chat'")),
         sa.Column('metadata', JSONB, nullable=False, server_default=sa.text("'{}'::jsonb")),
@@ -156,12 +159,18 @@ def upgrade() -> None:
         ),
         sa.Column('preferred_model', sa.String(100), nullable=True),
         sa.Column(
-            'explanation_style', sa.String(50), nullable=False, server_default=sa.text("'balanced'")
+            'explanation_style',
+            sa.String(50),
+            nullable=False,
+            server_default=sa.text("'balanced'"),
         ),
         sa.Column('temperature', sa.Float, nullable=False, server_default=sa.text('0.7')),
         sa.Column('max_tokens', sa.Integer, nullable=False, server_default=sa.text('2048')),
         sa.Column(
-            'auto_generate_titles', sa.Boolean, nullable=False, server_default=sa.text('true')
+            'auto_generate_titles',
+            sa.Boolean,
+            nullable=False,
+            server_default=sa.text('true'),
         ),
         sa.Column('include_citations', sa.Boolean, nullable=False, server_default=sa.text('true')),
         sa.Column('metadata', JSONB, nullable=False, server_default=sa.text("'{}'::jsonb")),
@@ -200,7 +209,10 @@ def upgrade() -> None:
         sa.Column('quiz_type', sa.String(50), nullable=False),
         sa.Column('topic', sa.String(300), nullable=False),
         sa.Column(
-            'difficulty', sa.String(20), nullable=False, server_default=sa.text("'intermediate'")
+            'difficulty',
+            sa.String(20),
+            nullable=False,
+            server_default=sa.text("'intermediate'"),
         ),
         sa.Column('questions', JSONB, nullable=False, server_default=sa.text("'[]'::jsonb")),
         sa.Column('score', sa.Float, nullable=True),

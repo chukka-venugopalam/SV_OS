@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
-from app.models.enums import Difficulty, NodeType, RequirementType
+if TYPE_CHECKING:
+    from app.models.enums import Difficulty, NodeType, RequirementType
 
 
 class ProjectRequirement(BaseModel):
@@ -23,9 +26,12 @@ class RequiredSkill(BaseModel):
 
     name: str = Field(description='Skill name', max_length=200)
     category: str | None = Field(
-        default=None, description='Skill category', examples=['Programming Language']
+        default=None,
+        description='Skill category',
+        examples=['Programming Language'],
     )
     difficulty: Difficulty = Field(description='Required proficiency level')
     is_essential: bool = Field(
-        default=True, description='Whether this skill is essential or optional'
+        default=True,
+        description='Whether this skill is essential or optional',
     )

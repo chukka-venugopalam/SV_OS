@@ -1,5 +1,4 @@
-"""
-Project and ProjectRequirement models.
+"""Project and ProjectRequirement models.
 
 Projects are hands-on build exercises (e.g. "Build a REST API").
 ProjectRequirement is the many-to-many join between projects and
@@ -9,7 +8,6 @@ knowledge nodes.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
@@ -21,6 +19,8 @@ from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, RequirementType, pg_enum
 
 if TYPE_CHECKING:
+    from uuid import UUID
+
     from app.models.knowledge_node import KnowledgeNode
 
 

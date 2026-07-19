@@ -24,12 +24,8 @@ Usage::
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from types import TracebackType
-from typing import cast
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import TYPE_CHECKING, Self, cast
 
 from app.repositories.audit_log import AuditLogRepository
 from app.repositories.bookmark import BookmarkRepository
@@ -48,6 +44,12 @@ from app.repositories.skill import SkillRepository
 from app.repositories.tag import TagRepository
 from app.repositories.user import UserRepository
 from app.repositories.user_progress import UserProgressRepository
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+    from types import TracebackType
+
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class UnitOfWork:
@@ -154,7 +156,8 @@ class UnitOfWork:
     async def commit(self) -> None:
         """Commit the current transaction."""
         if self._closed:
-            raise RuntimeError('Unit of Work is already closed')
+            msg = 'Unit of Work is already closed'
+            raise RuntimeError(msg)
         try:
             await self._session.commit()
         except Exception:
@@ -164,18 +167,20 @@ class UnitOfWork:
     async def rollback(self) -> None:
         """Roll back the current transaction."""
         if self._closed:
-            raise RuntimeError('Unit of Work is already closed')
+            msg = 'Unit of Work is already closed'
+            raise RuntimeError(msg)
         await self._session.rollback()
 
     async def flush(self) -> None:
         """Flush pending changes to the database without committing."""
         if self._closed:
-            raise RuntimeError('Unit of Work is already closed')
+            msg = 'Unit of Work is already closed'
+            raise RuntimeError(msg)
         await self._session.flush()
 
     # ── Context Manager Support ────────────────────────────────────
 
-    async def __aenter__(self) -> UnitOfWork:
+    async def __aenter__(self) -> Self:
         """Enter the context manager — no explicit begin needed (sessions begin implicitly)."""
         self._closed = False
         return self
@@ -203,7 +208,7 @@ class UnitOfWork:
         """Return a cached repository instance or create a new one."""
         if key not in self._repositories:
             self._repositories[key] = repo_cls(self._session)
-        return cast(T, self._repositories[key])
+        return cast('T', self._repositories[key])
 
 
 @asynccontextmanager

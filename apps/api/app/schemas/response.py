@@ -15,12 +15,13 @@ duplicate definitions. ``PaginatedData`` is imported from
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.common.errors import ErrorDetail
+if TYPE_CHECKING:
+    from app.schemas.common.errors import ErrorDetail
 
 T = TypeVar('T')
 

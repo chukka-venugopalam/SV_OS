@@ -10,27 +10,27 @@ from app.services.ai.security_service import SecurityService
 class TestSecurityService:
     """Test the security layer for AI operations."""
 
-    async def test_validate_empty_message(self):
+    async def test_validate_empty_message(self) -> None:
         """Empty messages are rejected."""
         sec = SecurityService()
         safe, reason = sec.validate_input('')
         assert not safe
         assert 'empty' in reason.lower()
 
-    async def test_validate_whitespace_only(self):
+    async def test_validate_whitespace_only(self) -> None:
         """Whitespace-only messages are rejected."""
         sec = SecurityService()
         safe, _reason = sec.validate_input('   \n  \t  ')
         assert not safe
 
-    async def test_validate_normal_message(self):
+    async def test_validate_normal_message(self) -> None:
         """Normal learning messages are accepted."""
         sec = SecurityService()
         safe, reason = sec.validate_input('Can you explain how Python loops work?')
         assert safe
         assert reason == ''
 
-    async def test_prompt_injection_detected(self):
+    async def test_prompt_injection_detected(self) -> None:
         """Prompt injection patterns are caught."""
         sec = SecurityService()
 
@@ -47,7 +47,7 @@ class TestSecurityService:
             safe, _reason = sec.validate_input(attempt)
             assert not safe, f'Failed to detect injection: {attempt}'
 
-    async def test_validate_max_length(self):
+    async def test_validate_max_length(self) -> None:
         """Messages exceeding max length are rejected."""
         sec = SecurityService()
         long_msg = 'a' * 60000
@@ -55,7 +55,7 @@ class TestSecurityService:
         assert not safe
         assert 'exceeds' in reason
 
-    async def test_sanitize_removes_scripts(self):
+    async def test_sanitize_removes_scripts(self) -> None:
         """Script tags are removed from AI output."""
         sec = SecurityService()
         dirty = 'Hello <script>alert("xss")</script> World'
@@ -64,14 +64,14 @@ class TestSecurityService:
         assert 'Hello' in clean
         assert 'World' in clean
 
-    async def test_sanitize_removes_event_handlers(self):
+    async def test_sanitize_removes_event_handlers(self) -> None:
         """Event handlers are removed from output."""
         sec = SecurityService()
         dirty = 'Click <span onclick="malicious()">here</span>'
         clean = sec.sanitize_output(dirty)
         assert 'onclick=' not in clean.lower()
 
-    async def test_sanitize_redacts_credentials(self):
+    async def test_sanitize_redacts_credentials(self) -> None:
         """Credentials are redacted from output."""
         sec = SecurityService()
         dirty = 'API key is Bearer sk-1234567890abcdef'
@@ -79,28 +79,28 @@ class TestSecurityService:
         assert 'sk-1234567890abcdef' not in clean
         assert '[REDACTED]' in clean
 
-    async def test_sanitize_redacts_env_vars(self):
+    async def test_sanitize_redacts_env_vars(self) -> None:
         """Environment variable patterns are redacted."""
         sec = SecurityService()
         dirty = 'My OPENAI_API_KEY is sk-test123'
         clean = sec.sanitize_output(dirty)
         assert '[REDACTED]' in clean
 
-    async def test_sanitize_truncates_long_output(self):
+    async def test_sanitize_truncates_long_output(self) -> None:
         """Overly long output is truncated."""
         sec = SecurityService()
         long_content = 'A' * 200000
         clean = sec.sanitize_output(long_content)
         assert len(clean) <= 100000 + 50  # max + truncation message
 
-    async def test_sanitize_normalizes_whitespace(self):
+    async def test_sanitize_normalizes_whitespace(self) -> None:
         """Excessive whitespace is normalized."""
         sec = SecurityService()
         dirty = 'Line 1\n\n\n\n\n\nLine 2'
         clean = sec.sanitize_output(dirty)
         assert '\n\n\n\n' not in clean
 
-    async def test_rate_limit_allows_normal(self):
+    async def test_rate_limit_allows_normal(self) -> None:
         """Normal request rates are allowed."""
         sec = SecurityService()
         user_id = uuid4()
@@ -108,7 +108,7 @@ class TestSecurityService:
         assert allowed
         assert retry == 0
 
-    async def test_rate_limit_exceeds(self):
+    async def test_rate_limit_exceeds(self) -> None:
         """Excessive requests are blocked."""
         sec = SecurityService()
         user_id = uuid4()
@@ -122,7 +122,7 @@ class TestSecurityService:
         assert not allowed
         assert retry > 0
 
-    async def test_rate_limit_per_endpoint(self):
+    async def test_rate_limit_per_endpoint(self) -> None:
         """Rate limits are per-endpoint."""
         sec = SecurityService()
         user_id = uuid4()
@@ -135,7 +135,7 @@ class TestSecurityService:
         allowed, _ = sec.check_rate_limit(user_id, 'tutor', max_requests=5, window_seconds=60)
         assert allowed
 
-    async def test_rate_limit_reset(self):
+    async def test_rate_limit_reset(self) -> None:
         """Rate limits can be reset."""
         sec = SecurityService()
         user_id = uuid4()
@@ -147,7 +147,7 @@ class TestSecurityService:
         allowed, _ = sec.check_rate_limit(user_id, 'chat', max_requests=5, window_seconds=60)
         assert allowed
 
-    async def test_token_estimation(self):
+    async def test_token_estimation(self) -> None:
         """Token estimation is roughly correct."""
         sec = SecurityService()
         text = 'Hello world, this is a test message'
@@ -155,7 +155,7 @@ class TestSecurityService:
         assert tokens > 0
         assert tokens <= len(text)  # Should be <= character count
 
-    async def test_enforce_token_limit(self):
+    async def test_enforce_token_limit(self) -> None:
         """Token limit enforcement truncates history."""
         sec = SecurityService()
         messages = [
@@ -171,7 +171,7 @@ class TestSecurityService:
         system_msgs = [m for m in truncated if m['role'] == 'system']
         assert len(system_msgs) > 0
 
-    async def test_context_length_validation(self):
+    async def test_context_length_validation(self) -> None:
         """Context that's too large is rejected."""
         sec = SecurityService()
         valid, _ = sec.validate_context_length('Short context')
@@ -181,7 +181,7 @@ class TestSecurityService:
         valid, _ = sec.validate_context_length(huge)
         assert not valid
 
-    async def test_rate_limit_window_resets(self):
+    async def test_rate_limit_window_resets(self) -> None:
         """Rate limit window resets after time passes."""
         sec = SecurityService()
         user_id = uuid4()

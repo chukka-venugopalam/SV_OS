@@ -6,12 +6,16 @@ Persistence queries are delegated to ``GraphRepository``.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from structlog.stdlib import get_logger
 
 from app.models.knowledge_node import KnowledgeNode
-from app.repositories import UnitOfWork
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Query, Request
@@ -34,7 +35,7 @@ def _get_engine(request: Request):
     return None
 
 
-def _safe(data: dict, msg: str = 'Success') -> dict:
+def _safe(data: dict, _msg: str = 'Success') -> dict:
     return {'success': True, 'data': data, 'errors': None}
 
 
@@ -110,7 +111,7 @@ async def export_career_graph(
 @router.get('/jobs')
 async def list_exports(
     request: Request,
-    limit: int = Query(20, ge=1, le=100),
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:

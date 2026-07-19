@@ -7,9 +7,11 @@ This is the pure domain representation. The ORM model at
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
-from typing import Any
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 @dataclass

@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-from httpx import AsyncClient
 
 from app.core.config import Settings
 from app.platform.events import EventBus
 from app.platform.registries import CapabilityRegistry, PluginRegistry
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from httpx import AsyncClient
 
 
 def test_settings_supports_feature_flags_and_profiles() -> None:
@@ -38,8 +42,18 @@ async def test_event_bus_supports_async_handlers_and_idempotency() -> None:
         seen.append(event.payload['value'])
 
     bus.subscribe('platform.started', handler)
-    await bus.publish('platform.started', {'value': 'alpha'}, correlation_id='corr-1', idempotency_key='abc')
-    await bus.publish('platform.started', {'value': 'beta'}, correlation_id='corr-2', idempotency_key='abc')
+    await bus.publish(
+        'platform.started',
+        {'value': 'alpha'},
+        correlation_id='corr-1',
+        idempotency_key='abc',
+    )
+    await bus.publish(
+        'platform.started',
+        {'value': 'beta'},
+        correlation_id='corr-2',
+        idempotency_key='abc',
+    )
 
     assert seen == ['alpha']
 
@@ -66,7 +80,7 @@ def test_plugin_registry_loads_manifest_and_checks_version(tmp_path: Path) -> No
                 'description': 'Test plugin',
                 'entrypoint': 'plugin:app',
                 'capabilities': ['analytics'],
-            }
+            },
         ),
         encoding='utf-8',
     )

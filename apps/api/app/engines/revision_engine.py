@@ -21,13 +21,13 @@ from uuid import UUID, uuid4
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
-
 SPACED_INTERVALS = [1, 3, 7, 14, 30, 60]  # Days between reviews
 
 
 @dataclass
 class RevisionItem:
     """A single item scheduled for revision."""
+
     item_id: str = field(default_factory=lambda: str(uuid4()))
     user_id: str = ''
     node_id: str = ''
@@ -45,6 +45,7 @@ class RevisionItem:
 @dataclass
 class RevisionPlan:
     """A daily or weekly revision plan."""
+
     plan_id: str = field(default_factory=lambda: str(uuid4()))
     user_id: str = ''
     plan_type: str = 'daily'  # daily, weekly
@@ -94,7 +95,9 @@ class RevisionEngine(EngineBase):
 
     async def health_impl(self) -> EngineHealth:
         return EngineHealth(
-            engine_name=self.engine_name, state=self.engine_state, healthy=True,
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
             message='Revision engine is operational',
             details={
                 'total_items': len(self._items),
@@ -112,7 +115,10 @@ class RevisionEngine(EngineBase):
 
         if node_ids:
             for nid in node_ids:
-                existing = next((i for i in item_ids if self._items.get(i) and self._items[i].node_id == nid), None)
+                existing = next(
+                    (i for i in item_ids if self._items.get(i) and self._items[i].node_id == nid),
+                    None,
+                )
                 if not existing:
                     item = RevisionItem(user_id=uid, node_id=nid, node_title=nid)
                     self._items[item.item_id] = item
@@ -133,10 +139,15 @@ class RevisionEngine(EngineBase):
 
         # Build plan from items due today
         due_items = await self._get_due_items(user_id)
-        plan = RevisionPlan(plan_id=plan_id, user_id=uid, plan_type='daily',
-                            date=today, items=due_items[:10],
-                            total_items=len(due_items[:10]),
-                            estimated_minutes=len(due_items[:10]) * 15)
+        plan = RevisionPlan(
+            plan_id=plan_id,
+            user_id=uid,
+            plan_type='daily',
+            date=today,
+            items=due_items[:10],
+            total_items=len(due_items[:10]),
+            estimated_minutes=len(due_items[:10]) * 15,
+        )
         self._plans[plan_id] = plan
         return self._plan_to_dict(plan)
 
@@ -152,10 +163,15 @@ class RevisionEngine(EngineBase):
 
         # Build plan from all overdue items
         overdue = await self._get_overdue_items(user_id)
-        plan = RevisionPlan(plan_id=plan_id, user_id=uid, plan_type='weekly',
-                            date=week_start.isoformat(), items=overdue[:30],
-                            total_items=len(overdue[:30]),
-                            estimated_minutes=len(overdue[:30]) * 20)
+        plan = RevisionPlan(
+            plan_id=plan_id,
+            user_id=uid,
+            plan_type='weekly',
+            date=week_start.isoformat(),
+            items=overdue[:30],
+            total_items=len(overdue[:30]),
+            estimated_minutes=len(overdue[:30]) * 20,
+        )
         self._plans[plan_id] = plan
         return self._plan_to_dict(plan)
 
@@ -210,7 +226,10 @@ class RevisionEngine(EngineBase):
             'overdue': overdue,
             'pending': total - completed - skipped,
             'completion_rate': round(completed / total * 100, 1) if total else 0.0,
-            'avg_confidence': round(sum(i.confidence for i in items if i.completed) / max(completed, 1), 2),
+            'avg_confidence': round(
+                sum(i.confidence for i in items if i.completed) / max(completed, 1),
+                2,
+            ),
         }
 
     async def get_history(self, user_id: UUID, limit: int = 50) -> list[dict]:
@@ -237,7 +256,7 @@ class RevisionEngine(EngineBase):
     async def _get_overdue_items(self, user_id: UUID) -> list[RevisionItem]:
         """Get all overdue items."""
         items = await self._get_due_items(user_id)
-        today = datetime.now(UTC).date()
+        datetime.now(UTC).date()
         overdue = []
         for item in items:
             if self._is_overdue(item):
@@ -255,18 +274,26 @@ class RevisionEngine(EngineBase):
 
     def _item_to_dict(self, item: RevisionItem) -> dict:
         return {
-            'item_id': item.item_id, 'user_id': item.user_id,
-            'node_id': item.node_id, 'node_title': item.node_title,
-            'difficulty': item.difficulty, 'interval_days': item.interval_days,
-            'scheduled_date': item.scheduled_date, 'completed': item.completed,
-            'skipped': item.skipped, 'completed_at': item.completed_at,
-            'confidence': item.confidence, 'revision_count': item.revision_count,
+            'item_id': item.item_id,
+            'user_id': item.user_id,
+            'node_id': item.node_id,
+            'node_title': item.node_title,
+            'difficulty': item.difficulty,
+            'interval_days': item.interval_days,
+            'scheduled_date': item.scheduled_date,
+            'completed': item.completed,
+            'skipped': item.skipped,
+            'completed_at': item.completed_at,
+            'confidence': item.confidence,
+            'revision_count': item.revision_count,
         }
 
     def _plan_to_dict(self, plan: RevisionPlan) -> dict:
         return {
-            'plan_id': plan.plan_id, 'user_id': plan.user_id,
-            'plan_type': plan.plan_type, 'date': plan.date,
+            'plan_id': plan.plan_id,
+            'user_id': plan.user_id,
+            'plan_type': plan.plan_type,
+            'date': plan.date,
             'items': [self._item_to_dict(i) for i in plan.items],
             'total_items': plan.total_items,
             'completed_items': plan.completed_items,

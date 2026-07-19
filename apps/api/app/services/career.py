@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from structlog.stdlib import get_logger
 
-from app.models.career import Career
-from app.repositories import UnitOfWork
-from app.repositories.query_helpers import PageResult
+if TYPE_CHECKING:
+    from app.models.career import Career
+    from app.repositories import UnitOfWork
+    from app.repositories.query_helpers import PageResult
 
 logger = get_logger(__name__)
 
@@ -52,7 +55,7 @@ class CareerService:
                         'id': req.id,
                         'node_id': req.node_id,
                         'order_index': req.order_index,
-                    }
+                    },
                 )
 
         return {

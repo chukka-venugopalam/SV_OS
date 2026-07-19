@@ -7,11 +7,14 @@ paths.
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import Difficulty, EdgeType, NodeType
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.models.enums import Difficulty, EdgeType, NodeType
 
 
 class DependencyNode(BaseModel):
@@ -46,7 +49,8 @@ class KnowledgeDependency(BaseModel):
     )
     relationship_type: EdgeType = Field(description='Semantic type of the relationship')
     description: str = Field(
-        default='', description='Human-readable description of the relationship'
+        default='',
+        description='Human-readable description of the relationship',
     )
     weight: float = Field(default=1.0, ge=0.0, le=1.0, description='Relationship strength')
 

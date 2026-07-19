@@ -22,8 +22,8 @@ All algorithms use iterative approaches for scalability to 100k+ nodes.
 from __future__ import annotations
 
 from collections import deque
-from uuid import UUID
 from typing import Any
+from uuid import UUID
 
 from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
@@ -54,7 +54,11 @@ class TraversalEngine(EngineBase):
 
     def dependencies(self) -> list[EngineDependency]:
         return [
-            EngineDependency(engine_name='graph', required=True, description='GraphEngine for adjacency'),
+            EngineDependency(
+                engine_name='graph',
+                required=True,
+                description='GraphEngine for adjacency',
+            ),
         ]
 
     async def _initialize_impl(self) -> None:
@@ -102,11 +106,13 @@ class TraversalEngine(EngineBase):
         while queue:
             current_id, depth, parent_id = queue.popleft()
             if depth > 0:
-                result.append({
-                    'node_id': str(current_id),
-                    'depth': depth,
-                    'parent_id': str(parent_id) if parent_id else None,
-                })
+                result.append(
+                    {
+                        'node_id': str(current_id),
+                        'depth': depth,
+                        'parent_id': str(parent_id) if parent_id else None,
+                    },
+                )
             if depth >= max_depth:
                 continue
             outgoing = await self._get_outgoing(current_id, relationship_type)
@@ -134,10 +140,12 @@ class TraversalEngine(EngineBase):
         while stack:
             current_id, depth = stack.pop()
             if depth > 0:
-                result.append({
-                    'node_id': str(current_id),
-                    'depth': depth,
-                })
+                result.append(
+                    {
+                        'node_id': str(current_id),
+                        'depth': depth,
+                    },
+                )
             if depth >= max_depth:
                 continue
             outgoing = await self._get_outgoing(current_id, relationship_type)
@@ -174,11 +182,10 @@ class TraversalEngine(EngineBase):
             outgoing = await self._get_outgoing(current_id)
             for edge in outgoing:
                 neighbor_id = UUID(edge['target_id'])
-                next_path = path + [{
-                    'node_id': str(neighbor_id),
-                    'edge': edge,
-                    'from_id': str(current_id),
-                }]
+                next_path = [
+                    *path,
+                    {'node_id': str(neighbor_id), 'edge': edge, 'from_id': str(current_id)},
+                ]
                 if neighbor_id == target_id and next_path:
                     return next_path
                 if neighbor_id not in visited:
@@ -208,11 +215,10 @@ class TraversalEngine(EngineBase):
             outgoing = await self._get_outgoing(current_id)
             for edge in outgoing:
                 neighbor_id = UUID(edge['target_id'])
-                new_path = path + [{
-                    'node_id': str(neighbor_id),
-                    'edge': edge,
-                    'from_id': str(current_id),
-                }]
+                new_path = [
+                    *path,
+                    {'node_id': str(neighbor_id), 'edge': edge, 'from_id': str(current_id)},
+                ]
                 if neighbor_id == target_id:
                     paths.append(new_path)
                     if len(paths) >= max_paths:
@@ -223,9 +229,7 @@ class TraversalEngine(EngineBase):
                     visited.discard(neighbor_id)
         return paths
 
-    async def dependency_chain(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> list[list[dict]]:
+    async def dependency_chain(self, node_id: UUID, max_depth: int = 5) -> list[list[dict]]:
         """Get the full prerequisite chain organised by depth level.
 
         Level 0: direct prerequisites
@@ -246,7 +250,12 @@ class TraversalEngine(EngineBase):
                     if sid not in seen:
                         seen.add(sid)
                         next_level.append(sid)
-                        level_nodes.append({'node_id': str(sid), 'relationship_type': edge.get('relationship_type', '')})
+                        level_nodes.append(
+                            {
+                                'node_id': str(sid),
+                                'relationship_type': edge.get('relationship_type', ''),
+                            },
+                        )
             if level_nodes:
                 chain.append(level_nodes)
             current_level = next_level
@@ -254,9 +263,7 @@ class TraversalEngine(EngineBase):
                 break
         return chain
 
-    async def reverse_dependency_chain(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> list[list[dict]]:
+    async def reverse_dependency_chain(self, node_id: UUID, max_depth: int = 5) -> list[list[dict]]:
         """Get nodes that depend on this node, organised by depth level."""
         seen: set[UUID] = {node_id}
         chain: list[list[dict]] = []
@@ -271,7 +278,12 @@ class TraversalEngine(EngineBase):
                     if tid not in seen:
                         seen.add(tid)
                         next_level.append(tid)
-                        level_nodes.append({'node_id': str(tid), 'relationship_type': edge.get('relationship_type', '')})
+                        level_nodes.append(
+                            {
+                                'node_id': str(tid),
+                                'relationship_type': edge.get('relationship_type', ''),
+                            },
+                        )
             if level_nodes:
                 chain.append(level_nodes)
             current_level = next_level
@@ -315,9 +327,7 @@ class TraversalEngine(EngineBase):
                     result.append({'node_id': str(tid), 'depth': depth + 1})
         return result
 
-    async def reachable(
-        self, node_id: UUID, max_depth: int = 5
-    ) -> list[dict]:
+    async def reachable(self, node_id: UUID, max_depth: int = 5) -> list[dict]:
         """Find all nodes reachable from a start node using BFS."""
         return await self.bfs(node_id, max_depth)
 
@@ -332,7 +342,7 @@ class TraversalEngine(EngineBase):
             return []
 
         # Build in-degree map
-        in_degree: dict[UUID, int] = {nid: 0 for nid in target_ids}
+        in_degree: dict[UUID, int] = dict.fromkeys(target_ids, 0)
         adj: dict[UUID, list[UUID]] = {nid: [] for nid in target_ids}
 
         for nid in target_ids:
@@ -433,7 +443,10 @@ class TraversalEngine(EngineBase):
         return components
 
     async def subgraph(
-        self, center_node_id: UUID, depth: int = 2, relationship_type: str | None = None
+        self,
+        center_node_id: UUID,
+        depth: int = 2,
+        relationship_type: str | None = None,
     ) -> dict:
         """Extract a subgraph around a center node.
 
@@ -481,7 +494,10 @@ class TraversalEngine(EngineBase):
         }
 
     async def neighborhood(
-        self, node_id: UUID, radius: int = 1, relationship_type: str | None = None
+        self,
+        node_id: UUID,
+        radius: int = 1,
+        relationship_type: str | None = None,
     ) -> dict:
         """Expand neighborhood of a node within a given radius.
 
@@ -492,7 +508,9 @@ class TraversalEngine(EngineBase):
     # ── Internal Adjacency ─────────────────────────────────────────
 
     async def _get_outgoing(
-        self, node_id: UUID, relationship_type: str | None = None
+        self,
+        node_id: UUID,
+        relationship_type: str | None = None,
     ) -> list[dict]:
         if not self._graph:
             return []
@@ -502,7 +520,9 @@ class TraversalEngine(EngineBase):
         return edges
 
     async def _get_incoming(
-        self, node_id: UUID, relationship_type: str | None = None
+        self,
+        node_id: UUID,
+        relationship_type: str | None = None,
     ) -> list[dict]:
         if not self._graph:
             return []

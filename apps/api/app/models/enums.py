@@ -1,5 +1,4 @@
-"""
-Reusable enumeration types for the SV-OS domain model.
+"""Reusable enumeration types for the SV-OS domain model.
 
 All enums are Python ``StrEnum`` classes so they are natively compatible
 with both PostgreSQL and the Pydantic layer.
@@ -66,6 +65,7 @@ class PgEnumType(TypeDecorator):
         The Python enum class (e.g. ``UserRole``, ``Difficulty``).
     name : str
         A descriptive name for the column (used for error messages).
+
     """
 
     impl = String
@@ -119,6 +119,7 @@ class PgEnumType(TypeDecorator):
 
         Returns:
             A proper ``StrEnum`` member, or ``None`` if the value is ``None``.
+
         """
         if value is None:
             return None

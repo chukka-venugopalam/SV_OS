@@ -5,8 +5,10 @@ Orchestrates: ImportEngine, ValidationEngine, GraphEngine, KnowledgeEngine
 
 from __future__ import annotations
 
-from uuid import UUID
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from uuid import UUID
 
 
 class ImportCapability:
@@ -16,9 +18,7 @@ class ImportCapability:
         # TODO: Inject ImportEngine, ValidationEngine, GraphEngine, KnowledgeEngine
         pass
 
-    async def start_import(
-        self, payload: dict[str, Any], dry_run: bool = False
-    ) -> dict:
+    async def start_import(self, payload: dict[str, Any], dry_run: bool = False) -> dict:
         """Start an import workflow."""
         raise NotImplementedError
 

@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select
 
 from app.models.search_history import SearchHistory
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class SearchHistoryRepository(BaseRepository[SearchHistory]):
@@ -58,7 +61,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
             select(SearchHistory.query)
             .where(
                 SearchHistory.user_id == user_id,
-                SearchHistory.is_deleted == False,  # noqa: E712
+                not SearchHistory.is_deleted,
             )
             .distinct()
             .order_by(SearchHistory.created_at.desc())
@@ -91,7 +94,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
             )
             .where(
                 SearchHistory.created_at >= since,
-                SearchHistory.is_deleted == False,  # noqa: E712
+                not SearchHistory.is_deleted,
             )
             .group_by(SearchHistory.query)
             .order_by(func.count().desc())
@@ -109,7 +112,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
         """
         stmt = select(SearchHistory).where(
             SearchHistory.user_id == user_id,
-            SearchHistory.is_deleted == False,  # noqa: E712
+            not SearchHistory.is_deleted,
         )
         result = await self.session.execute(stmt)
         records = list(result.scalars().all())

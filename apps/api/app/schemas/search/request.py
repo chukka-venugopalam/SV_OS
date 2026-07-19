@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
-from app.models.enums import Difficulty, NodeType
+if TYPE_CHECKING:
+    from app.models.enums import Difficulty, NodeType
 
 
 class SearchRequest(BaseModel):
@@ -58,5 +61,7 @@ class FilterRequest(BaseModel):
     """
 
     q: str | None = Field(
-        default=None, description='Optional search query for relevance', max_length=200
+        default=None,
+        description='Optional search query for relevance',
+        max_length=200,
     )

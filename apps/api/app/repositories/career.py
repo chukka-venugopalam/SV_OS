@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import select
 
@@ -11,7 +10,11 @@ from app.models.career import Career, CareerRequirement
 from app.models.knowledge_node import KnowledgeNode
 from app.repositories.base import BaseRepository
 from app.repositories.errors import EntityNotFoundError
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class CareerRepository(BaseRepository[Career]):
@@ -29,7 +32,8 @@ class CareerRepository(BaseRepository[Career]):
         """Find by slug or raise ``EntityNotFoundError``."""
         career = await self.find_by_slug(slug)
         if not career:
-            raise EntityNotFoundError('Career', slug)
+            msg = 'Career'
+            raise EntityNotFoundError(msg, slug)
         return career
 
     async def find_by_demand(
@@ -72,7 +76,7 @@ class CareerRepository(BaseRepository[Career]):
         stmt = (
             select(CareerRequirement)
             .where(CareerRequirement.career_id == career_id)
-            .where(CareerRequirement.is_deleted == False)  # noqa: E712
+            .where(not CareerRequirement.is_deleted)
             .order_by(CareerRequirement.order_index)
         )
         result = await self.session.execute(stmt)
@@ -127,7 +131,8 @@ class CareerRepository(BaseRepository[Career]):
 
     async def get_nodes_for_career(self, career_id: UUID) -> list[dict[str, Any]]:
         """Get all knowledge nodes required for a career, with
-        requirement metadata."""
+        requirement metadata.
+        """
         from sqlalchemy import select
 
         stmt = (
@@ -138,8 +143,8 @@ class CareerRepository(BaseRepository[Career]):
             )
             .where(
                 CareerRequirement.career_id == career_id,
-                CareerRequirement.is_deleted == False,  # noqa: E712
-                KnowledgeNode.is_deleted == False,  # noqa: E712
+                not CareerRequirement.is_deleted,
+                not KnowledgeNode.is_deleted,
             )
             .order_by(CareerRequirement.order_index)
         )
@@ -162,8 +167,8 @@ class CareerRepository(BaseRepository[Career]):
             .join(CareerRequirement, CareerRequirement.career_id == Career.id)
             .where(
                 CareerRequirement.node_id == node_id,
-                Career.is_deleted == False,  # noqa: E712
-                Career.is_published == True,  # noqa: E712
+                not Career.is_deleted,
+                Career.is_published,
             )
             .distinct()
         )
@@ -183,7 +188,7 @@ class CareerRepository(BaseRepository[Career]):
                 Career.demand_level,
                 func.count().label('count'),
             )
-            .where(Career.is_deleted == False)  # noqa: E712
+            .where(not Career.is_deleted)
             .group_by(Career.demand_level)
         )
         result = await self.session.execute(stmt)

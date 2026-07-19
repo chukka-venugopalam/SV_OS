@@ -127,7 +127,8 @@ class QueryBuilder[ModelT: DeclarativeBase]:
         """Apply a single ``FilterCondition`` with the specified operator."""
         column = getattr(self.model, condition.field, None)
         if column is None:
-            raise QueryError(f'Unknown filter field: {condition.field}')
+            msg = f'Unknown filter field: {condition.field}'
+            raise QueryError(msg)
 
         op = condition.operator
         if op == 'eq':
@@ -155,7 +156,8 @@ class QueryBuilder[ModelT: DeclarativeBase]:
         elif op == 'is_null':
             expr = column.is_(None) if condition.value else column.isnot(None)
         else:
-            raise QueryError(f'Unsupported filter operator: {op}')
+            msg = f'Unsupported filter operator: {op}'
+            raise QueryError(msg)
 
         self._filters.append(expr)
         return self
@@ -170,7 +172,8 @@ class QueryBuilder[ModelT: DeclarativeBase]:
         """Add an ORDER BY clause."""
         column = getattr(self.model, field, None)
         if column is None:
-            raise QueryError(f'Unknown sort field: {field}')
+            msg = f'Unknown sort field: {field}'
+            raise QueryError(msg)
         order_expr: UnaryExpression = (
             desc(column) if direction == SortDirection.DESC else column.asc()
         )  # type: ignore[assignment]
@@ -202,7 +205,7 @@ class QueryBuilder[ModelT: DeclarativeBase]:
     def active(self) -> QueryBuilder[ModelT]:
         """Filter for non-deleted records (soft-delete)."""
         if hasattr(self.model, 'is_deleted'):
-            self._filters.append(self.model.is_deleted == False)  # noqa: E712
+            self._filters.append(not self.model.is_deleted)
         return self
 
     def build(self) -> Select:

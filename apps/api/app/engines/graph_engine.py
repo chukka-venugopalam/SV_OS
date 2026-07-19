@@ -18,12 +18,13 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from app.engines.base import EngineBase, EngineDependency, EngineHealth, EngineState
+from app.engines.base import EngineBase, EngineDependency, EngineHealth
 
 
 @dataclass
 class GraphNodeRecord:
     """In-memory record for a knowledge graph node."""
+
     node_id: UUID
     slug: str = ''
     title: str = ''
@@ -40,6 +41,7 @@ class GraphNodeRecord:
 @dataclass
 class GraphEdgeRecord:
     """In-memory record for a knowledge graph edge."""
+
     edge_id: UUID
     source_node_id: UUID
     target_node_id: UUID
@@ -52,6 +54,7 @@ class GraphEdgeRecord:
 @dataclass
 class GraphSnapshot:
     """A point-in-time snapshot of the graph state."""
+
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     nodes: list[GraphNodeRecord] = field(default_factory=list)
     edges: list[GraphEdgeRecord] = field(default_factory=list)
@@ -81,7 +84,7 @@ class GraphEngine(EngineBase):
         self._incoming: dict[UUID, list[UUID]] = defaultdict(list)  # node_id -> edge_ids
 
         # ── Indexes ────────────────────────────────────────────────
-        self._slug_index: dict[str, UUID] = {}       # slug -> node_id
+        self._slug_index: dict[str, UUID] = {}  # slug -> node_id
         self._type_index: dict[str, list[UUID]] = defaultdict(list)  # node_type -> node_ids
         self._rel_type_index: dict[str, list[UUID]] = defaultdict(list)  # rel_type -> edge_ids
 
@@ -217,9 +220,11 @@ class GraphEngine(EngineBase):
 
         Raises:
             ValueError: If slug already exists.
+
         """
         if slug in self._slug_index:
-            raise ValueError(f"Node with slug '{slug}' already exists")
+            msg = f"Node with slug '{slug}' already exists"
+            raise ValueError(msg)
 
         nid = node_id or uuid4()
         now = datetime.now(UTC).isoformat()
@@ -285,7 +290,8 @@ class GraphEngine(EngineBase):
 
         if slug is not None and slug != record.slug:
             if slug in self._slug_index and self._slug_index[slug] != node_id:
-                raise ValueError(f"Node with slug '{slug}' already exists")
+                msg = f"Node with slug '{slug}' already exists"
+                raise ValueError(msg)
             self._slug_index.pop(record.slug, None)
             record.slug = slug
             self._slug_index[slug] = node_id
@@ -328,10 +334,7 @@ class GraphEngine(EngineBase):
 
     async def get_nodes(self, node_ids: list[UUID]) -> list[dict]:
         """Retrieve multiple nodes by IDs."""
-        return [
-            self._node_to_dict(self._nodes[nid])
-            for nid in node_ids if nid in self._nodes
-        ]
+        return [self._node_to_dict(self._nodes[nid]) for nid in node_ids if nid in self._nodes]
 
     async def all_nodes(self) -> list[dict]:
         """Return all nodes."""
@@ -371,13 +374,17 @@ class GraphEngine(EngineBase):
 
         Raises:
             ValueError: If source or target nodes don't exist.
+
         """
         if source_node_id not in self._nodes:
-            raise ValueError(f"Source node {source_node_id} does not exist")
+            msg = f'Source node {source_node_id} does not exist'
+            raise ValueError(msg)
         if target_node_id not in self._nodes:
-            raise ValueError(f"Target node {target_node_id} does not exist")
+            msg = f'Target node {target_node_id} does not exist'
+            raise ValueError(msg)
         if source_node_id == target_node_id:
-            raise ValueError('Self-loop edges are not allowed')
+            msg = 'Self-loop edges are not allowed'
+            raise ValueError(msg)
 
         eid = edge_id or uuid4()
         record = GraphEdgeRecord(
@@ -556,7 +563,7 @@ class GraphEngine(EngineBase):
         self._snapshot_history.append(snapshot)
         # Trim history
         if len(self._snapshot_history) > self._max_snapshots:
-            self._snapshot_history = self._snapshot_history[-self._max_snapshots:]
+            self._snapshot_history = self._snapshot_history[-self._max_snapshots :]
         return snapshot
 
     async def restore_snapshot(self, snapshot: GraphSnapshot) -> int:
@@ -575,10 +582,7 @@ class GraphEngine(EngineBase):
 
     async def get_edges_by_type(self, relationship_type: str) -> list[dict]:
         edge_ids = self._rel_type_index.get(relationship_type, [])
-        return [
-            self._edge_to_dict(self._edges[eid])
-            for eid in edge_ids if eid in self._edges
-        ]
+        return [self._edge_to_dict(self._edges[eid]) for eid in edge_ids if eid in self._edges]
 
     # ── Integrity Hooks ────────────────────────────────────────────
 

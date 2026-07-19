@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 
 from app.models.bookmark import Bookmark
 from app.repositories.base import BaseRepository
-from app.repositories.query_helpers import PageResult
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from app.repositories.query_helpers import PageResult
 
 
 class BookmarkRepository(BaseRepository[Bookmark]):
@@ -42,7 +46,7 @@ class BookmarkRepository(BaseRepository[Bookmark]):
         stmt = select(Bookmark).where(
             Bookmark.user_id == user_id,
             Bookmark.node_id == node_id,
-            Bookmark.is_deleted == False,  # noqa: E712
+            not Bookmark.is_deleted,
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()

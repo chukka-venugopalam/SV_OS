@@ -18,7 +18,7 @@ from app.services.ai.providers.base import EmbeddingProvider, EmbeddingResult
 class MockProvider(EmbeddingProvider):
     """A mock embedding provider for testing."""
 
-    def __init__(self, dimensions: int = 4):
+    def __init__(self, dimensions: int = 4) -> None:
         self._dimensions = dimensions
         self._model_name = 'mock-model'
         self._call_count = 0
@@ -72,7 +72,7 @@ class TestEmbeddingService:
     """Test embedding generation."""
 
     @pytest.mark.asyncio
-    async def test_embed_single_text(self, mock_provider):
+    async def test_embed_single_text(self, mock_provider) -> None:
         """Test embedding a single text string."""
         service = EmbeddingService(provider=mock_provider)
         result = await service.embed('test text')
@@ -81,7 +81,7 @@ class TestEmbeddingService:
         assert all(v == 0.1 for v in result)
 
     @pytest.mark.asyncio
-    async def test_embed_with_cache(self, mock_provider):
+    async def test_embed_with_cache(self, mock_provider) -> None:
         """Test caching reduces provider calls."""
         service = EmbeddingService(provider=mock_provider)
 
@@ -92,7 +92,7 @@ class TestEmbeddingService:
         assert mock_provider._call_count == 1  # Only 1 provider call
 
     @pytest.mark.asyncio
-    async def test_embed_without_cache(self, mock_provider):
+    async def test_embed_without_cache(self, mock_provider) -> None:
         """Test disabling cache forces provider calls."""
         service = EmbeddingService(provider=mock_provider)
 
@@ -102,7 +102,7 @@ class TestEmbeddingService:
         assert mock_provider._call_count == 2
 
     @pytest.mark.asyncio
-    async def test_embed_empty_text(self, mock_provider):
+    async def test_embed_empty_text(self, mock_provider) -> None:
         """Test embedding an empty string."""
         service = EmbeddingService(provider=mock_provider)
         result = await service.embed('')
@@ -113,14 +113,14 @@ class TestBatchEmbedding:
     """Test batch embedding."""
 
     @pytest.mark.asyncio
-    async def test_batch_empty(self, mock_provider):
+    async def test_batch_empty(self, mock_provider) -> None:
         """Test batch with empty list returns empty."""
         service = EmbeddingService(provider=mock_provider)
         result = await service.embed_batch([])
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_batch_multiple_texts(self, mock_provider):
+    async def test_batch_multiple_texts(self, mock_provider) -> None:
         """Test batch with multiple texts."""
         service = EmbeddingService(provider=mock_provider)
         results = await service.embed_batch(['text a', 'text b', 'text c'])
@@ -129,7 +129,7 @@ class TestBatchEmbedding:
         assert all(len(v) == 4 for v in results)
 
     @pytest.mark.asyncio
-    async def test_batch_with_cache(self, mock_provider):
+    async def test_batch_with_cache(self, mock_provider) -> None:
         """Test batch with cached texts."""
         service = EmbeddingService(provider=mock_provider)
 
@@ -147,7 +147,7 @@ class TestCacheStats:
     """Test cache statistics."""
 
     @pytest.mark.asyncio
-    async def test_cache_stats_initial(self, mock_provider):
+    async def test_cache_stats_initial(self, mock_provider) -> None:
         """Test cache stats start empty."""
         service = EmbeddingService(provider=mock_provider)
         stats = await service.get_cache_stats()
@@ -157,7 +157,7 @@ class TestCacheStats:
         assert stats['cache_misses'] == 0
 
     @pytest.mark.asyncio
-    async def test_cache_stats_after_operations(self, mock_provider):
+    async def test_cache_stats_after_operations(self, mock_provider) -> None:
         """Test cache stats reflect operations."""
         service = EmbeddingService(provider=mock_provider)
 
@@ -177,14 +177,14 @@ class TestEmbedNode:
     """Test embedding a knowledge node."""
 
     @pytest.mark.asyncio
-    async def test_embed_node_no_uow(self, mock_provider):
+    async def test_embed_node_no_uow(self, mock_provider) -> None:
         """Test embed_node returns None without UoW."""
         service = EmbeddingService(provider=mock_provider)
         result = await service.embed_node(uuid4())
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_embed_node_not_found(self, mock_provider, mock_uow):
+    async def test_embed_node_not_found(self, mock_provider, mock_uow) -> None:
         """Test embed_node returns None for missing node."""
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=None)
         service = EmbeddingService(uow=mock_uow, provider=mock_provider)
@@ -193,7 +193,7 @@ class TestEmbedNode:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_embed_node_success(self, mock_provider, mock_uow):
+    async def test_embed_node_success(self, mock_provider, mock_uow) -> None:
         """Test embed_node returns embedding for existing node."""
         node = MagicMock()
         node.id = uuid4()
@@ -213,7 +213,7 @@ class TestReindex:
     """Test reindex_all."""
 
     @pytest.mark.asyncio
-    async def test_reindex_no_uow(self, mock_provider):
+    async def test_reindex_no_uow(self, mock_provider) -> None:
         """Test reindex returns error without UoW."""
         service = EmbeddingService(provider=mock_provider)
         result = await service.reindex_all()
@@ -222,7 +222,7 @@ class TestReindex:
         assert result['nodes_processed'] == 0
 
     @pytest.mark.asyncio
-    async def test_reindex_empty(self, mock_provider, mock_uow):
+    async def test_reindex_empty(self, mock_provider, mock_uow) -> None:
         """Test reindex with no published nodes."""
         mock_uow.knowledge_nodes.find_published = AsyncMock(return_value=[])
         mock_uow.knowledge_nodes.get_by_id = AsyncMock(return_value=None)
@@ -238,7 +238,7 @@ class TestProviderSelection:
     """Test default provider selection."""
 
     @pytest.mark.asyncio
-    async def test_default_provider_is_openai(self):
+    async def test_default_provider_is_openai(self) -> None:
         """Test default creates OpenAI provider."""
         import os
 

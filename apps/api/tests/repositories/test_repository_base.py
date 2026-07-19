@@ -64,7 +64,7 @@ class TestUnitOfWork:
     """Verify UnitOfWork transaction management."""
 
     @pytest.mark.db
-    async def test_uow_commits_on_success(self, node_repo, sample_node_data):
+    async def test_uow_commits_on_success(self, node_repo, sample_node_data) -> None:
         """Test that the UoW commits changes when no exception occurs."""
         async with UnitOfWork(node_repo.session) as uow:
             node = await uow.knowledge_nodes.create(**sample_node_data)
@@ -76,14 +76,15 @@ class TestUnitOfWork:
         assert persisted.title == sample_node_data['title']
 
     @pytest.mark.db
-    async def test_uow_rolls_back_on_exception(self, node_repo, sample_node_data):
+    async def test_uow_rolls_back_on_exception(self, node_repo, sample_node_data) -> None:
         """Test that the UoW rolls back changes when an exception occurs."""
         node_id = None
         try:
             async with UnitOfWork(node_repo.session) as uow:
                 node = await uow.knowledge_nodes.create(**sample_node_data)
                 node_id = node.id
-                raise ValueError('Simulated error')
+                msg = 'Simulated error'
+                raise ValueError(msg)
         except ValueError:
             pass
 
@@ -93,7 +94,7 @@ class TestUnitOfWork:
             assert persisted is None
 
     @pytest.mark.db
-    async def test_uow_manual_commit(self, node_repo, sample_node_data):
+    async def test_uow_manual_commit(self, node_repo, sample_node_data) -> None:
         """Test that explicit commit works with UoW."""
         uow = UnitOfWork(node_repo.session)
         await uow.__aenter__()
@@ -107,7 +108,7 @@ class TestUnitOfWork:
         assert persisted is not None
 
     @pytest.mark.db
-    async def test_uow_manual_rollback(self, node_repo, sample_node_data):
+    async def test_uow_manual_rollback(self, node_repo, sample_node_data) -> None:
         """Test that explicit rollback discards changes."""
         uow = UnitOfWork(node_repo.session)
         await uow.__aenter__()
@@ -121,7 +122,7 @@ class TestUnitOfWork:
         assert persisted is None
 
     @pytest.mark.db
-    async def test_uow_context_manager_convenience(self, node_repo, sample_node_data):
+    async def test_uow_context_manager_convenience(self, node_repo, sample_node_data) -> None:
         """Test the ``unit_of_work`` convenience context manager."""
         async with unit_of_work(node_repo.session) as uow:
             node = await uow.knowledge_nodes.create(**sample_node_data)
@@ -135,7 +136,7 @@ class TestBaseRepositoryCRUD:
     """Verify the base repository's CRUD operations."""
 
     @pytest.mark.db
-    async def test_create_and_read(self, node_repo, sample_node_data):
+    async def test_create_and_read(self, node_repo, sample_node_data) -> None:
         """Test creating a record and reading it back."""
         node = await node_repo.create(**sample_node_data)
         assert node.id is not None
@@ -146,13 +147,13 @@ class TestBaseRepositoryCRUD:
         assert fetched.title == sample_node_data['title']
 
     @pytest.mark.db
-    async def test_get_by_id_returns_none_for_missing(self, node_repo):
+    async def test_get_by_id_returns_none_for_missing(self, node_repo) -> None:
         """Test that ``get_by_id`` returns ``None`` for non-existent IDs."""
         result = await node_repo.get_by_id(uuid4())
         assert result is None
 
     @pytest.mark.db
-    async def test_get_many(self, node_repo, sample_node_data):
+    async def test_get_many(self, node_repo, sample_node_data) -> None:
         """Test fetching multiple records by IDs."""
         node1 = await node_repo.create(**sample_node_data)
         data2 = sample_node_data.copy()
@@ -164,7 +165,7 @@ class TestBaseRepositoryCRUD:
         assert len(results) == 2
 
     @pytest.mark.db
-    async def test_update(self, node_repo, sample_node_data):
+    async def test_update(self, node_repo, sample_node_data) -> None:
         """Test updating a record."""
         node = await node_repo.create(**sample_node_data)
         updated = await node_repo.update(node.id, title='Updated Title')
@@ -175,13 +176,13 @@ class TestBaseRepositoryCRUD:
         assert fetched.title == 'Updated Title'
 
     @pytest.mark.db
-    async def test_update_raises_not_found(self, node_repo):
+    async def test_update_raises_not_found(self, node_repo) -> None:
         """Test that updating a non-existent record raises ``EntityNotFoundError``."""
         with pytest.raises(EntityNotFoundError):
             await node_repo.update(uuid4(), title='Ghost')
 
     @pytest.mark.db
-    async def test_soft_delete_and_restore(self, node_repo, sample_node_data):
+    async def test_soft_delete_and_restore(self, node_repo, sample_node_data) -> None:
         """Test soft-deleting and restoring a record."""
         node = await node_repo.create(**sample_node_data)
 
@@ -200,7 +201,7 @@ class TestBaseRepositoryCRUD:
         assert fetched is not None
 
     @pytest.mark.db
-    async def test_hard_delete(self, node_repo, sample_node_data):
+    async def test_hard_delete(self, node_repo, sample_node_data) -> None:
         """Test permanently deleting a record."""
         node = await node_repo.create(**sample_node_data)
         await node_repo.delete(node.id, hard=True)
@@ -210,7 +211,7 @@ class TestBaseRepositoryCRUD:
         assert fetched is None
 
     @pytest.mark.db
-    async def test_exists(self, node_repo, sample_node_data):
+    async def test_exists(self, node_repo, sample_node_data) -> None:
         """Test the ``exists`` check."""
         assert await node_repo.exists(slug='non-existent-slug') is False
 
@@ -218,7 +219,7 @@ class TestBaseRepositoryCRUD:
         assert await node_repo.exists(slug=node.slug) is True
 
     @pytest.mark.db
-    async def test_count(self, node_repo, sample_node_data):
+    async def test_count(self, node_repo, sample_node_data) -> None:
         """Test counting records."""
         initial = await node_repo.count()
         await node_repo.create(**sample_node_data)
@@ -235,7 +236,7 @@ class TestPagination:
     """Verify pagination behavior."""
 
     @pytest.mark.db
-    async def test_paginate_returns_page_result(self, node_repo):
+    async def test_paginate_returns_page_result(self, node_repo) -> None:
         """Test that ``paginate`` returns a ``PageResult`` with correct metadata."""
         result = await node_repo.paginate(page=1, per_page=10)
         assert isinstance(result, PageResult)
@@ -243,7 +244,7 @@ class TestPagination:
         assert result.per_page == 10
 
     @pytest.mark.db
-    async def test_paginate_empty(self, node_repo):
+    async def test_paginate_empty(self, node_repo) -> None:
         """Test pagination with no records."""
         result = await node_repo.paginate(page=1, per_page=10)
         assert result.total == 0
@@ -251,7 +252,7 @@ class TestPagination:
         assert result.total_pages == 1
 
     @pytest.mark.db
-    async def test_paginate_with_filters(self, node_repo, sample_node_data):
+    async def test_paginate_with_filters(self, node_repo, sample_node_data) -> None:
         """Test pagination with equality filters."""
         data = sample_node_data.copy()
         data['difficulty'] = 'beginner'
@@ -270,7 +271,7 @@ class TestPagination:
         assert result.items[0].difficulty == 'advanced'
 
     @pytest.mark.db
-    async def test_cursor_pagination(self, node_repo, sample_node_data):
+    async def test_cursor_pagination(self, node_repo, sample_node_data) -> None:
         """Test cursor-based pagination."""
         # Create records with controlled ordering
         nodes = []
@@ -300,7 +301,7 @@ class TestPagination:
         assert len(page2.items) == 2
 
     @pytest.mark.db
-    async def test_search_basic(self, node_repo, sample_node_data):
+    async def test_search_basic(self, node_repo, sample_node_data) -> None:
         """Test basic ILIKE search."""
         data = sample_node_data.copy()
         data['title'] = 'Python Programming Fundamentals'
@@ -318,14 +319,14 @@ class TestRepositoryErrors:
     """Verify repository-layer error handling."""
 
     @pytest.mark.db
-    async def test_duplicate_entity_error(self, node_repo, sample_node_data):
+    async def test_duplicate_entity_error(self, node_repo, sample_node_data) -> None:
         """Test that creating a duplicate slug raises ``DuplicateEntityError``."""
         await node_repo.create(**sample_node_data)
         with pytest.raises(DuplicateEntityError):
             await node_repo.create(**sample_node_data)
 
     @pytest.mark.db
-    async def test_entity_not_found_error(self, node_repo):
+    async def test_entity_not_found_error(self, node_repo) -> None:
         """Test that operating on non-existent IDs raises ``EntityNotFoundError``."""
         fake_id = uuid4()
         with pytest.raises(EntityNotFoundError):
@@ -334,7 +335,7 @@ class TestRepositoryErrors:
             await node_repo.delete(fake_id)
 
     @pytest.mark.db
-    async def test_delete_many(self, node_repo, sample_node_data):
+    async def test_delete_many(self, node_repo, sample_node_data) -> None:
         """Test deleting multiple records."""
         node1 = await node_repo.create(**sample_node_data)
         data2 = sample_node_data.copy()
@@ -345,7 +346,7 @@ class TestRepositoryErrors:
         assert count == 2
 
     @pytest.mark.db
-    async def test_create_many(self, node_repo, sample_node_data):
+    async def test_create_many(self, node_repo, sample_node_data) -> None:
         """Test bulk creation."""
         items = [
             {**sample_node_data, 'slug': f'test-node-{uuid4().hex[:8]}', 'title': f'Bulk {i}'}
@@ -364,20 +365,20 @@ class TestGraphRepository:
     """Verify graph persistence queries (data access only)."""
 
     @pytest.mark.db
-    async def test_load_neighbors_empty(self, node_repo):
+    async def test_load_neighbors_empty(self, node_repo) -> None:
         """Test loading neighbors for a node with no edges."""
         neighbors = await node_repo.get_all(limit=1)
         # No assertions on data — just verifying the query doesn't error
         assert isinstance(neighbors, list)
 
     @pytest.mark.db
-    async def test_load_outgoing_edges(self, node_repo):
+    async def test_load_outgoing_edges(self, node_repo) -> None:
         """Test that loading outgoing edges returns correctly typed results."""
         result = await node_repo.paginate(page=1, per_page=10)
         assert isinstance(result, PageResult)
 
     @pytest.mark.db
-    async def test_graph_repo_basic_query(self, node_repo):
+    async def test_graph_repo_basic_query(self, node_repo) -> None:
         """Test that the GraphRepository can be instantiated and used."""
         graph_repo = GraphRepository(node_repo.session)
         node = await node_repo.get_all(limit=1)
@@ -395,7 +396,7 @@ class TestUserRepository:
     """Verify ``UserRepository``-specific operations."""
 
     @pytest.mark.db
-    async def test_find_by_email(self):
+    async def test_find_by_email(self) -> None:
         """Test finding a user by email."""
         session = async_session_factory()
         repo = UserRepository(session)
@@ -405,7 +406,7 @@ class TestUserRepository:
         await session.close()
 
     @pytest.mark.db
-    async def test_find_by_username(self):
+    async def test_find_by_username(self) -> None:
         """Test finding a user by username."""
         session = async_session_factory()
         repo = UserRepository(session)
@@ -414,7 +415,7 @@ class TestUserRepository:
         await session.close()
 
     @pytest.mark.db
-    async def test_count_active_users(self):
+    async def test_count_active_users(self) -> None:
         """Test counting active users (query compiles correctly)."""
         session = async_session_factory()
         repo = UserRepository(session)
@@ -427,7 +428,7 @@ class TestCareerRepository:
     """Verify ``CareerRepository``-specific operations."""
 
     @pytest.mark.db
-    async def test_find_by_slug(self):
+    async def test_find_by_slug(self) -> None:
         """Test finding a career by slug."""
         session = async_session_factory()
         repo = CareerRepository(session)
@@ -440,7 +441,7 @@ class TestBookmarkRepository:
     """Verify ``BookmarkRepository``-specific operations."""
 
     @pytest.mark.db
-    async def test_is_bookmarked(self):
+    async def test_is_bookmarked(self) -> None:
         """Test the ``is_bookmarked`` check."""
         session = async_session_factory()
         repo = BookmarkRepository(session)
