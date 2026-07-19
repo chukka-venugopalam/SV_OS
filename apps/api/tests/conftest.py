@@ -26,16 +26,28 @@ def _setup_database() -> None:
     HTTP-layer tests can still exercise the app without failing during
     bootstrapping.
     """
+    from pathlib import Path
     from alembic.config import Config
 
     from alembic import command
 
-    alembic_cfg = Config('alembic.ini')
+    # Resolve paths relative to this conftest file (apps/api/tests/conftest.py)
+    api_dir = Path(__file__).resolve().parent.parent  # apps/api/
+    alembic_ini_path = api_dir / 'alembic.ini'
+    alembic_script_path = api_dir / 'alembic'  # apps/api/alembic/
+
+    if not alembic_ini_path.exists() or not alembic_script_path.exists():
+        # No alembic config found — skip migrations
+        return
+
+    alembic_cfg = Config(str(alembic_ini_path))
+    # Override script_location to absolute path so it works from any CWD
+    alembic_cfg.set_main_option('script_location', str(alembic_script_path))
     try:
         command.upgrade(alembic_cfg, 'head')
     except Exception as exc:
         message = str(exc).lower()
-        if any(token in message for token in ('connection refused', 'could not connect', 'database does not exist', 'no such host')):
+        if any(token in message for token in ('connection refused', 'could not connect', 'database does not exist', 'no such host', 'timeout')):
             return
         raise
 

@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 
 import { useIsMobile } from '@/hooks/use-media-query';
 import { cn } from '@/lib/cn';
-import { NAV_ITEMS } from '@/lib/constants';
+import { NAV_ITEMS, SYSTEM_NAV_ITEMS } from '@/lib/constants';
 import { useUIStore } from '@/stores/ui-store';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -157,6 +157,67 @@ const iconMap: Record<string, React.ReactNode> = {
       <line x1="16" y1="16" x2="16" y2="16.01" />
     </svg>
   ),
+  Activity: (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  ),
+  History: (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l4 2" />
+    </svg>
+  ),
+  Download: (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  ),
+  Bell: (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  ),
 };
 
 export function Sidebar() {
@@ -217,6 +278,36 @@ export function Sidebar() {
                       isActive
                         ? 'bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300'
                         : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100',
+                    )}
+                  >
+                    <span className="shrink-0">{iconMap[item.icon]}</span>
+                    {visible && <span>{item.label}</span>}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* System section */}
+          {visible && (
+            <div className="mb-2 mt-4 px-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+                System
+              </p>
+            </div>
+          )}
+          <ul className="space-y-1" role="list">
+            {SYSTEM_NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
+                        : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700 dark:hover:bg-neutral-800/50 dark:hover:text-neutral-300',
                     )}
                   >
                     <span className="shrink-0">{iconMap[item.icon]}</span>

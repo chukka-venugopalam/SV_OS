@@ -18,6 +18,11 @@ export const ROUTES = {
   SETTINGS_PROFILE: '/settings/profile',
   SETTINGS_PREFERENCES: '/settings/preferences',
   SETTINGS_ACCOUNT: '/settings/account',
+  // System routes
+  HEALTH: '/health',
+  VERSIONS: '/versions',
+  IMPORT_EXPORT: '/import-export',
+  NOTIFICATIONS: '/notifications',
 } as const;
 
 export const API_ROUTES = {
@@ -42,6 +47,13 @@ export const NAV_ITEMS = [
   { label: 'Progress', href: ROUTES.PROGRESS, icon: 'BarChart3' },
   { label: 'Bookmarks', href: ROUTES.BOOKMARKS, icon: 'Bookmark' },
   { label: 'Settings', href: ROUTES.SETTINGS, icon: 'Settings' },
+] as const;
+
+export const SYSTEM_NAV_ITEMS = [
+  { label: 'System Health', href: ROUTES.HEALTH, icon: 'Activity' },
+  { label: 'Versions', href: ROUTES.VERSIONS, icon: 'History' },
+  { label: 'Import/Export', href: ROUTES.IMPORT_EXPORT, icon: 'Download' },
+  { label: 'Notifications', href: ROUTES.NOTIFICATIONS, icon: 'Bell' },
 ] as const;
 
 export const STORAGE_KEYS = {

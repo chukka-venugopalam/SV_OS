@@ -13,6 +13,19 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class FeatureFlags(dict):
+    """Dictionary-like wrapper for simple feature flags."""
+
+    def __init__(self, values: dict[str, bool] | None = None) -> None:
+        super().__init__(values or {})
+
+    def get(self, key: str, default: bool = False) -> bool:  # type: ignore[override]
+        value = super().get(key, default)
+        if isinstance(value, str):
+            return value.lower() in {'1', 'true', 'yes', 'on'}
+        return bool(value)
+
+
 class Settings(BaseSettings):
     """Application settings loaded from environment variables.
 
@@ -61,6 +74,9 @@ class Settings(BaseSettings):
     # ── Logging ──────────────────────────────────────────────────────
     LOG_LEVEL: str = 'INFO'
     LOG_FORMAT: str = 'auto'  # 'json' | 'console' | 'auto'
+
+    # ── Platform / Feature Flags ────────────────────────────────────
+    FEATURE_FLAGS: str = 'analytics:on,search:on,plugins:off'
 
     # ── Caching ──────────────────────────────────────────────────────
     CACHE_TTL_SECONDS: int = 300
@@ -145,6 +161,16 @@ class Settings(BaseSettings):
             return [host.strip() for host in v.split(',') if host.strip()]
         return v
 
+    @field_validator('FEATURE_FLAGS', mode='before')
+    @classmethod
+    def parse_feature_flags(cls, v: Any) -> str:
+        """Normalize feature flags from a string or mapping into a simple string format."""
+        if isinstance(v, dict):
+            return ','.join(f'{key}:{value}' for key, value in v.items())
+        if isinstance(v, list):
+            return ','.join(str(item) for item in v)
+        return str(v)
+
     # ── Computed properties ──────────────────────────────────────────
 
     @property
@@ -163,6 +189,26 @@ class Settings(BaseSettings):
     def db_echo_enabled(self) -> bool:
         """Enable SQL echo in non-production environments."""
         return self.DB_ECHO or (not self.is_production and self.ENVIRONMENT != 'test')
+
+    @property
+    def environment_profile(self) -> str:
+        """Return the resolved environment profile name."""
+        return self.ENVIRONMENT
+
+    @property
+    def feature_flags(self) -> FeatureFlags:
+        """Parse FEATURE_FLAGS into a simple boolean map."""
+        parsed: dict[str, bool] = {}
+        for item in self.FEATURE_FLAGS.split(','):
+            if not item:
+                continue
+            key, _, value = item.partition(':')
+            parsed[key.strip()] = value.strip().lower() in {'1', 'true', 'yes', 'on'}
+        return FeatureFlags(parsed)
+
+    def is_feature_enabled(self, name: str, default: bool = False) -> bool:
+        """Return whether a feature flag is enabled."""
+        return self.feature_flags.get(name, default)
 
 
 settings = Settings()

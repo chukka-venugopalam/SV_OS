@@ -15,6 +15,7 @@ from structlog.stdlib import get_logger
 from app.api.deps import get_settings
 from app.core.config import Settings
 from app.core.database import check_database_connection
+from app.platform.api import router as platform_router
 from app.telemetry.health import HealthChecker, HealthStatus
 
 logger = get_logger(__name__)
@@ -171,21 +172,38 @@ from app.api.v1.endpoints import (  # noqa: E402
     activity,
     ai,
     ai_chat,
+    assessments_platform,
     auth,
     bookmarks,
     careers,
+    careers_platform as careers_platform,
+    export_platform as exports_platform,
     favorites,
     graph,
     graph_intelligence,
+    graph_platform,
+    import_platform as imports_platform,
     learning_paths,
+    learning_paths_platform as learning_paths_platform,
     nodes,
     progress,
     projects,
     recommendations,
+    recommendations_platform as recommendations_platform,
     search,
     skills,
+    versioning_platform as versions_platform,
 )
 
+router.include_router(platform_router)
+router.include_router(graph_platform.router)
+router.include_router(versions_platform.router)
+router.include_router(imports_platform.router)
+router.include_router(exports_platform.router)
+router.include_router(recommendations_platform.router)
+router.include_router(learning_paths_platform.router)
+router.include_router(careers_platform.router)
+router.include_router(assessments_platform.router)
 router.include_router(auth.router)
 router.include_router(activity.router, prefix='/activity', tags=['activity'])
 router.include_router(ai.router, tags=['ai'])

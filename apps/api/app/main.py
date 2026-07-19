@@ -24,6 +24,7 @@ from app.core.config import settings
 from app.core.logging import configure_logging
 from app.exceptions.handlers import register_exception_handlers
 from app.middleware import (
+    CSRFMiddleware,
     CorrelationIDMiddleware,
     RateLimitMiddleware,
     RequestIDMiddleware,
@@ -111,13 +112,18 @@ def create_app() -> FastAPI:
         RequestTimingMiddleware,
     )
 
-    app.add_middleware(  # 7. Rate limit — stub
+    app.add_middleware(  # 7. Rate limit
         RateLimitMiddleware,
+    )
+
+    app.add_middleware(  # 8. CSRF — double-submit cookie pattern
+        CSRFMiddleware,
+        cookie_secure=settings.is_production,
     )
 
     # ── Outer middleware (added last, runs first) ────────────────────
 
-    app.add_middleware(  # 8. CORS — outermost; handles OPTIONS preflight
+    app.add_middleware(  # 9. CORS — outermost; handles OPTIONS preflight
         #    before any inner middleware can reject it
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
