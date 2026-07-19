@@ -23,7 +23,7 @@ import {
 
 import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
-import { useGraphStats } from '@/hooks/use-graph';
+import { useGraphStatistics } from '@/hooks/use-graph';
 import { useProgressStats, useProgressList } from '@/hooks/use-progress';
 import { cn, slugToTitle } from '@/lib';
 
@@ -79,9 +79,9 @@ function StatCard({
 export default function ProgressPage() {
   const { data: stats, isLoading: statsLoading } = useProgressStats();
   const { data: progressList, isLoading: listLoading } = useProgressList({ page_size: 50 });
-  const { data: graphStats } = useGraphStats();
+  const { data: graphStats } = useGraphStatistics();
 
-  const totalNodes = graphStats?.total_nodes ?? 0;
+  const totalNodes = graphStats?.node_count ?? 0;
   const completionRate = stats ? Math.round(stats.completion_percentage) : 0;
   const mastered = stats?.mastered ?? 0;
   const completed = stats?.completed ?? 0;

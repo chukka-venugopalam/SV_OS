@@ -18,7 +18,8 @@ import {
 export default function VersionsPage() {
   const [branch, setBranch] = useState('main');
   const { data: versions, isLoading } = useVersions(branch);
-  const { data: stats } = useVersioningStatistics();
+  const qStats = useVersioningStatistics();
+  const stats = qStats.data as Record<string, Record<string, number>> | undefined;
   const createSnapshot = useCreateSnapshot();
   const restoreSnapshot = useRestoreSnapshot();
   const rollback = useRollback();

@@ -37,6 +37,8 @@ function computeForceLayout(nodes: FlowNode[], edges: FlowEdge[]): FlowNode[] {
   const positions: Record<string, XYPosition> = {};
   const velocities: Record<string, XYPosition> = {};
   const nodeIds = nodes.map((n) => n.id);
+  const getPos = (id: string) => positions[id] ?? { x: 0, y: 0 };
+  const getVel = (id: string) => velocities[id] ?? { x: 0, y: 0 };
 
   // Initialize positions in a circle
   const radius = Math.min(nodeIds.length * 80, 500);
@@ -66,18 +68,16 @@ function computeForceLayout(nodes: FlowNode[], edges: FlowEdge[]): FlowNode[] {
     // Repulsion between all pairs
     for (let i = 0; i < nodeIds.length; i++) {
       for (let j = i + 1; j < nodeIds.length; j++) {
-        const a = nodeIds[i];
-        const b = nodeIds[j];
-        let dx = positions[a].x - positions[b].x;
-        let dy = positions[a].y - positions[b].y;
+        const a: string = nodeIds[i]!;
+        const b: string = nodeIds[j]!;
+        let dx = getPos(a).x - getPos(b).x;
+        let dy = getPos(a).y - getPos(b).y;
         const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
         const force = repulsionStrength / (dist * dist);
         dx = (dx / dist) * force;
         dy = (dy / dist) * force;
-        velocities[a].x += dx;
-        velocities[a].y += dy;
-        velocities[b].x -= dx;
-        velocities[b].y -= dy;
+        velocities[a] = { x: getVel(a).x + dx, y: getVel(a).y + dy };
+        velocities[b] = { x: getVel(b).x - dx, y: getVel(b).y - dy };
       }
     }
 
@@ -86,22 +86,24 @@ function computeForceLayout(nodes: FlowNode[], edges: FlowEdge[]): FlowNode[] {
       const source = e.source;
       const target = e.target;
       if (!positions[source] || !positions[target]) return;
-      const dx = positions[target].x - positions[source].x;
-      const dy = positions[target].y - positions[source].y;
+      const dx = getPos(target).x - getPos(source).x;
+      const dy = getPos(target).y - getPos(source).y;
       const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
       const force = dist * attractionStrength;
-      velocities[source].x += (dx / dist) * force;
-      velocities[source].y += (dy / dist) * force;
-      velocities[target].x -= (dx / dist) * force;
-      velocities[target].y -= (dy / dist) * force;
+      velocities[source] = {
+        x: getVel(source).x + (dx / dist) * force,
+        y: getVel(source).y + (dy / dist) * force,
+      };
+      velocities[target] = {
+        x: getVel(target).x - (dx / dist) * force,
+        y: getVel(target).y - (dy / dist) * force,
+      };
     });
 
     // Apply velocities with damping
     nodeIds.forEach((id) => {
-      velocities[id].x *= damping;
-      velocities[id].y *= damping;
-      positions[id].x += velocities[id].x;
-      positions[id].y += velocities[id].y;
+      velocities[id] = { x: getVel(id).x * damping, y: getVel(id).y * damping };
+      positions[id] = { x: getPos(id).x + getVel(id).x, y: getPos(id).y + getVel(id).y };
     });
   }
 
@@ -128,7 +130,7 @@ function computeHierarchicalLayout(nodes: FlowNode[], edges: FlowEdge[]): FlowNo
   const hasIncoming = new Set(edges.map((e) => e.target));
   const roots = nodes.filter((n) => !hasIncoming.has(n.id)).map((n) => n.id);
   // If no clear roots, use first nodes
-  const queue = roots.length > 0 ? [...roots] : [nodes[0]?.id].filter(Boolean);
+  const queue: string[] = roots.length > 0 ? [...roots] : nodes[0]?.id ? [nodes[0].id] : [];
 
   // BFS to assign levels
   const visited = new Set<string>();
@@ -207,8 +209,9 @@ function computeRadialLayout(nodes: FlowNode[], edges: FlowEdge[]): FlowNode[] {
   });
 
   const sorted = [...nodeIds].sort((a, b) => (connections[b] ?? 0) - (connections[a] ?? 0));
-  const center = sorted[0] ?? nodeIds[0];
-  const positions: Record<string, XYPosition> = { [center]: { x: 0, y: 0 } };
+  const topId: string = sorted[0] ?? nodeIds[0]!;
+  const positions: Record<string, XYPosition> = { [topId]: { x: 0, y: 0 } };
+  const center = topId;
 
   // BFS to assign rings
   const visited = new Set([center]);

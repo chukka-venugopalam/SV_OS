@@ -24,11 +24,20 @@ export {
 
 // ── Graph Hooks ───────────────────────────────────────────────────
 export {
-  useGraphExplore,
-  useGraphPath,
-  useGraphStats,
-  usePrerequisiteChain,
-  graphKeys,
+  useGraphStatistics,
+  useGraphNode,
+  useGraphEdge,
+  useShortestPath,
+  useDependencyChain,
+  useReverseChain,
+  useRelatedNodes as useGraphRelatedNodes,
+  useSubgraph,
+  useGraphValidation,
+  useGraphSearch,
+  useCacheStats,
+  useBottlenecks,
+  useOrphanNodes,
+  useCycles,
 } from './use-graph';
 
 // ── Knowledge Node Hooks ───────────────────────────────────────────

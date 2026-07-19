@@ -7,9 +7,28 @@ import Link from 'next/link';
 import { useMemo, useState, useCallback } from 'react';
 
 import { NODE_TYPE_COLORS } from '@/components/graph';
-import { useGraphExplore, useGraphStats } from '@/hooks/use-graph';
+import { useSubgraph, useGraphStatistics } from '@/hooks/use-graph';
 import { useNodePrerequisites, useRelatedNodes } from '@/hooks/use-knowledge';
 import { useGraph } from '@/providers/graph-provider';
+
+interface GraphNode {
+  id: string;
+  node_type: string;
+  title: string;
+  description: string;
+  slug: string;
+  difficulty: string;
+  metadata?: { estimated_minutes?: number };
+}
+
+interface GraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  relationship_type?: string;
+}
+
+type GraphSubgraphData = { nodes: GraphNode[]; edges: GraphEdge[] } | null;
 
 export const dynamic = 'force-dynamic';
 
@@ -24,17 +43,26 @@ export default function GraphPage() {
   const { selectedNodeId, setSelectedNodeId } = useGraph();
 
   // Fetch graph data — full graph or centered on a node
-  const {
-    data: graphData,
-    isLoading,
-    isError,
-    refetch,
-  } = useGraphExplore(centerNodeId ? { center_node_id: centerNodeId, depth: 2 } : undefined);
+  const { data: graphDataRaw, isLoading, isError, refetch } = useSubgraph(centerNodeId, 2);
 
-  const { data: stats } = useGraphStats();
+  const graphData = graphDataRaw as GraphSubgraphData;
+
+  const { data: stats } = useGraphStatistics();
 
   const nodes = useMemo(() => graphData?.nodes ?? [], [graphData]);
-  const edges = useMemo(() => graphData?.edges ?? [], [graphData]);
+  const rawEdges = useMemo(() => graphData?.edges ?? [], [graphData]);
+
+  // Remap API edges (source/target) to component props (source_id/target_id)
+  const edges = useMemo(
+    () =>
+      rawEdges.map((e) => ({
+        id: e.id,
+        source_id: e.source,
+        target_id: e.target,
+        relationship_type: e.relationship_type ?? 'related',
+      })),
+    [rawEdges],
+  );
 
   // Count node types
   const nodeTypeCounts = useMemo(() => {
@@ -91,9 +119,9 @@ export default function GraphPage() {
 
         {/* Stats */}
         <div className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
-          <span>{stats?.total_nodes ?? nodes.length} nodes</span>
+          <span>{stats?.node_count ?? nodes.length} nodes</span>
           <span>·</span>
-          <span>{stats?.total_edges ?? edges.length} connections</span>
+          <span>{stats?.edge_count ?? edges.length} connections</span>
           {centerNodeId && (
             <>
               <span>·</span>
@@ -252,15 +280,17 @@ export default function GraphPage() {
                       Related
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {relatedNodes.slice(0, 4).map((n) => (
-                        <Link
-                          key={n.id}
-                          href={`/explore/${n.slug}`}
-                          className="inline-flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-1 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-                        >
-                          {n.title}
-                        </Link>
-                      ))}
+                      {relatedNodes
+                        .slice(0, 4)
+                        .map((n: { id: string; slug: string; title: string }) => (
+                          <Link
+                            key={n.id}
+                            href={`/explore/${n.slug}`}
+                            className="inline-flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-1 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                          >
+                            {n.title}
+                          </Link>
+                        ))}
                     </div>
                   </div>
                 )}

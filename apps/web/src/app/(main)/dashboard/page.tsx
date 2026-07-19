@@ -25,7 +25,7 @@ import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 import { useActivityFeed } from '@/hooks/use-activity';
 import { useBookmarks } from '@/hooks/use-bookmarks';
-import { useGraphStats } from '@/hooks/use-graph';
+import { useGraphStatistics } from '@/hooks/use-graph';
 import { usePopularNodes } from '@/hooks/use-knowledge';
 import { useProgressStats, useProgressList } from '@/hooks/use-progress';
 import { useTrendingSearches } from '@/hooks/use-search';
@@ -215,7 +215,7 @@ export default function DashboardPage() {
   const { data: progressStats, isLoading: statsLoading } = useProgressStats();
   const { data: progressList } = useProgressList({ page_size: 5, status: 'learning' });
   const { data: popularNodes, isLoading: popularLoading } = usePopularNodes();
-  const { data: graphStats, isLoading: graphLoading } = useGraphStats();
+  const { data: graphStats, isLoading: graphLoading } = useGraphStatistics();
   const { data: trendingSearches } = useTrendingSearches();
   const { data: bookmarks } = useBookmarks({ page_size: 3 });
   const { data: activityFeed } = useActivityFeed({ page_size: 5 });
@@ -225,8 +225,8 @@ export default function DashboardPage() {
   const masteredCount = progressStats?.mastered ?? 0;
   const completedCount = progressStats?.completed ?? 0;
   const learningCount = progressStats?.learning ?? 0;
-  const totalNodes = graphStats?.total_nodes ?? 0;
-  const nodeTypeCounts = graphStats?.node_type_counts ?? {};
+  const totalNodes = graphStats?.node_count ?? 0;
+  const nodeTypeCounts = graphStats?.type_counts ?? {};
 
   return (
     <PageTransition>

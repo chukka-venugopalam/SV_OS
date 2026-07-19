@@ -13,10 +13,11 @@ export default function HealthDashboardPage() {
   const { data: metrics, isLoading: metricsLoading } = useSystemMetrics();
   const { data: snapshot } = useAnalyticsSnapshot();
 
-  const checks = health?.checks ?? {};
+  const checks =
+    (health as Record<string, { healthy: boolean; message?: string }> | undefined) ?? {};
   const checkEntries = Object.entries(checks);
-  const healthyCount = checkEntries.filter(([, c]) => c.healthy).length;
-  const degradedCount = checkEntries.filter(([, c]) => !c.healthy).length;
+  const healthyCount = checkEntries.filter(([, c]) => (c as { healthy: boolean }).healthy).length;
+  const degradedCount = checkEntries.filter(([, c]) => !(c as { healthy: boolean }).healthy).length;
 
   return (
     <Shell>
@@ -78,7 +79,8 @@ export default function HealthDashboardPage() {
               <div>
                 <p className="text-xs text-neutral-500">Events</p>
                 <p className="text-sm font-semibold">
-                  {snapshot?.platform?.total_events_published ?? 0}
+                  {(snapshot as Record<string, Record<string, number>> | undefined)?.platform
+                    ?.total_events_published ?? 0}
                 </p>
               </div>
             </div>
@@ -113,28 +115,31 @@ export default function HealthDashboardPage() {
         ) : (
           <Card>
             <CardContent className="divide-y divide-neutral-100 p-2 dark:divide-neutral-800">
-              {checkEntries.map(([name, check]) => (
-                <div key={name} className="flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    {check.healthy ? (
-                      <CheckCircle2 className="text-success-500 h-4 w-4" />
-                    ) : (
-                      <XCircle className="text-error-500 h-4 w-4" />
-                    )}
-                    <span className="text-sm font-medium capitalize text-neutral-900 dark:text-neutral-100">
-                      {name.replace(/_/g, ' ')}
-                    </span>
+              {checkEntries.map(([name, chk]) => {
+                const check = chk as { healthy: boolean; message?: string };
+                return (
+                  <div key={name} className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {check.healthy ? (
+                        <CheckCircle2 className="text-success-500 h-4 w-4" />
+                      ) : (
+                        <XCircle className="text-error-500 h-4 w-4" />
+                      )}
+                      <span className="text-sm font-medium capitalize text-neutral-900 dark:text-neutral-100">
+                        {name.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {check.message && (
+                        <span className="text-xs text-neutral-400">{check.message}</span>
+                      )}
+                      <Badge variant={check.healthy ? 'success' : 'danger'} size="sm">
+                        {check.healthy ? 'Healthy' : 'Degraded'}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {check.message && (
-                      <span className="text-xs text-neutral-400">{check.message}</span>
-                    )}
-                    <Badge variant={check.healthy ? 'success' : 'danger'} size="sm">
-                      {check.healthy ? 'Healthy' : 'Degraded'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         )}
@@ -147,18 +152,38 @@ export default function HealthDashboardPage() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { label: 'Knowledge Nodes', value: snapshot?.graph?.node_count ?? 0 },
-            { label: 'Connections', value: snapshot?.graph?.edge_count ?? 0 },
+            {
+              label: 'Knowledge Nodes',
+              value:
+                (snapshot as Record<string, Record<string, number>> | undefined)?.graph
+                  ?.node_count ?? 0,
+            },
+            {
+              label: 'Connections',
+              value:
+                (snapshot as Record<string, Record<string, number>> | undefined)?.graph
+                  ?.edge_count ?? 0,
+            },
             {
               label: 'Graph Density',
-              value: `${((snapshot?.graph?.density ?? 0) * 100).toFixed(2)}%`,
+              value: `${(((snapshot as Record<string, Record<string, number>> | undefined)?.graph?.density ?? 0) * 100).toFixed(2)}%`,
             },
             {
               label: 'Cache Hit Rate',
-              value: `${((snapshot?.platform?.cache_hit_rate ?? 0) * 100).toFixed(1)}%`,
+              value: `${(((snapshot as Record<string, Record<string, number>> | undefined)?.platform?.cache_hit_rate ?? 0) * 100).toFixed(1)}%`,
             },
-            { label: 'Total Assessments', value: snapshot?.assessment?.total_assessments ?? 0 },
-            { label: 'Total Careers', value: snapshot?.career?.total_careers ?? 0 },
+            {
+              label: 'Total Assessments',
+              value:
+                (snapshot as Record<string, Record<string, number>> | undefined)?.assessment
+                  ?.total_assessments ?? 0,
+            },
+            {
+              label: 'Total Careers',
+              value:
+                (snapshot as Record<string, Record<string, number>> | undefined)?.career
+                  ?.total_careers ?? 0,
+            },
           ].map((item) => (
             <Card key={item.label}>
               <CardContent className="p-4">

@@ -60,6 +60,12 @@ export default function CareerDetailPage() {
     );
   }
 
+  // Career may include extra fields from API not in type definition
+  const c = career as unknown as Record<string, unknown>;
+  const requiredSkills = c.required_skills as string[] | undefined;
+  const industry = c.industry as string | undefined;
+  const seniority = c.seniority as string | undefined;
+
   return (
     <Shell>
       <PageHeader
@@ -87,10 +93,8 @@ export default function CareerDetailPage() {
                   <Star className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-neutral-500">Seniority</p>
-                  <p className="text-sm font-semibold">
-                    {slugToTitle(career.seniority ?? 'entry')}
-                  </p>
+                  <p className="text-xs text-neutral-500">Seniority</p>{' '}
+                  <p className="text-sm font-semibold">{slugToTitle(seniority ?? 'entry')}</p>
                 </div>
               </div>
             </CardContent>
@@ -122,7 +126,7 @@ export default function CareerDetailPage() {
                 </div>
                 <div>
                   <p className="text-xs text-neutral-500">Skills Required</p>
-                  <p className="text-sm font-semibold">{career.required_skills?.length ?? 0}</p>
+                  <p className="text-sm font-semibold">{requiredSkills?.length ?? 0}</p>
                 </div>
               </div>
             </CardContent>
@@ -155,9 +159,9 @@ export default function CareerDetailPage() {
             </h2>
             <Card>
               <CardContent className="p-4">
-                {career.required_skills?.length > 0 ? (
+                {requiredSkills && requiredSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {career.required_skills.map((skill: string, i: number) => (
+                    {requiredSkills.map((skill: string, i: number) => (
                       <SlideUp key={skill} delay={i * 0.03}>
                         <Badge
                           variant="secondary"
@@ -185,12 +189,15 @@ export default function CareerDetailPage() {
             <Card>
               <CardContent className="space-y-3 p-4">
                 {[
-                  { label: 'Industry', value: career.industry },
-                  { label: 'Seniority Level', value: career.seniority },
+                  { label: 'Industry', value: industry },
+                  { label: 'Seniority Level', value: seniority },
                   { label: 'Salary Range', value: career.salary_range },
                   { label: 'Market Demand', value: career.demand },
                 ]
-                  .filter((d) => d.value)
+                  .filter(
+                    (d: { value: string | undefined }): d is { label: string; value: string } =>
+                      !!d.value,
+                  )
                   .map((d) => (
                     <div key={d.label} className="flex items-center justify-between">
                       <span className="text-sm text-neutral-500">{d.label}</span>

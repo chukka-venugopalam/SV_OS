@@ -36,6 +36,8 @@ export default function LearningDashboardPage() {
   const completedCount = (progressStats?.completed ?? 0) + (progressStats?.mastered ?? 0);
   const learningCount = progressStats?.learning ?? 0;
   const completionRate = totalNodes > 0 ? Math.round((completedCount / totalNodes) * 100) : 0;
+  const nextItems = nextRecs?.items ?? [];
+  const progressItems = progressList?.items ?? [];
 
   return (
     <Shell>
@@ -139,9 +141,9 @@ export default function LearningDashboardPage() {
             </Link>
           </div>
 
-          {nextRecs?.items?.length > 0 ? (
+          {nextItems.length > 0 ? (
             <div className="space-y-2">
-              {nextRecs.items.map((rec, i) => (
+              {nextItems.map((rec, i) => (
                 <SlideUp key={rec.node_id} delay={i * 0.05}>
                   <Card className="group cursor-pointer transition-all hover:shadow-md">
                     <CardContent className="flex items-center justify-between p-4">
@@ -252,9 +254,9 @@ export default function LearningDashboardPage() {
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">
           <BookOpen className="mr-1.5 inline h-3.5 w-3.5" /> In Progress
         </h2>
-        {progressList?.items?.length > 0 ? (
+        {progressItems.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {progressList.items.slice(0, 6).map((entry, i) => (
+            {progressItems.slice(0, 6).map((entry, i) => (
               <SlideUp key={entry.id} delay={i * 0.05}>
                 <Card className="group cursor-pointer transition-all hover:shadow-md">
                   <CardContent className="p-4">
