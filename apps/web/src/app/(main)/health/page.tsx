@@ -16,7 +16,6 @@ export default function HealthDashboardPage() {
   const checks =
     (health as Record<string, { healthy: boolean; message?: string }> | undefined) ?? {};
   const checkEntries = Object.entries(checks);
-  const healthyCount = checkEntries.filter(([, c]) => (c as { healthy: boolean }).healthy).length;
   const degradedCount = checkEntries.filter(([, c]) => !(c as { healthy: boolean }).healthy).length;
 
   return (

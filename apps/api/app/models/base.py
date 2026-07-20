@@ -9,7 +9,8 @@ Provides:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime
+from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, Integer, func, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -17,10 +18,6 @@ from sqlalchemy.orm import Mapped, declarative_mixin, mapped_column
 
 from app.utils.date_utils import utc_now
 from app.utils.uuid_utils import new_uuid
-
-if TYPE_CHECKING:
-    from datetime import datetime
-    from uuid import UUID
 
 
 @declarative_mixin

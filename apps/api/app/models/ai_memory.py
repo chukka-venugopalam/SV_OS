@@ -7,6 +7,7 @@ AIPreference stores user's AI interaction preferences.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -17,8 +18,6 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.models.user import User
 
 

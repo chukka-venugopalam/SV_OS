@@ -31,9 +31,9 @@ function matchesModifiers(event: KeyboardEvent, modifiers?: Modifier[]): boolean
 }
 
 export function useKeyboardShortcut(shortcuts: Shortcut | Shortcut[]): void {
-  const shortcutsArray = Array.isArray(shortcuts) ? shortcuts : [shortcuts];
-
   React.useEffect(() => {
+    const shortcutsArray = Array.isArray(shortcuts) ? shortcuts : [shortcuts];
+
     const listener = (event: KeyboardEvent) => {
       for (const shortcut of shortcutsArray) {
         if (shortcut.enabled === false) continue;
@@ -51,5 +51,5 @@ export function useKeyboardShortcut(shortcuts: Shortcut | Shortcut[]): void {
 
     window.addEventListener('keydown', listener);
     return () => window.removeEventListener('keydown', listener);
-  }, [shortcutsArray]);
+  }, [shortcuts]);
 }

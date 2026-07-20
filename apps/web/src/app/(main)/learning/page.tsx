@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, Button, Badge, Progress, Skeleton } from '@sv-os/ui';
+import { Card, CardContent, Button, Badge, Progress } from '@sv-os/ui';
 import {
   BookOpen,
   CheckCircle2,
@@ -9,14 +9,12 @@ import {
   Calendar,
   Clock,
   TrendingUp,
-  Award,
   Zap,
   BarChart3,
   ArrowRight,
   ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 
 import { StaggerGrid, SlideUp } from '@/components/shared/animations';
 import { PageHeader } from '@/components/shared/page-header';
@@ -30,7 +28,7 @@ export default function LearningDashboardPage() {
   const { data: progressStats, isLoading: statsLoading } = useProgressStats();
   const { data: progressList } = useProgressList({ page_size: 10, status: 'learning' });
   const { data: nextRecs } = useNextRecommendations(5);
-  const { data: dailyRecs } = useDailyRecommendations(8);
+  useDailyRecommendations(8);
 
   const totalNodes = progressStats?.total_nodes ?? 0;
   const completedCount = (progressStats?.completed ?? 0) + (progressStats?.mastered ?? 0);

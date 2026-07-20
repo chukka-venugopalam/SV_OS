@@ -28,10 +28,7 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await authClient.forgotPassword(email);
-      if (res?.reset_token) {
-        console.log('Reset token (dev mode):', res.reset_token);
-      }
+      await authClient.forgotPassword(email);
       setIsSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

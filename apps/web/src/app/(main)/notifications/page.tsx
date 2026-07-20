@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, Button, Badge, Skeleton, EmptyState } from '@sv-os/ui';
-import { Bell, CheckCheck, Trash2, Info, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { Bell, CheckCheck, Info, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 
 import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';

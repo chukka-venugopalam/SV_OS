@@ -13,7 +13,35 @@ from fastapi import APIRouter, Depends, Request
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_settings
-from app.core.database import check_database_connection
+
+# ── Business route imports ─────────────────────────────────────────
+from app.api.v1.endpoints import (
+    activity,
+    ai,
+    ai_chat,
+    assessments_platform,
+    auth,
+    bookmarks,
+    careers,
+    careers_platform,
+    favorites,
+    graph,
+    graph_intelligence,
+    graph_platform,
+    learning_paths,
+    learning_paths_platform,
+    nodes,
+    progress,
+    projects,
+    recommendations,
+    recommendations_platform,
+    search,
+    skills,
+)
+from app.api.v1.endpoints import export_platform as exports_platform
+from app.api.v1.endpoints import import_platform as imports_platform
+from app.api.v1.endpoints import versioning_platform as versions_platform
+from app.core.database import check_database_connection, get_database_health
 from app.platform.api import router as platform_router
 from app.telemetry.health import HealthChecker, HealthStatus
 
@@ -169,40 +197,6 @@ async def root(
     }
 
 
-# ── Business route imports (kept here to avoid circular imports) ─
-from app.api.v1.endpoints import (  # noqa: E402
-    activity,
-    ai,
-    ai_chat,
-    assessments_platform,
-    auth,
-    bookmarks,
-    careers,
-    careers_platform,
-    favorites,
-    graph,
-    graph_intelligence,
-    graph_platform,
-    learning_paths,
-    learning_paths_platform,
-    nodes,
-    progress,
-    projects,
-    recommendations,
-    recommendations_platform,
-    search,
-    skills,
-)
-from app.api.v1.endpoints import (  # noqa: E402
-    export_platform as exports_platform,
-)
-from app.api.v1.endpoints import (  # noqa: E402
-    import_platform as imports_platform,
-)
-from app.api.v1.endpoints import (  # noqa: E402
-    versioning_platform as versions_platform,
-)
-
 router.include_router(platform_router)
 router.include_router(graph_platform.router)
 router.include_router(versions_platform.router)
@@ -231,6 +225,4 @@ router.include_router(skills.router, prefix='/skills', tags=['skills'])
 
 
 # ── Register health checks ─────────────────────────────────────────
-from app.core.database import get_database_health  # noqa: E402
-
 health_checker.register('database', get_database_health)

@@ -53,6 +53,10 @@ quote-style = "single"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 pythonpath = ["app"]
+markers = [
+    "db: marks tests that require a running PostgreSQL database (deselect with '-m \"not db\"')",
+    "slow: marks tests as slow-running (deselect with '-m \"not slow\"')",
+]
 
 [tool.mypy]
 python_version = "3.12"

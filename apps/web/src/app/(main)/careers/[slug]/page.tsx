@@ -11,7 +11,6 @@ import {
   Star,
   Target,
   Layers,
-  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -27,7 +26,7 @@ export default function CareerDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
   const { data: career, isLoading } = useCareer(slug);
-  const { data: roadmap } = useCareerRoadmap(slug);
+  useCareerRoadmap(slug);
 
   if (isLoading) {
     return (

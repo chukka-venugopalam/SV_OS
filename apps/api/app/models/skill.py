@@ -7,7 +7,7 @@ SkillRelationship describes how skills relate to each other
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -17,10 +17,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, SkillRelationshipType, pg_enum
-
-if TYPE_CHECKING:
-    from uuid import UUID
-    # Skill is defined in this file — no forward import needed
 
 
 class Skill(AppBaseMixin, Base):

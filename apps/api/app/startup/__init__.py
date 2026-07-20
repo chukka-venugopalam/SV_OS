@@ -1,6 +1,6 @@
 """Application lifecycle — startup and shutdown logic."""
 
 from app.startup.diagnostics import Diagnostics
-from app.startup.lifespan import Lifespan
+from app.startup.lifespan import lifespan
 
-__all__ = ['Diagnostics', 'Lifespan']
+__all__ = ['Diagnostics', 'lifespan']

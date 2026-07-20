@@ -4,8 +4,6 @@
  * All requests go through the /api/v1/graph-platform/* endpoints.
  */
 
-import type { ApiResponse } from '@sv-os/types';
-
 import { apiClient } from './api-client';
 
 export interface GraphStatistics {

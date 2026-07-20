@@ -8,6 +8,7 @@ semantic type and direction.  Prerequisite edges are just
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import CheckConstraint, Float, ForeignKey, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -19,8 +20,6 @@ from app.models.base import AppBaseMixin
 from app.models.enums import EdgeDirection, EdgeType, pg_enum
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.models.knowledge_node import KnowledgeNode
 
 

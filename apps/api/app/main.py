@@ -32,7 +32,7 @@ from app.middleware import (
     SecurityHeadersMiddleware,
     TrustedHostsMiddleware,
 )
-from app.startup.lifespan import Lifespan
+from app.startup.lifespan import lifespan
 
 logger = get_logger(__name__)
 
@@ -47,7 +47,7 @@ def create_app() -> FastAPI:
         title=settings.APP_NAME,
         description=settings.APP_DESCRIPTION,
         version=settings.APP_VERSION,
-        lifespan=Lifespan,
+        lifespan=lifespan,
         docs_url='/docs' if not settings.is_production else None,
         redoc_url='/redoc' if not settings.is_production else None,
         openapi_url='/openapi.json' if not settings.is_production else None,

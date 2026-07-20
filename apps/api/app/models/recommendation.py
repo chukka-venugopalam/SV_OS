@@ -7,6 +7,7 @@ phase) and stored here for fast retrieval and personalisation.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import Float, ForeignKey, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -18,8 +19,6 @@ from app.models.base import AppBaseMixin
 from app.models.enums import RecommendationType, pg_enum
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.models.knowledge_node import KnowledgeNode
     from app.models.user import User
 

@@ -7,6 +7,7 @@ compliance, and debugging.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import INET, JSONB
@@ -17,8 +18,6 @@ from app.core.database import Base
 from app.models.base import AppBaseMixin
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.models.user import User
 
 

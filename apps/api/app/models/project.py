@@ -8,6 +8,7 @@ knowledge nodes.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
@@ -19,8 +20,6 @@ from app.models.base import AppBaseMixin
 from app.models.enums import Difficulty, RequirementType, pg_enum
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.models.knowledge_node import KnowledgeNode
 
 
