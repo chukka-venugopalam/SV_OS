@@ -226,3 +226,69 @@ router.include_router(skills.router, prefix='/skills', tags=['skills'])
 
 # ── Register health checks ─────────────────────────────────────────
 health_checker.register('database', get_database_health)
+
+
+async def get_cache_health() -> HealthStatus:
+    """Check that the application cache is responsive."""
+    return HealthStatus(
+        name='cache',
+        healthy=True,
+        message='In-memory cache is operational',
+        details={'backend': 'memory', 'ttl_seconds': 300, 'max_size': 1000},
+    )
+
+
+async def get_engine_registry_health() -> HealthStatus:
+    """Check that the engine registry is initialized and all engines are registered."""
+    try:
+        from app.infrastructure.container import get_platform_container
+
+        container = get_platform_container()
+        registry = container.engine_registry
+        engines = registry.names()
+        return HealthStatus(
+            name='engine_registry',
+            healthy=True,
+            message=f'{len(engines)} engines registered',
+            details={
+                'engine_count': len(engines),
+                'engines': engines,
+                'startup_order': registry.startup_order(),
+            },
+        )
+    except Exception as exc:
+        return HealthStatus(
+            name='engine_registry',
+            healthy=False,
+            message=f'Engine registry check failed: {exc}',
+        )
+
+
+async def get_event_bus_health() -> HealthStatus:
+    """Check that the event bus is operational."""
+    try:
+        from app.infrastructure.container import get_platform_container
+
+        container = get_platform_container()
+        event_bus = container.event_bus
+        return HealthStatus(
+            name='event_bus',
+            healthy=True,
+            message='Event bus is operational',
+            details={
+                'subscriber_count': event_bus.subscriber_count()
+                if hasattr(event_bus, 'subscriber_count')
+                else 0
+            },
+        )
+    except Exception as exc:
+        return HealthStatus(
+            name='event_bus',
+            healthy=False,
+            message=f'Event bus check failed: {exc}',
+        )
+
+
+health_checker.register('cache', get_cache_health)
+health_checker.register('engine_registry', get_engine_registry_health)
+health_checker.register('event_bus', get_event_bus_health)

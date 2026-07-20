@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from app.engines.base import EngineBase, EngineDependency, EngineHealth
 from app.events.bus import EventBus, EventEnvelope
 
 # ── Event Type Constants ───────────────────────────────────────────
@@ -129,7 +130,7 @@ class DeadLetterEntry:
 # ── EventEngine Implementation ─────────────────────────────────────
 
 
-class EventEngine:
+class EventEngine(EngineBase):
     """Event Engine — domain event backbone for SV-OS.
 
     Wraps EventBus with typed event support, replay hooks,
@@ -141,16 +142,49 @@ class EventEngine:
     """
 
     def __init__(self, event_bus: EventBus | None = None) -> None:
+        super().__init__()
         self._bus = event_bus or EventBus()
         self._replay_hooks: dict[str, list[ReplayHook]] = {}
         self._dead_letter_queue: list[DeadLetterEntry] = []
         self._event_history: list[EventEnvelope] = []
         self._history_limit: int = 10_000
-        self._initialized = False
 
-    async def initialize(self) -> None:
+    # ── EngineBase Lifecycle ────────────────────────────────────────
+
+    def _default_name(self) -> str:
+        return 'event'
+
+    def dependencies(self) -> list[EngineDependency]:
+        return []
+
+    async def _initialize_impl(self) -> None:
         """Initialize the event engine."""
         self._initialized = True
+
+    async def _start_impl(self) -> None:
+        """Start the event engine."""
+
+    async def _stop_impl(self) -> None:
+        """Stop the event engine — clear all subscribers and history."""
+        self.clear()
+
+    async def health_impl(self) -> EngineHealth:
+        """Check event engine health."""
+        return EngineHealth(
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
+            message='Event engine is operational',
+            details={
+                'subscriber_count': self._bus.subscriber_count(),
+                'history_size': len(self._event_history),
+                'dead_letter_count': len(self._dead_letter_queue),
+            },
+        )
+
+    async def validate_configuration(self) -> list[str]:
+        """Validate event engine configuration."""
+        return []
 
     # ── Publish ─────────────────────────────────────────────────────
 

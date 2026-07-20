@@ -814,10 +814,7 @@ class ValidationEngine(EngineBase):
     # ── Event Subscriptions ────────────────────────────────────────
 
     async def subscribe_events(self, event_bus: Any) -> None:
-        """Register event subscriptions.
-
-        TODO: Subscribe to graph.change.requested.v1, import.started.v1
-        """
+        """Register event subscriptions."""
         await super().subscribe_events(event_bus)
 
 

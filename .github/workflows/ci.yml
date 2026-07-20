@@ -94,3 +94,9 @@ jobs:
           path: apps/api/pytest.log
           retention-days: 7
           if-no-files-found: warn
+
+      - name: Docker Build (API)
+        run: docker build -f Dockerfile.api -t sv-os-api:ci .
+
+      - name: Docker Build (Web)
+        run: docker build -f Dockerfile.web -t sv-os-web:ci .

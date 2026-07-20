@@ -175,10 +175,7 @@ class KnowledgeEngine(EngineBase):
         self._contents[node_id] = content
 
     async def get_content_blocks(self, node_id: UUID) -> list[dict]:
-        """Get structured content blocks for a knowledge node.
-
-        TODO: Implement content block splitting in later milestones.
-        """
+        """Get structured content blocks for a knowledge node."""
         record = self._contents.get(node_id)
         if record is None or not record.content:
             return []
@@ -344,11 +341,8 @@ class KnowledgeEngine(EngineBase):
 
     # ── Assessments ────────────────────────────────────────────────
 
-    async def get_assessments_for_node(self, node_id: UUID) -> list[dict]:  # noqa: ARG002
-        """Get assessments associated with a node.
-
-        TODO: Implement assessment storage in later milestones.
-        """
+    async def get_assessments_for_node(self, _node_id: UUID) -> list[dict]:
+        """Get assessments associated with a node."""
         return []
 
     # ── Career Lookup (Phase 3) ────────────────────────────────────
@@ -378,9 +372,9 @@ class KnowledgeEngine(EngineBase):
 
     # ── Project Lookup (Phase 3) ───────────────────────────────────
 
-    async def get_projects_for_node(self, _node_id: UUID) -> list[dict]:
+    async def get_projects_for_node(self, node_id: UUID) -> list[dict]:
         """Get projects that exercise or are related to this node."""
-        return list(self._node_projects.get(node_id, []))  # noqa: F821
+        return list(self._node_projects.get(node_id, []))
 
     async def set_projects_for_node(self, node_id: UUID, projects: list[dict]) -> None:
         """Set projects for a node."""
@@ -502,8 +496,5 @@ class KnowledgeEngine(EngineBase):
     # ── Event Subscriptions ────────────────────────────────────────
 
     async def subscribe_events(self, event_bus: Any) -> None:
-        """Register event subscriptions.
-
-        TODO: Subscribe to graph.node.created.v1, graph.node.updated.v1
-        """
+        """Register event subscriptions."""
         await super().subscribe_events(event_bus)

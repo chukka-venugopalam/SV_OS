@@ -10,6 +10,7 @@ import httpx
 from structlog.stdlib import get_logger
 
 from app.services.ai.providers.llm_base import LLMMessage, LLMProvider, LLMResponse
+from app.services.ai.providers.ollama import DEFAULT_OLLAMA_URL
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 DEFAULT_MODEL = 'llama3.2'
-DEFAULT_OLLAMA_URL = 'http://localhost:11434'
 
 
 class OllamaChatProvider(LLMProvider):

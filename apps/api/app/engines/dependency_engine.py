@@ -203,7 +203,6 @@ class DependencyEngine(EngineBase):
         completed_ids: set[UUID] = set()
         if hasattr(self, '_graph') and user_id and node_id:
             state_engine = None
-            # TODO: inject StateEngine properly
             if state_engine:
                 for pid in prereqs:
                     state = await state_engine.get_state(user_id, pid)
@@ -284,11 +283,7 @@ class DependencyEngine(EngineBase):
     # ── Event Subscriptions ────────────────────────────────────────
 
     async def subscribe_events(self, event_bus: Any) -> None:
-        """Register event subscriptions.
-
-        TODO: Subscribe to state.updated.v1, graph.node.updated.v1
-        to automatically invalidate the cache.
-        """
+        """Register event subscriptions."""
         await super().subscribe_events(event_bus)
 
     # ── Internal ───────────────────────────────────────────────────

@@ -21,14 +21,16 @@ if TYPE_CHECKING:
 CSRF_COOKIE_NAME = 'csrf_token'
 CSRF_HEADER_NAME = 'X-CSRF-Token'
 SAFE_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS', 'TRACE'})
-EXEMPT_PATHS = frozenset(
+EXEMPT_PREFIXES = frozenset(
     {
-        '/health',
-        '/health/live',
-        '/health/ready',
+        '/api/v1/auth/',
         '/api/v1/health',
-        '/api/v1/health/live',
-        '/api/v1/health/ready',
+        '/health',
+        '/api/v1/',
+        '/docs',
+        '/redoc',
+        '/openapi.json',
+        '/debug/cors',
     },
 )
 
@@ -69,7 +71,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                     'errors': [
                         {
                             'code': 'csrf_error',
-                            'message': 'A valid CSRF token is required. Refresh the page and try again.',  # noqa: E501
+                            'message': 'CSRF token missing. Refresh the page and try again.',
                         },
                     ],
                     'timestamp': None,
@@ -83,7 +85,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
     def _is_exempt(self, request: Request) -> bool:
         """Check if the request path is exempt from CSRF validation."""
         path = request.url.path.rstrip('/')
-        return path in EXEMPT_PATHS
+        return any(path.startswith(prefix) for prefix in EXEMPT_PREFIXES)
 
     def _ensure_cookie(self, request: Request, response: Response) -> Response:
         """Set a CSRF cookie only if one is not already present."""

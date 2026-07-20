@@ -8,10 +8,7 @@ Canonical capabilities:
 - RecommendationCapability — retrieve next-step recommendations
 - LearningPathCapability — generate learning roadmaps
 - CareerCapability — compare careers and analyze skill gaps
-- GraphCapability — explore graph structure and retrieve subgraphs
 - AssessmentCapability — submit and evaluate assessments
-- SearchCapability — search graph and content
-- ImportCapability — start, monitor, and rollback imports
-- SimulatorCapability — run simulation scenarios
-- KnowledgeCapability — retrieve content and metadata for nodes
+- ExportCapability — export graph data
+- VersioningCapability — manage graph version snapshots
 """

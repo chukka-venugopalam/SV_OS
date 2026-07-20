@@ -72,6 +72,10 @@ class EventBus:
 
         return [envelope]
 
+    def subscriber_count(self) -> int:
+        """Return the total number of registered subscriber handlers."""
+        return sum(len(handlers) for handlers in self._subscribers.values())
+
     def clear(self) -> None:
         """Clear subscribers and idempotency cache."""
         self._subscribers.clear()

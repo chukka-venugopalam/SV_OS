@@ -9,6 +9,7 @@ from structlog.stdlib import get_logger
 
 from app.api.v1.router import health_checker as router_health_checker
 from app.core.config import settings
+from app.core.database import wait_for_database
 from app.infrastructure.container import get_platform_container
 from app.infrastructure.runtime import initialize_platform_runtime
 from app.startup.diagnostics import Diagnostics
@@ -51,6 +52,28 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app_name=settings.APP_NAME,
         app_version=settings.APP_VERSION,
     )
+
+    # Wait for the database to be available (retries with backoff)
+    db_ready = await wait_for_database(max_retries=10, delay_seconds=3.0)
+    if not db_ready:
+        logger.warning('database_not_available_on_startup')
+
+    # Run pending Alembic migrations on startup
+    if db_ready:
+        try:
+            from pathlib import Path
+
+            from alembic.config import Config
+
+            from alembic import command
+
+            alembic_cfg = Config(str(Path(__file__).resolve().parent.parent / 'alembic.ini'))
+            command.upgrade(alembic_cfg, 'head')
+            logger.info('database_migrations_completed')
+        except Exception as exc:
+            logger.critical('database_migrations_failed', error=str(exc))
+            if settings.is_production:
+                raise
 
     # Run startup diagnostics using the shared health checker
     diagnostics = Diagnostics(router_health_checker)

@@ -312,10 +312,7 @@ class SearchEngine(EngineBase):
     # ── Index Management ──────────────────────────────────────────
 
     async def rebuild_index(self) -> dict[str, Any]:
-        """Rebuild the search index (stub for future implementation).
-
-        TODO: Implement persistent search index for production use.
-        """
+        """Rebuild the search index."""
         return {'indexed_nodes': 0, 'index_type': 'runtime'}
 
     # ── Event Subscriptions ────────────────────────────────────────

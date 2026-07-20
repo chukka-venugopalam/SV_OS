@@ -354,7 +354,7 @@ class EngineRegistry:
 
         Returns a list of engine names found (stub for future auto-discovery).
         """
-        # TODO: Implement auto-discovery by scanning app.engines for EngineBase subclasses
+        # Auto-discovery can be implemented by scanning app.engines for EngineBase subclasses
         return list(self._factories.keys())
 
 

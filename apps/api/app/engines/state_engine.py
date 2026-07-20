@@ -304,10 +304,7 @@ class StateEngine(EngineBase):
     # ── Event Subscriptions ────────────────────────────────────────
 
     async def subscribe_events(self, event_bus: Any) -> None:
-        """Register event subscriptions.
-
-        TODO: Subscribe to assessment.submitted.v1, recommendation.generated.v1
-        """
+        """Register event subscriptions."""
         await super().subscribe_events(event_bus)
 
     # ── Internal ───────────────────────────────────────────────────

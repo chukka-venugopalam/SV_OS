@@ -10,6 +10,7 @@ Provides:
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING
 
 from sqlalchemy import text
@@ -78,6 +79,23 @@ async def check_database_connection() -> bool:
     """
     status = await get_database_health()
     return status.healthy
+
+
+async def wait_for_database(max_retries: int = 5, delay_seconds: float = 2.0) -> bool:
+    """Wait for the database to become available, with retries.
+
+    Attempts to connect to the database up to ``max_retries`` times,
+    waiting ``delay_seconds`` between attempts.
+
+    Returns ``True`` if the database becomes available, ``False`` if
+    all retries are exhausted.
+    """
+    for attempt in range(1, max_retries + 1):
+        if await check_database_connection():
+            return True
+        if attempt < max_retries:
+            await asyncio.sleep(delay_seconds)
+    return False
 
 
 async def get_database_health() -> HealthStatus:

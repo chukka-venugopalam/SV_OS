@@ -8,11 +8,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from app.engines.base import EngineBase, EngineDependency, EngineHealth
+
 if TYPE_CHECKING:
     from uuid import UUID
 
 
-class SimulatorEngine:
+class SimulatorEngine(EngineBase):
     """Simulator Engine — simulation scenario execution.
 
     Public Interface:
@@ -20,18 +22,41 @@ class SimulatorEngine:
     """
 
     def __init__(self) -> None:
-        self._initialized = False
-        # TODO: Inject StateEngine, EventEngine
+        super().__init__()
 
-    async def initialize(self) -> None:
-        self._initialized = True
+    # ── EngineBase Lifecycle ────────────────────────────────────────
+
+    def _default_name(self) -> str:
+        return 'simulator'
+
+    def dependencies(self) -> list[EngineDependency]:
+        return [
+            EngineDependency('state', required=False),
+            EngineDependency('event', required=False),
+        ]
+
+    async def _initialize_impl(self) -> None:
+        """Initialize the simulator engine."""
+
+    async def _start_impl(self) -> None:
+        """Start the simulator engine."""
+
+    async def _stop_impl(self) -> None:
+        """Stop the simulator engine."""
+
+    async def health_impl(self) -> EngineHealth:
+        """Check simulator engine health."""
+        return EngineHealth(
+            engine_name=self.engine_name,
+            state=self.engine_state,
+            healthy=True,
+            message='Simulator engine is operational',
+        )
+
+    async def validate_configuration(self) -> list[str]:
+        """Validate simulator engine configuration."""
+        return []
 
     async def run_simulation(self, scenario: dict[str, Any], user_id: UUID | None = None) -> dict:
         """Run a simulation scenario and produce outcomes."""
         raise NotImplementedError
-
-    # ── Events Published ──────────────────────────────────────────
-    # simulator.started.v1, simulator.completed.v1
-
-    # ── Events Consumed ───────────────────────────────────────────
-    # state.updated.v1
