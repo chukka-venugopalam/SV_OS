@@ -7,12 +7,9 @@ standard health endpoints required by orchestration platforms.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 from structlog.stdlib import get_logger
-
-from app.api.deps import get_settings
 
 # ── Business route imports ─────────────────────────────────────────
 from app.api.v1.endpoints import (
@@ -41,12 +38,10 @@ from app.api.v1.endpoints import (
 from app.api.v1.endpoints import export_platform as exports_platform
 from app.api.v1.endpoints import import_platform as imports_platform
 from app.api.v1.endpoints import versioning_platform as versions_platform
+from app.core.config import settings as app_settings
 from app.core.database import check_database_connection, get_database_health
 from app.platform.api import router as platform_router
 from app.telemetry.health import HealthChecker, HealthStatus
-
-if TYPE_CHECKING:
-    from app.core.config import Settings
 
 logger = get_logger(__name__)
 
@@ -70,7 +65,6 @@ def _request_id(request: Request) -> str | None:
 @router.get('/health', tags=['infrastructure'])
 async def health(
     request: Request,
-    settings: Annotated[Settings, Depends(get_settings)],
 ) -> dict:
     """Unified health check — returns the overall application status.
 
@@ -84,8 +78,8 @@ async def health(
         'message': 'Service is healthy' if healthy else 'Service is degraded',
         'data': {
             'status': 'healthy' if healthy else 'degraded',
-            'version': settings.APP_VERSION,
-            'environment': settings.ENVIRONMENT,
+            'version': app_settings.APP_VERSION,
+            'environment': app_settings.ENVIRONMENT,
             'checks': {
                 r.name: {
                     'healthy': r.healthy,
@@ -177,17 +171,16 @@ async def health_checks(request: Request) -> dict:
 @router.get('/', tags=['infrastructure'])
 async def root(
     request: Request,
-    settings: Annotated[Settings, Depends(get_settings)],
 ) -> dict:
     """API root — returns metadata about the API."""
     return {
         'success': True,
         'message': 'SV-OS API',
         'data': {
-            'name': settings.APP_NAME,
-            'description': settings.APP_DESCRIPTION,
-            'version': settings.APP_VERSION,
-            'environment': settings.ENVIRONMENT,
+            'name': app_settings.APP_NAME,
+            'description': app_settings.APP_DESCRIPTION,
+            'version': app_settings.APP_VERSION,
+            'environment': app_settings.ENVIRONMENT,
             'documentation': '/docs',
             'api_version': 'v1',
         },

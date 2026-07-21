@@ -65,9 +65,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
             from alembic.config import Config
 
+            import app as app_module
             from alembic import command
 
-            alembic_cfg = Config(str(Path(__file__).resolve().parent.parent / 'alembic.ini'))
+            # Alembic.ini location differs between Docker and Render native:
+            #   Docker:  /app/alembic.ini      (app is at /app/)
+            #   Render:  apps/api/alembic.ini  (app is at apps/api/app/)
+            app_base = Path(app_module.__file__).resolve().parent
+            alembic_ini = app_base.parent / 'alembic.ini'  # Render layout
+            if not alembic_ini.exists():
+                alembic_ini = app_base / 'alembic.ini'  # Docker layout
+            alembic_cfg = Config(str(alembic_ini))
             command.upgrade(alembic_cfg, 'head')
             logger.info('database_migrations_completed')
         except Exception as exc:
