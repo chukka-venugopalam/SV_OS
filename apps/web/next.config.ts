@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   transpilePackages: ['@sv-os/ui', '@sv-os/types', '@sv-os/config'],
   outputFileTracingRoot: process.cwd(),
   experimental: {

@@ -1,44 +1,136 @@
 # =============================================================================
-# SV-OS Web — Dockerfile
-# Multi-stage build: dependencies → builder → runner
+# SV-OS Web — Production Dockerfile
+# Multi-stage: base → deps → builder → runner
+#
+# Build:
+#   docker build -f Dockerfile.web -t sv-os-web:latest .
+#
+# Architecture:
+#   base   - Shared base image with corepack enabled
+#   deps   - Copies only package.json files → installs node_modules
+#   builder - Copies source files + node_modules → builds Next.js standalone
+#   runner  - Minimal production image with only what's needed at runtime
+#
+# Layer caching strategy:
+#   - deps stage only uses package.json files, lockfile, and config files
+#   - Source code changes do NOT invalidate the deps layer
+#   - Only package.json/pnpm-lock.yaml changes trigger reinstall
 # =============================================================================
 
-# Stage 1: Install dependencies
-FROM node:22-alpine AS deps
+# =============================================================================
+# Stage 0: Base — shared foundation for all stages
+# =============================================================================
+FROM node:22-alpine AS base
 WORKDIR /app
+
+# Enable pnpm via Corepack (bundled with Node.js ≥22) — automatically
+# activates the version specified in packageManager (pnpm@10.8.1)
+RUN corepack enable
+
+# =============================================================================
+# Stage 1: Install dependencies
+# =============================================================================
+# Only package.json + lockfile + config files are copied here.
+# This ensures Docker layer caching survives source-code edits.
+FROM base AS deps
+
+# ── Root workspace configuration ──
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY turbo.json ./
-COPY apps/web/package.json ./apps/web/package.json
-COPY packages/ ./packages/
-RUN corepack enable && pnpm install --frozen-lockfile
+COPY .npmrc ./                # ⚠️ CRITICAL: Was missing, causing pnpm defaults
 
-# Stage 2: Build
-FROM node:22-alpine AS builder
-WORKDIR /app
+# ── Workspace package manifests ──
+# Only package.json files so source changes don't bust the deps cache.
+COPY apps/web/package.json ./apps/web/package.json
+
+COPY packages/config/package.json     ./packages/config/package.json
+COPY packages/types/package.json      ./packages/types/package.json
+COPY packages/ui/package.json         ./packages/ui/package.json
+COPY packages/tsconfig/package.json   ./packages/tsconfig/package.json
+COPY packages/eslint-config/package.json ./packages/eslint-config/package.json
+
+# ── Install dependencies ──
+# --frozen-lockfile guarantees reproducible installs across environments.
+# pnpm store is contained inside the image for this stage.
+RUN pnpm install --frozen-lockfile
+
+# ── Prune the pnpm store to reduce image size ──
+RUN pnpm store prune
+
+# =============================================================================
+# Stage 2: Build the Next.js application
+# =============================================================================
+FROM base AS builder
+
+# ── Copy node_modules from deps (preserves pnpm's symlinked ∏-structure) ──
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages ./packages
-COPY . .
+
+# ── Copy workspace configuration files ──
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/turbo.json ./
+
+# ── Copy workspace packages WITH full source files ──
+# Required by next.config.ts → transpilePackages for @sv-os/ui, config, types.
+# Also needed by Turborepo for build-task resolution.
+COPY packages/ ./packages/
+
+# ── Copy the web application source files ──
+COPY apps/web/ ./apps/web/
+
+# ── Build-time environment variables ──
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-https://placeholder.supabase.co}
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-placeholder}
-RUN corepack enable && pnpm build --filter=@sv-os/web
 
-# Stage 3: Production runner
+# ── Disable Next.js telemetry ──
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# ── Build the application ──
+# pnpm runs @sv-os/web's "build" script (next build).
+# next build produces .next/standalone/ (configured in next.config.ts).
+RUN pnpm build --filter=@sv-os/web
+
+# =============================================================================
+# Stage 3: Production runner — minimal runtime image
+# =============================================================================
 FROM node:22-alpine AS runner
 WORKDIR /app
+
+# ── Production environment ──
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# ── Create non-root user for secure production operation ──
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
+# ── Copy Next.js standalone server ──
+# .next/standalone/ is produced because output: 'standalone' is set in
+# next.config.ts. It includes a bundled server and minimal node_modules
+# with only the dependencies required at runtime.
 COPY --from=builder /app/apps/web/.next/standalone ./
+
+# ── Copy static assets ──
+# The standalone server expects static files at apps/web/.next/static/.
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+
+# ── Copy public assets (favicon, robots.txt, etc.) ──
 COPY --from=builder /app/apps/web/public ./apps/web/public
 
+# ── Switch to non-root user ──
 USER nextjs
+
+# ── Network configuration ──
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "apps/web/server.js"]
+
+# ── Health check ──
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+
+# ── Start the Next.js standalone server ──
+CMD ["node", "server.js"]
