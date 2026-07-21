@@ -1,10 +1,15 @@
+import path from 'path';
+
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   transpilePackages: ['@sv-os/ui', '@sv-os/types', '@sv-os/config'],
-  outputFileTracingRoot: process.cwd(),
+  // Set tracing root to the monorepo root so standalone output preserves
+  // project-relative paths for static assets and public files.
+  // __dirname = apps/web, ../.. = monorepo root
+  outputFileTracingRoot: path.join(__dirname, '..', '..'),
   experimental: {
     optimizePackageImports: [
       'lucide-react',
