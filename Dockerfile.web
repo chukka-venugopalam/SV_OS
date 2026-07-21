@@ -75,7 +75,13 @@ COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml 
 COPY packages/ ./packages/
 
 # ── Copy the web application source files ──
+# NOTE: .dockerignore excludes **/node_modules/ from the build context,
+# so apps/web/node_modules/ is NOT included in the COPY below.
 COPY apps/web/ ./apps/web/
+# Restore package-level node_modules from the deps stage (where pnpm install ran).
+# next is installed at apps/web/node_modules/.bin/next, NOT at root node_modules/.bin/next.
+# Without this COPY, next build fails with: sh: next: not found
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 
 # ── Build-time environment variables ──
 # NEXT_PUBLIC_* vars are inlined at build time by Next.js
