@@ -37,7 +37,8 @@ FROM base AS deps
 # ── Root workspace configuration ──
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY turbo.json ./
-COPY .npmrc ./                # ⚠️ CRITICAL: Was missing, causing pnpm defaults
+# Copy .npmrc so pnpm uses the project's configuration (strict-peer-dependencies, etc.)
+COPY .npmrc ./
 
 # ── Workspace package manifests ──
 # Only package.json files so source changes don't bust the deps cache.
