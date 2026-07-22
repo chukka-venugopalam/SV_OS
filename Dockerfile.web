@@ -82,6 +82,11 @@ COPY apps/web/ ./apps/web/
 # next is installed at apps/web/node_modules/.bin/next, NOT at root node_modules/.bin/next.
 # Without this COPY, next build fails with: sh: next: not found
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+# Restore packages/ui/node_modules so TypeScript can resolve @radix-ui/* and
+# other JS dependencies when compiling @sv-os/ui via next.config.ts → transpilePackages.
+# With shamefully-hoist=false in .npmrc, pnpm does NOT hoist workspace package
+# dependencies to the root node_modules — they live in each package's own node_modules.
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 
 # ── Build-time environment variables ──
 # NEXT_PUBLIC_* vars are inlined at build time by Next.js
