@@ -42,6 +42,9 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
+  variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon';
+  className?: string;
   children?: React.ReactNode;
 }
 

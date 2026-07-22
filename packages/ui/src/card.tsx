@@ -4,6 +4,7 @@ import { cn } from './cn';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
+  className?: string;
   children?: React.ReactNode;
 }
 
