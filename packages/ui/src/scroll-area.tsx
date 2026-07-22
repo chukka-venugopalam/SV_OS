@@ -4,6 +4,7 @@ import { cn } from './cn';
 
 interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: 'vertical' | 'horizontal' | 'both';
+  children?: React.ReactNode;
 }
 
 export function ScrollArea({
