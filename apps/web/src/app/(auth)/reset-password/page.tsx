@@ -128,7 +128,7 @@ export default function ResetPasswordPage() {
                 type="password"
                 placeholder="At least 8 characters"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
                 minLength={8}
                 autoFocus
@@ -142,7 +142,9 @@ export default function ResetPasswordPage() {
                 type="password"
                 placeholder="Repeat your new password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setConfirmPassword(e.target.value)
+                }
                 required
                 minLength={8}
               />

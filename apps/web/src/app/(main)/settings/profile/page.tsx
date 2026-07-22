@@ -77,7 +77,7 @@ export default function ProfileSettingsPage() {
             <Input
               id="displayName"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
               placeholder="Your display name"
             />
           </div>
@@ -87,7 +87,7 @@ export default function ProfileSettingsPage() {
             <Textarea
               id="bio"
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value)}
               placeholder="Tell us about yourself"
               rows={3}
             />

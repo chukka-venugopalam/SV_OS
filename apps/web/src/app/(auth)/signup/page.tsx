@@ -106,7 +106,7 @@ export default function SignupPage() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
               autoComplete="email"
               autoFocus
@@ -120,7 +120,7 @@ export default function SignupPage() {
               type="text"
               placeholder="your-username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
               required
               minLength={3}
               autoComplete="username"
@@ -134,7 +134,7 @@ export default function SignupPage() {
               type="text"
               placeholder="Your Name"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
             />
           </div>
 
@@ -145,7 +145,7 @@ export default function SignupPage() {
               type="password"
               placeholder="At least 8 characters"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               required
               minLength={8}
               autoComplete="new-password"
@@ -159,7 +159,9 @@ export default function SignupPage() {
               type="password"
               placeholder="Repeat your password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setConfirmPassword(e.target.value)
+              }
               required
               minLength={8}
               autoComplete="new-password"
