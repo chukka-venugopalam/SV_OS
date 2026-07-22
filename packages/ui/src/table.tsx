@@ -4,6 +4,8 @@ import { cn } from './cn';
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   wrapperClassName?: string;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 export function Table({ className, wrapperClassName, ...props }: TableProps) {
@@ -82,6 +84,8 @@ export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElem
    * When true, renders a leading slot for row actions (checkboxes, drag handles, etc.)
    */
   isAction?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 export function TableCell({ className, isAction, ...props }: TableCellProps) {

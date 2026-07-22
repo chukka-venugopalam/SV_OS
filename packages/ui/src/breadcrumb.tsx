@@ -10,6 +10,7 @@ interface BreadcrumbItem {
 interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   items: BreadcrumbItem[];
   separator?: React.ReactNode;
+  className?: string;
 }
 
 export function Breadcrumb({ items, separator = '/', className, ...props }: BreadcrumbProps) {

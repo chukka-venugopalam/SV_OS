@@ -7,6 +7,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   alt?: string;
   fallback?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  className?: string;
 }
 
 const sizeMap = {

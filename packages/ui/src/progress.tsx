@@ -8,6 +8,7 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'success' | 'warning' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
+  className?: string;
 }
 
 const variantStyles = {

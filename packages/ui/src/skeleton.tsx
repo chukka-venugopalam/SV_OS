@@ -4,6 +4,7 @@ import { cn } from './cn';
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'text' | 'circular' | 'rectangular';
+  className?: string;
 }
 
 export function Skeleton({ className, variant = 'text', ...props }: SkeletonProps) {

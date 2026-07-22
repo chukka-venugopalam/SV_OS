@@ -22,7 +22,10 @@ const alertVariants = cva('relative w-full rounded-lg border p-4 text-sm', {
 });
 
 export interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof alertVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof alertVariants> {
+  className?: string;
+  children?: React.ReactNode;
+}
 
 export function Alert({ className, variant, ...props }: AlertProps) {
   return <div role="alert" className={cn(alertVariants({ variant, className }))} {...props} />;
