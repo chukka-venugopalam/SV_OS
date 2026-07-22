@@ -31,6 +31,8 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {
+  variant?: 'default' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
   children?: React.ReactNode;
 }

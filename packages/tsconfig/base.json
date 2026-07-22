@@ -19,8 +19,7 @@
     "incremental": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "composite": true
+    "sourceMap": true
   },
   "exclude": ["node_modules", "dist", ".next", "out", "build"]
 }
