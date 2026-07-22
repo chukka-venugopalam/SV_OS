@@ -115,7 +115,7 @@ export default function CareersPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
           <Input
             value={search}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearch(e.target.value);
               setPage(1);
             }}
@@ -126,7 +126,7 @@ export default function CareersPage() {
         </div>
         <Select
           value={demand}
-          onValueChange={(v) => {
+          onValueChange={(v: string) => {
             setDemand(v);
             setPage(1);
           }}

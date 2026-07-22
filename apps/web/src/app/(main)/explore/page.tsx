@@ -233,7 +233,7 @@ export default function ExplorePage() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
               <Input
                 value={search}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
@@ -325,7 +325,7 @@ export default function ExplorePage() {
                   </label>
                   <Select
                     value={nodeType}
-                    onValueChange={(v) => {
+                    onValueChange={(v: string) => {
                       setNodeType(v);
                       setPage(1);
                     }}
@@ -349,7 +349,7 @@ export default function ExplorePage() {
                   </label>
                   <Select
                     value={difficulty}
-                    onValueChange={(v) => {
+                    onValueChange={(v: string) => {
                       setDifficulty(v);
                       setPage(1);
                     }}

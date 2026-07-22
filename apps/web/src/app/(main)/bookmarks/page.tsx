@@ -45,7 +45,7 @@ export default function BookmarksPage() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => {
+        onValueChange={(v: string) => {
           setActiveTab(v);
           setPage(1);
         }}

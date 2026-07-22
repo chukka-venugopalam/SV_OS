@@ -212,7 +212,7 @@ export default function SearchPage() {
           <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
           <Input
             value={query}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setQuery(e.target.value);
               setPage(1);
             }}
@@ -308,7 +308,7 @@ export default function SearchPage() {
               </label>
               <Select
                 value={nodeType}
-                onValueChange={(v) => {
+                onValueChange={(v: string) => {
                   setNodeType(v);
                   setPage(1);
                 }}
@@ -332,7 +332,7 @@ export default function SearchPage() {
               </label>
               <Select
                 value={difficulty}
-                onValueChange={(v) => {
+                onValueChange={(v: string) => {
                   setDifficulty(v);
                   setPage(1);
                 }}
