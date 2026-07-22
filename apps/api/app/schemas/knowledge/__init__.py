@@ -17,6 +17,14 @@ from app.schemas.knowledge.node import (
 from app.schemas.knowledge.recommendation import (
     KnowledgeRecommendation,
 )
+from app.schemas.knowledge.import_map import (
+    ImportMap,
+    ImportNode,
+    ImportNodeResult,
+    ImportProject,
+    ImportLearningGoal,
+    ImportReport,
+)
 from app.schemas.knowledge.search import (
     GroupedSearchResult,
     KnowledgeSearchResult,

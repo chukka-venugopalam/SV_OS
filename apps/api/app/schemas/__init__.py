@@ -90,6 +90,14 @@ from app.schemas.knowledge.dependency import (
 )
 
 # Knowledge
+from app.schemas.knowledge.import_map import (
+    ImportLearningGoal,
+    ImportMap,
+    ImportNode,
+    ImportNodeResult,
+    ImportProject,
+    ImportReport,
+)
 from app.schemas.knowledge.node import (
     KnowledgeNodeCard,
     KnowledgeNodeCreate,
@@ -281,6 +289,13 @@ __all__ = [
     'GroupedSearchResult',
     # Common — Health
     'HealthCheckDetail',
+    # Import
+    'ImportLearningGoal',
+    'ImportMap',
+    'ImportNode',
+    'ImportNodeResult',
+    'ImportProject',
+    'ImportReport',
     'HealthResponse',
     'HighlightFragment',
     # Knowledge — Dependency

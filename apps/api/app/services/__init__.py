@@ -25,6 +25,7 @@ from app.services.favorite import FavoriteService
 from app.services.graph import GraphService
 from app.services.graph.analytics import GraphAnalyticsService
 from app.services.graph.traversal import GraphTraversalService
+from app.services.knowledge_import import KnowledgeImportService
 from app.services.knowledge_node import KnowledgeNodeService
 from app.services.learning_path import LearningPathService
 from app.services.learning_path_generator import LearningPathGenerator
@@ -50,6 +51,7 @@ __all__ = [
     'GraphService',
     'GraphTraversalService',
     'HybridSearchService',
+        'KnowledgeImportService',
     'KnowledgeNodeService',
     'LearningPathGenerator',
     'LearningPathService',
