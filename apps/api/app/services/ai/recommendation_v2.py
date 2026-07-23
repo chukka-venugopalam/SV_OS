@@ -343,18 +343,18 @@ class RecommendationV2:
             status='completed',
         )
         nodes_completed = sum(
-            1
+            1  # type: ignore[misc]
             for p in completed.items
-            if p and p.updated_at and p.updated_at >= thirty_days_ago  # type: ignore[misc]
+            if p and p.updated_at and p.updated_at >= thirty_days_ago
         )
         mastered = await self._uow.user_progress.find_by_user(
             user_id=user_id,
             status='mastered',
         )
         nodes_mastered = sum(
-            1
+            1  # type: ignore[misc]
             for p in mastered.items
-            if p and p.updated_at and p.updated_at >= thirty_days_ago  # type: ignore[misc]
+            if p and p.updated_at and p.updated_at >= thirty_days_ago
         )
 
         total = nodes_completed + nodes_mastered

@@ -278,7 +278,8 @@ async def list_conversations(
 
     count = await uow.session.execute(
         text(
-            f'SELECT COUNT(*) FROM chat_sessions WHERE user_id = :uid AND is_deleted = false {filters}'
+            'SELECT COUNT(*) FROM chat_sessions '
+            'WHERE user_id = :uid AND is_deleted = false ' + filters
         ),
         {'uid': current_user_id}
         if not session_type
