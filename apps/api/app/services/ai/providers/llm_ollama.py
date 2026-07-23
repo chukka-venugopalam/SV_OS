@@ -28,13 +28,13 @@ class OllamaChatProvider(LLMProvider):
         base_url: str | None = None,
         model: str | None = None,
     ) -> None:
-        self._base_url = (base_url or os.getenv('OLLAMA_URL', DEFAULT_OLLAMA_URL)).rstrip('/')
+        self._base_url = (base_url or os.getenv('OLLAMA_URL', DEFAULT_OLLAMA_URL)).rstrip('/')  # type: ignore[union-attr]
         self._model = model or os.getenv('OLLAMA_CHAT_MODEL', DEFAULT_MODEL)
         self._client = httpx.AsyncClient(timeout=120.0)
 
     @property
     def model_name(self) -> str:
-        return self._model
+        return self._model  # type: ignore[return-value]
 
     async def chat(
         self,

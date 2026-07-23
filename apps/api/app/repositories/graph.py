@@ -61,8 +61,8 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .join(KnowledgeEdge, KnowledgeNode.id == neighbor_id_col)
             .where(
                 edge_filter,
-                not KnowledgeEdge.is_deleted,
-                not KnowledgeNode.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
         )
@@ -151,8 +151,8 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .join(KnowledgeNode, KnowledgeNode.id == KnowledgeEdge.target_node_id)
             .where(
                 KnowledgeEdge.source_node_id == node_id,
-                not KnowledgeEdge.is_deleted,
-                not KnowledgeNode.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
+                KnowledgeNode.is_deleted.isnot(True),
             )
             .order_by(KnowledgeEdge.relationship_type, KnowledgeNode.title)
         )
@@ -205,7 +205,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .select_from(KnowledgeEdge)
             .where(
                 KnowledgeEdge.source_node_id == node_id,
-                not KnowledgeEdge.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
             )
         )
         # Incoming count
@@ -214,7 +214,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
             .select_from(KnowledgeEdge)
             .where(
                 KnowledgeEdge.target_node_id == node_id,
-                not KnowledgeEdge.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
             )
         )
         outgoing_result = await self.session.execute(outgoing_stmt)
@@ -240,7 +240,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
                 KnowledgeEdge.source_node_id.in_(node_ids),
                 KnowledgeEdge.target_node_id.in_(node_ids),
             ),
-            not KnowledgeEdge.is_deleted,
+            KnowledgeEdge.is_deleted.isnot(True),
         )
         if relationship_type:
             stmt = stmt.where(KnowledgeEdge.relationship_type == relationship_type)
@@ -260,7 +260,7 @@ class GraphRepository(BaseRepository[KnowledgeNode]):
                     KnowledgeEdge.source_node_id == node_id,
                     KnowledgeEdge.target_node_id == node_id,
                 ),
-                not KnowledgeEdge.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
             )
             .group_by(KnowledgeEdge.relationship_type)
             .order_by(func.count().desc())

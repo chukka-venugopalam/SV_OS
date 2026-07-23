@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_uow
@@ -118,11 +118,9 @@ async def dry_run_import(
         report.topological_order = graph['topological_order']
         report.topological_order_length = len(graph['topological_order'])
         report.root_nodes = sorted([n.id for n in parsed_nodes if not n.prerequisites])
-        report.leaf_nodes = sorted([
-            nid
-            for nid in nodes_dict
-            if nid not in adjacency or not adjacency.get(nid)
-        ])
+        report.leaf_nodes = sorted(
+            [nid for nid in nodes_dict if nid not in adjacency or not adjacency.get(nid)]
+        )
     else:
         report.success = False
 
@@ -206,7 +204,7 @@ async def list_imported_nodes(
     Reads ``extra_metadata->>'domain'`` for domain grouping, and resolves
     prerequisites/unlocks via the ``knowledge_edges`` table on the fly.
     """
-    from sqlalchemy import func, select, text
+    from sqlalchemy import select
 
     from app.models.knowledge_edge import KnowledgeEdge
     from app.models.knowledge_node import KnowledgeNode
@@ -215,7 +213,7 @@ async def list_imported_nodes(
     stmt = (
         select(KnowledgeNode)
         .where(
-            not KnowledgeNode.is_deleted,
+            KnowledgeNode.is_deleted.isnot(True),
             KnowledgeNode.is_published,
         )
         .order_by(KnowledgeNode.title)
@@ -225,14 +223,12 @@ async def list_imported_nodes(
 
     if domain:
         all_nodes = [
-            n
-            for n in all_nodes
-            if n.extra_metadata and n.extra_metadata.get('domain') == domain
+            n for n in all_nodes if n.extra_metadata and n.extra_metadata.get('domain') == domain
         ]
 
     # Also fetch all prerequisite edges
     edges_stmt = select(KnowledgeEdge).where(
-        not KnowledgeEdge.is_deleted,
+        KnowledgeEdge.is_deleted.isnot(True),
         KnowledgeEdge.relationship_type == 'prerequisite',
     )
     edges_result = await uow.session.execute(edges_stmt)
@@ -272,12 +268,16 @@ async def list_imported_nodes(
                 'id': n.slug,
                 'title': n.title,
                 'description': n.description,
-                'difficulty': n.difficulty.value if hasattr(n.difficulty, 'value') else str(n.difficulty),
+                'difficulty': n.difficulty.value
+                if hasattr(n.difficulty, 'value')
+                else str(n.difficulty),
                 'estimated_minutes': n.estimated_minutes,
                 'prerequisites': sorted(prereq_map.get(n.slug, [])),
                 'unlocks': sorted(unlock_map.get(n.slug, [])),
                 'skills': n.extra_metadata.get('skills', []) if n.extra_metadata else [],
-                'learning_outcomes': n.extra_metadata.get('learning_outcomes', []) if n.extra_metadata else [],
+                'learning_outcomes': n.extra_metadata.get('learning_outcomes', [])
+                if n.extra_metadata
+                else [],
                 'created_at': n.created_at.isoformat() if n.created_at else None,
             },
         )
@@ -294,9 +294,7 @@ async def list_imported_nodes(
     return success_response(
         data={
             'domains': sorted_domains,
-            'domain_groups': {
-                d: domain_groups[d] for d in sorted_domains
-            },
+            'domain_groups': {d: domain_groups[d] for d in sorted_domains},
             'domain_counts': {d: len(domain_groups[d]) for d in sorted_domains},
             'total_nodes': total_nodes,
             'total_edges': len(all_edges),
@@ -318,27 +316,32 @@ async def get_import_report(
     and learning resources that were imported via the Stage 5.1
     import pipeline.
     """
-    from sqlalchemy import select, func, text
+    from sqlalchemy import func, select
 
-    from app.models.knowledge_node import KnowledgeNode
-    from app.models.knowledge_edge import KnowledgeEdge
-    from app.models.project import Project
     from app.models.career import Career
+    from app.models.knowledge_edge import KnowledgeEdge
+    from app.models.knowledge_node import KnowledgeNode
     from app.models.learning_resource import LearningResource
+    from app.models.project import Project
 
     # Count everything
     node_count = (
         await uow.session.execute(
-            select(func.count()).select_from(KnowledgeNode).where(
-                not KnowledgeNode.is_deleted, KnowledgeNode.is_published,
+            select(func.count())
+            .select_from(KnowledgeNode)
+            .where(
+                KnowledgeNode.is_deleted.isnot(True),
+                KnowledgeNode.is_published,
             ),
         )
     ).scalar() or 0
 
     edge_count = (
         await uow.session.execute(
-            select(func.count()).select_from(KnowledgeEdge).where(
-                not KnowledgeEdge.is_deleted,
+            select(func.count())
+            .select_from(KnowledgeEdge)
+            .where(
+                KnowledgeEdge.is_deleted.isnot(True),
                 KnowledgeEdge.relationship_type == 'prerequisite',
             ),
         )
@@ -346,16 +349,22 @@ async def get_import_report(
 
     project_count = (
         await uow.session.execute(
-            select(func.count()).select_from(Project).where(
-                not Project.is_deleted, Project.is_published,
+            select(func.count())
+            .select_from(Project)
+            .where(
+                Project.is_deleted.isnot(True),
+                Project.is_published,
             ),
         )
     ).scalar() or 0
 
     career_count = (
         await uow.session.execute(
-            select(func.count()).select_from(Career).where(
-                not Career.is_deleted, Career.is_published,
+            select(func.count())
+            .select_from(Career)
+            .where(
+                Career.is_deleted.isnot(True),
+                Career.is_published,
             ),
         )
     ).scalar() or 0
@@ -373,17 +382,14 @@ async def get_import_report(
             func.count().label('count'),
         )
         .where(
-            not KnowledgeNode.is_deleted,
+            KnowledgeNode.is_deleted.isnot(True),
             KnowledgeNode.is_published,
         )
         .group_by(KnowledgeNode.extra_metadata['domain'].astext)
         .order_by(func.count().desc())
     )
     domain_result = await uow.session.execute(domain_query)
-    domains = {
-        row[0] if row[0] else 'Unknown': row[1]
-        for row in domain_result.all()
-    }
+    domains = {row[0] if row[0] else 'Unknown': row[1] for row in domain_result.all()}
 
     return success_response(
         data={

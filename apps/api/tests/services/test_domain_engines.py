@@ -73,7 +73,7 @@ class TestTutorEngine:
 
     async def test_tutor_returns_content(self, mock_uow) -> None:
         engine = TutorEngine(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(
                 content='Python is a programming language...',
                 model='test-model',
@@ -92,7 +92,7 @@ class TestTutorEngine:
 
     async def test_tutor_includes_node_context(self, mock_uow) -> None:
         engine = TutorEngine(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(content='Python Basics content', model='test-model', usage={}),
         )
         result = await engine.tutor(
@@ -108,7 +108,7 @@ class TestLearningPlanner:
 
     async def test_generate_plan_returns_plan(self, mock_uow) -> None:
         engine = LearningPlanner(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(
                 content='Weekly plan: Study Python...',
                 model='test-model',
@@ -126,7 +126,7 @@ class TestLearningPlanner:
 
     async def test_generate_plan_includes_goal(self, mock_uow) -> None:
         engine = LearningPlanner(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(content='Plan content', model='test-model', usage={}),
         )
         result = await engine.generate_plan(
@@ -142,7 +142,7 @@ class TestCareerMentor:
 
     async def test_analyse_returns_content(self, mock_uow) -> None:
         engine = CareerMentor(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(
                 content='Your skills analysis...',
                 model='test-model',
@@ -158,7 +158,7 @@ class TestCareerMentor:
 
     async def test_analyse_with_career_target(self, mock_uow) -> None:
         engine = CareerMentor(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(
                 content='Data Science requires...',
                 model='test-model',
@@ -178,7 +178,7 @@ class TestProjectMentor:
 
     async def test_mentor_returns_content(self, mock_uow) -> None:
         engine = ProjectMentor(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(content='Build a REST API...', model='test-model', usage={}),
         )
         result = await engine.mentor(
@@ -191,7 +191,7 @@ class TestProjectMentor:
 
     async def test_mentor_without_tech_stack(self, mock_uow) -> None:
         engine = ProjectMentor(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(content='Start with basics...', model='test-model', usage={}),
         )
         result = await engine.mentor(
@@ -211,7 +211,7 @@ class TestQuizEngine:
             '{"quiz": [{"question": "Q?", "options": ["A","B","C","D"],'
             ' "correct_answer": "A", "explanation": "E"}]}'
         )
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(content=quiz_json, model='test-model', usage={}),
         )
         result = await engine.generate_quiz(
@@ -225,7 +225,7 @@ class TestQuizEngine:
     async def test_generate_quiz_fallback_parsing(self, mock_uow) -> None:
         """Quiz engine falls back to basic parsing when JSON fails."""
         engine = QuizEngine(mock_uow)
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(
                 content='What is Python?\n\nWhat is a variable?',
                 model='test-model',
@@ -245,7 +245,7 @@ class TestQuizEngine:
             '{"quiz": [{"question": "Q1", "options": ["A"],'
             ' "correct_answer": "A", "explanation": "E"}]}'
         )
-        engine._chat._provider.chat = AsyncMock(
+        engine._chat._provider.chat = AsyncMock(  # type: ignore[method-assign]
             return_value=LLMResponse(content=quiz_json, model='test-model', usage={}),
         )
         for qt in ('mcq', 'flashcards', 'true_false'):

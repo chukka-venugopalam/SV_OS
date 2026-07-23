@@ -42,7 +42,7 @@ class CareerService:
         career = await self._uow.careers.get_by_slug(slug)
         requirements = await self._uow.careers.get_requirements(career.id)
 
-        grouped = {'required': [], 'recommended': [], 'bonus': []}
+        grouped = {'required': [], 'recommended': [], 'bonus': []}  # type: ignore[var-annotated]
         for req in requirements:
             type_key = (
                 req.requirement_type.value

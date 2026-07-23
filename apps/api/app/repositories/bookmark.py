@@ -46,7 +46,7 @@ class BookmarkRepository(BaseRepository[Bookmark]):
         stmt = select(Bookmark).where(
             Bookmark.user_id == user_id,
             Bookmark.node_id == node_id,
-            not Bookmark.is_deleted,
+            Bookmark.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()

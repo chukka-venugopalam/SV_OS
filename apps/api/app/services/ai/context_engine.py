@@ -160,8 +160,8 @@ class ContextEngine:
                 from app.models.ai_memory import AIMemory
 
                 stmt = (
-                    select(AIMemory.memory_type, AIMemory.key, AIMemory.value)
-                    .where(AIMemory.user_id == user_id, not AIMemory.is_deleted)
+                    select(AIMemory.memory_type, AIMemory.key, AIMemory.value)  # type: ignore[assignment]
+                    .where(AIMemory.user_id == user_id, AIMemory.is_deleted.isnot(True))
                     .order_by(AIMemory.confidence.desc())
                     .limit(10)
                 )
@@ -179,10 +179,10 @@ class ContextEngine:
 
                 from app.models.ai_memory import AIMemory
 
-                stmt = select(AIMemory.value).where(
+                stmt = select(AIMemory.value).where(  # type: ignore[assignment]
                     AIMemory.user_id == user_id,
                     AIMemory.memory_type == 'career_goal',
-                    not AIMemory.is_deleted,
+                    AIMemory.is_deleted.isnot(True),
                 )
                 rows = (await self._uow.session.execute(stmt)).all()
                 context['career'] = [r.value for r in rows] if rows else []

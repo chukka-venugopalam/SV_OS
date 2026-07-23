@@ -61,7 +61,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
             select(SearchHistory.query)
             .where(
                 SearchHistory.user_id == user_id,
-                not SearchHistory.is_deleted,
+                SearchHistory.is_deleted.isnot(True),
             )
             .distinct()
             .order_by(SearchHistory.created_at.desc())
@@ -94,7 +94,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
             )
             .where(
                 SearchHistory.created_at >= since,
-                not SearchHistory.is_deleted,
+                SearchHistory.is_deleted.isnot(True),
             )
             .group_by(SearchHistory.query)
             .order_by(func.count().desc())
@@ -112,7 +112,7 @@ class SearchHistoryRepository(BaseRepository[SearchHistory]):
         """
         stmt = select(SearchHistory).where(
             SearchHistory.user_id == user_id,
-            not SearchHistory.is_deleted,
+            SearchHistory.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         records = list(result.scalars().all())

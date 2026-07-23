@@ -62,7 +62,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
         entity_id: UUID,
         _page: int = 1,
         _per_page: int = 20,
-    ) -> PageResult[AuditLog]:
+    ) -> list[AuditLog]:
         """Find audit log entries for a specific entity."""
         return await self.find_by(
             conditions=[
@@ -131,7 +131,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
                 AuditLog.action,
                 func.count().label('count'),
             )
-            .where(not AuditLog.is_deleted)
+            .where(AuditLog.is_deleted.isnot(True))
             .group_by(AuditLog.action)
             .order_by(func.count().desc())
         )
@@ -150,7 +150,7 @@ class AuditLogRepository(BaseRepository[AuditLog]):
             .select_from(AuditLog)
             .where(
                 AuditLog.created_at >= since,
-                not AuditLog.is_deleted,
+                AuditLog.is_deleted.isnot(True),
             )
         )
         result = await self.session.execute(stmt)

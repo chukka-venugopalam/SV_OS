@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from structlog.stdlib import get_logger
 
@@ -101,7 +101,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # 2. Inject event bus into all engines
     for name in registry.names():
-        engine = registry.get(name)
+        engine = registry.get(name)  # type: ignore[assignment]
         if hasattr(engine, 'subscribe_events'):
             await engine.subscribe_events(event_bus)
 
@@ -124,12 +124,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         )
 
     # 5. Report diagnostics
-    diagnostics_report: dict[str, dict] = {}
+    diagnostics_report: dict[str, Any] = {}
     for name in registry.names():
-        engine = registry.try_get(name)
+        engine = registry.try_get(name)  # type: ignore[assignment]
         if engine:
             try:
-                diagnostics_report[name] = await engine.diagnostics()
+                diagnostics_report[name] = await engine.diagnostics()  # type: ignore[union-attr]
             except Exception as exc:
                 diagnostics_report[name] = {'error': str(exc)}
 
@@ -151,8 +151,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         idempotency_key='platform-startup',
     )
 
-    app.state.platform_runtime = runtime
-    app.state.platform_container = container
+    app.state.platform_runtime = runtime  # type: ignore[assignment]
+    app.state.platform_container = container  # type: ignore[assignment]
     app.state.engine_diagnostics = diagnostics_report
 
     # Dispose the database connection pool on shutdown.
@@ -180,13 +180,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     )
 
     # Stop all engines in reverse dependency order
-    registry = getattr(app.state, 'platform_container', None)
+    registry = getattr(app.state, 'platform_container', None)  # type: ignore[assignment]
     if registry is not None:
-        stop_results = await registry.engine_registry.stop_all()
+        stop_results = await registry.engine_registry.stop_all()  # type: ignore[attr-defined]
         logger.info('engine_shutdown_complete', engines_stopped=len(stop_results))
 
     # Dispose database connection pool
-    engine = getattr(app.state, '_db_engine', None)
-    if engine is not None:
-        await engine.dispose()
+    db_engine_ref = getattr(app.state, '_db_engine', None)
+    if db_engine_ref is not None:
+        await db_engine_ref.dispose()
         logger.info('database_pool_disposed')

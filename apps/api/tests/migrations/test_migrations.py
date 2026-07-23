@@ -214,7 +214,7 @@ class TestTables:
     async def test_table_exists(self, db_connection: AsyncConnection, table_name: str) -> None:
         """Each table should exist in the database."""
         inspector = inspect(db_connection)
-        tables = await inspector.get_table_names()
+        tables = await inspector.get_table_names()  # type: ignore[union-attr]
         assert table_name in tables, f"Table '{table_name}' does not exist"
 
 

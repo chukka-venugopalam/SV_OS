@@ -145,7 +145,7 @@ class GraphService:
                 func.count().label('count'),
             )
             .where(
-                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
             .group_by(KnowledgeNode.node_type)

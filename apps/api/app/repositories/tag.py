@@ -49,8 +49,8 @@ class TagRepository(BaseRepository[Tag]):
             .join(NodeTag, NodeTag.tag_id == Tag.id)
             .where(
                 NodeTag.node_id == node_id,
-                not NodeTag.is_deleted,
-                not Tag.is_deleted,
+                NodeTag.is_deleted.isnot(True),
+                Tag.is_deleted.isnot(True),
             )
             .order_by(Tag.name)
         )
@@ -73,7 +73,7 @@ class TagRepository(BaseRepository[Tag]):
         stmt = select(NodeTag).where(
             NodeTag.node_id == node_id,
             NodeTag.tag_id == tag_id,
-            not NodeTag.is_deleted,
+            NodeTag.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         node_tag = result.scalar_one_or_none()
@@ -87,7 +87,7 @@ class TagRepository(BaseRepository[Tag]):
         """Get all NodeTag associations for a node."""
         stmt = select(NodeTag).where(
             NodeTag.node_id == node_id,
-            not NodeTag.is_deleted,
+            NodeTag.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -105,8 +105,8 @@ class TagRepository(BaseRepository[Tag]):
             )
             .join(NodeTag, NodeTag.tag_id == Tag.id)
             .where(
-                not Tag.is_deleted,
-                not NodeTag.is_deleted,
+                Tag.is_deleted.isnot(True),
+                NodeTag.is_deleted.isnot(True),
             )
             .group_by(Tag.id, Tag.name, Tag.description)
             .order_by(func.count(NodeTag.node_id).desc())

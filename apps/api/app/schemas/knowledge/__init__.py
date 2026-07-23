@@ -5,6 +5,14 @@ from app.schemas.knowledge.dependency import (
     DependencyTree,
     KnowledgeDependency,
 )
+from app.schemas.knowledge.import_map import (
+    ImportLearningGoal,
+    ImportMap,
+    ImportNode,
+    ImportNodeResult,
+    ImportProject,
+    ImportReport,
+)
 from app.schemas.knowledge.node import (
     KnowledgeNodeCard,
     KnowledgeNodeCreate,
@@ -17,14 +25,6 @@ from app.schemas.knowledge.node import (
 from app.schemas.knowledge.recommendation import (
     KnowledgeRecommendation,
 )
-from app.schemas.knowledge.import_map import (
-    ImportMap,
-    ImportNode,
-    ImportNodeResult,
-    ImportProject,
-    ImportLearningGoal,
-    ImportReport,
-)
 from app.schemas.knowledge.search import (
     GroupedSearchResult,
     KnowledgeSearchResult,
@@ -35,6 +35,12 @@ __all__ = [
     'DependencyNode',
     'DependencyTree',
     'GroupedSearchResult',
+    'ImportLearningGoal',
+    'ImportMap',
+    'ImportNode',
+    'ImportNodeResult',
+    'ImportProject',
+    'ImportReport',
     'KnowledgeDependency',
     'KnowledgeNodeCard',
     'KnowledgeNodeCreate',

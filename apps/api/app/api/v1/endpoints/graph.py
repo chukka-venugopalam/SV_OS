@@ -38,7 +38,7 @@ async def get_full_graph(
     nodes_stmt = (
         select(KnowledgeNode)
         .where(
-            not KnowledgeNode.is_deleted,
+            KnowledgeNode.is_deleted.isnot(True),
             KnowledgeNode.is_published,
         )
         .order_by(KnowledgeNode.title)
@@ -52,7 +52,7 @@ async def get_full_graph(
         edges_stmt = (
             select(KnowledgeEdge)
             .where(
-                not KnowledgeEdge.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
                 KnowledgeEdge.source_node_id.in_(published_ids),
                 KnowledgeEdge.target_node_id.in_(published_ids),
             )

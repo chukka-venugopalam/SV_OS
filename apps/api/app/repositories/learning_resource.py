@@ -95,7 +95,7 @@ class LearningResourceRepository(BaseRepository[LearningResource]):
             select(LearningResource)
             .where(
                 LearningResource.node_id.in_(node_ids),
-                not LearningResource.is_deleted,
+                LearningResource.is_deleted.isnot(True),
             )
             .order_by(LearningResource.title)
         )

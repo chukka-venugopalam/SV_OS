@@ -122,7 +122,7 @@ class TestActivityFeed:
         mock_count = MagicMock()
         mock_count.scalar.return_value = 3
 
-        rows = [
+        rows = [  # type: ignore[var-annotated]
             (
                 str(uuid4()),
                 'node_completed',

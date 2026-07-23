@@ -24,8 +24,8 @@ class PasswordResetRepository(BaseRepository[PasswordResetToken]):
         stmt = (
             select(self.model)
             .where(self.model.token_hash == token_hash)
-            .where(not self.model.is_used)
-            .where(not self.model.is_deleted)
+            .where(self.model.is_used.isnot(True))
+            .where(self.model.is_deleted.isnot(True))
             .where(self.model.expires_at > datetime.now(UTC))
         )
         result = await self.session.execute(stmt)
@@ -46,8 +46,8 @@ class PasswordResetRepository(BaseRepository[PasswordResetToken]):
         stmt = (
             select(self.model)
             .where(self.model.user_id == user_id)
-            .where(not self.model.is_used)
-            .where(not self.model.is_deleted)
+            .where(self.model.is_used.isnot(True))
+            .where(self.model.is_deleted.isnot(True))
         )
         result = await self.session.execute(stmt)
         tokens = list(result.scalars().all())

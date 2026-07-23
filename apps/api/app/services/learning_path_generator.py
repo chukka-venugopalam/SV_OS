@@ -230,7 +230,7 @@ class LearningPathGenerator:
 
     def _build_milestones(self, ordered_nodes: list) -> list[dict]:
         """Group nodes into learnable milestones."""
-        milestones = []
+        milestones: list[dict] = []
         for i in range(0, len(ordered_nodes), MILESTONE_SIZE):
             chunk = ordered_nodes[i : i + MILESTONE_SIZE]
             estimated_minutes = sum(

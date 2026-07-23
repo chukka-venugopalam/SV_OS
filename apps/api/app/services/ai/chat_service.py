@@ -16,6 +16,7 @@ import os
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
+from sqlalchemy import text
 from structlog.stdlib import get_logger
 
 from app.models.chat_session import ChatMessage, ChatSession
@@ -126,7 +127,7 @@ class ChatService:
             title = await self._generate_title(message)
             if title:
                 await self._uow.session.execute(
-                    'UPDATE chat_sessions SET title = :title WHERE id = :id',
+                    text('UPDATE chat_sessions SET title = :title WHERE id = :id'),
                     {'title': title, 'id': session.id},
                 )
                 await self._uow.flush()
@@ -209,7 +210,7 @@ class ChatService:
             title = await self._generate_title(message)
             if title:
                 await self._uow.session.execute(
-                    'UPDATE chat_sessions SET title = :title WHERE id = :id',
+                    text('UPDATE chat_sessions SET title = :title WHERE id = :id'),
                     {'title': title, 'id': session.id},
                 )
                 await self._uow.flush()
@@ -377,7 +378,7 @@ class ChatService:
         await self._uow.flush()
         # Update message count
         await self._uow.session.execute(
-            'UPDATE chat_sessions SET message_count = message_count + 1 WHERE id = :id',
+            text('UPDATE chat_sessions SET message_count = message_count + 1 WHERE id = :id'),
             {'id': session_id},
         )
         await self._uow.flush()
@@ -385,9 +386,11 @@ class ChatService:
 
     async def _remove_last_assistant(self, session_id: UUID) -> None:
         await self._uow.session.execute(
-            'DELETE FROM chat_messages WHERE id IN ('
-            "SELECT id FROM chat_messages WHERE session_id = :sid AND role = 'assistant' "
-            'ORDER BY created_at DESC LIMIT 1)',
+            text(
+                'DELETE FROM chat_messages WHERE id IN ('
+                "SELECT id FROM chat_messages WHERE session_id = :sid AND role = 'assistant' "
+                'ORDER BY created_at DESC LIMIT 1)'
+            ),
             {'sid': session_id},
         )
         await self._uow.flush()
@@ -396,7 +399,7 @@ class ChatService:
 
     async def _get_preferences(self, user_id: UUID) -> dict:
         try:
-            row = await self._uow.session.execute(
+            row = await self._uow.session.execute(  # type: ignore[call-overload]
                 'SELECT explanation_style, temperature, max_tokens, '
                 'auto_generate_titles, include_citations FROM ai_preferences '
                 'WHERE user_id = :uid AND is_deleted = false',

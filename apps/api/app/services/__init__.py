@@ -51,7 +51,7 @@ __all__ = [
     'GraphService',
     'GraphTraversalService',
     'HybridSearchService',
-        'KnowledgeImportService',
+    'KnowledgeImportService',
     'KnowledgeNodeService',
     'LearningPathGenerator',
     'LearningPathService',

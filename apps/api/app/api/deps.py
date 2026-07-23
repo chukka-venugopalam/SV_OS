@@ -378,14 +378,14 @@ async def get_current_user_id_from_token(
     from app.core.config import settings
 
     try:
-        from jose import JWTError, jwt
+        from jose import JWTError, jwt  # type: ignore[import-untyped]
 
         payload = jwt.decode(
             credentials.credentials,
             settings.SECRET_KEY,
             algorithms=['HS256'],
         )
-        sub = payload.get('sub')
+        sub = payload.get('sub')  # type: ignore[union-attr]
         if sub and payload.get('type') == 'access':
             return UUID(sub)
     except (JWTError, ValueError, Exception):
@@ -448,11 +448,13 @@ async def require_admin(
 
     Raises ``HTTPException(403)`` if not an admin.
     """
-    role = getattr(user, 'role', None)
-    role_value = role.value if hasattr(role, 'value') else str(role) if role else ''
-    if role_value != 'admin':
-        from fastapi import HTTPException, status
+    from fastapi import HTTPException, status
 
+    role = getattr(user, 'role', None)
+    if role is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Admin access required')
+    role_value = role.value if hasattr(role, 'value') else str(role)
+    if role_value != 'admin':
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Admin access required',

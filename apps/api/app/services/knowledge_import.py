@@ -77,19 +77,6 @@ DIFFICULTY_MAP = {
     5: 'expert',
 }
 
-# Resource type detection based on URL/description patterns
-RESOURCE_TYPES = {
-    'book': 'book',
-    'tutorial': 'article',
-    'lecture': 'video',
-    'course': 'course',
-    'guide': 'article',
-    'documentation': 'documentation',
-    'paper': 'article',
-    'notes': 'article',
-}
-
-
 # ── Service ──────────────────────────────────────────────────────────
 
 
@@ -142,7 +129,7 @@ class KnowledgeImportService:
         goals = import_map.learning_goals
 
         # Check for 'unlocks' in raw data and warn (ported from import_engine.py)
-        self._check_unlocks_in_source(data, nodes)
+        self._check_unlocks_in_source(data)
 
         # Step 2: Schema validation (ported from import_engine.py)
         self.validate_schema(nodes)
@@ -171,9 +158,9 @@ class KnowledgeImportService:
         try:
             uow = self._uow
             node_results, edges_created = await self._persist_nodes(uow, graph['nodes'])
-            projects_created = await self._persist_projects(uow, projects, graph['nodes'])
-            goals_created = await self._persist_learning_goals(uow, goals, graph['nodes'])
-            resources_created = await self._persist_resources(uow, nodes, graph['nodes'])
+            projects_created = await self._persist_projects(uow, projects)
+            goals_created = await self._persist_learning_goals(uow, goals)
+            resources_created = await self._persist_resources(uow, nodes)
 
             self._report.total_nodes = len(node_results)
             self._report.total_edges = edges_created
@@ -203,7 +190,7 @@ class KnowledgeImportService:
 
     # ── Additional input checks (ported from import_engine.py) ─
 
-    def _check_unlocks_in_source(self, data: dict, nodes: list[ImportNode]) -> None:
+    def _check_unlocks_in_source(self, data: dict) -> None:
         """Check for 'unlocks' in raw source data and warn if present.
 
         Ported from ``import_engine.validate_schema``: if source data
@@ -217,8 +204,8 @@ class KnowledgeImportService:
             if unlocks is not None and len(unlocks) > 0:
                 self._report.warnings.append(
                     f"Node '{node_id}' has a non-empty 'unlocks' in source data — "
-                    f"this will be IGNORED and recomputed from prerequisites. "
-                    f"Fix the source data to stop sending this field.",
+                    f'this will be IGNORED and recomputed from prerequisites. '
+                    f'Fix the source data to stop sending this field.',
                 )
 
     def validate_schema(self, nodes: list[ImportNode]) -> None:
@@ -383,9 +370,7 @@ class KnowledgeImportService:
         # Compute root and leaf nodes
         root_nodes = [n.id for n in nodes if not n.prerequisites]
         leaf_nodes = [
-            nid
-            for nid, n in nodes_dict.items()
-            if nid not in adjacency or not adjacency[nid]
+            nid for nid, n in nodes_dict.items() if nid not in adjacency or not adjacency[nid]
         ]
 
         self._report.topological_order = topo_order
@@ -422,7 +407,7 @@ class KnowledgeImportService:
         for nid in nodes:
             compute_depth(nid)
 
-        deepest_id = max(depth, key=depth.get) if depth else None
+        deepest_id = max(depth, key=depth.get) if depth else None  # type: ignore[arg-type]
         if deepest_id is not None:
             self._report.deepest_node = f'{deepest_id} (depth {depth[deepest_id]})'
 
@@ -449,9 +434,11 @@ class KnowledgeImportService:
         # First pass: upsert all nodes, collect slug→ID mappings
         slug_to_id: dict[str, UUID] = {}
 
-        for nid, n in nodes.items():
+        for _, n in nodes.items():
             difficulty_str = DIFFICULTY_MAP.get(n.difficulty, 'beginner')
-            estimated_minutes = int(n.estimated_time * 60) if n.estimated_time < 100 else int(n.estimated_time)
+            estimated_minutes = (
+                int(n.estimated_time * 60) if n.estimated_time < 100 else int(n.estimated_time)
+            )
 
             metadata = {
                 'domain': n.domain,
@@ -513,21 +500,20 @@ class KnowledgeImportService:
                 )
 
         # Second pass: create prerequisite edges
-        for nid, n in nodes.items():
-            target_id = slug_to_id.get(nid)
+        for current_nid, current_node in nodes.items():
+            target_id = slug_to_id.get(current_nid)
             if not target_id:
                 continue
 
-            unlocks: list[str] = []
-            for prereq_id in n.prerequisites:
+            for prereq_id in current_node.prerequisites:
                 source_id = slug_to_id.get(prereq_id)
                 if not source_id:
                     self._report.warnings.append(
-                        f"Node '{nid}': prerequisite '{prereq_id}' has no DB ID (skipped)",
+                        f"Node '{current_nid}': prerequisite '{prereq_id}' has no DB ID (skipped)",
                     )
                     continue
 
-                # Check if edge already exists
+                # Check if edge already exists (safe upsert — no IntegrityError)
                 edge_exists = await uow.knowledge_edges.exists_edge(
                     source_node_id=source_id,
                     target_node_id=target_id,
@@ -539,22 +525,21 @@ class KnowledgeImportService:
                         target_node_id=target_id,
                         relationship_type='prerequisite',
                         direction='forward',
-                        description=f'{nid} requires {prereq_id}',
+                        description=f'{current_nid} requires {prereq_id}',
                         weight=1.0,
                     )
                     edges_created += 1
-                unlocks.append(prereq_id)
 
             # Update result with computed unlocks
             # Unlocks for this node = nodes that list this node as a prerequisite
             for r in results:
-                if r.id == nid:
+                if r.id == current_nid:
                     # Compute what this node unlocks by finding nodes that
                     # have this node as a prerequisite
                     dependent_nodes = [
                         other_id
                         for other_id, other_n in nodes.items()
-                        if nid in other_n.prerequisites
+                        if current_nid in other_n.prerequisites
                     ]
                     r.unlocks = sorted(dependent_nodes)
                     break
@@ -565,7 +550,6 @@ class KnowledgeImportService:
         self,
         uow: UnitOfWork,
         projects: list[ImportProject],
-        nodes: dict[str, ImportNode],
     ) -> int:
         """Upsert projects and their node requirement links.
 
@@ -576,7 +560,9 @@ class KnowledgeImportService:
 
         for p in projects:
             difficulty_str = DIFFICULTY_MAP.get(p.difficulty, 'intermediate')
-            estimated_hours = int(p.estimated_time) if p.estimated_time <= 100 else int(p.estimated_time / 60)
+            estimated_hours = (
+                int(p.estimated_time) if p.estimated_time <= 100 else int(p.estimated_time / 60)
+            )
 
             existing = await uow.projects.find_by_slug(p.id)
             if existing:
@@ -609,7 +595,7 @@ class KnowledgeImportService:
 
             # Upsert project requirement links (check first to avoid IntegrityError)
             for order, nid in enumerate(p.linked_nodes):
-                node_id = await self._resolve_node_id(uow, nid, nodes)
+                node_id = await self._resolve_node_id(uow, nid)
                 if node_id is None:
                     self._report.warnings.append(
                         f"Project '{p.id}': linked node '{nid}' not found in DB",
@@ -619,8 +605,7 @@ class KnowledgeImportService:
                 # Check if requirement already exists before inserting
                 existing_reqs = await uow.projects.get_requirements(project_id)
                 already_linked = any(
-                    r.node_id == node_id and r.requirement_type == 'required'
-                    for r in existing_reqs
+                    r.node_id == node_id and r.requirement_type == 'required' for r in existing_reqs
                 )
                 if not already_linked:
                     await uow.projects.add_requirement(
@@ -638,7 +623,6 @@ class KnowledgeImportService:
         self,
         uow: UnitOfWork,
         goals: list[ImportLearningGoal],
-        nodes: dict[str, ImportNode],
     ) -> int:
         """Upsert learning goals and their node requirement links.
 
@@ -678,7 +662,7 @@ class KnowledgeImportService:
 
             # Upsert career requirement links (check first to avoid IntegrityError)
             for order, nid in enumerate(g.recommended_order):
-                node_id = await self._resolve_node_id(uow, nid, nodes)
+                node_id = await self._resolve_node_id(uow, nid)
                 if node_id is None:
                     self._report.warnings.append(
                         f"Learning goal '{g.id}': node '{nid}' not found in DB",
@@ -688,8 +672,7 @@ class KnowledgeImportService:
                 # Check if requirement already exists before inserting
                 existing_reqs = await uow.careers.get_requirements(career_id)
                 already_linked = any(
-                    r.node_id == node_id and r.requirement_type == 'required'
-                    for r in existing_reqs
+                    r.node_id == node_id and r.requirement_type == 'required' for r in existing_reqs
                 )
                 if not already_linked:
                     await uow.careers.add_requirement(
@@ -706,14 +689,13 @@ class KnowledgeImportService:
     async def _persist_resources(
         self,
         uow: UnitOfWork,
-        nodes: list[ImportNode],
-        node_map: dict[str, ImportNode],
+        resource_nodes: list[ImportNode],
     ) -> int:
         """Upsert learning resources linked to each node."""
         created_count = 0
 
-        for n in nodes:
-            node_id = await self._resolve_node_id(uow, n.id, node_map)
+        for n in resource_nodes:
+            node_id = await self._resolve_node_id(uow, n.id)
             if node_id is None:
                 continue
 
@@ -731,9 +713,7 @@ class KnowledgeImportService:
                     node_id=node_id,
                     per_page=100,
                 )
-                already_exists = any(
-                    r.title == resource_text for r in existing_resources.items
-                )
+                already_exists = any(r.title == resource_text for r in existing_resources.items)
                 if not already_exists:
                     await uow.learning_resources.create(
                         node_id=node_id,
@@ -752,7 +732,6 @@ class KnowledgeImportService:
         self,
         uow: UnitOfWork,
         slug: str,
-        nodes: dict[str, ImportNode],
     ) -> UUID | None:
         """Resolve a node slug to its UUID in the database."""
         existing = await uow.knowledge_nodes.find_by_slug(slug)
@@ -764,18 +743,22 @@ class KnowledgeImportService:
     def _detect_resource_type(text: str) -> str:
         """Heuristic resource type detection from description text."""
         lower = text.lower()
-        for keyword, rtype in RESOURCE_TYPES.items():
-            if keyword in lower:
-                return rtype
-        # Look for common patterns
-        if 'video' in lower or 'lecture' in lower or 'talk' in lower or 'tutorial' in lower:
+        # Doc/syllabus keywords map to article
+        doc_keywords = {'guide', 'paper', 'notes'}
+        if any(k in lower for k in doc_keywords):
+            return 'article'
+        # Tutorial maps to video (most online CS tutorials are video-based)
+        if 'tutorial' in lower:
             return 'video'
+        # Exact keyword matches
         if 'book' in lower or 'textbook' in lower:
             return 'book'
         if 'course' in lower or 'class' in lower:
             return 'course'
         if 'documentation' in lower or 'docs' in lower or 'reference' in lower:
             return 'documentation'
+        if 'video' in lower or 'lecture' in lower or 'talk' in lower:
+            return 'video'
         return 'article'
 
     def print_report(self) -> None:
@@ -802,11 +785,12 @@ class KnowledgeImportService:
         print(f'\nWarnings: {len(self._report.warnings)}')
         for w in self._report.warnings:
             print(f'  [WARN] {w}')
-        print(f'\nRESULT: {"PASS - import successful" if self._report.success else "FAIL - do not import"}')
+        result_text = 'PASS - import successful' if self._report.success else 'FAIL - do not import'
+        print(f'\nRESULT: {result_text}')
         print(sep)
 
         if self._report.topological_order:
-            print(f'\nFirst 15 nodes in valid learning-sequence (topological) order:')
+            print('\nFirst 15 nodes in valid learning-sequence (topological) order:')
             for nid in self._report.topological_order[:15]:
                 print(f'  - {nid}')
 
@@ -818,6 +802,7 @@ class KnowledgeImportService:
 
 # ── CLI Entry Point ──────────────────────────────────────────────────
 
+
 async def _run_cli_import(path: str) -> None:
     """Run the import from a JSON file via the CLI.
 
@@ -828,7 +813,6 @@ async def _run_cli_import(path: str) -> None:
 
         python -m app.services.knowledge_import path/to/data.json
     """
-    import asyncio
 
     from app.core.database import async_session_factory
 
@@ -836,9 +820,11 @@ async def _run_cli_import(path: str) -> None:
     with open(path, encoding='utf-8') as f:
         data = json.load(f)
 
-    print(f'Loaded {path}: {len(data.get("nodes", []))} nodes, '
-          f'{len(data.get("projects", []))} projects, '
-          f'{len(data.get("learning_goals", []))} learning goals')
+    print(
+        f'Loaded {path}: {len(data.get("nodes", []))} nodes, '
+        f'{len(data.get("projects", []))} projects, '
+        f'{len(data.get("learning_goals", []))} learning goals'
+    )
     print()
 
     # Run the import

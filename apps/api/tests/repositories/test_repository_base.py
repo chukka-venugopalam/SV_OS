@@ -49,7 +49,7 @@ def sample_node_data() -> dict[str, Any]:
 
 
 @pytest.fixture
-async def node_repo() -> KnowledgeNodeRepository:
+async def node_repo() -> KnowledgeNodeRepository:  # type: ignore[misc]
     """Provide a ``KnowledgeNodeRepository`` backed by a test session."""
     session = async_session_factory()
     repo = KnowledgeNodeRepository(session)

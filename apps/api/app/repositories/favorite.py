@@ -50,7 +50,7 @@ class FavoriteRepository(BaseRepository[Favorite]):
         stmt = select(Favorite).where(
             Favorite.user_id == user_id,
             Favorite.node_id == node_id,
-            not Favorite.is_deleted,
+            Favorite.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()

@@ -625,10 +625,11 @@ class GraphEngine(EngineBase):
             if self._slug_index.get(record.slug) != nid:
                 issues.append(f'Slug index mismatch for node {nid}')
         # Check all edges have valid endpoints
-        for eid, record in self._edges.items():
-            if record.source_node_id not in self._nodes:
+        for eid, edge_rec in self._edges.items():
+            # edge_rec is GraphEdgeRecord from self._edges
+            if edge_rec.source_node_id not in self._nodes:
                 issues.append(f'Edge {eid}: source node not found')
-            if record.target_node_id not in self._nodes:
+            if edge_rec.target_node_id not in self._nodes:
                 issues.append(f'Edge {eid}: target node not found')
         return {
             'pass': len(issues) == 0,

@@ -71,7 +71,7 @@ class SkillRepository(BaseRepository[Skill]):
             select(Skill.category)
             .where(
                 Skill.category.isnot(None),
-                not Skill.is_deleted,
+                Skill.is_deleted.isnot(True),
             )
             .distinct()
             .order_by(Skill.category)
@@ -86,7 +86,7 @@ class SkillRepository(BaseRepository[Skill]):
                 Skill.category,
                 func.count().label('count'),
             )
-            .where(not Skill.is_deleted)
+            .where(Skill.is_deleted.isnot(True))
             .group_by(Skill.category)
             .order_by(Skill.category)
         )
@@ -104,12 +104,12 @@ class SkillRepository(BaseRepository[Skill]):
         if direction == 'incoming':
             stmt = select(SkillRelationship).where(
                 SkillRelationship.target_skill_id == skill_id,
-                not SkillRelationship.is_deleted,
+                SkillRelationship.is_deleted.isnot(True),
             )
         else:
             stmt = select(SkillRelationship).where(
                 SkillRelationship.source_skill_id == skill_id,
-                not SkillRelationship.is_deleted,
+                SkillRelationship.is_deleted.isnot(True),
             )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -166,7 +166,7 @@ class SkillRepository(BaseRepository[Skill]):
         stmt = select(SkillRelationship).where(
             SkillRelationship.source_skill_id.in_(skill_ids),
             SkillRelationship.target_skill_id.in_(skill_ids),
-            not SkillRelationship.is_deleted,
+            SkillRelationship.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

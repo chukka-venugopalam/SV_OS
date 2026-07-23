@@ -51,7 +51,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
         stmt = select(UserProgress).where(
             UserProgress.user_id == user_id,
             UserProgress.node_id == node_id,
-            not UserProgress.is_deleted,
+            UserProgress.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -146,7 +146,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
             )
             .where(
                 UserProgress.user_id == user_id,
-                not UserProgress.is_deleted,
+                UserProgress.is_deleted.isnot(True),
             )
             .group_by(UserProgress.status)
         )
@@ -161,7 +161,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
         """Sum total time spent across all progress records for a user."""
         stmt = select(func.coalesce(func.sum(UserProgress.time_spent_minutes), 0)).where(
             UserProgress.user_id == user_id,
-            not UserProgress.is_deleted,
+            UserProgress.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0
@@ -174,7 +174,7 @@ class UserProgressRepository(BaseRepository[UserProgress]):
             .where(
                 UserProgress.user_id == user_id,
                 UserProgress.status.in_(['completed', 'mastered']),
-                not UserProgress.is_deleted,
+                UserProgress.is_deleted.isnot(True),
             )
         )
         result = await self.session.execute(stmt)

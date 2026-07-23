@@ -73,7 +73,7 @@ class ProjectRepository(BaseRepository[Project]):
         stmt = (
             select(ProjectRequirement)
             .where(ProjectRequirement.project_id == project_id)
-            .where(not ProjectRequirement.is_deleted)
+            .where(ProjectRequirement.is_deleted.isnot(True))
             .order_by(ProjectRequirement.order_index)
         )
         result = await self.session.execute(stmt)

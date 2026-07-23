@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy import text
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_current_user_id, get_uow
@@ -255,9 +256,11 @@ async def list_conversations(
         params['stype'] = session_type
 
     result = await uow.session.execute(
-        f'SELECT id, title, session_type, message_count, is_archived, created_at '
-        f'FROM chat_sessions WHERE user_id = :uid AND is_deleted = false {filters} '
-        f'ORDER BY created_at DESC LIMIT :limit OFFSET :offset',
+        text(
+            f'SELECT id, title, session_type, message_count, is_archived, created_at '
+            f'FROM chat_sessions WHERE user_id = :uid AND is_deleted = false {filters} '
+            f'ORDER BY created_at DESC LIMIT :limit OFFSET :offset'
+        ),
         params,
     )
     items = []
@@ -274,7 +277,9 @@ async def list_conversations(
         )
 
     count = await uow.session.execute(
-        f'SELECT COUNT(*) FROM chat_sessions WHERE user_id = :uid AND is_deleted = false {filters}',
+        text(
+            f'SELECT COUNT(*) FROM chat_sessions WHERE user_id = :uid AND is_deleted = false {filters}'
+        ),
         {'uid': current_user_id}
         if not session_type
         else {'uid': current_user_id, 'stype': session_type},
@@ -326,11 +331,13 @@ async def get_conversation_messages(
 ) -> dict:
     """Get all messages for a conversation."""
     rows = await uow.session.execute(
-        'SELECT cm.id, cm.session_id, cm.role, cm.content, cm.content_type, '
-        'cm.token_count, cm.model_used, cm.created_at '
-        'FROM chat_messages cm JOIN chat_sessions cs ON cs.id = cm.session_id '
-        'WHERE cm.session_id = :sid AND cs.user_id = :uid AND cm.is_deleted = false '
-        'ORDER BY cm.created_at',
+        text(
+            'SELECT cm.id, cm.session_id, cm.role, cm.content, cm.content_type, '
+            'cm.token_count, cm.model_used, cm.created_at '
+            'FROM chat_messages cm JOIN chat_sessions cs ON cs.id = cm.session_id '
+            'WHERE cm.session_id = :sid AND cs.user_id = :uid AND cm.is_deleted = false '
+            'ORDER BY cm.created_at'
+        ),
         {'sid': session_id, 'uid': current_user_id},
     )
     messages = [
@@ -365,13 +372,13 @@ async def update_conversation(
     params = {'sid': session_id, 'uid': current_user_id}
     if body.title is not None:
         updates.append('title = :title')
-        params['title'] = body.title
+        params['title'] = body.title  # type: ignore[assignment]
     if body.is_archived is not None:
         updates.append('is_archived = :archived')
-        params['archived'] = body.is_archived
+        params['archived'] = body.is_archived  # type: ignore[assignment]
 
     if updates:
-        await uow.session.execute(
+        await uow.session.execute(  # type: ignore[call-overload]
             f'UPDATE chat_sessions SET {", ".join(updates)} WHERE id = :sid AND user_id = :uid',
             params,
         )
@@ -388,7 +395,7 @@ async def delete_conversation(
 ) -> None:
     """Soft-delete a conversation."""
     await uow.session.execute(
-        'UPDATE chat_sessions SET is_deleted = true WHERE id = :sid AND user_id = :uid',
+        text('UPDATE chat_sessions SET is_deleted = true WHERE id = :sid AND user_id = :uid'),
         {'sid': session_id, 'uid': current_user_id},
     )
     await uow.flush()
@@ -404,9 +411,11 @@ async def get_ai_preferences(
 ) -> dict:
     """Get AI interaction preferences for the user."""
     row = await uow.session.execute(
-        'SELECT preferred_model, explanation_style, temperature, max_tokens, '
-        'auto_generate_titles, include_citations '
-        'FROM ai_preferences WHERE user_id = :uid AND is_deleted = false',
+        text(
+            'SELECT preferred_model, explanation_style, temperature, max_tokens, '
+            'auto_generate_titles, include_citations '
+            'FROM ai_preferences WHERE user_id = :uid AND is_deleted = false'
+        ),
         {'uid': current_user_id},
     )
     r = row.one_or_none()
@@ -452,14 +461,14 @@ async def update_ai_preferences(
     if updates:
         # Upsert pattern
         existing = await uow.session.execute(
-            'SELECT id FROM ai_preferences WHERE user_id = :uid AND is_deleted = false',
+            text('SELECT id FROM ai_preferences WHERE user_id = :uid AND is_deleted = false'),
             {'uid': current_user_id},
         )
         if existing.one_or_none():
             set_clause = ', '.join(f'{k} = :{k}' for k in updates)
             updates['uid'] = current_user_id
             await uow.session.execute(
-                f'UPDATE ai_preferences SET {set_clause} WHERE user_id = :uid',
+                text(f'UPDATE ai_preferences SET {set_clause} WHERE user_id = :uid'),
                 updates,
             )
         else:
@@ -467,7 +476,7 @@ async def update_ai_preferences(
             cols = ', '.join(updates.keys())
             vals = ', '.join(f':{k}' for k in updates)
             await uow.session.execute(
-                f'INSERT INTO ai_preferences ({cols}) VALUES ({vals})',
+                text(f'INSERT INTO ai_preferences ({cols}) VALUES ({vals})'),
                 updates,
             )
         await uow.flush()

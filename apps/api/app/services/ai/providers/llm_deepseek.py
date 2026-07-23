@@ -34,7 +34,7 @@ class DeepSeekChatProvider(LLMProvider):
 
     @property
     def model_name(self) -> str:
-        return self._model
+        return self._model  # type: ignore[return-value]
 
     async def chat(
         self,
@@ -108,7 +108,7 @@ class DeepSeekChatProvider(LLMProvider):
             return False
         try:
             result = await self.chat([LLMMessage(role='user', content='test')], max_tokens=1)
-            return bool(result.content)
+            return bool(result.content)  # type: ignore[arg-type]
         except Exception:
             return False
 

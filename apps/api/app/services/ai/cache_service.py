@@ -46,7 +46,7 @@ class CacheService:
         if self._redis is not None or not self._redis_url:
             return
         try:
-            import redis.asyncio as aioredis
+            import redis.asyncio as aioredis  # type: ignore[import-not-found]
 
             self._redis = aioredis.from_url(
                 self._redis_url,
@@ -54,7 +54,7 @@ class CacheService:
                 decode_responses=True,
                 socket_connect_timeout=2,
             )
-            await self._redis.ping()
+            await self._redis.ping()  # type: ignore[attr-defined]
             logger.info('cache_redis_connected')
         except Exception as exc:
             logger.warning('cache_redis_unavailable', error=str(exc))

@@ -59,7 +59,7 @@ class GraphAnalyticsService:
                 KnowledgeEdge.source_node_id.label('node_id'),
                 func.count().label('edge_count'),
             )
-            .where(not KnowledgeEdge.is_deleted)
+            .where(KnowledgeEdge.is_deleted.isnot(True))
             .group_by(KnowledgeEdge.source_node_id)
             .cte('outgoing_counts')
         )
@@ -69,7 +69,7 @@ class GraphAnalyticsService:
                 KnowledgeEdge.target_node_id.label('node_id'),
                 func.count().label('edge_count'),
             )
-            .where(not KnowledgeEdge.is_deleted)
+            .where(KnowledgeEdge.is_deleted.isnot(True))
             .group_by(KnowledgeEdge.target_node_id)
             .cte('incoming_counts')
         )
@@ -90,7 +90,7 @@ class GraphAnalyticsService:
             .outerjoin(outgoing_stmt, KnowledgeNode.id == outgoing_stmt.c.node_id)
             .outerjoin(incoming_stmt, KnowledgeNode.id == incoming_stmt.c.node_id)
             .where(
-                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
             .order_by(
@@ -129,8 +129,8 @@ class GraphAnalyticsService:
         # Find all node IDs that appear in edges
         edge_node_ids = (
             select(KnowledgeEdge.source_node_id)
-            .where(not KnowledgeEdge.is_deleted)
-            .union(select(KnowledgeEdge.target_node_id).where(not KnowledgeEdge.is_deleted))
+            .where(KnowledgeEdge.is_deleted.isnot(True))
+            .union(select(KnowledgeEdge.target_node_id).where(KnowledgeEdge.is_deleted.isnot(True)))
             .cte('edge_nodes')
         )
 
@@ -138,7 +138,7 @@ class GraphAnalyticsService:
             select(KnowledgeNode)
             .where(
                 KnowledgeNode.id.notin_(select(edge_node_ids.c.source_node_id)),
-                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
             .order_by(KnowledgeNode.title)
@@ -176,7 +176,7 @@ class GraphAnalyticsService:
             )
             .where(
                 KnowledgeEdge.relationship_type == 'prerequisite',
-                not KnowledgeEdge.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
             )
             .group_by(KnowledgeEdge.source_node_id)
             .order_by(func.count().desc())
@@ -195,7 +195,7 @@ class GraphAnalyticsService:
             )
             .join(bottleneck_stmt, KnowledgeNode.id == bottleneck_stmt.c.node_id)
             .where(
-                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
             .order_by(bottleneck_stmt.c.dependent_count.desc())
@@ -324,14 +324,14 @@ class GraphAnalyticsService:
                     .select_from(KnowledgeEdge)
                     .where(
                         KnowledgeEdge.source_node_id == KnowledgeNode.id,
-                        not KnowledgeEdge.is_deleted,
+                        KnowledgeEdge.is_deleted.isnot(True),
                     )
                     .scalar_subquery(),
                 ).label('avg_outgoing'),
             )
             .select_from(KnowledgeNode)
             .where(
-                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
         )
@@ -348,7 +348,7 @@ class GraphAnalyticsService:
             .select_from(KnowledgeEdge)
             .where(
                 KnowledgeEdge.source_node_id == KnowledgeNode.id,
-                not KnowledgeEdge.is_deleted,
+                KnowledgeEdge.is_deleted.isnot(True),
             )
             .scalar_subquery()
         )
@@ -360,7 +360,7 @@ class GraphAnalyticsService:
             )
             .select_from(KnowledgeNode)
             .where(
-                not KnowledgeNode.is_deleted,
+                KnowledgeNode.is_deleted.isnot(True),
                 KnowledgeNode.is_published,
             )
             .group_by(literal_column('outgoing_count'))

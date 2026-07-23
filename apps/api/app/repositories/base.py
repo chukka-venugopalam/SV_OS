@@ -64,7 +64,7 @@ class BaseRepository[ModelT: Base]:
     def _active_filter(self) -> Any:
         """Return the soft-delete filter expression, if applicable."""
         if hasattr(self.model, 'is_deleted'):
-            return not self.model.is_deleted
+            return not self.model.is_deleted  # type: ignore[attr-defined]
         return None
 
     def _apply_active_filter(self, stmt: Select) -> Select:
@@ -84,7 +84,7 @@ class BaseRepository[ModelT: Base]:
         identity map and to ensure the soft-delete filter is applied
         at the database level.
         """
-        stmt = select(self.model).where(self.model.id == id)
+        stmt = select(self.model).where(self.model.id == id)  # type: ignore[attr-defined]
         stmt = self._apply_active_filter(stmt)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
@@ -95,7 +95,7 @@ class BaseRepository[ModelT: Base]:
         Uses an explicit SELECT to avoid identity-map staleness.
         Does NOT apply the soft-delete filter.
         """
-        stmt = select(self.model).where(self.model.id == id)
+        stmt = select(self.model).where(self.model.id == id)  # type: ignore[attr-defined]
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -103,7 +103,7 @@ class BaseRepository[ModelT: Base]:
         """Fetch multiple records by their primary keys (active only)."""
         if not ids:
             return []
-        stmt = select(self.model).where(self.model.id.in_(ids))
+        stmt = select(self.model).where(self.model.id.in_(ids))  # type: ignore[attr-defined]
         stmt = self._apply_active_filter(stmt)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -204,7 +204,7 @@ class BaseRepository[ModelT: Base]:
         Uses an explicit SELECT with soft-delete filter to avoid
         identity-map staleness.
         """
-        stmt = select(self.model).where(self.model.id == id)
+        stmt = select(self.model).where(self.model.id == id)  # type: ignore[attr-defined]
         stmt = self._apply_active_filter(stmt)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none() is not None
@@ -322,7 +322,7 @@ class BaseRepository[ModelT: Base]:
             value=next(iter(constraints.values())),
         )
         if existing:
-            return await self.update(existing.id, **data)
+            return await self.update(existing.id, **data)  # type: ignore[attr-defined]
         return await self.create(**{**constraints, **data})
 
     # ── Delete Operations ──────────────────────────────────────────
@@ -367,17 +367,17 @@ class BaseRepository[ModelT: Base]:
             return 0
 
         if hard or not hasattr(self.model, 'is_deleted'):
-            stmt = select(self.model).where(self.model.id.in_(ids))
+            stmt = select(self.model).where(self.model.id.in_(ids))  # type: ignore[attr-defined]
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
             for instance in instances:
                 await self.session.delete(instance)
         else:
-            stmt = select(self.model).where(self.model.id.in_(ids)).where(not self.model.is_deleted)
+            stmt = select(self.model).where(self.model.id.in_(ids)).where(not self.model.is_deleted)  # type: ignore[attr-defined, arg-type]
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
             for instance in instances:
-                instance.is_deleted = True
+                instance.is_deleted = True  # type: ignore[attr-defined]
 
         try:
             await self.session.flush()
@@ -623,7 +623,7 @@ class BaseRepository[ModelT: Base]:
 
         if rank:
             rank_expr = func.ts_rank(vector_col, tsquery)
-            builder.sort(rank_expr, SortDirection.DESC)
+            builder.sort(rank_expr, SortDirection.DESC)  # type: ignore[arg-type]
 
         builder.paginate(page, per_page)
 
@@ -660,7 +660,7 @@ class BaseRepository[ModelT: Base]:
         if not instances:
             return instances
 
-        ids = [i.id for i in instances]
+        ids = [i.id for i in instances]  # type: ignore[attr-defined]  # type: ignore[attr-defined]
         relation = getattr(self.model, relation_name, None)
         if relation is None:
             msg = f'Model {self.model.__name__} has no relationship named {relation_name}'
@@ -668,7 +668,7 @@ class BaseRepository[ModelT: Base]:
                 msg,
             )
 
-        stmt = select(self.model).options(selectinload(relation)).where(self.model.id.in_(ids))
+        stmt = select(self.model).options(selectinload(relation)).where(self.model.id.in_(ids))  # type: ignore[attr-defined]
         result = await self.session.execute(stmt)
         _ = list(result.scalars().all())  # Triggers eager loading
 

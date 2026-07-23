@@ -75,7 +75,7 @@ def csp_directive(
     script_src: str = "'none'",
     style_src: str = "'self' 'unsafe-inline'",
     report_only: bool = False,
-) -> str:
+) -> tuple[str, str]:
     """Build a Content-Security-Policy header value.
 
     Default is a restrictive policy suitable for a JSON API.

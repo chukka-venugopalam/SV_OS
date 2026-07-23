@@ -290,14 +290,15 @@ __all__ = [
     # Common — Health
     'HealthCheckDetail',
     # Import
+    'HealthResponse',
+    'HighlightFragment',
+    # Import
     'ImportLearningGoal',
     'ImportMap',
     'ImportNode',
     'ImportNodeResult',
     'ImportProject',
     'ImportReport',
-    'HealthResponse',
-    'HighlightFragment',
     # Knowledge — Dependency
     'KnowledgeDependency',
     # Knowledge — Node

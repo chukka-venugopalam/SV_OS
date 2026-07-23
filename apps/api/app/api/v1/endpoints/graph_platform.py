@@ -27,7 +27,7 @@ router = APIRouter(prefix='/api/v1/graph-platform', tags=['graph-platform'])
 # ── Dependency Helpers ─────────────────────────────────────────────
 
 
-def _get_graph_engine(request: Request) -> GraphEngine:
+def _get_graph_engine(request: Request) -> GraphEngine | None:
     container = getattr(request.app.state, 'platform_container', None)
     if container and container.engine_registry:
         engine = container.engine_registry.try_get('graph')
@@ -36,7 +36,7 @@ def _get_graph_engine(request: Request) -> GraphEngine:
     return None
 
 
-def _get_traversal_engine(request: Request) -> TraversalEngine:
+def _get_traversal_engine(request: Request) -> TraversalEngine | None:
     container = getattr(request.app.state, 'platform_container', None)
     if container and container.engine_registry:
         engine = container.engine_registry.try_get('traversal')
@@ -45,7 +45,7 @@ def _get_traversal_engine(request: Request) -> TraversalEngine:
     return None
 
 
-def _get_query_engine(request: Request) -> QueryEngine:
+def _get_query_engine(request: Request) -> QueryEngine | None:
     container = getattr(request.app.state, 'platform_container', None)
     if container and container.engine_registry:
         engine = container.engine_registry.try_get('query')
@@ -54,7 +54,7 @@ def _get_query_engine(request: Request) -> QueryEngine:
     return None
 
 
-def _get_validation_engine(request: Request) -> ValidationEngine:
+def _get_validation_engine(request: Request) -> ValidationEngine | None:
     container = getattr(request.app.state, 'platform_container', None)
     if container and container.engine_registry:
         engine = container.engine_registry.try_get('validation')
@@ -63,7 +63,7 @@ def _get_validation_engine(request: Request) -> ValidationEngine:
     return None
 
 
-def _get_cache(request: Request) -> GraphCache:
+def _get_cache(request: Request) -> GraphCache | None:
     container = getattr(request.app.state, 'platform_container', None)
     if container:
         return getattr(container, 'graph_cache', None)

@@ -113,8 +113,8 @@ class RecommendationRepository(BaseRepository[Recommendation]):
             )
             .where(
                 Recommendation.user_id == user_id,
-                not Recommendation.is_dismissed,
-                not Recommendation.is_deleted,
+                Recommendation.is_dismissed.isnot(True),
+                Recommendation.is_deleted.isnot(True),
             )
             .group_by(Recommendation.recommendation_type)
         )

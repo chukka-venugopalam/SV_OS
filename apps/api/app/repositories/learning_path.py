@@ -101,7 +101,7 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
             .where(
                 LearningSession.user_id == user_id,
                 LearningSession.node_id == node_id,
-                not LearningSession.is_deleted,
+                LearningSession.is_deleted.isnot(True),
             )
             .order_by(LearningSession.created_at.desc())
             .limit(1)
@@ -117,7 +117,7 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
             .where(
                 LearningSession.user_id == user_id,
                 LearningSession.status == 'active',
-                not LearningSession.is_deleted,
+                LearningSession.is_deleted.isnot(True),
             )
         )
         result = await self.session.execute(stmt)
@@ -127,7 +127,7 @@ class LearningSessionRepository(BaseRepository[LearningSession]):
         """Sum total learning minutes across all completed sessions for a user."""
         stmt = select(func.coalesce(func.sum(LearningSession.duration_minutes), 0)).where(
             LearningSession.user_id == user_id,
-            not LearningSession.is_deleted,
+            LearningSession.is_deleted.isnot(True),
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0

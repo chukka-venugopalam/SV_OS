@@ -76,7 +76,7 @@ class CareerRepository(BaseRepository[Career]):
         stmt = (
             select(CareerRequirement)
             .where(CareerRequirement.career_id == career_id)
-            .where(not CareerRequirement.is_deleted)
+            .where(CareerRequirement.is_deleted.isnot(True))
             .order_by(CareerRequirement.order_index)
         )
         result = await self.session.execute(stmt)
@@ -143,8 +143,8 @@ class CareerRepository(BaseRepository[Career]):
             )
             .where(
                 CareerRequirement.career_id == career_id,
-                not CareerRequirement.is_deleted,
-                not KnowledgeNode.is_deleted,
+                CareerRequirement.is_deleted.isnot(True),
+                KnowledgeNode.is_deleted.isnot(True),
             )
             .order_by(CareerRequirement.order_index)
         )
@@ -167,7 +167,7 @@ class CareerRepository(BaseRepository[Career]):
             .join(CareerRequirement, CareerRequirement.career_id == Career.id)
             .where(
                 CareerRequirement.node_id == node_id,
-                not Career.is_deleted,
+                Career.is_deleted.isnot(True),
                 Career.is_published,
             )
             .distinct()
@@ -188,7 +188,7 @@ class CareerRepository(BaseRepository[Career]):
                 Career.demand_level,
                 func.count().label('count'),
             )
-            .where(not Career.is_deleted)
+            .where(Career.is_deleted.isnot(True))
             .group_by(Career.demand_level)
         )
         result = await self.session.execute(stmt)

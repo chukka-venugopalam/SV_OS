@@ -327,7 +327,7 @@ class TestVersioningEngineTagsAndBranches:
         await engine.create_snapshot()
         v2 = await engine.create_snapshot()
         latest = await engine.get_latest_version()
-        assert latest['version_id'] == v2['version_id']
+        assert latest['version_id'] == v2['version_id']  # type: ignore[index]
 
     async def test_version_history(self, graph) -> None:
         engine = VersioningEngine(graph_engine=graph)
@@ -386,7 +386,7 @@ class TestExportEngineOperations:
         assert result['status'] == 'completed'
         data = await engine.download_export(result['export_id'])
         assert data is not None
-        parsed = json.loads(data)
+        parsed = json.loads(str(data)) if isinstance(data, str) else data
         assert len(parsed['nodes']) == 2
 
     async def test_export_graph_csv(self, graph) -> None:
@@ -437,8 +437,9 @@ class TestExportEngineOperations:
         await engine.initialize()
         result = await engine.export_graph(format='json', filter_criteria={'node_type': 'concept'})
         assert result['status'] == 'completed'
-        data = json.loads(await engine.download_export(result['export_id']))
-        for n in data['nodes']:
+        raw = await engine.download_export(result['export_id'])
+        data = json.loads(str(raw)) if isinstance(raw, str) else raw  # type: ignore[misc]
+        for n in data['nodes']:  # type: ignore[index]
             assert n['node_type'] == 'concept'
 
     async def test_list_exports(self, graph) -> None:

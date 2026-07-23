@@ -207,7 +207,7 @@ class UnitOfWork:
     def _get_or_create[T](self, key: str, repo_cls: type[T]) -> T:
         """Return a cached repository instance or create a new one."""
         if key not in self._repositories:
-            self._repositories[key] = repo_cls(self._session)
+            self._repositories[key] = repo_cls(self._session)  # type: ignore[call-arg]
         return cast('T', self._repositories[key])
 
 

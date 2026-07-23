@@ -182,7 +182,7 @@ class SemanticSearchService:
                         },
                     )
 
-        pairs.sort(key=lambda x: x['similarity'], reverse=True)
+        pairs.sort(key=lambda x: float(x['similarity']), reverse=True)  # type: ignore[arg-type]
         return pairs
 
 

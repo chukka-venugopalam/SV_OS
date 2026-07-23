@@ -183,8 +183,8 @@ def register_exception_handlers(app: FastAPI) -> None:
     Must be called during application initialisation, *after* middleware
     has been added so that ``request.state.request_id`` is available.
     """
-    app.add_exception_handler(AppError, app_exception_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
-    app.add_exception_handler(RepositoryError, repository_error_handler)
-    app.add_exception_handler(Exception, unhandled_exception_handler)
+    app.add_exception_handler(AppError, app_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(RepositoryError, repository_error_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(Exception, unhandled_exception_handler)  # type: ignore[arg-type]

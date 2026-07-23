@@ -54,7 +54,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             )
 
         # Content-Security-Policy via shared utility
-        header_name, header_value = csp_directive(report_only=self.csp_report_only)
+        header_name, header_value = csp_directive(report_only=self.csp_report_only)  # type: ignore[misc]
         response.headers[header_name] = header_value
 
         return response

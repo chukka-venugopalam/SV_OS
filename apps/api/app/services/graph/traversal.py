@@ -172,7 +172,7 @@ class GraphTraversalService:
             for edge in outgoing.items:
                 if edge and edge.target_node_id not in visited:
                     visited.add(edge.target_node_id)
-                    queue.append((edge.target_node_id, path, edge))
+                    queue.append((edge.target_node_id, path, edge))  # type: ignore[arg-type]
 
         return []
 

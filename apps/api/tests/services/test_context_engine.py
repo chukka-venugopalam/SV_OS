@@ -12,27 +12,27 @@ from app.services.ai.context_engine import ContextEngine
 
 @pytest.fixture
 def mock_uow():
-    uow = MagicMock()
-    uow.session = MagicMock()
-    uow.session.execute = AsyncMock()
+    uow = MagicMock()  # type: ignore[method-assign]
+    uow.session = MagicMock()  # type: ignore[method-assign]
+    uow.session.execute = AsyncMock()  # type: ignore[method-assign]
 
     # Mock repository methods
-    node = MagicMock()
+    node = MagicMock()  # type: ignore[method-assign]
     node.id = uuid4()
     node.slug = 'python-basics'
     node.title = 'Python Basics'
-    node.node_type = MagicMock()
+    node.node_type = MagicMock()  # type: ignore[method-assign]
     node.node_type.value = 'concept'
-    node.difficulty = MagicMock()
+    node.difficulty = MagicMock()  # type: ignore[method-assign]
     node.difficulty.value = 'beginner'
 
-    uow.knowledge_nodes = MagicMock()
-    uow.knowledge_nodes.find_by_slug = AsyncMock(return_value=node)
+    uow.knowledge_nodes = MagicMock()  # type: ignore[method-assign]
+    uow.knowledge_nodes.find_by_slug = AsyncMock(return_value=node)  # type: ignore[method-assign]
 
-    uow.graph = MagicMock()
-    uow.graph.load_prerequisites = AsyncMock(return_value=[])
-    uow.graph.load_dependents = AsyncMock(return_value=[])
-    uow.graph.load_all_neighbors = AsyncMock(return_value={'outgoing': [], 'incoming': []})
+    uow.graph = MagicMock()  # type: ignore[method-assign]
+    uow.graph.load_prerequisites = AsyncMock(return_value=[])  # type: ignore[method-assign]
+    uow.graph.load_dependents = AsyncMock(return_value=[])  # type: ignore[method-assign]
+    uow.graph.load_all_neighbors = AsyncMock(return_value={'outgoing': [], 'incoming': []})  # type: ignore[method-assign]
 
     return uow
 
@@ -103,15 +103,15 @@ class TestContextEngine:
     async def test_build_context_progress_error_graceful(self, mock_uow) -> None:
         """Progress errors don't crash context building."""
         engine = ContextEngine(mock_uow)
-        engine._progress.completion_forecast = AsyncMock(side_effect=Exception('DB error'))
+        engine._progress.completion_forecast = AsyncMock(side_effect=Exception('DB error'))  # type: ignore[method-assign]
 
         context = await engine.build_context(user_id=uuid4())
         assert context.get('user_progress', {}) == {}
 
     async def test_build_context_with_ai_memory(self, mock_uow) -> None:
         """AI memories are included in context for authenticated users."""
-        mock_uow.session.execute = AsyncMock(return_value=MagicMock())
-        mock_uow.session.execute.return_value.all = MagicMock(
+        mock_uow.session.execute = AsyncMock(return_value=MagicMock())  # type: ignore[method-assign]
+        mock_uow.session.execute.return_value.all = MagicMock(  # type: ignore[method-assign]
             return_value=[
                 MagicMock(memory_type='weak_concept', key='loops', value='Loops'),
                 MagicMock(memory_type='career_goal', key='se', value='Software Engineer'),
@@ -136,7 +136,7 @@ class TestContextEngine:
             n.node_type.value = 'concept'
             n.difficulty.value = 'beginner'
 
-        mock_uow.graph.load_prerequisites = AsyncMock(return_value=mock_nodes)
+        mock_uow.graph.load_prerequisites = AsyncMock(return_value=mock_nodes)  # type: ignore[method-assign]
 
         engine = ContextEngine(mock_uow)
         context = await engine.build_context(node_slug='python-basics', max_nodes=5)

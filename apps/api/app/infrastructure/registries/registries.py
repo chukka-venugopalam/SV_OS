@@ -14,6 +14,7 @@ EngineRegistry supports:
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -157,7 +158,7 @@ class EngineRegistry:
 
     def __init__(self) -> None:
         self._engines: dict[str, EngineBase] = {}
-        self._factories: dict[str, type[EngineBase]] = {}
+        self._factories: dict[str, type[EngineBase] | Callable[[], EngineBase]] = {}
         self._dependencies: dict[str, list[EngineDependency]] = {}
         self._graph = DependencyGraph()
 
@@ -166,14 +167,14 @@ class EngineRegistry:
     def register(
         self,
         name: str,
-        engine_cls: type[EngineBase],
+        engine_cls: type[EngineBase] | Callable[[], EngineBase],
         dependencies: list[EngineDependency] | None = None,
     ) -> None:
         """Register an engine class with optional dependency metadata.
 
         Args:
             name: Canonical engine name (e.g. 'graph', 'event').
-            engine_cls: The engine class (not an instance).
+            engine_cls: The engine class or factory callable (not an instance).
             dependencies: Optional list of engine dependencies.
 
         Raises:

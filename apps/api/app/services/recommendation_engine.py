@@ -91,7 +91,7 @@ class RecommendationEngine:
                 _user_id=user_id,
                 completed_node_ids=completed_node_ids,
                 bookmarked_node_ids=bookmarked_node_ids,
-                all_nodes=all_nodes,
+                all_nodes=list(all_nodes),
             )
 
             if score > 0:
@@ -107,7 +107,7 @@ class RecommendationEngine:
                 )
 
         # 3. Sort by score descending and return top results
-        scored.sort(key=lambda x: x[0], reverse=True)
+        scored.sort(key=lambda x: float(x[0]), reverse=True)  # type: ignore[arg-type, return-value]
         return [item for _, item in scored[:limit]]
 
     # ── Scoring Pipeline ───────────────────────────────────────────
@@ -341,7 +341,7 @@ class RecommendationEngine:
                     },
                 )
 
-        scored_careers.sort(key=lambda x: x['match_score'], reverse=True)
+        scored_careers.sort(key=lambda x: x['match_score'], reverse=True)  # type: ignore[arg-type, return-value]
         return scored_careers[:limit]
 
     # ── Helper: Get Completed Node IDs ─────────────────────────────

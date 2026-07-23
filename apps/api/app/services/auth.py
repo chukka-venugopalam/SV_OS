@@ -13,8 +13,8 @@ from secrets import token_urlsafe
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+from jose import JWTError, jwt  # type: ignore[import-untyped]
+from passlib.context import CryptContext  # type: ignore[import-untyped]
 from structlog.stdlib import get_logger
 
 from app.core.config import settings

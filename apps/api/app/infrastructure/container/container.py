@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 from app.engines.analytics_engine import AnalyticsEngine
 from app.engines.assessment_engine import AssessmentEngine
@@ -97,9 +97,13 @@ def build_platform_container() -> PlatformContainer:
     container.engine_registry.register(
         'query',
         lambda: QueryEngine(
-            graph_engine=container.engine_registry.try_get('graph'),
-            traversal_engine=container.engine_registry.try_get('traversal'),
-            knowledge_engine=container.engine_registry.try_get('knowledge'),
+            graph_engine=cast(GraphEngine | None, container.engine_registry.try_get('graph')),
+            traversal_engine=cast(
+                TraversalEngine | None, container.engine_registry.try_get('traversal')
+            ),
+            knowledge_engine=cast(
+                KnowledgeEngine | None, container.engine_registry.try_get('knowledge')
+            ),
         ),
         dependencies=[
             EngineDependency('graph', required=True),
@@ -161,14 +165,18 @@ def build_platform_container() -> PlatformContainer:
     )
     container.engine_registry.register(
         'versioning',
-        lambda: VersioningEngine(graph_engine=container.engine_registry.try_get('graph')),
+        lambda: VersioningEngine(
+            graph_engine=cast(GraphEngine | None, container.engine_registry.try_get('graph'))
+        ),
         dependencies=[EngineDependency('graph', required=True)],
     )
     container.engine_registry.register(
         'export',
         lambda: ExportEngine(
-            graph_engine=container.engine_registry.try_get('graph'),
-            traversal_engine=container.engine_registry.try_get('traversal'),
+            graph_engine=cast(GraphEngine | None, container.engine_registry.try_get('graph')),
+            traversal_engine=cast(
+                TraversalEngine | None, container.engine_registry.try_get('traversal')
+            ),
         ),
         dependencies=[
             EngineDependency('graph', required=True),

@@ -88,7 +88,7 @@ class RecommendationV2:
                 career_goals=career_goals,
                 recent_searches=recent_searches,
                 learning_velocity=learning_velocity,
-                all_nodes=all_nodes,
+                all_nodes=list(all_nodes),
             )
 
             if score > 0:
@@ -102,7 +102,7 @@ class RecommendationV2:
                     },
                 )
 
-        scored.sort(key=lambda x: x['score'], reverse=True)
+        scored.sort(key=lambda x: float(x['score']), reverse=True)  # type: ignore[arg-type]
         return scored[:limit]
 
     # ── V2 Scoring Pipeline ────────────────────────────────────────
@@ -283,7 +283,7 @@ class RecommendationV2:
         }
 
         # Sort signals by score descending
-        sorted_signals = sorted(breakdown.items(), key=lambda x: x[1], reverse=True)
+        sorted_signals = sorted(breakdown.items(), key=lambda x: float(x[1]), reverse=True)
         for signal_name, score in sorted_signals[:3]:
             if score > 0.3 and signal_name in signal_names:
                 reasons.append(signal_names[signal_name])
@@ -326,7 +326,7 @@ class RecommendationV2:
 
     async def _get_recent_searches(self, user_id: UUID) -> list[str]:
         """Get recent search queries for the user."""
-        searches = await self._uow.search_history.find_by_user(
+        searches = await self._uow.search_history.find_recent_by_user(
             user_id=user_id,
             limit=10,
         )
@@ -343,14 +343,18 @@ class RecommendationV2:
             status='completed',
         )
         nodes_completed = sum(
-            1 for p in completed.items if p and p.updated_at and p.updated_at >= thirty_days_ago
+            1
+            for p in completed.items
+            if p and p.updated_at and p.updated_at >= thirty_days_ago  # type: ignore[misc]
         )
         mastered = await self._uow.user_progress.find_by_user(
             user_id=user_id,
             status='mastered',
         )
         nodes_mastered = sum(
-            1 for p in mastered.items if p and p.updated_at and p.updated_at >= thirty_days_ago
+            1
+            for p in mastered.items
+            if p and p.updated_at and p.updated_at >= thirty_days_ago  # type: ignore[misc]
         )
 
         total = nodes_completed + nodes_mastered

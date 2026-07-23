@@ -34,12 +34,23 @@ class SortDirection:
 
 @dataclass
 class PageResult[ModelT: DeclarativeBase]:
-    """A page of results with total count metadata."""
+    """A page of results with total count metadata.
+
+    Supports iteration and len() for convenience.
+    """
 
     items: list[ModelT]
     total: int
     page: int
     per_page: int
+
+    def __iter__(self):
+        """Iterate over the items in this page."""
+        return iter(self.items)
+
+    def __len__(self):
+        """Return the number of items in this page."""
+        return len(self.items)
 
     @property
     def total_pages(self) -> int:
@@ -205,7 +216,7 @@ class QueryBuilder[ModelT: DeclarativeBase]:
     def active(self) -> QueryBuilder[ModelT]:
         """Filter for non-deleted records (soft-delete)."""
         if hasattr(self.model, 'is_deleted'):
-            self._filters.append(not self.model.is_deleted)
+            self._filters.append(self.model.is_deleted.isnot(True))  # type: ignore[attr-defined]
         return self
 
     def build(self) -> Select:

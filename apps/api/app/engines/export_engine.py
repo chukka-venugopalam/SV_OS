@@ -423,24 +423,23 @@ class ExportEngine(EngineBase):
         format = format.lower()
 
         if format == 'json':
-            result = json.dumps(data, indent=2, default=str, ensure_ascii=False)
+            result = json.dumps(data, indent=2, default=str, ensure_ascii=False)  # type: ignore[no-redef]
         elif format == 'csv':
             result = self._to_csv(data)
         elif format == 'md':
             result = self._to_markdown(data)
         elif format == 'yaml':
-            # Simple YAML-like format (indented key-value)
             result = self._to_yaml_like(data)
         elif format == 'zip':
-            result = self._to_zip(data)
+            result = self._to_zip(data)  # type: ignore[assignment]
         else:
-            result = json.dumps(data, indent=2, default=str)
+            result = json.dumps(data, indent=2, default=str)  # type: ignore[assignment]
 
         if compress:
             import gzip
 
             result_bytes = result.encode('utf-8') if isinstance(result, str) else result
-            result = gzip.compress(result_bytes)
+            result = gzip.compress(result_bytes)  # type: ignore[assignment]
 
         self._export_results[export_id] = result
         job = self._exports.get(export_id)

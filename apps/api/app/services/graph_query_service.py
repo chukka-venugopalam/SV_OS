@@ -46,6 +46,7 @@ class GraphQueryService:
             if cached is not None:
                 return cached
 
+        assert self._query is not None
         result = await self._query.find_shortest_path(source_id, target_id, max_depth)
 
         if self._cache:
@@ -60,6 +61,7 @@ class GraphQueryService:
             if cached is not None:
                 return cached
 
+        assert self._query is not None
         result = await self._query.find_dependency_chain(node_id, max_depth)
 
         if self._cache:
@@ -68,6 +70,7 @@ class GraphQueryService:
 
     async def reverse_dependency_chain(self, node_id: UUID, max_depth: int = 5) -> dict:
         """Get the chain of nodes depending on a node."""
+        assert self._query is not None
         return await self._query.find_reverse_dependency_chain(node_id, max_depth)
 
     async def related_nodes(
@@ -77,10 +80,12 @@ class GraphQueryService:
         max_depth: int = 2,
     ) -> dict:
         """Find nodes related to a node."""
+        assert self._query is not None
         return await self._query.find_related_nodes(node_id, relationship_type, max_depth)
 
     async def common_nodes(self, node_id_a: UUID, node_id_b: UUID, max_depth: int = 3) -> dict:
         """Find common neighbors of two nodes."""
+        assert self._query is not None
         return await self._query.find_common_nodes(node_id_a, node_id_b, max_depth)
 
     async def subgraph(
@@ -90,6 +95,7 @@ class GraphQueryService:
         relationship_type: str | None = None,
     ) -> dict:
         """Extract a subgraph around a center node."""
+        assert self._query is not None
         return await self._query.find_subgraph(center_node_id, depth, relationship_type)
 
     async def validate_graph(self, full_data: dict | None = None) -> dict:
