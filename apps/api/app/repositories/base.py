@@ -64,7 +64,7 @@ class BaseRepository[ModelT: Base]:
     def _active_filter(self) -> Any:
         """Return the soft-delete filter expression, if applicable."""
         if hasattr(self.model, 'is_deleted'):
-            return not self.model.is_deleted  # type: ignore[attr-defined]
+            return self.model.is_deleted.is_(False)  # type: ignore[attr-defined]
         return None
 
     def _apply_active_filter(self, stmt: Select) -> Select:
@@ -373,7 +373,11 @@ class BaseRepository[ModelT: Base]:
             for instance in instances:
                 await self.session.delete(instance)
         else:
-            stmt = select(self.model).where(self.model.id.in_(ids)).where(not self.model.is_deleted)  # type: ignore[attr-defined, arg-type]
+            stmt = (
+                select(self.model)
+                .where(self.model.id.in_(ids))  # type: ignore[attr-defined]
+                .where(self.model.is_deleted.is_(False))  # type: ignore[attr-defined]
+            )
             result = await self.session.execute(stmt)
             instances = list(result.scalars().all())
             for instance in instances:
