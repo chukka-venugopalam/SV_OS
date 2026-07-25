@@ -216,6 +216,238 @@ def create_app() -> FastAPI:
             'request_id': request_id,
         }
 
+    # ── Database Diagnostic Endpoint ────────────────────────────────
+    # Captures the exact SQLAlchemy/PostgreSQL exception that occurs
+    # when running the same query AuthService.login() uses.
+    # Hit GET /debug/db-check after deploying to see the actual error.
+
+    @app.get('/debug/db-check', tags=['debug'], include_in_schema=False)
+    async def debug_db_check() -> dict:
+        """Diagnose database execution failures.
+
+        Runs progressive checks:
+        1. Basic connection (``SELECT 1``)
+        2. Check if ``users`` table exists in information_schema
+        3. Run the exact ``SELECT ... FROM users WHERE email = ?`` query
+           that ``AuthService.login() / UserRepository.find_by_email()`` uses
+        4. Attempt to run the query as the ``BaseRepository`` would
+           (with soft-delete filter)
+
+        Returns the full exception type and message at the first failure,
+        allowing you to see the exact PostgreSQL/SQLAlchemy error.
+        """
+        import traceback
+
+        from sqlalchemy import select, text
+
+        from app.core.config import settings
+        from app.core.database import async_session_factory
+        from app.models.user import User
+
+        results: list[dict] = []
+
+        test_email = 'diagnostic@sv-os.com'
+
+        async def run_check(name: str, sql_or_coro, is_query: bool = True) -> dict:
+            """Run a check and return result or error."""
+            try:
+                if is_query:
+                    async with async_session_factory() as session:
+                        result = await session.execute(sql_or_coro)
+                        rows = list(result.fetchmany(5))
+                        return {
+                            'check': name,
+                            'status': 'PASS',
+                            'result': [str(r) for r in rows],
+                        }
+                else:
+                    result = await sql_or_coro
+                    return {
+                        'check': name,
+                        'status': 'PASS',
+                        'result': str(result),
+                    }
+            except Exception as e:
+                tb = traceback.format_exc()
+                return {
+                    'check': name,
+                    'status': 'FAIL',
+                    'error': f'{type(e).__name__}: {e}',
+                    'traceback': tb.split('\n')[-10:],
+                }
+
+        # Check 1: Basic connectivity
+        results.append(
+            await run_check(
+                '1. Basic connection (SELECT 1)',
+                text('SELECT 1'),
+            )
+        )
+
+        # Check 2: Check users table exists
+        results.append(
+            await run_check(
+                '2. Check users table exists',
+                text(
+                    'SELECT table_name FROM information_schema.tables '
+                    "WHERE table_schema = 'public' AND table_name = 'users'"
+                ),
+            )
+        )
+
+        # Check 3: List all tables
+        results.append(
+            await run_check(
+                '3. List all public tables',
+                text(
+                    'SELECT table_name FROM information_schema.tables '
+                    "WHERE table_schema = 'public' ORDER BY table_name"
+                ),
+            )
+        )
+
+        # Check 4: Run the EXACT same query as find_by_email()
+        # This reproduces the crash from AuthService.login()
+        async def run_login_query() -> str:
+            async with async_session_factory() as session:
+                stmt = select(User).where(User.email == test_email)
+                result = await session.execute(stmt)
+                row = result.scalar_one_or_none()
+                return f'Query executed. Row found: {row is not None}'
+
+        results.append(
+            await run_check(
+                f'4. Exact find_by_email query (email={test_email})',
+                run_login_query(),
+                is_query=False,
+            )
+        )
+
+        # Check 5: Run the query with soft-delete filter (as BaseRepository does)
+        async def run_filtered_query() -> str:
+            async with async_session_factory() as session:
+                stmt = (
+                    select(User).where(User.email == test_email).where(User.is_deleted.is_(False))
+                )
+                result = await session.execute(stmt)
+                row = result.scalar_one_or_none()
+                return f'Filtered query executed. Row found: {row is not None}'
+
+        results.append(
+            await run_check(
+                '5. find_by_email with is_deleted filter',
+                run_filtered_query(),
+                is_query=False,
+            )
+        )
+
+        # Check 6: Verify alembic version vs head
+        async def check_alembic() -> str:
+            try:
+                import asyncio
+                import sys
+                from io import StringIO
+                from pathlib import Path
+
+                from alembic.config import Config
+                from alembic.script import ScriptDirectory
+
+                import app as app_module
+                from alembic import command
+
+                app_base = Path(app_module.__file__).resolve().parent
+                alembic_ini = app_base.parent / 'alembic.ini'
+                if not alembic_ini.exists():
+                    alembic_ini = app_base / 'alembic.ini'
+
+                cfg = Config(str(alembic_ini))
+
+                # Get current revision from DB
+                out = StringIO()
+                old_stdout = sys.stdout
+                sys.stdout = out
+                try:
+                    await asyncio.to_thread(command.current, cfg, verbose=True)
+                finally:
+                    sys.stdout = old_stdout
+                current_output = out.getvalue()
+
+                # Get head revision
+                script = ScriptDirectory.from_config(cfg)
+                head = script.get_current_head()
+
+                return f'Current: {current_output.strip() or "(none)"} | Head: {head or "(none)"}'
+            except Exception as e:
+                return f'Alembic check failed: {type(e).__name__}: {e}'
+
+        results.append(
+            await run_check(
+                '6. Alembic current vs head',
+                check_alembic(),
+                is_query=False,
+            )
+        )
+
+        # Check 7: Attempt to create a test user (capture any insert failure)
+        async def check_insert() -> str:
+            from app.models.enums import UserRole
+            from app.services.auth import hash_password
+
+            async with async_session_factory() as session:
+                from app.repositories.user import UserRepository
+
+                repo = UserRepository(session)
+                existing = await repo.find_by_email('diagnostic@sv-os.com')
+                if existing:
+                    return 'Test user already exists (cleanup: delete this user)'
+                new_user = await repo.create(
+                    email='diagnostic@sv-os.com',
+                    username='diagnostic_user',
+                    display_name='Diagnostic User',
+                    password_hash=hash_password('Diagnostic123!'),
+                    role=UserRole.LEARNER,
+                    preferences={},
+                )
+                await session.commit()
+                return f'Test user created: id={new_user.id}'
+
+        results.append(
+            await run_check(
+                '7. Create test user (proves INSERT works)',
+                check_insert(),
+                is_query=False,
+            )
+        )
+
+        # Determine overall status
+        all_pass = all(r['status'] == 'PASS' for r in results)
+        first_fail = next(
+            (r for r in results if r['status'] == 'FAIL'),
+            None,
+        )
+
+        return {
+            'success': all_pass,
+            'message': (
+                'All database checks passed'
+                if all_pass
+                else f'First failure at check {first_fail["check"]}: {first_fail["error"]}'
+            ),
+            'data': {
+                'database_url': (
+                    settings.DATABASE_URL.split('@')[1]
+                    if '@' in settings.DATABASE_URL
+                    else settings.DATABASE_URL
+                ),
+                'environment': settings.ENVIRONMENT,
+                'engine_echo': settings.DB_ECHO,
+                'checks': results,
+            },
+            'errors': None if all_pass else first_fail.get('traceback', []),
+            'timestamp': datetime.now(UTC).isoformat(),
+            'request_id': str(uuid4()),
+        }
+
     return app
 
 
