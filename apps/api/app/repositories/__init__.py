@@ -69,7 +69,6 @@ __all__ = [
     'DuplicateEntityError',
     'EntityNotFoundError',
     'FavoriteRepository',
-    'FavoriteRepository',
     'FilterCondition',
     'GraphRepository',
     'KnowledgeEdgeRepository',
