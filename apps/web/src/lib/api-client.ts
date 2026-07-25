@@ -180,11 +180,10 @@ function categoriseNetworkError(error: unknown): NetworkErrorInfo {
       msg.includes('networkerror') ||
       msg.includes('network error')
     ) {
-      const showUrl = typeof process !== 'undefined' && process.env.NODE_ENV !== 'production';
       return {
-        message: showUrl
-          ? `Server unreachable at ${API_URL}. Check that the backend is running.`
-          : 'Cannot connect to the server. Please try again later.',
+        message:
+          `Cannot connect to the server at ${API_URL}. ` +
+          'Check that the backend is running and NEXT_PUBLIC_API_URL is correct.',
         category: ErrorCategory.NETWORK,
         status: 0,
       };
