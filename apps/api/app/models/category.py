@@ -62,15 +62,25 @@ class Category(AppBaseMixin, Base):
     )
 
     # ── Self-referential relationship for hierarchy ────────────────
+    #
+    # In a self-referential tree:
+    #   parent   = ManyToOne  — FK (parent_id) is on the LOCAL table
+    #   children = OneToMany  — FK (parent_id) is on the REMOTE table
+    #
+    # ``remote_side`` is ONLY set on the ManyToOne side (parent)
+    # to tell SQLAlchemy which column is the remote primary key.
+    # The OneToMany side (children) must NOT have ``remote_side``,
+    # otherwise SQLAlchemy interprets it as ManyToOne too.
 
     children: Mapped[list[Category]] = relationship(
         'Category',
         back_populates='parent',
-        remote_side='Category.id',
+        foreign_keys='Category.parent_id',
     )
     parent: Mapped[Category | None] = relationship(
         'Category',
         back_populates='children',
+        foreign_keys='Category.parent_id',
         remote_side='Category.id',
     )
 
