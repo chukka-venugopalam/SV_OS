@@ -10,7 +10,7 @@ with the project's naming convention.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, Text, text
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -19,9 +19,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.base import AppBaseMixin
-
-if TYPE_CHECKING:
-    from uuid import UUID
 
 
 class Category(AppBaseMixin, Base):
