@@ -1,7 +1,5 @@
 """Learning Path API — capability-based learning path endpoints."""
 
-from __future__ import annotations
-
 from typing import Annotated
 from uuid import UUID
 

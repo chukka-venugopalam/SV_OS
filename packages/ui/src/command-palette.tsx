@@ -33,7 +33,7 @@ export function CommandPalette({
   const filtered = React.useMemo(
     () =>
       query
-        ? items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))
+        ? items.filter((item) => item.label?.toLowerCase().includes((query ?? '').toLowerCase()))
         : items,
     [items, query],
   );

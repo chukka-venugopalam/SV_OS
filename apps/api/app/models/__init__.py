@@ -14,12 +14,14 @@ from app.models.audit_log import AuditLog
 from app.models.base import AppBaseMixin
 from app.models.bookmark import Bookmark
 from app.models.career import Career, CareerRequirement
+from app.models.category import Category
 from app.models.chat_session import ChatMessage, ChatSession
 from app.models.enums import (
     DemandLevel,
     Difficulty,
     EdgeDirection,
     EdgeType,
+    GoalType,
     LearningStatus,
     NodeType,
     ProgressStatus,
@@ -54,6 +56,7 @@ __all__ = [
     'Bookmark',
     'Career',
     'CareerRequirement',
+    'Category',
     'ChatMessage',
     # Phase 4 AI models
     'ChatSession',

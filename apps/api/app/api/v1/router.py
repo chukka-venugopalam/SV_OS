@@ -4,8 +4,6 @@ This module aggregates all v1 route modules and defines the three
 standard health endpoints required by orchestration platforms.
 """
 
-from __future__ import annotations
-
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Request

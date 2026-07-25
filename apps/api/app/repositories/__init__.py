@@ -25,6 +25,7 @@ from app.repositories.audit_log import AuditLogRepository
 from app.repositories.base import BaseRepository
 from app.repositories.bookmark import BookmarkRepository
 from app.repositories.career import CareerRepository
+from app.repositories.category import CategoryRepository
 from app.repositories.errors import (
     ConcurrentModificationError,
     DatabaseConnectionError,
@@ -63,6 +64,7 @@ __all__ = [
     'BaseRepository',
     'BookmarkRepository',
     'CareerRepository',
+    'CategoryRepository',
     'ConcurrentModificationError',
     'CursorPageResult',
     'DatabaseConnectionError',

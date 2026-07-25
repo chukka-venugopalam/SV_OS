@@ -1,0 +1,236 @@
+[
+  {
+    "slug": "algorithms",
+    "display_name": "Algorithms",
+    "aliases": ["Algorithms"],
+    "parent_id": null
+  },
+  {
+    "slug": "artificial-intelligence",
+    "display_name": "Artificial Intelligence",
+    "aliases": ["Artificial Intelligence"],
+    "parent_id": null
+  },
+  {
+    "slug": "blockchain",
+    "display_name": "Blockchain",
+    "aliases": ["Blockchain"],
+    "parent_id": null
+  },
+  {
+    "slug": "browser-engineering",
+    "display_name": "Browser Engineering",
+    "aliases": ["Browser Engineering"],
+    "parent_id": null
+  },
+  {
+    "slug": "career-preparation",
+    "display_name": "Career Preparation",
+    "aliases": ["Career Preparation"],
+    "parent_id": null
+  },
+  {
+    "slug": "cloud-computing",
+    "display_name": "Cloud Computing",
+    "aliases": ["Cloud Computing"],
+    "parent_id": null
+  },
+  {
+    "slug": "compiler-design",
+    "display_name": "Compiler Design",
+    "aliases": ["Compiler Design"],
+    "parent_id": null
+  },
+  {
+    "slug": "computer-architecture",
+    "display_name": "Computer Architecture",
+    "aliases": ["Computer Architecture"],
+    "parent_id": null
+  },
+  {
+    "slug": "computer-graphics",
+    "display_name": "Computer Graphics",
+    "aliases": ["Computer Graphics"],
+    "parent_id": null
+  },
+  {
+    "slug": "computer-networks",
+    "display_name": "Computer Networks",
+    "aliases": ["Computer Networks"],
+    "parent_id": null
+  },
+  {
+    "slug": "cryptography",
+    "display_name": "Cryptography",
+    "aliases": ["Cryptography"],
+    "parent_id": null
+  },
+  {
+    "slug": "cybersecurity",
+    "display_name": "Cybersecurity",
+    "aliases": ["Cybersecurity"],
+    "parent_id": null
+  },
+  {
+    "slug": "data-engineering",
+    "display_name": "Data Engineering",
+    "aliases": ["Data Engineering"],
+    "parent_id": null
+  },
+  {
+    "slug": "data-structures",
+    "display_name": "Data Structures",
+    "aliases": ["Data Structures"],
+    "parent_id": null
+  },
+  {
+    "slug": "databases",
+    "display_name": "Databases",
+    "aliases": ["Databases"],
+    "parent_id": null
+  },
+  {
+    "slug": "deep-learning",
+    "display_name": "Deep Learning",
+    "aliases": ["Deep Learning"],
+    "parent_id": null
+  },
+  {
+    "slug": "developer-tooling",
+    "display_name": "Developer Tooling",
+    "aliases": ["Developer Tooling"],
+    "parent_id": null
+  },
+  {
+    "slug": "devops",
+    "display_name": "DevOps",
+    "aliases": ["DevOps"],
+    "parent_id": null
+  },
+  {
+    "slug": "digital-logic",
+    "display_name": "Digital Logic",
+    "aliases": ["Digital Logic"],
+    "parent_id": null
+  },
+  {
+    "slug": "distributed-systems",
+    "display_name": "Distributed Systems",
+    "aliases": ["Distributed Systems"],
+    "parent_id": null
+  },
+  {
+    "slug": "embedded-systems",
+    "display_name": "Embedded Systems",
+    "aliases": ["Embedded Systems"],
+    "parent_id": null
+  },
+  {
+    "slug": "game-development",
+    "display_name": "Game Development",
+    "aliases": ["Game Development"],
+    "parent_id": null
+  },
+  {
+    "slug": "generative-ai",
+    "display_name": "Generative AI",
+    "aliases": ["Generative AI"],
+    "parent_id": null
+  },
+  {
+    "slug": "hci-ui-ux",
+    "display_name": "HCI / UI-UX",
+    "aliases": ["HCI / UI-UX"],
+    "parent_id": null
+  },
+  {
+    "slug": "high-performance-computing",
+    "display_name": "High-Performance Computing",
+    "aliases": ["High-Performance Computing"],
+    "parent_id": null
+  },
+  {
+    "slug": "machine-learning",
+    "display_name": "Machine Learning",
+    "aliases": ["Machine Learning"],
+    "parent_id": null
+  },
+  {
+    "slug": "mathematics",
+    "display_name": "Mathematics",
+    "aliases": ["Mathematics"],
+    "parent_id": null
+  },
+  {
+    "slug": "mobile-development",
+    "display_name": "Mobile Development",
+    "aliases": ["Mobile Development"],
+    "parent_id": null
+  },
+  {
+    "slug": "object-oriented-programming",
+    "display_name": "Object-Oriented Programming",
+    "aliases": ["Object-Oriented Programming"],
+    "parent_id": null
+  },
+  {
+    "slug": "operating-systems",
+    "display_name": "Operating Systems",
+    "aliases": ["Operating Systems"],
+    "parent_id": null
+  },
+  {
+    "slug": "programming-fundamentals",
+    "display_name": "Programming Fundamentals",
+    "aliases": ["Programming Fundamentals"],
+    "parent_id": null
+  },
+  {
+    "slug": "programming-languages",
+    "display_name": "Programming Languages",
+    "aliases": ["Programming Languages"],
+    "parent_id": null
+  },
+  {
+    "slug": "quantum-computing",
+    "display_name": "Quantum Computing",
+    "aliases": ["Quantum Computing"],
+    "parent_id": null
+  },
+  {
+    "slug": "robotics",
+    "display_name": "Robotics",
+    "aliases": ["Robotics"],
+    "parent_id": null
+  },
+  {
+    "slug": "software-engineering",
+    "display_name": "Software Engineering",
+    "aliases": ["Software Engineering"],
+    "parent_id": null
+  },
+  {
+    "slug": "system-design",
+    "display_name": "System Design",
+    "aliases": ["System Design"],
+    "parent_id": null
+  },
+  {
+    "slug": "systems",
+    "display_name": "Systems Engineering",
+    "aliases": ["Systems Engineering"],
+    "parent_id": null
+  },
+  {
+    "slug": "theory-of-computation",
+    "display_name": "Theory of Computation",
+    "aliases": ["Theory of Computation"],
+    "parent_id": null
+  },
+  {
+    "slug": "web-development",
+    "display_name": "Web Development",
+    "aliases": ["Web Development"],
+    "parent_id": null
+  }
+]

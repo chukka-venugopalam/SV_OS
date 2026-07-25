@@ -64,7 +64,7 @@ export function CommandPaletteWrapper() {
     // Navigation commands (shown when not searching)
     if (query.length < 2) {
       for (const cmd of navigationCommands) {
-        if (cmd.label.toLowerCase().includes(query.toLowerCase())) {
+        if (cmd.label?.toLowerCase().includes((query ?? '').toLowerCase())) {
           result.push({
             id: cmd.id,
             label: cmd.label,

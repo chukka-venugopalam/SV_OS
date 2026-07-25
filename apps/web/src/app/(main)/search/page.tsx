@@ -79,7 +79,7 @@ function ResultItem({ node, query }: ResultItemProps) {
         new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
       );
       return parts.map((part, i) =>
-        part.toLowerCase() === query.toLowerCase() ? (
+        (part ?? '').toLowerCase() === (query ?? '').toLowerCase() ? (
           <mark
             key={i}
             className="bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-200 rounded-sm px-0.5"

@@ -61,6 +61,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Run pending Alembic migrations on startup
     if db_ready:
         try:
+            import asyncio
             from pathlib import Path
 
             from alembic.config import Config
@@ -75,8 +76,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             alembic_ini = app_base.parent / 'alembic.ini'  # Render layout
             if not alembic_ini.exists():
                 alembic_ini = app_base / 'alembic.ini'  # Docker layout
+
+            # Run migrations in a thread to avoid asyncio.run() nesting:
+            # alembic.command.upgrade calls run_migrations_online() which
+            # internally calls asyncio.run() — this causes a RuntimeWarning
+            # if called from within a running async event loop.
+            # asyncio.to_thread runs the synchronous function in a thread
+            # pool, avoiding the nesting issue entirely.
             alembic_cfg = Config(str(alembic_ini))
-            command.upgrade(alembic_cfg, 'head')
+            await asyncio.to_thread(command.upgrade, alembic_cfg, 'head')
             logger.info('database_migrations_completed')
         except Exception as exc:
             logger.critical('database_migrations_failed', error=str(exc))

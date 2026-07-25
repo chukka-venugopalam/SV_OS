@@ -5,8 +5,6 @@ will be implemented in a future phase.  This stub provides the API contract
 so the frontend can be developed against stable endpoints.
 """
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status

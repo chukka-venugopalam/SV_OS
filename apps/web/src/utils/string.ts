@@ -10,6 +10,7 @@ export function capitalize(text: string): string {
 
 /** Convert a slug to a human-readable title */
 export function slugToTitle(slug: string): string {
+  if (!slug) return '';
   return slug
     .split(/[-_]/)
     .map((word) => capitalize(word))
@@ -18,6 +19,7 @@ export function slugToTitle(slug: string): string {
 
 /** Truncate text to a maximum length with suffix */
 export function truncate(text: string, maxLength: number, suffix = '...'): string {
+  if (!text) return '';
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trimEnd() + suffix;
 }

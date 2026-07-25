@@ -10,8 +10,6 @@ Provides routes for:
 - POST /auth/logout      — Invalidate tokens (no-op for JWT)
 """
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status

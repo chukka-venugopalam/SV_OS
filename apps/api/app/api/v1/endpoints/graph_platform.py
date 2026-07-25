@@ -4,8 +4,6 @@ All endpoints delegate to engines through thin dependency injection.
 No CRUD endpoints — capability-based queries only.
 """
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
 

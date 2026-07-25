@@ -1,0 +1,260 @@
+{
+  "careers": [
+    {
+      "id": "CAR-BACKEND",
+      "title": "Backend Engineer",
+      "recommended_order": [
+        "assembly-language",
+        "processes-and-process-management",
+        "dsa-arrays-strings",
+        "dsa-linked-lists",
+        "dsa-stacks-queues",
+        "algo-complexity",
+        "algo-sorting",
+        "dsa-trees",
+        "dsa-hash-tables",
+        "dsa-graphs",
+        "recursion-and-divide-and-conquer",
+        "algo-dp",
+        "algo-graph-algorithms",
+        "classes-and-objects",
+        "inheritance-and-polymorphism",
+        "relational-model-and-sql",
+        "normalization-and-schema-design",
+        "transactions-and-acid",
+        "indexing-b-tree-hash",
+        "sdlc-and-agile-methodologies",
+        "version-control-git",
+        "backend-development-and-rest-apis",
+        "threads-and-concurrency",
+        "cpu-scheduling",
+        "synchronization-and-deadlocks",
+        "system-design-basics",
+        "scalability-and-load-balancing",
+        "linux-and-shell-scripting",
+        "git-and-version-control-workflows",
+        "interview-dsa-prep",
+        "system-design-interviews"
+      ]
+    },
+    {
+      "id": "CAR-FRONTEND",
+      "title": "Frontend Engineer",
+      "recommended_order": [
+        "html-and-css-fundamentals",
+        "ux-research-and-design-principles",
+        "javascript-and-the-dom",
+        "ui-design-systems",
+        "classes-and-objects",
+        "frontend-frameworks-react",
+        "accessibility-and-usability-testing",
+        "version-control-git",
+        "full-stack-architecture",
+        "interview-dsa-prep",
+        "resume-and-portfolio-building"
+      ]
+    },
+    {
+      "id": "CAR-AI-ENGINEER",
+      "title": "AI Engineer",
+      "recommended_order": [
+        "linear-algebra",
+        "calculus-and-optimization-basics",
+        "algo-complexity",
+        "intro-to-ai-and-search-algorithms",
+        "ml-supervised",
+        "model-evaluation-and-metrics",
+        "dl-neural-networks",
+        "dl-backprop",
+        "transformers-and-attention-mechanisms",
+        "genai-llm-fundamentals",
+        "genai-prompt-engineering",
+        "retrieval-augmented-generation-rag",
+        "ai-agents-and-tool-use",
+        "multi-agent-systems",
+        "interview-dsa-prep",
+        "system-design-interviews"
+      ]
+    },
+    {
+      "id": "CAR-ML-ENGINEER",
+      "title": "ML Engineer",
+      "recommended_order": [
+        "combinatorics-and-probability",
+        "linear-algebra",
+        "calculus-and-optimization-basics",
+        "statistics-for-data-science",
+        "ml-supervised",
+        "model-evaluation-and-metrics",
+        "feature-engineering",
+        "ml-unsupervised",
+        "ensemble-methods",
+        "dl-neural-networks",
+        "dl-backprop",
+        "data-pipelines-and-etl",
+        "gpu-computing-cuda",
+        "big-data-processing",
+        "interview-dsa-prep",
+        "system-design-interviews"
+      ]
+    },
+    {
+      "id": "CAR-SYSTEMS",
+      "title": "Systems / Kernel Engineer",
+      "recommended_order": [
+        "number-systems-and-data-representation",
+        "boolean-algebra",
+        "logic-gates",
+        "combinational-circuits",
+        "sequential-circuits",
+        "registers-and-the-alu",
+        "cpu-architecture-and-instruction-cycle",
+        "assembly-language",
+        "memory-hierarchy-and-caching",
+        "pipelining-and-instruction-level-parallelism",
+        "processes-and-process-management",
+        "threads-and-concurrency",
+        "cpu-scheduling",
+        "synchronization-and-deadlocks",
+        "virtual-memory",
+        "file-systems",
+        "i-o-and-device-management",
+        "linux-and-shell-scripting",
+        "parallel-programming-models",
+        "interview-dsa-prep"
+      ]
+    },
+    {
+      "id": "CAR-COMPILER",
+      "title": "Compiler Engineer",
+      "recommended_order": [
+        "set-theory-and-mathematical-logic",
+        "finite-automata",
+        "regular-languages-and-regular-expressions",
+        "context-free-grammars-and-pushdown-automata",
+        "turing-machines-and-computability",
+        "dsa-trees",
+        "dsa-graphs",
+        "lexical-analysis",
+        "parsing-syntax-analysis",
+        "semantic-analysis-and-type-checking",
+        "intermediate-code-and-optimization",
+        "assembly-language",
+        "code-generation-and-linking"
+      ]
+    },
+    {
+      "id": "CAR-CLOUD-DEVOPS",
+      "title": "Cloud / DevOps Engineer",
+      "recommended_order": [
+        "linux-and-shell-scripting",
+        "git-and-version-control-workflows",
+        "processes-and-process-management",
+        "network-models-osi--tcp-ip",
+        "ip-addressing-and-routing",
+        "cloud-service-models-iaas-paas-saas",
+        "virtualization",
+        "docker-fundamentals",
+        "docker-and-containerization",
+        "kubernetes-fundamentals",
+        "kubernetes-and-orchestration",
+        "distributed-systems-fundamentals",
+        "serverless-computing",
+        "cloud-storage-and-managed-databases",
+        "ci-cd-pipelines",
+        "infrastructure-as-code",
+        "monitoring-and-observability",
+        "scalability-and-load-balancing"
+      ]
+    },
+    {
+      "id": "CAR-SECURITY",
+      "title": "Cybersecurity Engineer",
+      "recommended_order": [
+        "network-models-osi--tcp-ip",
+        "physical-and-data-link-layer",
+        "ip-addressing-and-routing",
+        "processes-and-process-management",
+        "symmetric-cryptography",
+        "asymmetric-cryptography-and-pki",
+        "hashing-and-digital-signatures",
+        "tls-ssl",
+        "tcp-and-congestion-control",
+        "network-security-fundamentals",
+        "security-fundamentals-and-threat-modeling",
+        "network-security",
+        "backend-development-and-rest-apis",
+        "web-application-security-owasp-top-10",
+        "penetration-testing-fundamentals"
+      ]
+    },
+    {
+      "id": "CAR-BLOCKCHAIN",
+      "title": "Blockchain Engineer",
+      "recommended_order": [
+        "symmetric-cryptography",
+        "asymmetric-cryptography-and-pki",
+        "hashing-and-digital-signatures",
+        "classes-and-objects",
+        "distributed-systems-fundamentals",
+        "blockchain-fundamentals",
+        "consensus-algorithms-paxos--raft",
+        "consensus-mechanisms-pow-pos",
+        "smart-contracts"
+      ]
+    },
+    {
+      "id": "CAR-ROBOTICS",
+      "title": "Robotics Engineer",
+      "recommended_order": [
+        "linear-algebra",
+        "calculus-and-optimization-basics",
+        "microcontrollers-and-gpio",
+        "sensor-integration",
+        "real-time-operating-systems-rtos",
+        "ml-supervised",
+        "kinematics-and-control",
+        "sensors-and-perception",
+        "path-planning",
+        "slam-simultaneous-localization-and-mapping"
+      ]
+    },
+    {
+      "id": "CAR-GAMEDEV",
+      "title": "Game Developer",
+      "recommended_order": [
+        "classes-and-objects",
+        "inheritance-and-polymorphism",
+        "linear-algebra",
+        "3d-transformations-and-projections",
+        "rendering-pipeline",
+        "game-loop-and-engine-basics",
+        "physics-and-collision-detection",
+        "algo-graph-algorithms",
+        "game-ai",
+        "tcp-and-congestion-control",
+        "multiplayer-networking"
+      ]
+    },
+    {
+      "id": "CAR-DATA",
+      "title": "Data Engineer / Data Scientist",
+      "recommended_order": [
+        "relational-model-and-sql",
+        "normalization-and-schema-design",
+        "combinatorics-and-probability",
+        "statistics-for-data-science",
+        "data-pipelines-and-etl",
+        "data-warehousing",
+        "data-visualization",
+        "ml-supervised",
+        "model-evaluation-and-metrics",
+        "ml-unsupervised",
+        "distributed-computing-mapreduce-spark",
+        "big-data-processing"
+      ]
+    }
+  ],
+  "total_careers": 12,
+  "note": "Extracted from stage5_2_import_refactored.json — ImportLearningGoal compatible format"
+}

@@ -12,8 +12,6 @@ graph.  It provides:
 - Unit of Work factory
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Annotated, Any
 from uuid import UUID

@@ -8,8 +8,6 @@ Provides:
 - ``GET /api/v1/import/report`` — get the latest import report
 """
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query

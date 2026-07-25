@@ -1,7 +1,5 @@
 """Project API endpoints."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query

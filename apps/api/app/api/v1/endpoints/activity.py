@@ -1,7 +1,5 @@
 """Activity Feed API endpoint — chronological user activity."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, Query

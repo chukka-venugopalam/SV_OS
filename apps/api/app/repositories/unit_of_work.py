@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Self, cast
 from app.repositories.audit_log import AuditLogRepository
 from app.repositories.bookmark import BookmarkRepository
 from app.repositories.career import CareerRepository
+from app.repositories.category import CategoryRepository
 from app.repositories.favorite import FavoriteRepository
 from app.repositories.graph import GraphRepository
 from app.repositories.knowledge_edge import KnowledgeEdgeRepository
@@ -95,6 +96,10 @@ class UnitOfWork:
     @property
     def careers(self) -> CareerRepository:
         return self._get_or_create('careers', CareerRepository)
+
+    @property
+    def categories(self) -> CategoryRepository:
+        return self._get_or_create('categories', CategoryRepository)
 
     @property
     def projects(self) -> ProjectRepository:
