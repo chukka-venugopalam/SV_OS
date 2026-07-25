@@ -170,17 +170,80 @@ Open [http://localhost:3000](http://localhost:3000) for the app and [http://loca
 
 ## 📚 Documentation
 
-| Document                                    | Description                        |
-| ------------------------------------------- | ---------------------------------- |
-| [Architecture](docs/Architecture.md)        | System architecture overview       |
-| [Development](docs/Development.md)          | Development patterns & conventions |
-| [Setup Guide](docs/Setup.md)                | Local development setup            |
-| [Contributing](docs/Contributing.md)        | Contribution guidelines            |
-| [Coding Standards](docs/CodingStandards.md) | Code style & conventions           |
-| [Folder Structure](docs/FolderStructure.md) | Complete directory tree            |
-| [Monorepo Guide](docs/MonorepoGuide.md)     | Turborepo & pnpm usage             |
-| [Database](docs/DATABASE.md)                | Schema design & relationships      |
-| [API](docs/API.md)                          | REST API reference                 |
+### Essential
+
+| Document                              | Description                  |
+| ------------------------------------- | ---------------------------- |
+| [Project Memory](PROJECT_MEMORY.md)   | Permanent AI onboarding file |
+| [Project Handoff](PROJECT_HANDOFF.md) | AI assistant handoff guide   |
+
+### Architecture & Design
+
+| Document                                                  | Description                  |
+| --------------------------------------------------------- | ---------------------------- |
+| [Architecture](docs/Architecture/ARCHITECTURE.md)         | System architecture overview |
+| [Backend Blueprint](docs/Backend/BACKEND_BLUEPRINT.md)    | Backend stack & design       |
+| [Frontend Blueprint](docs/Frontend/FRONTEND_BLUEPRINT.md) | Frontend stack & design      |
+| [Database Blueprint](docs/Database/DATABASE_BLUEPRINT.md) | Database schema design       |
+| [API Blueprint](docs/Architecture/API_BLUEPRINT.md)       | REST API specification       |
+
+### Knowledge Engine
+
+| Document                                                                     | Description                         |
+| ---------------------------------------------------------------------------- | ----------------------------------- |
+| [Master Context](docs/Knowledge/PHASE5_MASTER_CONTEXT.md)                    | Full knowledge engine specification |
+| [Knowledge Graph Design](docs/Knowledge/KNOWLEDGE_GRAPH_DESIGN.md)           | Graph philosophy & schema           |
+| [Stage 5.2 Query Engine](docs/Knowledge/STAGE_5_2_KNOWLEDGE_QUERY_ENGINE.md) | Query & navigation API docs         |
+| [Stage 5.3 Blueprint](docs/Knowledge/STAGE_5_3_BLUEPRINT.md)                 | Content layer design                |
+| [Search Architecture](docs/Knowledge/SEARCH_ARCHITECTURE.md)                 | Search system design                |
+| [Recommendation Engine](docs/Knowledge/RECOMMENDATION_ENGINE.md)             | Recommendation system               |
+
+### Learning System
+
+| Document                                                      | Description                   |
+| ------------------------------------------------------------- | ----------------------------- |
+| [Learning Engine](docs/Learning/LEARNING_ENGINE.md)           | Full learning engine spec     |
+| [Learning Philosophy](docs/Learning/LEARNING_PHILOSOPHY.md)   | Learning design philosophy    |
+| [Cognitive Model](docs/Learning/COGNITIVE_MODEL.md)           | Cognitive science principles  |
+| [Mastery Model](docs/Learning/MASTERY_MODEL.md)               | Mastery scoring & progression |
+| [Journey Design](docs/Learning/JOURNEY_DESIGN.md)             | Learner journey design        |
+| [Project Engine](docs/Learning/PROJECT_ENGINE.md)             | Project-based learning engine |
+| [Simulation Framework](docs/Learning/SIMULATION_FRAMEWORK.md) | Simulation system design      |
+
+### Infrastructure & Operations
+
+| Document                                                      | Description                   |
+| ------------------------------------------------------------- | ----------------------------- |
+| [Database Schema](docs/Database/DATABASE.md)                  | Schema design & relationships |
+| [DB Migration Plan](docs/Database/DATABASE_MIGRATION_PLAN.md) | Render to Neon migration      |
+| [Deployment](docs/Deployment/DEPLOYMENT.md)                   | Production deployment guide   |
+| [Security](docs/Security/SECURITY_GUIDE.md)                   | Security policies & auth      |
+| [Testing Strategy](docs/Testing/TESTING_STRATEGY.md)          | Testing approach & coverage   |
+| [Performance Guide](docs/Reference/PERFORMANCE_GUIDE.md)      | Performance optimization      |
+
+### Reference
+
+| Document                                                         | Description                      |
+| ---------------------------------------------------------------- | -------------------------------- |
+| [Engineering Standards](docs/Reference/ENGINEERING_STANDARDS.md) | Coding standards & conventions   |
+| [Implementation Guide](docs/Reference/IMPLEMENTATION_GUIDE.md)   | Implementation guidelines        |
+| [Tech Decisions](docs/Reference/TECH_DECISIONS.md)               | Technology decisions & rationale |
+| [Product Evolution](docs/Reference/PRODUCT_EVOLUTION.md)         | Product roadmap & evolution      |
+| [Cleanup Report](docs/Reference/DOCUMENTATION_CLEANUP_REPORT.md) | Documentation classification     |
+| [Reorganization Report](docs/Reference/REORGANIZATION_REPORT.md) | Reorganization summary           |
+
+### Guides
+
+| Document                                       | Description             |
+| ---------------------------------------------- | ----------------------- |
+| [Contributing](docs/Guides/Contributing.md)    | Contribution guidelines |
+| [Setup Guide](docs/Guides/SETUP.md)            | Local development setup |
+| [Monorepo Guide](docs/Guides/MonorepoGuide.md) | Turborepo & pnpm usage  |
+| [Runbook](docs/Guides/Runbook.md)              | Operational procedures  |
+
+### Archive
+
+Historical documents preserved in [docs/archive/](docs/archive/) — not needed for daily development.
 
 ---
 
@@ -205,7 +268,7 @@ Open [http://localhost:3000](http://localhost:3000) for the app and [http://loca
 
 ## 🤝 Contributing
 
-See [Contributing Guide](docs/Contributing.md).
+See [Contributing Guide](docs/Guides/Contributing.md).
 
 ## 📄 License
 
