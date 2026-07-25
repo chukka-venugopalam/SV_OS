@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from app.models.career import CareerRequirement
     from app.models.favorite import Favorite
     from app.models.knowledge_edge import KnowledgeEdge
+    from app.models.learning_goal import LearningGoalNode
     from app.models.learning_resource import LearningResource
     from app.models.project import ProjectRequirement
     from app.models.tag import NodeTag
@@ -175,6 +176,11 @@ class KnowledgeNode(AppBaseMixin, Base):
     )
     project_requirements: Mapped[list[ProjectRequirement]] = relationship(
         'ProjectRequirement',
+        back_populates='node',
+        cascade='all, delete-orphan',
+    )
+    goal_requirements: Mapped[list[LearningGoalNode]] = relationship(
+        'LearningGoalNode',
         back_populates='node',
         cascade='all, delete-orphan',
     )

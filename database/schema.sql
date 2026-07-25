@@ -108,7 +108,45 @@ COMMENT ON COLUMN users.version IS 'Optimistic-locking version counter';
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
 
--- 2. Knowledge Nodes
+-- ============================================================================
+-- ENUMERATIONS (Phase 5 audit additions)
+-- ============================================================================
+
+CREATE TYPE content_status AS ENUM (
+    'stub',
+    'draft',
+    'in_review',
+    'verified',
+    'published',
+    'archived'
+);
+
+CREATE TYPE goal_type_enum AS ENUM (
+    'exam',
+    'certification',
+    'interview_prep',
+    'custom'
+);
+
+-- ============================================================================
+-- DOMAIN TAXONOMY
+-- ============================================================================
+-- Canonical domain taxonomy with hierarchy and alias support.
+-- Built from the 40-domain resolved taxonomy in the Phase 5 audit.
+CREATE TABLE domains (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    slug VARCHAR(200) UNIQUE NOT NULL,
+    display_name VARCHAR(300) NOT NULL,
+    aliases TEXT[] NOT NULL DEFAULT '{}',
+    parent_id UUID REFERENCES domains(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_domains_slug ON domains(slug);
+CREATE INDEX idx_domains_parent ON domains(parent_id);
+
+-- 2. Knowledge Nodes (Phase 5 audit additions: content_status + reviewed_by)
 CREATE TABLE knowledge_nodes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug VARCHAR(200) UNIQUE NOT NULL,
@@ -124,6 +162,12 @@ CREATE TABLE knowledge_nodes (
     search_vector TSVECTOR,
     view_count INTEGER NOT NULL DEFAULT 0,
     is_published BOOLEAN NOT NULL DEFAULT true,
+    -- Phase 5 audit: content authoring state (Task 6)
+    content_status content_status NOT NULL DEFAULT 'stub',
+    reviewed_at TIMESTAMPTZ,
+    reviewed_by UUID REFERENCES users(id),
+    quality_score NUMERIC(3,2) CHECK (quality_score BETWEEN 0 AND 1),
+    missing_sections TEXT[] DEFAULT '{}',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -176,7 +220,34 @@ CREATE TABLE careers (
 CREATE INDEX idx_careers_slug ON careers(slug);
 CREATE INDEX idx_careers_demand ON careers(demand_level);
 
--- 5. Projects
+-- 5. Learning Goals (separate from careers — Phase 5 audit Task 5)
+CREATE TABLE learning_goals (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    slug VARCHAR(200) UNIQUE NOT NULL,
+    title VARCHAR(300) NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    goal_type goal_type_enum NOT NULL DEFAULT 'custom',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_learning_goals_slug ON learning_goals(slug);
+
+-- 6. Learning Goal Nodes (Many-to-Many: Learning Goal → Knowledge Nodes)
+CREATE TABLE learning_goal_nodes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    goal_id UUID NOT NULL REFERENCES learning_goals(id) ON DELETE CASCADE,
+    node_id UUID NOT NULL REFERENCES knowledge_nodes(id) ON DELETE CASCADE,
+    requirement_type VARCHAR(50) NOT NULL DEFAULT 'required' CHECK (requirement_type IN ('required', 'recommended', 'bonus')),
+    sequence_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT goal_node_unique UNIQUE (goal_id, node_id)
+);
+
+CREATE INDEX idx_goal_nodes_goal ON learning_goal_nodes(goal_id);
+CREATE INDEX idx_goal_nodes_node ON learning_goal_nodes(node_id);
+
+-- 7. Projects
 CREATE TABLE projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug VARCHAR(200) UNIQUE NOT NULL,
@@ -391,6 +462,16 @@ CREATE TRIGGER trigger_progress_updated_at
 -- ============================================================================
 -- VIEWS
 -- ============================================================================
+
+-- Computed unlocks: every prerequisite edge means the source unlocks the target
+CREATE VIEW knowledge_node_unlocks AS
+SELECT source_node_id AS node_id, target_node_id AS unlocks_node_id
+FROM knowledge_edges
+WHERE relationship_type = 'prerequisite';
+
+COMMENT ON VIEW knowledge_node_unlocks IS
+    'Computed view: what each node unlocks based on prerequisite edges. '
+    'DO NOT write to unlocks directly — it is always derived from knowledge_edges.';
 
 -- Node with prerequisite count
 CREATE VIEW v_node_statistics AS

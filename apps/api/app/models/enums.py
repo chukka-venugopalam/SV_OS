@@ -259,6 +259,15 @@ class RequirementType(enum.StrEnum):
     BONUS = 'bonus'
 
 
+class GoalType(enum.StrEnum):
+    """Category of a learning goal."""
+
+    EXAM = 'exam'
+    CERTIFICATION = 'certification'
+    INTERVIEW_PREP = 'interview_prep'
+    CUSTOM = 'custom'
+
+
 class SkillRelationshipType(enum.StrEnum):
     """Semantic relationship between two skills."""
 

@@ -33,6 +33,7 @@ from app.models.enums import (
 from app.models.favorite import Favorite
 from app.models.knowledge_edge import KnowledgeEdge
 from app.models.knowledge_node import KnowledgeNode
+from app.models.learning_goal import LearningGoal, LearningGoalNode
 from app.models.learning_path import LearningPath, LearningSession
 from app.models.learning_resource import LearningResource
 from app.models.password_reset import PasswordResetToken
@@ -61,8 +62,11 @@ __all__ = [
     'EdgeDirection',
     'EdgeType',
     'Favorite',
+    'GoalType',
     'KnowledgeEdge',
     'KnowledgeNode',
+    'LearningGoal',
+    'LearningGoalNode',
     'LearningPath',
     'LearningResource',
     'LearningSession',

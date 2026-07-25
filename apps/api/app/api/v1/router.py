@@ -25,6 +25,7 @@ from app.api.v1.endpoints import (
     graph,
     graph_intelligence,
     graph_platform,
+    knowledge,
     learning_paths,
     learning_paths_platform,
     nodes,
@@ -198,6 +199,7 @@ router.include_router(exports_platform.router)
 router.include_router(recommendations_platform.router)
 router.include_router(learning_paths_platform.router)
 router.include_router(careers_platform.router)
+router.include_router(knowledge.router, prefix='/knowledge', tags=['knowledge'])
 router.include_router(assessments_platform.router)
 router.include_router(auth.router)
 router.include_router(activity.router, prefix='/activity', tags=['activity'])

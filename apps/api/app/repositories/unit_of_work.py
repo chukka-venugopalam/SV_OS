@@ -34,6 +34,7 @@ from app.repositories.favorite import FavoriteRepository
 from app.repositories.graph import GraphRepository
 from app.repositories.knowledge_edge import KnowledgeEdgeRepository
 from app.repositories.knowledge_node import KnowledgeNodeRepository
+from app.repositories.learning_goal import LearningGoalRepository
 from app.repositories.learning_path import LearningPathRepository, LearningSessionRepository
 from app.repositories.learning_resource import LearningResourceRepository
 from app.repositories.password_reset import PasswordResetRepository
@@ -110,6 +111,10 @@ class UnitOfWork:
     @property
     def learning_sessions(self) -> LearningSessionRepository:
         return self._get_or_create('learning_sessions', LearningSessionRepository)
+
+    @property
+    def learning_goals(self) -> LearningGoalRepository:
+        return self._get_or_create('learning_goals', LearningGoalRepository)
 
     @property
     def learning_resources(self) -> LearningResourceRepository:

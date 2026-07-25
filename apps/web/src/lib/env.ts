@@ -22,8 +22,10 @@ interface EnvConfig {
 // ── Env Proxy ─────────────────────────────────────────────────────
 
 function createEnv(): EnvConfig {
-  const env =
-    typeof process !== 'undefined' ? process.env : ({} as Record<string, string | undefined>);
+  const env: Record<string, string | undefined> =
+    typeof process !== 'undefined' && process.env
+      ? process.env
+      : ({} as Record<string, string | undefined>);
 
   const vars: Record<
     keyof EnvConfig,
@@ -35,11 +37,13 @@ function createEnv(): EnvConfig {
     },
     NEXT_PUBLIC_SUPABASE_URL: {
       value: env.NEXT_PUBLIC_SUPABASE_URL,
-      required: true,
+      required: false,
+      fallback: 'https://placeholder.supabase.co',
     },
     NEXT_PUBLIC_SUPABASE_ANON_KEY: {
       value: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      required: true,
+      required: false,
+      fallback: 'placeholder',
     },
     NEXT_PUBLIC_APP_URL: {
       value: env.NEXT_PUBLIC_APP_URL,

@@ -58,7 +58,8 @@ REQUIRED_INPUT_FIELDS = {
     'summary',
     'domain',
     'difficulty',
-    'estimated_time',
+    'estimated_hours',
+    'estimated_minutes',
     'prerequisites',
     'skills',
     'projects',
@@ -214,6 +215,7 @@ class KnowledgeImportService:
         Ported from ``import_engine.validate_schema``.
         """
         seen_ids: set[str] = set()
+        had_errors = False
 
         for i, n in enumerate(nodes):
             n_dict = n.model_dump()
@@ -222,11 +224,13 @@ class KnowledgeImportService:
                 self._report.errors.append(
                     f'Node at index {i} (id={n.id or "?"}) missing fields: {missing}',
                 )
+                had_errors = True
                 continue
 
             # Duplicate ID detection
             if n.id in seen_ids:
                 self._report.errors.append(f"Duplicate node id: '{n.id}'")
+                had_errors = True
             seen_ids.add(n.id)
 
             # Type checks
@@ -234,10 +238,15 @@ class KnowledgeImportService:
                 self._report.errors.append(
                     f"Node '{n.id}': difficulty must be an int 1-5, got {n.difficulty!r}",
                 )
-            if not isinstance(n.estimated_time, (int, float)) or n.estimated_time <= 0:
+                had_errors = True
+            if not isinstance(n.estimated_hours, (int, float)) and not isinstance(
+                n.estimated_minutes, int
+            ):
                 self._report.errors.append(
-                    f"Node '{n.id}': estimated_time must be a positive number",
+                    f"Node '{n.id}': estimated_hours or estimated_minutes "
+                    f'must be provided as a positive number',
                 )
+                had_errors = True
             for list_field in (
                 'prerequisites',
                 'skills',
@@ -252,6 +261,10 @@ class KnowledgeImportService:
                     self._report.errors.append(
                         f"Node '{n.id}': '{list_field}' must be a list",
                     )
+                    had_errors = True
+
+        if had_errors:
+            self._report.success = False
 
         self._report.total_nodes = len(seen_ids)
 
@@ -270,6 +283,7 @@ class KnowledgeImportService:
         node_ids = {n.id for n in nodes}
         project_ids = {p.id for p in projects}
         goal_ids = {g.id for g in goals}
+        had_errors = False
 
         for n in nodes:
             for prereq in n.prerequisites:
@@ -277,11 +291,13 @@ class KnowledgeImportService:
                     self._report.errors.append(
                         f"Node '{n.id}' has unresolved prerequisite '{prereq}'",
                     )
+                    had_errors = True
             for proj in n.projects:
                 if proj not in project_ids:
                     self._report.errors.append(
                         f"Node '{n.id}' references unknown project '{proj}'",
                     )
+                    had_errors = True
 
         for p in projects:
             for nid in p.linked_nodes:
@@ -289,6 +305,7 @@ class KnowledgeImportService:
                     self._report.errors.append(
                         f"Project '{p.id}' links to unknown node '{nid}'",
                     )
+                    had_errors = True
 
         for g in goals:
             for nid in g.recommended_order:
@@ -296,6 +313,7 @@ class KnowledgeImportService:
                     self._report.errors.append(
                         f"Learning goal '{g.id}' references unknown node '{nid}'",
                     )
+                    had_errors = True
 
         # Cross-field consistency: if a node claims a career/goal tag,
         # does that goal exist at the top level?
@@ -306,6 +324,9 @@ class KnowledgeImportService:
                         f"Node '{n.id}' tags career/goal '{c}' which has no matching "
                         f"entry in top-level 'learning_goals' — likely a typo",
                     )
+
+        if had_errors:
+            self._report.success = False
 
     # ── Step 3: Domain Breakdown ─────────────────────────────────────
 
@@ -365,6 +386,7 @@ class KnowledgeImportService:
             self._report.errors.append(
                 f'Cycle detected in prerequisite graph — involves nodes: {cyclic_nodes}',
             )
+            self._report.success = False
             return None
 
         # Compute root and leaf nodes
@@ -436,9 +458,7 @@ class KnowledgeImportService:
 
         for _, n in nodes.items():
             difficulty_str = DIFFICULTY_MAP.get(n.difficulty, 'beginner')
-            estimated_minutes = (
-                int(n.estimated_time * 60) if n.estimated_time < 100 else int(n.estimated_time)
-            )
+            estimated_minutes = n.estimated_minutes or 30
 
             metadata = {
                 'domain': n.domain,
@@ -561,7 +581,7 @@ class KnowledgeImportService:
         for p in projects:
             difficulty_str = DIFFICULTY_MAP.get(p.difficulty, 'intermediate')
             estimated_hours = (
-                int(p.estimated_time) if p.estimated_time <= 100 else int(p.estimated_time / 60)
+                p.estimated_hours or p.estimated_minutes // 60 if p.estimated_minutes else 10
             )
 
             existing = await uow.projects.find_by_slug(p.id)
@@ -624,43 +644,34 @@ class KnowledgeImportService:
         uow: UnitOfWork,
         goals: list[ImportLearningGoal],
     ) -> int:
-        """Upsert learning goals and their node requirement links.
+        """Upsert learning goals into the ``learning_goals`` table.
 
-        Checks for existing requirements before inserting to avoid
-        IntegrityError (which would rollback the entire transaction).
+        Learning goals are stored separate from careers (Task 5 of Phase 5
+        audit remediation).  Each goal links to its recommended nodes via
+        the ``learning_goal_nodes`` join table.
         """
         created_count = 0
 
         for g in goals:
-            existing = await uow.careers.find_by_slug(g.id)
+            # Upsert learning goal into its own table (not careers)
+            existing = await uow.learning_goals.find_by_slug(g.id)
             if existing:
-                await uow.careers.update(
+                await uow.learning_goals.update(
                     existing.id,
                     title=g.title,
                     description=g.title,
-                    extra_metadata={
-                        'recommended_order': g.recommended_order,
-                        'import_version': '5.1',
-                        'is_learning_goal': True,
-                    },
-                    is_published=True,
                 )
-                career_id = existing.id
+                goal_id = existing.id
             else:
-                created = await uow.careers.create(
+                created = await uow.learning_goals.create(
                     slug=g.id,
                     title=g.title,
                     description=g.title,
-                    extra_metadata={
-                        'recommended_order': g.recommended_order,
-                        'import_version': '5.1',
-                        'is_learning_goal': True,
-                    },
-                    is_published=True,
+                    goal_type='custom',
                 )
-                career_id = created.id
+                goal_id = created.id
 
-            # Upsert career requirement links (check first to avoid IntegrityError)
+            # Link recommended nodes (upsert via learning_goal_nodes)
             for order, nid in enumerate(g.recommended_order):
                 node_id = await self._resolve_node_id(uow, nid)
                 if node_id is None:
@@ -669,17 +680,14 @@ class KnowledgeImportService:
                     )
                     continue
 
-                # Check if requirement already exists before inserting
-                existing_reqs = await uow.careers.get_requirements(career_id)
-                already_linked = any(
-                    r.node_id == node_id and r.requirement_type == 'required' for r in existing_reqs
-                )
+                existing_links = await uow.learning_goals.get_nodes(goal_id)
+                already_linked = any(link.node_id == node_id for link in existing_links)
                 if not already_linked:
-                    await uow.careers.add_requirement(
-                        career_id=career_id,
+                    await uow.learning_goals.add_node(
+                        goal_id=goal_id,
                         node_id=node_id,
                         requirement_type='required',
-                        order_index=order,
+                        sequence_order=order,
                     )
 
             created_count += 1

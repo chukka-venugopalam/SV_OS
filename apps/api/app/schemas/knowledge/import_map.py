@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class ImportNode(BaseModel):
@@ -33,11 +33,34 @@ class ImportNode(BaseModel):
     summary: str = Field(description='Short description / abstract')
     domain: str = Field(description='Domain or category name (e.g. "Programming Fundamentals")')
     difficulty: int = Field(ge=1, le=5, description='Difficulty level 1-5')
-    estimated_time: int | float = Field(gt=0, description='Estimated learning time (hours)')
+    estimated_hours: float | None = Field(
+        default=None,
+        gt=0,
+        description='Estimated learning time in hours',
+    )
+    estimated_minutes: int | None = Field(
+        default=None,
+        gt=0,
+        description='Estimated learning time in minutes',
+    )
     prerequisites: list[str] = Field(
         default_factory=list,
         description='IDs of prerequisite nodes',
     )
+
+    @model_validator(mode='after')
+    def resolve_estimated_minutes(self) -> ImportNode:
+        if self.estimated_hours is None and self.estimated_minutes is None:
+            raise ValueError(f"Node '{self.id}': must provide estimated_hours or estimated_minutes")
+        if self.estimated_hours is not None and self.estimated_minutes is not None:
+            raise ValueError(
+                f"Node '{self.id}': provide exactly one of estimated_hours or "
+                f'estimated_minutes, not both'
+            )
+        if self.estimated_hours is not None:
+            self.estimated_minutes = round(self.estimated_hours * 60)
+        return self
+
     skills: list[str] = Field(
         default_factory=list,
         description='Skills taught by this node',
@@ -70,7 +93,16 @@ class ImportProject(BaseModel):
     id: str = Field(description='Unique project identifier (e.g. "p1")')
     title: str = Field(description='Human-readable project title')
     difficulty: int = Field(ge=1, le=5, description='Difficulty level 1-5')
-    estimated_time: int | float = Field(gt=0, description='Estimated completion time (hours)')
+    estimated_hours: float | None = Field(
+        default=None,
+        gt=0,
+        description='Estimated completion time in hours',
+    )
+    estimated_minutes: int | None = Field(
+        default=None,
+        gt=0,
+        description='Estimated completion time in minutes',
+    )
     linked_nodes: list[str] = Field(
         default_factory=list,
         description='Node IDs that this project reinforces',
@@ -83,6 +115,21 @@ class ImportProject(BaseModel):
         default='medium',
         description='Portfolio value (low/medium/high)',
     )
+
+    @model_validator(mode='after')
+    def resolve_estimated_minutes(self) -> ImportProject:
+        if self.estimated_hours is None and self.estimated_minutes is None:
+            raise ValueError(
+                f"Project '{self.id}': must provide estimated_hours or estimated_minutes"
+            )
+        if self.estimated_hours is not None and self.estimated_minutes is not None:
+            raise ValueError(
+                f"Project '{self.id}': provide exactly one of estimated_hours or "
+                f'estimated_minutes, not both'
+            )
+        if self.estimated_hours is not None:
+            self.estimated_minutes = round(self.estimated_hours * 60)
+        return self
 
 
 class ImportLearningGoal(BaseModel):

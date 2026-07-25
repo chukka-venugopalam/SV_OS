@@ -174,7 +174,7 @@ export function getErrorInfo(err: unknown): NetworkErrorInfo {
 
 function categoriseNetworkError(error: unknown): NetworkErrorInfo {
   if (error instanceof TypeError) {
-    const msg = error.message.toLowerCase();
+    const msg = (error.message ?? '').toLowerCase();
     if (
       msg.includes('failed to fetch') ||
       msg.includes('networkerror') ||
