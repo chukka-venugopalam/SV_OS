@@ -22,6 +22,7 @@ COPY apps/api/app/ app/
 COPY apps/api/alembic/ alembic/
 COPY apps/api/alembic.ini .
 COPY database/ database/
+COPY knowledge/ knowledge/
 COPY apps/api/.env.example .env.example
 
 EXPOSE 8000
