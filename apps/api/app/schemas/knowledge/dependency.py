@@ -7,14 +7,11 @@ paths.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-if TYPE_CHECKING:
-    from uuid import UUID
-
-    from app.models.enums import Difficulty, EdgeType, NodeType
+from app.models.enums import Difficulty, EdgeType, NodeType
 
 
 class DependencyNode(BaseModel):

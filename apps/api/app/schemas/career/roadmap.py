@@ -7,15 +7,12 @@ against each requirement.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 from app.models.enums import Difficulty, NodeType, ProgressStatus, RequirementType
-
-if TYPE_CHECKING:
-    from datetime import datetime
-    from uuid import UUID
 
 
 class RoadmapStep(BaseModel):

@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.enums import Difficulty, ResourceType
-
-if TYPE_CHECKING:
-    from uuid import UUID
 
 
 class LearningResourceSummary(BaseModel):

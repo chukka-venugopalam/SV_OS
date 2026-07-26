@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel, Field
 
-if TYPE_CHECKING:
-    from app.models.enums import DemandLevel
+from app.models.enums import DemandLevel
 
 
 class RelatedCareer(BaseModel):

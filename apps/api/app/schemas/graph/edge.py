@@ -6,14 +6,11 @@ carrying the relationship type, direction, and weight.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 from app.models.enums import EdgeDirection, EdgeType
-
-if TYPE_CHECKING:
-    from uuid import UUID
 
 
 class GraphEdge(BaseModel):

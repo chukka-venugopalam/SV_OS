@@ -6,15 +6,12 @@ login, signup, token refresh, and password management.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-if TYPE_CHECKING:
-    from datetime import datetime
-    from uuid import UUID
-
-    from app.models.enums import UserRole
+from app.models.enums import UserRole
 
 
 class LoginRequest(BaseModel):
