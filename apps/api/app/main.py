@@ -470,8 +470,13 @@ def create_app() -> FastAPI:
         import traceback
         from pathlib import Path
 
-        root_dir = Path(__file__).resolve().parent.parent
-        if str(root_dir) not in sys.path:
+        curr = Path(__file__).resolve()
+        root_dir = None
+        for p in [curr] + list(curr.parents):
+            if (p / 'database' / 'seed_phase0.py').exists():
+                root_dir = p
+                break
+        if root_dir and str(root_dir) not in sys.path:
             sys.path.insert(0, str(root_dir))
 
         try:
