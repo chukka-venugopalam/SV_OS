@@ -117,7 +117,7 @@ async def _main():
 
             if not report.success:
                 print('\n❌ IMPORT FAILED — see errors above')
-                sys.exit(1)
+                raise RuntimeError(f'Node import failed with {len(report.errors)} errors: {report.errors}')
 
     # ── Step 4: Link careers to their recommended nodes ────────────
     print('[4/4] Linking careers to recommended nodes via career_requirements')

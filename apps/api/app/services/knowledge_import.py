@@ -286,18 +286,21 @@ class KnowledgeImportService:
         had_errors = False
 
         for n in nodes:
+            valid_prereqs: list[str] = []
             for prereq in n.prerequisites:
                 if prereq not in node_ids:
-                    self._report.errors.append(
-                        f"Node '{n.id}' has unresolved prerequisite '{prereq}'",
+                    self._report.warnings.append(
+                        f"Node '{n.id}' has unresolved prerequisite '{prereq}' — ignoring stale reference",
                     )
-                    had_errors = True
+                else:
+                    valid_prereqs.append(prereq)
+            n.prerequisites = valid_prereqs
+
             for proj in n.projects:
                 if proj not in project_ids:
-                    self._report.errors.append(
+                    self._report.warnings.append(
                         f"Node '{n.id}' references unknown project '{proj}'",
                     )
-                    had_errors = True
 
         for p in projects:
             for nid in p.linked_nodes:
