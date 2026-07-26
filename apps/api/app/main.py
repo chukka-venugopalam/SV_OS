@@ -466,23 +466,38 @@ def create_app() -> FastAPI:
     @app.api_route('/debug/seed-database', methods=['GET', 'POST'], tags=['debug'], include_in_schema=False)
     async def debug_seed_database() -> dict:
         """Run Phase 0 database seed script on active production database."""
+        import importlib.util
         import sys
         import traceback
         from pathlib import Path
 
         curr = Path(__file__).resolve()
-        root_dir = None
+        seed_file = None
         for p in [curr] + list(curr.parents):
-            if (p / 'database' / 'seed_phase0.py').exists():
-                root_dir = p
+            candidate = p / 'database' / 'seed_phase0.py'
+            if candidate.exists():
+                seed_file = candidate
                 break
-        if root_dir and str(root_dir) not in sys.path:
+
+        if not seed_file:
+            return {
+                'success': False,
+                'message': 'Could not locate database/seed_phase0.py',
+                'timestamp': datetime.now(UTC).isoformat(),
+            }
+
+        root_dir = seed_file.parent.parent
+        if str(root_dir) not in sys.path:
             sys.path.insert(0, str(root_dir))
 
         try:
-            from database.seed_phase0 import _main as seed_main
+            spec = importlib.util.spec_from_file_location('seed_phase0', str(seed_file))
+            if not spec or not spec.loader:
+                raise ImportError(f'Could not load spec for {seed_file}')
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
-            await seed_main()
+            await module._main()
             return {
                 'success': True,
                 'message': 'Database seeded successfully (categories, careers, 181 nodes, requirements, projects)',
