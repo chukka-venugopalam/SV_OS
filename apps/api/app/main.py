@@ -429,7 +429,9 @@ def create_app() -> FastAPI:
             await run_check(
                 '13. pg_policies for content tables',
                 text(
-                    "SELECT tablename, policyname, roles, cmd FROM pg_policies WHERE tablename IN ('knowledge_nodes', 'careers', 'projects', 'categories')"
+                    'SELECT tablename, policyname, roles, cmd '
+                    'FROM pg_policies '
+                    "WHERE tablename IN ('knowledge_nodes', 'careers', 'projects', 'categories')"
                 ),
             )
         )
@@ -463,7 +465,12 @@ def create_app() -> FastAPI:
             'request_id': str(uuid4()),
         }
 
-    @app.api_route('/debug/seed-database', methods=['GET', 'POST'], tags=['debug'], include_in_schema=False)
+    @app.api_route(
+        '/debug/seed-database',
+        methods=['GET', 'POST'],
+        tags=['debug'],
+        include_in_schema=False,
+    )
     async def debug_seed_database() -> dict:
         """Run Phase 0 database seed script on active production database."""
         import importlib.util
@@ -473,7 +480,7 @@ def create_app() -> FastAPI:
 
         curr = Path(__file__).resolve()
         seed_file = None
-        for p in [curr] + list(curr.parents):
+        for p in [curr, *list(curr.parents)]:
             candidate = p / 'database' / 'seed_phase0.py'
             if candidate.exists():
                 seed_file = candidate
@@ -500,7 +507,10 @@ def create_app() -> FastAPI:
             await module._main()
             return {
                 'success': True,
-                'message': 'Database seeded successfully (categories, careers, 181 nodes, requirements, projects)',
+                'message': (
+                    'Database seeded successfully '
+                    '(categories, careers, 181 nodes, requirements, projects)'
+                ),
                 'timestamp': datetime.now(UTC).isoformat(),
             }
         except Exception as e:

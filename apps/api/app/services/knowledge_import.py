@@ -30,8 +30,11 @@ import sys
 from collections import defaultdict, deque
 from typing import TYPE_CHECKING, Any
 
+from sqlalchemy import select
 from structlog.stdlib import get_logger
 
+from app.models.knowledge_edge import KnowledgeEdge
+from app.models.knowledge_node import KnowledgeNode
 from app.schemas.knowledge.import_map import (
     ImportLearningGoal,
     ImportMap,
@@ -290,7 +293,8 @@ class KnowledgeImportService:
             for prereq in n.prerequisites:
                 if prereq not in node_ids:
                     self._report.warnings.append(
-                        f"Node '{n.id}' has unresolved prerequisite '{prereq}' — ignoring stale reference",
+                        f"Node '{n.id}' has unresolved prerequisite '{prereq}' "
+                        '— ignoring stale reference',
                     )
                 else:
                     valid_prereqs.append(prereq)
@@ -460,10 +464,6 @@ class KnowledgeImportService:
         slug_to_id: dict[str, UUID] = {}
 
         # Batch load existing nodes including any soft-deleted records
-        from sqlalchemy import select
-        from app.models.knowledge_node import KnowledgeNode
-        from app.models.knowledge_edge import KnowledgeEdge
-
         res_nodes = await uow.session.execute(select(KnowledgeNode))
         all_existing_nodes = list(res_nodes.scalars().all())
         existing_by_slug = {n.slug: n for n in all_existing_nodes}
@@ -508,17 +508,19 @@ class KnowledgeImportService:
                     ),
                 )
             else:
-                nodes_to_create.append({
-                    'slug': n.id,
-                    'title': n.title,
-                    'description': n.summary,
-                    'content': None,
-                    'node_type': 'concept',
-                    'difficulty': difficulty_str,
-                    'estimated_minutes': estimated_minutes,
-                    'extra_metadata': metadata,
-                    'is_published': True,
-                })
+                nodes_to_create.append(
+                    {
+                        'slug': n.id,
+                        'title': n.title,
+                        'description': n.summary,
+                        'content': None,
+                        'node_type': 'concept',
+                        'difficulty': difficulty_str,
+                        'estimated_minutes': estimated_minutes,
+                        'extra_metadata': metadata,
+                        'is_published': True,
+                    }
+                )
                 create_slug_order.append(n.id)
 
         if nodes_to_create:
@@ -558,20 +560,22 @@ class KnowledgeImportService:
                     continue
 
                 if (source_id, target_id) not in existing_edge_keys:
-                    edges_to_create.append({
-                        'source_node_id': source_id,
-                        'target_node_id': target_id,
-                        'relationship_type': 'prerequisite',
-                        'direction': 'forward',
-                        'description': f'{current_nid} requires {prereq_id}',
-                        'weight': 1.0,
-                    })
+                    edges_to_create.append(
+                        {
+                            'source_node_id': source_id,
+                            'target_node_id': target_id,
+                            'relationship_type': 'prerequisite',
+                            'direction': 'forward',
+                            'description': f'{current_nid} requires {prereq_id}',
+                            'weight': 1.0,
+                        }
+                    )
 
         if edges_to_create:
             await uow.knowledge_edges.create_many(edges_to_create)
             edges_created = len(edges_to_create)
 
-        for current_nid, current_node in nodes.items():
+        for current_nid in nodes:
             for r in results:
                 if r.id == current_nid:
                     dependent_nodes = [
