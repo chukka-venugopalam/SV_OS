@@ -459,6 +459,13 @@ class KnowledgeImportService:
         # First pass: upsert all nodes, collect slug→ID mappings
         slug_to_id: dict[str, UUID] = {}
 
+        # Batch load existing nodes
+        all_existing_nodes = await uow.knowledge_nodes.get_all(limit=2000)
+        existing_by_slug = {n.slug: n for n in all_existing_nodes}
+
+        nodes_to_create: list[dict[str, Any]] = []
+        create_slug_order: list[str] = []
+
         for _, n in nodes.items():
             difficulty_str = DIFFICULTY_MAP.get(n.difficulty, 'beginner')
             estimated_minutes = n.estimated_minutes or 30
@@ -471,10 +478,8 @@ class KnowledgeImportService:
                 'import_version': '5.1',
             }
 
-            # Check if node already exists by slug
-            existing = await uow.knowledge_nodes.find_by_slug(n.id)
+            existing = existing_by_slug.get(n.id)
             if existing:
-                # Update
                 updated = await uow.knowledge_nodes.update(
                     existing.id,
                     title=n.title,
@@ -492,24 +497,29 @@ class KnowledgeImportService:
                         domain=n.domain,
                         difficulty=n.difficulty,
                         prerequisites=list(n.prerequisites),
-                        unlocks=[],  # Will be filled below
+                        unlocks=[],
                         action='updated',
                     ),
                 )
             else:
-                # Create
-                created = await uow.knowledge_nodes.create(
-                    slug=n.id,
-                    title=n.title,
-                    description=n.summary,
-                    content=None,
-                    node_type='concept',
-                    difficulty=difficulty_str,
-                    estimated_minutes=estimated_minutes,
-                    extra_metadata=metadata,
-                    is_published=True,
-                )
-                slug_to_id[n.id] = created.id
+                nodes_to_create.append({
+                    'slug': n.id,
+                    'title': n.title,
+                    'description': n.summary,
+                    'content': None,
+                    'node_type': 'concept',
+                    'difficulty': difficulty_str,
+                    'estimated_minutes': estimated_minutes,
+                    'extra_metadata': metadata,
+                    'is_published': True,
+                })
+                create_slug_order.append(n.id)
+
+        if nodes_to_create:
+            created_instances = await uow.knowledge_nodes.create_many(nodes_to_create)
+            for created in created_instances:
+                slug_to_id[created.slug] = created.id
+                n = nodes[created.slug]
                 results.append(
                     ImportNodeResult(
                         id=n.id,
@@ -522,7 +532,11 @@ class KnowledgeImportService:
                     ),
                 )
 
-        # Second pass: create prerequisite edges
+        # Batch load existing edges
+        all_existing_edges = await uow.knowledge_edges.get_all(limit=10000)
+        existing_edge_keys = {(e.source_node_id, e.target_node_id) for e in all_existing_edges}
+
+        edges_to_create: list[dict[str, Any]] = []
         for current_nid, current_node in nodes.items():
             target_id = slug_to_id.get(current_nid)
             if not target_id:
@@ -536,29 +550,23 @@ class KnowledgeImportService:
                     )
                     continue
 
-                # Check if edge already exists (safe upsert — no IntegrityError)
-                edge_exists = await uow.knowledge_edges.exists_edge(
-                    source_node_id=source_id,
-                    target_node_id=target_id,
-                    relationship_type='prerequisite',
-                )
-                if not edge_exists:
-                    await uow.knowledge_edges.create(
-                        source_node_id=source_id,
-                        target_node_id=target_id,
-                        relationship_type='prerequisite',
-                        direction='forward',
-                        description=f'{current_nid} requires {prereq_id}',
-                        weight=1.0,
-                    )
-                    edges_created += 1
+                if (source_id, target_id) not in existing_edge_keys:
+                    edges_to_create.append({
+                        'source_node_id': source_id,
+                        'target_node_id': target_id,
+                        'relationship_type': 'prerequisite',
+                        'direction': 'forward',
+                        'description': f'{current_nid} requires {prereq_id}',
+                        'weight': 1.0,
+                    })
 
-            # Update result with computed unlocks
-            # Unlocks for this node = nodes that list this node as a prerequisite
+        if edges_to_create:
+            await uow.knowledge_edges.create_many(edges_to_create)
+            edges_created = len(edges_to_create)
+
+        for current_nid, current_node in nodes.items():
             for r in results:
                 if r.id == current_nid:
-                    # Compute what this node unlocks by finding nodes that
-                    # have this node as a prerequisite
                     dependent_nodes = [
                         other_id
                         for other_id, other_n in nodes.items()
