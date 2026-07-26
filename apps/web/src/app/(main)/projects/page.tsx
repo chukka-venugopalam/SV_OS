@@ -45,6 +45,7 @@ const ProjectCard = memo(function ProjectCard({
     estimated_time: string;
     github_url: string | null;
     demo_url: string | null;
+    domains_crossed?: string[];
   };
 }) {
   return (
@@ -65,6 +66,33 @@ const ProjectCard = memo(function ProjectCard({
           <p className="mb-3 line-clamp-2 flex-1 text-xs text-neutral-500 dark:text-neutral-400">
             {project.description}
           </p>
+
+          {/* Draws on Domains Tag Callout */}
+          {project.domains_crossed && project.domains_crossed.length > 0 && (
+            <div className="mb-3 rounded-lg bg-blue-50/70 p-2.5 dark:bg-blue-950/30">
+              <p className="text-[11px] font-semibold text-blue-700 dark:text-blue-300">
+                Draws on domains:
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {project.domains_crossed.slice(0, 3).map((d) => (
+                  <Badge
+                    key={d}
+                    variant="secondary"
+                    size="sm"
+                    className="bg-white/80 text-[10px] dark:bg-neutral-800"
+                  >
+                    {d}
+                  </Badge>
+                ))}
+                {project.domains_crossed.length > 3 && (
+                  <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400">
+                    +{project.domains_crossed.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="mb-3 flex flex-wrap gap-1.5">
             {project.tech_stack.slice(0, 4).map((tech) => (
               <Badge key={tech} variant="outline" size="sm">

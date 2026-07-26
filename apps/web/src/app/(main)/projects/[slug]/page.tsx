@@ -116,6 +116,31 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
+      {/* Draws on Domains Callout */}
+      {(project as unknown as { domains_crossed?: string[] }).domains_crossed &&
+        ((project as unknown as { domains_crossed?: string[] }).domains_crossed?.length ?? 0) >
+          0 && (
+          <div className="mb-8 rounded-xl border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/40 dark:bg-blue-950/20">
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+              ⚡ Draws on knowledge domains:
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {(project as unknown as { domains_crossed: string[] }).domains_crossed.map(
+                (domain) => (
+                  <Badge
+                    key={domain}
+                    variant="secondary"
+                    size="md"
+                    className="bg-white dark:bg-neutral-800"
+                  >
+                    {domain}
+                  </Badge>
+                ),
+              )}
+            </div>
+          </div>
+        )}
+
       {/* Tech Stack */}
       {project.tech_stack && project.tech_stack.length > 0 && (
         <div className="mb-8">

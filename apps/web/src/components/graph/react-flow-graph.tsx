@@ -70,9 +70,23 @@ const nodeTypes = { knowledgeNode: KnowledgeNode };
 // ── Props ─────────────────────────────────────────────────────────
 
 interface ReactFlowGraphProps {
-  nodes: Array<{ id: string; title: string; node_type: string; slug: string }>;
-  edges: Array<{ id: string; source_id: string; target_id: string; relationship_type: string }>;
+  nodes: Array<{
+    id: string;
+    title: string;
+    node_type: string;
+    slug: string;
+    depth?: number;
+    domain?: string;
+  }>;
+  edges: Array<{
+    id: string;
+    source_id: string;
+    target_id: string;
+    relationship_type: string;
+    edge_type?: string;
+  }>;
   selectedNodeId: string | null;
+  showCrossDomainOnly?: boolean;
   onNodeSelect: (id: string | null) => void;
 }
 
@@ -82,47 +96,75 @@ function ReactFlowGraphInner({
   nodes: rawNodes,
   edges: rawEdges,
   selectedNodeId,
+  showCrossDomainOnly = false,
   onNodeSelect,
 }: ReactFlowGraphProps) {
-  const flowNodes: FlowNode[] = useMemo(
-    () =>
-      rawNodes.map((node, index) => {
-        const angle = (2 * Math.PI * index) / rawNodes.length;
-        const radius = Math.min(rawNodes.length * 60, 400);
-        return {
-          id: node.id,
-          type: 'knowledgeNode',
-          position: {
-            x: Math.cos(angle) * radius,
-            y: Math.sin(angle) * radius,
-          },
-          data: {
-            label: node.title,
-            nodeType: node.node_type,
-            slug: node.slug,
-          },
-          selected: node.id === selectedNodeId,
-        };
-      }),
-    [rawNodes, selectedNodeId],
-  );
+  // Group nodes by depth for topological depth layout
+  const flowNodes: FlowNode[] = useMemo(() => {
+    const depthGroups: Record<number, typeof rawNodes> = {};
+    for (const node of rawNodes) {
+      const d = node.depth ?? 0;
+      if (!depthGroups[d]) depthGroups[d] = [];
+      depthGroups[d].push(node);
+    }
 
-  const flowEdges: FlowEdge[] = useMemo(
-    () =>
-      rawEdges.map((edge) => ({
+    return rawNodes.map((node) => {
+      const d = node.depth ?? 0;
+      const nodesAtDepth = depthGroups[d] ?? [node];
+      const indexInDepth = nodesAtDepth.findIndex((n) => n.id === node.id);
+      const totalAtDepth = nodesAtDepth.length;
+
+      // Topological depth position: X = depth * 280, Y = centered vertical offset
+      const x = d * 280;
+      const y = (indexInDepth - (totalAtDepth - 1) / 2) * 110;
+
+      return {
+        id: node.id,
+        type: 'knowledgeNode',
+        position: { x, y },
+        data: {
+          label: node.title,
+          nodeType: node.node_type,
+          slug: node.slug,
+          domain: node.domain,
+          depth: d,
+        },
+        selected: node.id === selectedNodeId,
+      };
+    });
+  }, [rawNodes, selectedNodeId]);
+
+  // Filter edges and style prerequisite vs cross-domain differently
+  const flowEdges: FlowEdge[] = useMemo(() => {
+    const filtered = showCrossDomainOnly
+      ? rawEdges.filter(
+          (e) => e.relationship_type === 'cross_domain' || e.edge_type === 'cross_domain',
+        )
+      : rawEdges;
+
+    return filtered.map((edge) => {
+      const isCrossDomain =
+        edge.relationship_type === 'cross_domain' || edge.edge_type === 'cross_domain';
+
+      return {
         id: edge.id,
         source: edge.source_id,
         target: edge.target_id,
         type: 'smoothstep',
-        animated: edge.relationship_type === 'prerequisite',
-        style: {
-          strokeWidth: 2,
-          stroke: 'var(--color-neutral-300)',
-          ...(edge.relationship_type === 'prerequisite' ? { strokeDasharray: '5 5' } : {}),
-        },
-      })),
-    [rawEdges],
-  );
+        animated: isCrossDomain,
+        style: isCrossDomain
+          ? {
+              strokeWidth: 2.5,
+              stroke: '#EC4899',
+              strokeDasharray: '6 4',
+            }
+          : {
+              strokeWidth: 2,
+              stroke: '#94A3B8',
+            },
+      };
+    });
+  }, [rawEdges, showCrossDomainOnly]);
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: FlowNode) => {

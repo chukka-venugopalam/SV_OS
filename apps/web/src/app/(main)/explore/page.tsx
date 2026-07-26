@@ -43,10 +43,10 @@ import { cn, slugToTitle, truncate } from '@/lib';
 const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;
 const DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'expert'] as const;
 const SORT_OPTIONS = [
+  { label: 'Graph Position (Depth)', value: 'depth_asc' },
   { label: 'Title A-Z', value: 'title_asc' },
   { label: 'Title Z-A', value: 'title_desc' },
   { label: 'Newest', value: 'newest' },
-  { label: 'Oldest', value: 'oldest' },
 ] as const;
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -94,9 +94,16 @@ const NodeCard = memo(function NodeCard({
     description: string;
     node_type: string;
     difficulty: string;
+    cross_domain_connections?: Array<{
+      target_id: string;
+      target_title: string;
+      domain: string;
+      reason: string;
+    }>;
   };
 }) {
   const color = NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)';
+  const firstCd = node.cross_domain_connections?.[0];
 
   return (
     <Link href={`/explore/${node.slug}`}>
@@ -117,6 +124,19 @@ const NodeCard = memo(function NodeCard({
           <p className="mb-3 line-clamp-2 flex-1 text-xs text-neutral-500 dark:text-neutral-400">
             {truncate(node.description, 120)}
           </p>
+
+          {/* Promoted Cross-Domain Callout */}
+          {firstCd && (
+            <div className="mb-3 rounded-lg bg-pink-50/80 p-2.5 dark:bg-pink-950/20">
+              <p className="text-[11px] font-semibold text-pink-700 dark:text-pink-300">
+                Same idea shows up in:
+              </p>
+              <p className="truncate text-xs font-medium text-neutral-800 dark:text-neutral-200">
+                {firstCd.target_title || firstCd.domain}
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <DifficultyBadge difficulty={node.difficulty} />
             <ArrowRight className="h-4 w-4 text-neutral-300 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 dark:text-neutral-600" />
@@ -193,7 +213,7 @@ export default function ExplorePage() {
   const [search, setSearch] = useState(searchParams.get('search') ?? '');
   const [nodeType, setNodeType] = useState(searchParams.get('node_type') ?? '');
   const [difficulty, setDifficulty] = useState(searchParams.get('difficulty') ?? '');
-  const [sort, setSort] = useState('title_asc');
+  const [sort, setSort] = useState('depth_asc');
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);

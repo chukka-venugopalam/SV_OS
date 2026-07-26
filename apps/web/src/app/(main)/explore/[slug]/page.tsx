@@ -151,6 +151,45 @@ export default function KnowledgeNodeDetailPage() {
           {node.description}
         </p>
 
+        {/* Promoted Cross-Domain Connections */}
+        {Boolean(
+          (node.metadata as Record<string, unknown> | undefined)?.cross_domain_connections &&
+          Array.isArray((node.metadata as Record<string, unknown>).cross_domain_connections) &&
+          ((node.metadata as Record<string, unknown>).cross_domain_connections as Array<unknown>)
+            .length > 0,
+        ) && (
+          <div className="mt-5 rounded-xl border border-pink-200 bg-pink-50/60 p-4 dark:border-pink-900/40 dark:bg-pink-950/20">
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">
+              ⚡ Same idea shows up in:
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {(
+                (node.metadata as Record<string, unknown>).cross_domain_connections as Array<{
+                  target_id: string;
+                  target_title: string;
+                  domain: string;
+                  reason: string;
+                }>
+              ).map((cd, idx) => (
+                <Link key={idx} href={`/explore/${cd.target_id}`}>
+                  <Badge
+                    variant="secondary"
+                    size="md"
+                    className="cursor-pointer gap-1.5 hover:bg-pink-100 dark:hover:bg-pink-900/40"
+                  >
+                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      {cd.target_title || cd.target_id}
+                    </span>
+                    <span className="text-[10px] text-pink-600 dark:text-pink-400">
+                      ({cd.domain})
+                    </span>
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         {isAuthenticated && (
           <div className="mt-4 flex items-center gap-2">

@@ -148,6 +148,19 @@ export default function CareerDetailPage() {
         </SlideUp>
       </StaggerGrid>
 
+      {/* Shared CS Foundation Callout */}
+      <div className="mb-8 rounded-xl border border-purple-200 bg-purple-50/60 p-4 dark:border-purple-900/40 dark:bg-purple-950/20">
+        <h3 className="mb-1 text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300">
+          ⚡ Shared CS Foundation Across Paths
+        </h3>
+        <p className="text-xs text-neutral-700 dark:text-neutral-300">
+          You are{' '}
+          <span className="font-bold text-purple-600 dark:text-purple-400">40% completed</span>{' '}
+          toward this career path through foundational nodes shared across Backend, Systems, and AI
+          Engineering (Variables, DSA, Networks, Relational Databases).
+        </p>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">

@@ -40,6 +40,7 @@ const ReactFlowGraph = dynamicImport(() => import('@/components/graph/react-flow
 
 export default function GraphPage() {
   const [centerNodeId, setCenterNodeId] = useState<string | null>(null);
+  const [showCrossDomainOnly, setShowCrossDomainOnly] = useState(false);
   const { selectedNodeId, setSelectedNodeId } = useGraph();
 
   // Fetch graph data — full graph or centered on a node
@@ -60,6 +61,8 @@ export default function GraphPage() {
         source_id: e.source,
         target_id: e.target,
         relationship_type: e.relationship_type ?? 'related',
+        edge_type:
+          (e as unknown as { edge_type?: string }).edge_type ?? e.relationship_type ?? 'related',
       })),
     [rawEdges],
   );
@@ -140,6 +143,16 @@ export default function GraphPage() {
 
         <div className="flex-1" />
 
+        {/* Connection Toggle */}
+        <Button
+          variant={showCrossDomainOnly ? 'default' : 'outline'}
+          size="sm"
+          className="text-xs"
+          onClick={() => setShowCrossDomainOnly(!showCrossDomainOnly)}
+        >
+          {showCrossDomainOnly ? 'Show all edges' : 'Show cross-subject connections only'}
+        </Button>
+
         {/* Node type badges */}
         <div className="hidden items-center gap-1 sm:flex">
           {Object.entries(nodeTypeCounts)
@@ -181,6 +194,7 @@ export default function GraphPage() {
               nodes={nodes}
               edges={edges}
               selectedNodeId={selectedNodeId}
+              showCrossDomainOnly={showCrossDomainOnly}
               onNodeSelect={handleNodeSelect}
             />
           </div>
