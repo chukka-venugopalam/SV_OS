@@ -124,8 +124,14 @@ async def _main():
     async with async_session_factory() as session:
         async with UnitOfWork(session) as uow:
             linked = 0
+            all_careers = await uow.careers.get_all(limit=100)
+            career_by_slug = {c.slug: c for c in all_careers}
+
+            all_nodes = await uow.knowledge_nodes.get_all(limit=2000)
+            node_by_slug = {n.slug: n for n in all_nodes}
+
             for c in careers_data['careers']:
-                career = await uow.careers.find_by_slug(c['id'])
+                career = career_by_slug.get(c['id'])
                 if not career:
                     print(f'  WARNING: Career {c["id"]} not found in DB, skipping requirements')
                     continue
@@ -134,7 +140,7 @@ async def _main():
                 existing_node_ids = {str(r.node_id) for r in existing_reqs}
 
                 for order, node_slug in enumerate(c.get('recommended_order', [])):
-                    node_db = await uow.knowledge_nodes.find_by_slug(node_slug)
+                    node_db = node_by_slug.get(node_slug)
                     if not node_db:
                         print(
                             f'  WARNING: Node "{node_slug}" not found in DB, '
