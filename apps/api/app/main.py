@@ -463,7 +463,7 @@ def create_app() -> FastAPI:
             'request_id': str(uuid4()),
         }
 
-    @app.post('/debug/seed-database', tags=['debug'], include_in_schema=False)
+    @app.api_route('/debug/seed-database', methods=['GET', 'POST'], tags=['debug'], include_in_schema=False)
     async def debug_seed_database() -> dict:
         """Run Phase 0 database seed script on active production database."""
         import sys

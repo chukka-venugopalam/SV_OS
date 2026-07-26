@@ -30,7 +30,7 @@ EXEMPT_PREFIXES = frozenset(
         '/docs',
         '/redoc',
         '/openapi.json',
-        '/debug/cors',
+        '/debug/',
     },
 )
 
