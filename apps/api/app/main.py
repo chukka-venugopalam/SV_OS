@@ -411,11 +411,26 @@ def create_app() -> FastAPI:
                 await session.commit()
                 return f'Test user created: id={new_user.id}'
 
+        # Check 8: Step 1 Table Counts
         results.append(
             await run_check(
-                '7. Create test user (proves INSERT works)',
-                check_insert(),
-                is_query=False,
+                '8. COUNT knowledge_nodes', text('SELECT COUNT(*) FROM knowledge_nodes')
+            )
+        )
+        results.append(await run_check('9. COUNT careers', text('SELECT COUNT(*) FROM careers')))
+        results.append(
+            await run_check('10. COUNT categories', text('SELECT COUNT(*) FROM categories'))
+        )
+        results.append(await run_check('11. COUNT projects', text('SELECT COUNT(*) FROM projects')))
+        results.append(
+            await run_check('12. alembic_version rows', text('SELECT * FROM alembic_version'))
+        )
+        results.append(
+            await run_check(
+                '13. pg_policies for content tables',
+                text(
+                    "SELECT tablename, policyname, roles, cmd FROM pg_policies WHERE tablename IN ('knowledge_nodes', 'careers', 'projects', 'categories')"
+                ),
             )
         )
 
