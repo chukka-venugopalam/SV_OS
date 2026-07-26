@@ -221,7 +221,10 @@ export default function DashboardPage() {
   const { data: activityFeed } = useActivityFeed({ page_size: 5 });
 
   const displayName = user?.display_name ?? user?.username ?? 'Learner';
-  const completionRate = progressStats ? Math.round(progressStats.completion_percentage) : 0;
+  const completionRate =
+    progressStats && !Number.isNaN(progressStats.completion_percentage)
+      ? Math.round(progressStats.completion_percentage)
+      : 0;
   const masteredCount = progressStats?.mastered ?? 0;
   const completedCount = progressStats?.completed ?? 0;
   const learningCount = progressStats?.learning ?? 0;

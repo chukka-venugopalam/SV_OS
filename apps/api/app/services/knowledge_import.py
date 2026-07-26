@@ -459,8 +459,13 @@ class KnowledgeImportService:
         # First pass: upsert all nodes, collect slug→ID mappings
         slug_to_id: dict[str, UUID] = {}
 
-        # Batch load existing nodes
-        all_existing_nodes = await uow.knowledge_nodes.get_all(limit=2000)
+        # Batch load existing nodes including any soft-deleted records
+        from sqlalchemy import select
+        from app.models.knowledge_node import KnowledgeNode
+        from app.models.knowledge_edge import KnowledgeEdge
+
+        res_nodes = await uow.session.execute(select(KnowledgeNode))
+        all_existing_nodes = list(res_nodes.scalars().all())
         existing_by_slug = {n.slug: n for n in all_existing_nodes}
 
         nodes_to_create: list[dict[str, Any]] = []
@@ -488,6 +493,7 @@ class KnowledgeImportService:
                     estimated_minutes=estimated_minutes,
                     extra_metadata=metadata,
                     is_published=True,
+                    is_deleted=False,
                 )
                 slug_to_id[n.id] = updated.id
                 results.append(
@@ -532,8 +538,9 @@ class KnowledgeImportService:
                     ),
                 )
 
-        # Batch load existing edges
-        all_existing_edges = await uow.knowledge_edges.get_all(limit=10000)
+        # Batch load existing edges including soft-deleted
+        res_edges = await uow.session.execute(select(KnowledgeEdge))
+        all_existing_edges = list(res_edges.scalars().all())
         existing_edge_keys = {(e.source_node_id, e.target_node_id) for e in all_existing_edges}
 
         edges_to_create: list[dict[str, Any]] = []
