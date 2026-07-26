@@ -190,8 +190,130 @@ async def _main():
             await session.commit()
             print("  Projects seeded successfully")
 
+    # ── Step 6: Seed multi-domain project_requirements ────────────────
+    print("[6/6] Linking projects to multi-domain knowledge nodes")
+    PROJECT_NODES_MAP = {
+        "personal-website": [
+            ("html5-semantic-structure", "required"),
+            ("css-flexbox-grid", "required"),
+            ("javascript-es6-async", "required"),
+            ("application-layer-protocols-http-dns", "recommended"),
+        ],
+        "task-manager": [
+            ("react-components-state-props", "required"),
+            ("nodejs-event-loop-architecture", "required"),
+            ("relational-database-design-normalization", "required"),
+            ("sql-queries-joins-aggregations", "required"),
+            ("websockets-full-duplex", "recommended"),
+        ],
+        "url-shortener": [
+            ("python-asyncio-fastapi", "required"),
+            ("hash-tables", "required"),
+            ("redis-caching-in-memory", "required"),
+            ("relational-database-design-normalization", "required"),
+            ("rest-api-design-principles", "recommended"),
+        ],
+        "chat-app": [
+            ("websockets-full-duplex", "required"),
+            ("process-concurrency-threads", "required"),
+            ("mongodb-document-databases", "required"),
+            ("jwt-auth-session-management", "required"),
+            ("redis-caching-in-memory", "recommended"),
+        ],
+        "ecommerce-api": [
+            ("rest-api-design-principles", "required"),
+            ("concurrency-control-transactions", "required"),
+            ("sql-queries-joins-aggregations", "required"),
+            ("redis-caching-in-memory", "required"),
+            ("jwt-auth-session-management", "required"),
+            ("docker-containerization", "recommended"),
+        ],
+        "netflix-clone": [
+            ("content-delivery-networks-cdn", "required"),
+            ("video-streaming-hls-dash", "required"),
+            ("microservices-architecture", "required"),
+            ("lru-cache-implementation", "recommended"),
+            ("object-storage-s3", "recommended"),
+        ],
+        "social-media-dashboard": [
+            ("data-visualization-d3", "required"),
+            ("time-series-databases", "required"),
+            ("sql-aggregations-window-functions", "required"),
+            ("message-queues-kafka-rabbitmq", "recommended"),
+        ],
+        "docker-voting-app": [
+            ("docker-containerization", "required"),
+            ("microservices-architecture", "required"),
+            ("redis-pub-sub", "required"),
+            ("load-balancing-reverse-proxy", "recommended"),
+        ],
+        "machine-learning-pipeline": [
+            ("python-asyncio-fastapi", "required"),
+            ("linear-algebra-matrices-vectors-transformations", "required"),
+            ("neural-networks-deep-learning", "required"),
+            ("docker-containerization", "recommended"),
+        ],
+        "api-gateway": [
+            ("load-balancing-reverse-proxy", "required"),
+            ("rate-limiting-algorithms-token-bucket", "required"),
+            ("jwt-auth-session-management", "required"),
+            ("redis-caching-in-memory", "required"),
+            ("microservices-architecture", "recommended"),
+        ],
+    }
+
+    async with (
+        async_session_factory() as session,
+        UnitOfWork(session) as uow,
+    ):
+        req_count = 0
+        all_projects = await uow.projects.get_all(limit=100)
+        proj_by_slug = {p.slug: p for p in all_projects}
+
+        all_nodes = await uow.knowledge_nodes.get_all(limit=2000)
+        node_by_slug = {n.slug: n for n in all_nodes}
+
+        for proj_slug, node_req_list in PROJECT_NODES_MAP.items():
+            project = proj_by_slug.get(proj_slug)
+            if not project:
+                continue
+
+            existing_reqs = await uow.projects.get_requirements(project.id)
+            existing_keys = {
+                (
+                    str(r.node_id),
+                    r.requirement_type.value
+                    if hasattr(r.requirement_type, "value")
+                    else str(r.requirement_type),
+                )
+                for r in existing_reqs
+            }
+
+            for order, (node_slug, req_type) in enumerate(node_req_list):
+                node = node_by_slug.get(node_slug)
+                if not node:
+                    # Find partial match
+                    matches = [
+                        n
+                        for s, n in node_by_slug.items()
+                        if node_slug in s or s in node_slug
+                    ]
+                    if matches:
+                        node = matches[0]
+
+                if node and (str(node.id), req_type) not in existing_keys:
+                    await uow.projects.add_requirement(
+                        project_id=project.id,
+                        node_id=node.id,
+                        requirement_type=req_type,
+                        order_index=order,
+                    )
+                    req_count += 1
+
+        print(f"  Created {req_count} project requirement links")
+
     print(
-        "\n✅ Phase 0 complete: categories + careers + 181 nodes + requirements + projects imported"
+        "\n✅ Phase 0 complete: categories + careers + 181 nodes + requirements + projects + multi-domain links imported"
     )
 
 
