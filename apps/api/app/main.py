@@ -427,6 +427,15 @@ def create_app() -> FastAPI:
         )
         results.append(
             await run_check(
+                '14. Check specific node slugs',
+                text(
+                    'SELECT slug FROM knowledge_nodes '
+                    "WHERE slug IN ('prog-basics', 'dsa-arrays-strings', 'algo-dp', 'linear-algebra')"
+                ),
+            )
+        )
+        results.append(
+            await run_check(
                 '13. pg_policies for content tables',
                 text(
                     'SELECT tablename, policyname, roles, cmd '
