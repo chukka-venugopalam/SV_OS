@@ -463,6 +463,34 @@ def create_app() -> FastAPI:
             'request_id': str(uuid4()),
         }
 
+    @app.post('/debug/seed-database', tags=['debug'], include_in_schema=False)
+    async def debug_seed_database() -> dict:
+        """Run Phase 0 database seed script on active production database."""
+        import sys
+        import traceback
+        from pathlib import Path
+
+        root_dir = Path(__file__).resolve().parent.parent.parent
+        if str(root_dir) not in sys.path:
+            sys.path.insert(0, str(root_dir))
+
+        try:
+            from database.seed_phase0 import _main as seed_main
+
+            await seed_main()
+            return {
+                'success': True,
+                'message': 'Database seeded successfully (categories, careers, 181 nodes, requirements, projects)',
+                'timestamp': datetime.now(UTC).isoformat(),
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'message': f'Seeding failed: {type(e).__name__}: {e}',
+                'traceback': traceback.format_exc().splitlines()[-10:],
+                'timestamp': datetime.now(UTC).isoformat(),
+            }
+
     return app
 
 

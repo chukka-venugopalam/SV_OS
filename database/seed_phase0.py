@@ -153,7 +153,19 @@ async def _main():
 
             print(f'  Linked {linked} career-requirement edges')
 
-    print('\n✅ Phase 0 complete: categories + careers + 181 nodes + requirements imported')
+    # ── Step 5: Seed projects from 05_projects.sql ─────────────────
+    projects_sql_path = os.path.join(project_root, 'database', 'seeds', '05_projects.sql')
+    if os.path.exists(projects_sql_path):
+        print(f'[5/5] Seeding projects from {projects_sql_path}')
+        with open(projects_sql_path, encoding='utf-8') as f:
+            sql_content = f.read()
+        async with async_session_factory() as session:
+            from sqlalchemy import text
+            await session.execute(text(sql_content))
+            await session.commit()
+            print('  Projects seeded successfully')
+
+    print('\n✅ Phase 0 complete: categories + careers + 181 nodes + requirements + projects imported')
 
 
 if __name__ == '__main__':
