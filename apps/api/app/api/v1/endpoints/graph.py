@@ -1,11 +1,15 @@
 """Graph API endpoints."""
 
+from collections import defaultdict, deque
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
 from structlog.stdlib import get_logger
 
 from app.api.deps import get_uow
+from app.models.knowledge_edge import KnowledgeEdge
+from app.models.knowledge_node import KnowledgeNode
 from app.schemas.response import success_response
 from app.services.legacy_graph import GraphService
 
@@ -25,13 +29,9 @@ async def get_full_graph(
 ) -> dict:
     """Get all published nodes and edges for full graph visualisation.
 
-    Returns everything in a format compatible with React Flow.
+    Returns everything in a format compatible with React Flow, with nodes
+    positioned by topological depth computed strictly from prerequisite edges.
     """
-    from sqlalchemy import select
-
-    from app.models.knowledge_edge import KnowledgeEdge
-    from app.models.knowledge_node import KnowledgeNode
-
     # Fetch all published nodes
     nodes_stmt = (
         select(KnowledgeNode)
@@ -45,7 +45,15 @@ async def get_full_graph(
     all_nodes = list(nodes_result.scalars().all())
 
     # Fetch edges where both source and target are published nodes
-    published_ids = [n.id for n in all_nodes]
+    published_ids = {n.id for n in all_nodes}
+
+    all_edges_dict = []
+    prereq_adj = defaultdict(list)
+    in_degree = defaultdict(int)
+
+    for n in all_nodes:
+        in_degree[n.id] = 0
+
     if published_ids:
         edges_stmt = (
             select(KnowledgeEdge)
@@ -57,16 +65,70 @@ async def get_full_graph(
             .order_by(KnowledgeEdge.relationship_type)
         )
         edges_result = await uow.session.execute(edges_stmt)
-        all_edges = list(edges_result.scalars().all())
-    else:
-        all_edges = []
+        db_edges = list(edges_result.scalars().all())
+
+        for e in db_edges:
+            rel_type = (
+                e.relationship_type.value
+                if hasattr(e.relationship_type, 'value')
+                else e.relationship_type
+            )
+            all_edges_dict.append(_edge_to_dict(e))
+
+            # Strictly compute depth using prerequisite edges ONLY
+            if rel_type == 'prerequisite':
+                prereq_adj[e.source_node_id].append(e.target_node_id)
+                in_degree[e.target_node_id] += 1
+
+    # Topological depth calculation (longest path from roots in DAG)
+    depth_map = {n.id: 0 for n in all_nodes}
+    queue = deque([n.id for n in all_nodes if in_degree[n.id] == 0])
+
+    while queue:
+        curr = queue.popleft()
+        curr_depth = depth_map[curr]
+        for neighbor in prereq_adj[curr]:
+            depth_map[neighbor] = max(depth_map[neighbor], curr_depth + 1)
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+
+    # Append cross-domain connections from node metadata as cross_domain edges
+    virtual_edge_id = 1
+    for n in all_nodes:
+        meta = n.extra_metadata or {}
+        cd_list = meta.get('cross_domain_connections', [])
+        for cd in cd_list:
+            tgt_id_str = cd.get('target_id')
+            # Look up target by slug or ID
+            tgt_node = next(
+                (
+                    node
+                    for node in all_nodes
+                    if node.slug == tgt_id_str or str(node.id) == tgt_id_str
+                ),
+                None,
+            )
+            if tgt_node:
+                all_edges_dict.append(
+                    {
+                        'id': f'cd-edge-{virtual_edge_id}',
+                        'source_id': str(n.id),
+                        'target_id': str(tgt_node.id),
+                        'relationship_type': 'cross_domain',
+                        'edge_type': 'cross_domain',
+                        'direction': 'forward',
+                        'reason': cd.get('reason', ''),
+                    }
+                )
+                virtual_edge_id += 1
 
     return success_response(
         data={
-            'nodes': [_node_to_dict(n) for n in all_nodes],
-            'edges': [_edge_to_dict(e) for e in all_edges],
+            'nodes': [_node_to_dict(n, depth_map.get(n.id, 0)) for n in all_nodes],
+            'edges': all_edges_dict,
             'total_nodes': len(all_nodes),
-            'total_edges': len(all_edges),
+            'total_edges': len(all_edges_dict),
         },
         message='Full graph retrieved',
     )
@@ -132,7 +194,8 @@ async def get_prerequisite_chain(
     )
 
 
-def _node_to_dict(node) -> dict:
+def _node_to_dict(node, depth: int = 0) -> dict:
+    meta = node.extra_metadata or {}
     return {
         'id': str(node.id),
         'slug': node.slug,
@@ -145,17 +208,24 @@ def _node_to_dict(node) -> dict:
         'estimated_minutes': getattr(node, 'estimated_minutes', None),
         'icon': node.icon,
         'color': node.color,
+        'depth': depth,
+        'domain': meta.get('domain', 'General CS'),
+        'cross_domain_connections': meta.get('cross_domain_connections', []),
     }
 
 
 def _edge_to_dict(edge) -> dict:
+    rel_type = (
+        edge.relationship_type.value
+        if hasattr(edge.relationship_type, 'value')
+        else edge.relationship_type
+    )
     return {
         'id': str(edge.id),
         'source_id': str(edge.source_node_id),
         'target_id': str(edge.target_node_id),
-        'relationship_type': edge.relationship_type.value
-        if hasattr(edge.relationship_type, 'value')
-        else edge.relationship_type,
+        'relationship_type': rel_type,
+        'edge_type': rel_type,
         'direction': edge.direction.value
         if hasattr(edge.direction, 'value')
         else getattr(edge, 'direction', 'forward'),

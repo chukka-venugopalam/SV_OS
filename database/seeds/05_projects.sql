@@ -41,4 +41,5 @@ INSERT INTO projects (slug, title, description, difficulty, estimated_hours, tec
 
 ('api-gateway', 'API Gateway Service',
  'Implement an API gateway with rate limiting, authentication, request routing, caching, and logging for microservices architecture.',
- 'advanced', 55, ARRAY['FastAPI', 'Redis', 'Docker', 'PostgreSQL'], 'shield', '#22C55E', true);
+ 'advanced', 55, ARRAY['FastAPI', 'Redis', 'Docker', 'PostgreSQL'], 'shield', '#22C55E', true)
+ON CONFLICT (slug) DO NOTHING;

@@ -32,9 +32,23 @@ async def list_projects(
         per_page=per_page,
         difficulty=difficulty,
     )
+    items = []
+    for p in result.items:
+        p_dict = _project_to_dict(p)
+        reqs = await service.get_requirements(p.slug)
+        domains = []
+        for r in reqs:
+            node = r.get('node')
+            if node and hasattr(node, 'extra_metadata') and node.extra_metadata:
+                d = node.extra_metadata.get('domain')
+                if d and d not in domains:
+                    domains.append(d)
+        p_dict['domains_crossed'] = domains
+        items.append(p_dict)
+
     return success_response(
         data={
-            'items': [_project_to_dict(p) for p in result.items],
+            'items': items,
             'total': result.total,
             'page': result.page,
             'per_page': result.per_page,
@@ -53,10 +67,22 @@ async def get_project(
     service = ProjectService(uow)
     try:
         project = await service.get_by_slug(slug)
+        reqs = await service.get_requirements(slug)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail='Project not found') from e
+
+    p_dict = _project_to_dict(project)
+    domains = []
+    for r in reqs:
+        node = r.get('node')
+        if node and hasattr(node, 'extra_metadata') and node.extra_metadata:
+            d = node.extra_metadata.get('domain')
+            if d and d not in domains:
+                domains.append(d)
+    p_dict['domains_crossed'] = domains
+
     return success_response(
-        data=_project_to_dict(project),
+        data=p_dict,
         message='Project retrieved',
     )
 
@@ -72,8 +98,29 @@ async def get_project_requirements(
         requirements = await service.get_requirements(slug)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail='Project not found') from e
+
+    required_nodes = []
+    recommended_nodes = []
+    items = []
+
+    for item in requirements:
+        node = item.get('node')
+        req_type = item.get('requirement_type')
+        req_type_str = req_type.value if hasattr(req_type, 'value') else str(req_type)
+        if node:
+            node_dict = _node_to_dict(node)
+            items.append({**node_dict, 'requirement_type': req_type_str})
+            if req_type_str == 'required':
+                required_nodes.append(node_dict)
+            else:
+                recommended_nodes.append(node_dict)
+
     return success_response(
-        data={'items': requirements},
+        data={
+            'required': required_nodes,
+            'recommended': recommended_nodes,
+            'items': items,
+        },
         message='Project requirements retrieved',
     )
 
@@ -91,4 +138,23 @@ def _project_to_dict(p) -> dict:
         'color': p.color,
         'is_published': p.is_published,
         'created_at': p.created_at.isoformat() if p.created_at else None,
+    }
+
+
+def _node_to_dict(node) -> dict:
+    meta = getattr(node, 'extra_metadata', {}) or {}
+    return {
+        'id': str(node.id),
+        'slug': node.slug,
+        'title': node.title,
+        'description': node.description,
+        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
+        'difficulty': node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else node.difficulty,
+        'estimated_minutes': getattr(node, 'estimated_minutes', None),
+        'icon': node.icon,
+        'color': node.color,
+        'domain': meta.get('domain', 'General CS'),
+        'cross_domain_connections': meta.get('cross_domain_connections', []),
     }
