@@ -429,8 +429,8 @@ def create_app() -> FastAPI:
             await run_check(
                 '14. Check specific node slugs',
                 text(
-                    'SELECT slug FROM knowledge_nodes '
-                    "WHERE slug IN ('prog-basics', 'dsa-arrays-strings', 'algo-dp', 'linear-algebra')"
+                    'SELECT slug FROM knowledge_nodes WHERE slug IN ('
+                    "'prog-basics', 'dsa-arrays-strings', 'algo-dp', 'linear-algebra')"
                 ),
             )
         )
