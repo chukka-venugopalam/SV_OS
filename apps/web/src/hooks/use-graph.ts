@@ -9,6 +9,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 
 import { graphClient } from '@/lib/graph-client';
+import { graphService } from '@/services/graph';
 
 export function useGraphStatistics() {
   return useQuery({
@@ -100,15 +101,32 @@ export function useRelatedNodes(nodeId: string | null, relationshipType?: string
   });
 }
 
+export function useFullGraph() {
+  return useQuery({
+    queryKey: ['graph', 'full'],
+    queryFn: async () => {
+      return await graphService.getFullGraph();
+    },
+    staleTime: 60_000,
+  });
+}
+
 export function useSubgraph(centerNodeId: string | null, depth = 2) {
   return useQuery({
     queryKey: ['graph', 'subgraph', centerNodeId, depth],
     queryFn: async () => {
-      if (!centerNodeId) return null;
+      if (!centerNodeId) {
+        const full = await graphService.getFullGraph();
+        return {
+          nodes: full.nodes,
+          edges: full.edges,
+          center_node_id: '',
+          depth: 0,
+        };
+      }
       const response = await graphClient.findSubgraph(centerNodeId, depth);
       return response.data;
     },
-    enabled: !!centerNodeId,
     staleTime: 60_000,
   });
 }

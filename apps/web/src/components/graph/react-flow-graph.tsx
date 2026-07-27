@@ -103,13 +103,18 @@ function ReactFlowGraphInner({
   const flowNodes: FlowNode[] = useMemo(() => {
     const depthGroups: Record<number, typeof rawNodes> = {};
     for (const node of rawNodes) {
-      const d = node.depth ?? 0;
+      if (node.depth === undefined || node.depth === null || isNaN(node.depth)) {
+        console.warn(
+          `[Graph Warning] Node "${node.title}" (${node.slug}) has missing or invalid depth. Defaulting to 0.`,
+        );
+      }
+      const d = typeof node.depth === 'number' && !isNaN(node.depth) ? Math.max(0, node.depth) : 0;
       if (!depthGroups[d]) depthGroups[d] = [];
       depthGroups[d].push(node);
     }
 
     return rawNodes.map((node) => {
-      const d = node.depth ?? 0;
+      const d = typeof node.depth === 'number' && !isNaN(node.depth) ? Math.max(0, node.depth) : 0;
       const nodesAtDepth = depthGroups[d] ?? [node];
       const indexInDepth = nodesAtDepth.findIndex((n) => n.id === node.id);
       const totalAtDepth = nodesAtDepth.length;

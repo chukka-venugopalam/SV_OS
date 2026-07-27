@@ -27,14 +27,18 @@ import { useDebounce } from '@/hooks/use-debounce';
 const demandIcons: Record<string, React.ReactNode> = {
   growing: <TrendingUp className="h-3.5 w-3.5" />,
   high_demand: <TrendingUp className="h-3.5 w-3.5" />,
+  high: <TrendingUp className="h-3.5 w-3.5" />,
   stable: <Minus className="h-3.5 w-3.5" />,
+  medium: <Minus className="h-3.5 w-3.5" />,
   declining: <TrendingDown className="h-3.5 w-3.5" />,
 };
 
 const demandColors: Record<string, 'success' | 'warning' | 'info' | 'danger'> = {
   growing: 'success',
   high_demand: 'success',
+  high: 'success',
   stable: 'info',
+  medium: 'info',
   declining: 'danger',
 };
 
@@ -46,11 +50,19 @@ const CareerCard = memo(function CareerCard({
     slug: string;
     title: string;
     description: string;
-    salary_range: string;
-    demand: string;
-    icon_name: string;
+    salary_range?: string | null;
+    average_salary?: number | null;
+    demand?: string | null;
+    demand_level?: string | null;
+    icon?: string | null;
   };
 }) {
+  const rawDemand = career.demand_level ?? career.demand ?? 'growing';
+  const displayDemand = typeof rawDemand === 'string' ? rawDemand.replace(/_/g, ' ') : 'growing';
+  const displaySalary =
+    career.salary_range ??
+    (career.average_salary ? `$${career.average_salary.toLocaleString()}` : null);
+
   return (
     <Link href={`/careers/${career.slug}`}>
       <Card className="group h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -60,12 +72,12 @@ const CareerCard = memo(function CareerCard({
               <Briefcase className="h-5 w-5" />
             </div>
             <Badge
-              variant={demandColors[career.demand] ?? 'secondary'}
+              variant={demandColors[rawDemand] ?? 'secondary'}
               size="sm"
               className="flex items-center gap-1 capitalize"
             >
-              {demandIcons[career.demand]}
-              {career.demand.replace(/_/g, ' ')}
+              {demandIcons[rawDemand]}
+              {displayDemand}
             </Badge>
           </div>
           <h3 className="group-hover:text-primary-600 dark:group-hover:text-primary-400 mb-1 text-base font-semibold text-neutral-900 transition-colors dark:text-neutral-100">
@@ -75,9 +87,9 @@ const CareerCard = memo(function CareerCard({
             {career.description}
           </p>
           <div className="flex items-center justify-between">
-            {career.salary_range && (
+            {displaySalary && (
               <span className="text-success-600 dark:text-success-400 text-xs font-medium">
-                {career.salary_range}
+                {displaySalary}
               </span>
             )}
             <ArrowRight className="h-4 w-4 text-neutral-300 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 dark:text-neutral-600" />
