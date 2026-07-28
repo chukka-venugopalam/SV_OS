@@ -492,6 +492,7 @@ class KnowledgeImportService:
                     difficulty=difficulty_str,
                     estimated_minutes=estimated_minutes,
                     extra_metadata=metadata,
+                    content_status=getattr(n, 'content_status', 'draft'),
                     is_published=True,
                     is_deleted=False,
                 )

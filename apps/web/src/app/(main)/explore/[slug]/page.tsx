@@ -219,23 +219,17 @@ export default function KnowledgeNodeDetailPage() {
       </div>
 
       {/* Interactive Simulator (if slug matches) */}
-      {['logic-gates', 'combinational-circuits', 'boolean-algebra'].includes(slug) && (
+      {slug === 'logic-gates' && (
         <div className="mb-8">
           <LogicCircuitSimulator />
         </div>
       )}
-      {[
-        'recursion-and-divide-and-conquer',
-        'sorting-algorithms',
-        'heaps-and-priority-queues',
-      ].includes(slug) && (
+      {slug === 'recursion-and-divide-and-conquer' && (
         <div className="mb-8">
           <SortingVisualizer />
         </div>
       )}
-      {['intro-to-ai-and-search-algorithms', 'path-planning', 'graph-theory-fundamentals'].includes(
-        slug,
-      ) && (
+      {slug === 'intro-to-ai-and-search-algorithms' && (
         <div className="mb-8">
           <GraphTraversalVisualizer />
         </div>

@@ -12,7 +12,7 @@
     {
       "id": "discrete-math-foundations",
       "title": "Discrete Math Foundations",
-      "summary": "Discrete Math Foundations \u2014 part of the Mathematics domain.",
+      "summary": "Fundamental mathematical structures used in computer science including sets, relations, functions, and logic. Forms the proof and reasoning foundation for algorithmic correctness and complexity analysis.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 1,
@@ -24,7 +24,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -63,12 +63,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Browser Engineering and Mathematics"
         }
-      ]
+      ],
+      "description": "Fundamental mathematical structures used in computer science including sets, relations, functions, and logic. Forms the proof and reasoning foundation for algorithmic correctness and complexity analysis.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "set-theory-and-mathematical-logic",
       "title": "Set Theory & Mathematical Logic",
-      "summary": "Set Theory & Mathematical Logic \u2014 part of the Mathematics domain.",
+      "summary": "Formal logic, propositional and predicate calculus, boolean logic, and set operations. Establishes the foundation for database relational algebra, digital circuit design, and formal verification.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 1,
@@ -80,7 +84,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -97,12 +101,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Browser Engineering and Mathematics"
         }
-      ]
+      ],
+      "description": "Formal logic, propositional and predicate calculus, boolean logic, and set operations. Establishes the foundation for database relational algebra, digital circuit design, and formal verification.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "combinatorics-and-probability",
       "title": "Combinatorics & Probability",
-      "summary": "Combinatorics & Probability \u2014 part of the Mathematics domain.",
+      "summary": "Principles of counting, permutations, combinations, discrete probability, and random variables. Critical for analyzing average-case algorithm performance, randomized algorithms, and network reliability.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 2,
@@ -114,7 +122,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -124,12 +132,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Mathematics and Digital Logic"
         }
-      ]
+      ],
+      "description": "Principles of counting, permutations, combinations, discrete probability, and random variables. Critical for analyzing average-case algorithm performance, randomized algorithms, and network reliability.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "calculus-and-optimization-basics",
       "title": "Calculus & Optimization Basics",
-      "summary": "Calculus & Optimization Basics \u2014 part of the Mathematics domain.",
+      "summary": "Continuous mathematics covering limits, derivatives, integrals, and gradient optimization. Essential for understanding loss functions, machine learning model training, and continuous system modeling.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 2,
@@ -141,7 +153,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -151,12 +163,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Mathematics and Digital Logic"
         }
-      ]
+      ],
+      "description": "Continuous mathematics covering limits, derivatives, integrals, and gradient optimization. Essential for understanding loss functions, machine learning model training, and continuous system modeling.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "boolean-algebra",
       "title": "Boolean Algebra",
-      "summary": "Boolean Algebra \u2014 part of the Digital Logic domain.",
+      "summary": "Mathematical logic operating on binary values 0 and 1 using AND, OR, and NOT operations. Forms the theoretical groundwork for digital logic gate synthesis and computer arithmetic.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 1,
@@ -168,7 +184,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -185,12 +201,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
-      ]
+      ],
+      "description": "Mathematical logic operating on binary values 0 and 1 using AND, OR, and NOT operations. Forms the theoretical groundwork for digital logic gate synthesis and computer arithmetic.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "logic-gates",
       "title": "Logic Gates",
-      "summary": "Logic Gates \u2014 part of the Digital Logic domain.",
+      "summary": "Basic electronic building blocks implementing fundamental boolean functions. Combined into complex digital circuits to process binary information inside processors.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 1,
@@ -202,7 +222,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -219,12 +239,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
-      ]
+      ],
+      "description": "Basic electronic building blocks implementing fundamental boolean functions. Combined into complex digital circuits to process binary information inside processors.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "combinational-circuits",
       "title": "Combinational Circuits",
-      "summary": "Combinational Circuits \u2014 part of the Digital Logic domain.",
+      "summary": "Digital logic circuits whose outputs depend solely on the current inputs without memory. Includes multiplexers, decoders, encoders, adders, and ALUs.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 2,
@@ -236,7 +260,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -253,12 +277,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Mathematics and Digital Logic"
         }
-      ]
+      ],
+      "description": "Digital logic circuits whose outputs depend solely on the current inputs without memory. Includes multiplexers, decoders, encoders, adders, and ALUs.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "sequential-circuits",
       "title": "Sequential Circuits",
-      "summary": "Sequential Circuits \u2014 part of the Digital Logic domain.",
+      "summary": "Digital circuits containing storage elements (flip-flops, latches) where output depends on present inputs and state history. Forms the basis of registers, counters, and finite state machines.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 2,
@@ -270,7 +298,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -287,12 +315,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
-      ]
+      ],
+      "description": "Digital circuits containing storage elements (flip-flops, latches) where output depends on present inputs and state history. Forms the basis of registers, counters, and finite state machines.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "karnaugh-maps-and-circuit-minimization",
       "title": "Karnaugh Maps & Circuit Minimization",
-      "summary": "Karnaugh Maps & Circuit Minimization \u2014 part of the Digital Logic domain.",
+      "summary": "Visual simplification technique for boolean expressions up to six variables. Used to minimize logic gate count, propagation delay, and power consumption in hardware design.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 2,
@@ -304,7 +336,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -321,12 +353,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
-      ]
+      ],
+      "description": "Visual simplification technique for boolean expressions up to six variables. Used to minimize logic gate count, propagation delay, and power consumption in hardware design.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "number-systems-and-data-representation",
       "title": "Number Systems & Data Representation",
-      "summary": "Number Systems & Data Representation \u2014 part of the Computer Architecture domain.",
+      "summary": "Representation of numbers in binary, octal, hexadecimal, two's complement, and IEEE-754 floating point formats. Essential for CPU arithmetic, bitwise operations, and memory alignment.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 1,
@@ -338,7 +374,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -355,12 +391,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
-      ]
+      ],
+      "description": "Representation of numbers in binary, octal, hexadecimal, two's complement, and IEEE-754 floating point formats. Essential for CPU arithmetic, bitwise operations, and memory alignment.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "registers-and-the-alu",
       "title": "Registers & the ALU",
-      "summary": "Registers & the ALU \u2014 part of the Computer Architecture domain.",
+      "summary": "Core processor components handling temporary high-speed data storage and arithmetic/logic operations. Critical for assembly execution, register allocation, and microarchitecture efficiency.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 2,
@@ -372,7 +412,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -389,12 +429,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
-      ]
+      ],
+      "description": "Core processor components handling temporary high-speed data storage and arithmetic/logic operations. Critical for assembly execution, register allocation, and microarchitecture efficiency.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "cpu-architecture-and-instruction-cycle",
       "title": "CPU Architecture & Instruction Cycle",
-      "summary": "CPU Architecture & Instruction Cycle \u2014 part of the Computer Architecture domain.",
+      "summary": "Design and execution model of central processing units covering the fetch-decode-execute cycle, instruction set architecture (ISA), control units, and data paths.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 3,
@@ -406,7 +450,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -423,7 +467,11 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
-      ]
+      ],
+      "description": "Design and execution model of central processing units covering the fetch-decode-execute cycle, instruction set architecture (ISA), control units, and data paths.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "assembly-language",
@@ -462,7 +510,7 @@
     {
       "id": "memory-hierarchy-and-caching",
       "title": "Memory Hierarchy & Caching",
-      "summary": "Memory Hierarchy & Caching \u2014 part of the Computer Architecture domain.",
+      "summary": "Organization of memory into registers, L1/L2/L3 caches, main RAM, and secondary storage. Focuses on cache hit/miss rates, write strategies, and locality of reference optimization.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 3,
@@ -474,7 +522,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -498,12 +546,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
-      ]
+      ],
+      "description": "Organization of memory into registers, L1/L2/L3 caches, main RAM, and secondary storage. Focuses on cache hit/miss rates, write strategies, and locality of reference optimization.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "pipelining-and-instruction-level-parallelism",
       "title": "Pipelining & Instruction-Level Parallelism",
-      "summary": "Pipelining & Instruction-Level Parallelism \u2014 part of the Computer Architecture domain.",
+      "summary": "Architecture technique overlapping instruction execution phases to increase instruction throughput. Examines data hazards, control hazards, branch prediction, and superscalar execution.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 4,
@@ -515,7 +567,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -525,12 +577,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
-      ]
+      ],
+      "description": "Architecture technique overlapping instruction execution phases to increase instruction throughput. Examines data hazards, control hazards, branch prediction, and superscalar execution.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "processes-and-process-management",
       "title": "Processes & Process Management",
-      "summary": "Processes & Process Management \u2014 part of the Operating Systems domain.",
+      "summary": "Operating system abstraction of executing programs covering process control blocks (PCB), state transitions, process creation (fork/exec), and context switching.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 2,
@@ -542,7 +598,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -559,12 +615,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Operating system abstraction of executing programs covering process control blocks (PCB), state transitions, process creation (fork/exec), and context switching.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "threads-and-concurrency",
       "title": "Threads & Concurrency",
-      "summary": "Threads & Concurrency \u2014 part of the Operating Systems domain.",
+      "summary": "Lightweight execution units sharing process memory address space. Examines user-level vs kernel-level threads, race conditions, and concurrent execution hazards.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -576,7 +636,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -593,12 +653,24 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Lightweight execution units sharing process memory address space. Examines user-level vs kernel-level threads, race conditions, and concurrent execution hazards.",
+      "metadata": {
+        "content_status": "draft",
+        "cross_domain_connections": [
+          {
+            "target_id": "transactions-and-acid",
+            "target_title": "Transactions & ACID",
+            "domain": "Databases",
+            "reason": "Concurrency control primitives (locks, semaphores) prevent race conditions in both OS threads and DB transactions."
+          }
+        ]
+      }
     },
     {
       "id": "cpu-scheduling",
       "title": "CPU Scheduling",
-      "summary": "CPU Scheduling \u2014 part of the Operating Systems domain.",
+      "summary": "Operating system algorithms selecting processes for execution (FCFS, SJF, Round Robin, Priority, Multi-level Feedback Queue) to optimize CPU utilization and latency.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -610,7 +682,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -634,12 +706,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Operating system algorithms selecting processes for execution (FCFS, SJF, Round Robin, Priority, Multi-level Feedback Queue) to optimize CPU utilization and latency.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "synchronization-and-deadlocks",
       "title": "Synchronization & Deadlocks",
-      "summary": "Synchronization & Deadlocks \u2014 part of the Operating Systems domain.",
+      "summary": "Mechanisms preventing race conditions (mutexes, semaphores, monitors) and strategies for handling deadlocks (prevention, avoidance via Banker's algorithm, detection, recovery).",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 4,
@@ -651,7 +727,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -668,12 +744,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Mechanisms preventing race conditions (mutexes, semaphores, monitors) and strategies for handling deadlocks (prevention, avoidance via Banker's algorithm, detection, recovery).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "virtual-memory",
       "title": "Virtual Memory",
-      "summary": "Virtual Memory \u2014 part of the Operating Systems domain.",
+      "summary": "Abstraction providing processes with isolated virtual address spaces using paging, page tables, TLB caches, page faults, and page replacement algorithms (LRU, FIFO, Clock).",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 4,
@@ -685,7 +765,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -709,12 +789,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Abstraction providing processes with isolated virtual address spaces using paging, page tables, TLB caches, page faults, and page replacement algorithms (LRU, FIFO, Clock).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "file-systems",
       "title": "File Systems",
-      "summary": "File Systems \u2014 part of the Operating Systems domain.",
+      "summary": "OS organization of persistent storage into files and directories. Explores inodes, allocation strategies (contiguous, linked, indexed), journaling, and directory structures.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -726,7 +810,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -743,12 +827,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "OS organization of persistent storage into files and directories. Explores inodes, allocation strategies (contiguous, linked, indexed), journaling, and directory structures.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "i-o-and-device-management",
       "title": "I/O & Device Management",
-      "summary": "I/O & Device Management \u2014 part of the Operating Systems domain.",
+      "summary": "Hardware interface management covering polling, interrupts, direct memory access (DMA), block vs character devices, and disk scheduling algorithms.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -760,7 +848,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -770,12 +858,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Hardware interface management covering polling, interrupts, direct memory access (DMA), block vs character devices, and disk scheduling algorithms.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "network-models-osi--tcp-ip",
       "title": "Network Models (OSI / TCP-IP)",
-      "summary": "Network Models (OSI / TCP-IP) \u2014 part of the Computer Networks domain.",
+      "summary": "Layered communication frameworks dividing networking functions into Application, Transport, Network, Data Link, and Physical layers for interoperability.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 1,
@@ -787,7 +879,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -804,12 +896,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
-      ]
+      ],
+      "description": "Layered communication frameworks dividing networking functions into Application, Transport, Network, Data Link, and Physical layers for interoperability.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "physical-and-data-link-layer",
       "title": "Physical & Data Link Layer",
-      "summary": "Physical & Data Link Layer \u2014 part of the Computer Networks domain.",
+      "summary": "Transmission of raw bits over physical media and framing/error control at Data Link layer. Covers Ethernet, MAC addressing, framing, and CSMA/CD protocols.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 2,
@@ -821,7 +917,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -838,12 +934,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
-      ]
+      ],
+      "description": "Transmission of raw bits over physical media and framing/error control at Data Link layer. Covers Ethernet, MAC addressing, framing, and CSMA/CD protocols.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "ip-addressing-and-routing",
       "title": "IP Addressing & Routing",
-      "summary": "IP Addressing & Routing \u2014 part of the Computer Networks domain.",
+      "summary": "Network layer addressing (IPv4, IPv6, CIDR subnets) and packet routing protocols (OSPF, BGP, Distance-Vector, Link-State) across interconnected networks.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 3,
@@ -855,7 +955,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -872,12 +972,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
-      ]
+      ],
+      "description": "Network layer addressing (IPv4, IPv6, CIDR subnets) and packet routing protocols (OSPF, BGP, Distance-Vector, Link-State) across interconnected networks.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "tcp-and-congestion-control",
       "title": "TCP & Congestion Control",
-      "summary": "TCP & Congestion Control \u2014 part of the Computer Networks domain.",
+      "summary": "Reliable transport protocol providing flow control (sliding window), error recovery, and congestion control algorithms (Slow Start, Congestion Avoidance, Fast Retransmit).",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 4,
@@ -889,7 +993,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -906,12 +1010,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
-      ]
+      ],
+      "description": "Reliable transport protocol providing flow control (sliding window), error recovery, and congestion control algorithms (Slow Start, Congestion Avoidance, Fast Retransmit).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "application-layer-protocols-http-dns",
       "title": "Application Layer Protocols (HTTP/DNS)",
-      "summary": "Application Layer Protocols (HTTP/DNS) \u2014 part of the Computer Networks domain.",
+      "summary": "End-user protocols governing web and network communication including HTTP/1.1, HTTP/2, HTTP/3, DNS resolution, TLS encryption, and SMTP.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 2,
@@ -923,7 +1031,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -947,12 +1055,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
-      ]
+      ],
+      "description": "End-user protocols governing web and network communication including HTTP/1.1, HTTP/2, HTTP/3, DNS resolution, TLS encryption, and SMTP.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "network-security-fundamentals",
       "title": "Network Security Fundamentals",
-      "summary": "Network Security Fundamentals \u2014 part of the Computer Networks domain.",
+      "summary": "Principles of protecting network communications using cryptographic protocols (SSL/TLS, IPsec), firewalls, intrusion detection systems (IDS), and public key infrastructure.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 3,
@@ -964,7 +1076,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -974,12 +1086,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Principles of protecting network communications using cryptographic protocols (SSL/TLS, IPsec), firewalls, intrusion detection systems (IDS), and public key infrastructure.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "finite-automata",
       "title": "Finite Automata",
-      "summary": "Finite Automata \u2014 part of the Theory of Computation domain.",
+      "summary": "Abstract state machines with finite memory recognizing regular languages. Covers Deterministic (DFA) and Nondeterministic (NFA) state transition models.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 2,
@@ -991,7 +1107,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1008,12 +1124,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Abstract state machines with finite memory recognizing regular languages. Covers Deterministic (DFA) and Nondeterministic (NFA) state transition models.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "regular-languages-and-regular-expressions",
       "title": "Regular Languages & Regular Expressions",
-      "summary": "Regular Languages & Regular Expressions \u2014 part of the Theory of Computation domain.",
+      "summary": "Formal languages accepted by finite automata and specified via regular expressions. Analyzed using the Pumping Lemma for regular languages.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 2,
@@ -1025,7 +1145,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1042,12 +1162,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Formal languages accepted by finite automata and specified via regular expressions. Analyzed using the Pumping Lemma for regular languages.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "context-free-grammars-and-pushdown-automata",
       "title": "Context-Free Grammars & Pushdown Automata",
-      "summary": "Context-Free Grammars & Pushdown Automata \u2014 part of the Theory of Computation domain.",
+      "summary": "Formal grammars generating context-free languages accepted by pushdown automata with stack memory. Forms the theoretical foundation of programming language syntax and compilers.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 3,
@@ -1059,7 +1183,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1076,12 +1200,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Formal grammars generating context-free languages accepted by pushdown automata with stack memory. Forms the theoretical foundation of programming language syntax and compilers.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "turing-machines-and-computability",
       "title": "Turing Machines & Computability",
-      "summary": "Turing Machines & Computability \u2014 part of the Theory of Computation domain.",
+      "summary": "Universal mathematical model of computation establishing the boundary of what is computable. Examines the Halting Problem and undecidability.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 4,
@@ -1093,7 +1221,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1110,12 +1238,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Universal mathematical model of computation establishing the boundary of what is computable. Examines the Halting Problem and undecidability.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "complexity-theory-p-vs-np",
       "title": "Complexity Theory (P vs NP)",
-      "summary": "Complexity Theory (P vs NP) \u2014 part of the Theory of Computation domain.",
+      "summary": "Classification of computational problems by resource requirements. Analyzes deterministic polynomial time (P), nondeterministic polynomial time (NP), and NP-completeness reductions.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 5,
@@ -1127,7 +1259,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1144,12 +1276,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Classification of computational problems by resource requirements. Analyzes deterministic polynomial time (P), nondeterministic polynomial time (NP), and NP-completeness reductions.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "lexical-analysis",
       "title": "Lexical Analysis",
-      "summary": "Lexical Analysis \u2014 part of the Compiler Design domain.",
+      "summary": "First phase of compiler compilation converting source code characters into a stream of meaningful tokens using finite state automata and regular expressions.",
       "domain_id": "compiler-design",
       "domain_raw": "Compiler Design",
       "difficulty": 3,
@@ -1161,7 +1297,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1178,12 +1314,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Compiler Design and Data Structures"
         }
-      ]
+      ],
+      "description": "First phase of compiler compilation converting source code characters into a stream of meaningful tokens using finite state automata and regular expressions.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "parsing-syntax-analysis",
       "title": "Parsing (Syntax Analysis)",
-      "summary": "Parsing (Syntax Analysis) \u2014 part of the Compiler Design domain.",
+      "summary": "Compiler phase building Abstract Syntax Trees (AST) from token streams using context-free grammars. Covers LL(k) top-down and LR(k) bottom-up parsing techniques.",
       "domain_id": "compiler-design",
       "domain_raw": "Compiler Design",
       "difficulty": 3,
@@ -1195,7 +1335,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1212,12 +1352,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Compiler Design and Data Structures"
         }
-      ]
+      ],
+      "description": "Compiler phase building Abstract Syntax Trees (AST) from token streams using context-free grammars. Covers LL(k) top-down and LR(k) bottom-up parsing techniques.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "semantic-analysis-and-type-checking",
       "title": "Semantic Analysis & Type Checking",
-      "summary": "Semantic Analysis & Type Checking \u2014 part of the Compiler Design domain.",
+      "summary": "Validation of program semantics including symbol table resolution, type checking, scope rules, and type coercion before code generation.",
       "domain_id": "compiler-design",
       "domain_raw": "Compiler Design",
       "difficulty": 4,
@@ -1229,7 +1373,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1239,12 +1383,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Validation of program semantics including symbol table resolution, type checking, scope rules, and type coercion before code generation.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "intermediate-code-and-optimization",
       "title": "Intermediate Code & Optimization",
-      "summary": "Intermediate Code & Optimization \u2014 part of the Compiler Design domain.",
+      "summary": "Target-independent intermediate representations (3-address code, SSA form) and optimization passes like dead code elimination, loop unrolling, and constant folding.",
       "domain_id": "compiler-design",
       "domain_raw": "Compiler Design",
       "difficulty": 4,
@@ -1256,7 +1404,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1266,12 +1414,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Target-independent intermediate representations (3-address code, SSA form) and optimization passes like dead code elimination, loop unrolling, and constant folding.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "code-generation-and-linking",
       "title": "Code Generation & Linking",
-      "summary": "Code Generation & Linking \u2014 part of the Compiler Design domain.",
+      "summary": "Final compiler stage translating optimized intermediate representation into machine assembly, managing register allocation, instruction scheduling, and object file linking.",
       "domain_id": "compiler-design",
       "domain_raw": "Compiler Design",
       "difficulty": 4,
@@ -1283,7 +1435,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1293,12 +1445,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
-      ]
+      ],
+      "description": "Final compiler stage translating optimized intermediate representation into machine assembly, managing register allocation, instruction scheduling, and object file linking.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "heaps-and-priority-queues",
       "title": "Heaps & Priority Queues",
-      "summary": "Heaps & Priority Queues \u2014 part of the Data Structures domain.",
+      "summary": "Tree-based data structures satisfying the heap property, providing O(log n) insertions and O(1) minimum/maximum extraction. Used in priority scheduling, Huffman coding, and Heap Sort.",
       "domain_id": "data-structures",
       "domain_raw": "Data Structures",
       "difficulty": 2,
@@ -1310,7 +1466,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1327,12 +1483,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Data Structures and Algorithms"
         }
-      ]
+      ],
+      "description": "Tree-based data structures satisfying the heap property, providing O(log n) insertions and O(1) minimum/maximum extraction. Used in priority scheduling, Huffman coding, and Heap Sort.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "advanced-trees-b-tree-trie-segment-tree",
       "title": "Advanced Trees (B-Tree, Trie, Segment Tree)",
-      "summary": "Advanced Trees (B-Tree, Trie, Segment Tree) \u2014 part of the Data Structures domain.",
+      "summary": "Specialized tree structures for multi-way disk indexing (B-Tree), fast string prefix search (Trie), and O(log n) range queries/updates (Segment Tree).",
       "domain_id": "data-structures",
       "domain_raw": "Data Structures",
       "difficulty": 3,
@@ -1344,7 +1504,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1382,12 +1542,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Data Structures and Algorithms"
         }
-      ]
+      ],
+      "description": "Specialized tree structures for multi-way disk indexing (B-Tree), fast string prefix search (Trie), and O(log n) range queries/updates (Segment Tree).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "recursion-and-divide-and-conquer",
       "title": "Recursion & Divide-and-Conquer",
-      "summary": "Recursion & Divide-and-Conquer \u2014 part of the Algorithms domain.",
+      "summary": "Algorithmic design paradigm breaking problems into smaller self-similar subproblems, solving them recursively, and combining solutions. Analyzed via Recurrence Relations and Master Theorem.",
       "domain_id": "algorithms",
       "domain_raw": "Algorithms",
       "difficulty": 2,
@@ -1399,7 +1563,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1416,12 +1580,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Algorithms and Databases"
         }
-      ]
+      ],
+      "description": "Algorithmic design paradigm breaking problems into smaller self-similar subproblems, solving them recursively, and combining solutions. Analyzed via Recurrence Relations and Master Theorem.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "greedy-algorithms",
       "title": "Greedy Algorithms",
-      "summary": "Greedy Algorithms \u2014 part of the Algorithms domain.",
+      "summary": "Optimization strategy making locally optimal choices at each step to find global solutions. Applied in Huffman coding, Fractional Knapsack, Prim's, and Kruskal's MST algorithms.",
       "domain_id": "algorithms",
       "domain_raw": "Algorithms",
       "difficulty": 3,
@@ -1433,7 +1601,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1450,12 +1618,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Algorithms and Databases"
         }
-      ]
+      ],
+      "description": "Optimization strategy making locally optimal choices at each step to find global solutions. Applied in Huffman coding, Fractional Knapsack, Prim's, and Kruskal's MST algorithms.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "string-algorithms",
       "title": "String Algorithms",
-      "summary": "String Algorithms \u2014 part of the Algorithms domain.",
+      "summary": "Specialized algorithms for pattern matching, string searching, and sequence analysis including KMP algorithm, Rabin-Karp, and Suffix Automata.",
       "domain_id": "algorithms",
       "domain_raw": "Algorithms",
       "difficulty": 3,
@@ -1467,7 +1639,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1477,12 +1649,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Algorithms and Databases"
         }
-      ]
+      ],
+      "description": "Specialized algorithms for pattern matching, string searching, and sequence analysis including KMP algorithm, Rabin-Karp, and Suffix Automata.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "relational-model-and-sql",
       "title": "Relational Model & SQL",
-      "summary": "Relational Model & SQL \u2014 part of the Databases domain.",
+      "summary": "Data management foundation organizing data into tables (relations) queried via SQL. Explores relational algebra operations, primary/foreign keys, and data integrity constraints.",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 1,
@@ -1494,7 +1670,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1511,12 +1687,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Databases and Software Engineering"
         }
-      ]
+      ],
+      "description": "Data management foundation organizing data into tables (relations) queried via SQL. Explores relational algebra operations, primary/foreign keys, and data integrity constraints.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "normalization-and-schema-design",
       "title": "Normalization & Schema Design",
-      "summary": "Normalization & Schema Design \u2014 part of the Databases domain.",
+      "summary": "Database design methodology eliminating data redundancy and update anomalies through Normal Forms (1NF, 2NF, 3NF, BCNF) and functional dependencies.",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 2,
@@ -1528,7 +1708,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1545,12 +1725,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Databases and Software Engineering"
         }
-      ]
+      ],
+      "description": "Database design methodology eliminating data redundancy and update anomalies through Normal Forms (1NF, 2NF, 3NF, BCNF) and functional dependencies.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "transactions-and-acid",
       "title": "Transactions & ACID",
-      "summary": "Transactions & ACID \u2014 part of the Databases domain.",
+      "summary": "Execution units ensuring database consistency despite failures and concurrent access. Guarantees Atomicity, Consistency, Isolation, and Durability (ACID).",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 3,
@@ -1562,7 +1746,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1579,12 +1763,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Databases and Software Engineering"
         }
-      ]
+      ],
+      "description": "Execution units ensuring database consistency despite failures and concurrent access. Guarantees Atomicity, Consistency, Isolation, and Durability (ACID).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "indexing-b-tree-hash",
       "title": "Indexing (B-Tree, Hash)",
-      "summary": "Indexing (B-Tree, Hash) \u2014 part of the Databases domain.",
+      "summary": "Physical access structures accelerating query retrieval. Compares clustered vs unclustered B+ Tree indexes and Hash indexes for point queries.",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 3,
@@ -1596,7 +1784,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1613,12 +1801,24 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Databases and Software Engineering"
         }
-      ]
+      ],
+      "description": "Physical access structures accelerating query retrieval. Compares clustered vs unclustered B+ Tree indexes and Hash indexes for point queries.",
+      "metadata": {
+        "content_status": "draft",
+        "cross_domain_connections": [
+          {
+            "target_id": "memory-hierarchy-and-caching",
+            "target_title": "Memory Hierarchy & Caching",
+            "domain": "Computer Architecture",
+            "reason": "B+ Trees are optimized for block I/O alignment matching CPU cache lines and disk pages."
+          }
+        ]
+      }
     },
     {
       "id": "query-optimization",
       "title": "Query Optimization",
-      "summary": "Query Optimization \u2014 part of the Databases domain.",
+      "summary": "Database engine component transforming SQL queries into efficient execution plans using cost-based estimation, index selection, and join ordering (nested loop, hash join, merge join).",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 4,
@@ -1630,7 +1830,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -1640,12 +1840,16 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Databases and Software Engineering"
         }
-      ]
+      ],
+      "description": "Database engine component transforming SQL queries into efficient execution plans using cost-based estimation, index selection, and join ordering (nested loop, hash join, merge join).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "nosql-and-distributed-databases",
       "title": "NoSQL & Distributed Databases",
-      "summary": "NoSQL & Distributed Databases \u2014 part of the Databases domain.",
+      "summary": "Non-relational data stores (Document, Key-Value, Column-family, Graph) optimized for horizontal scalability, high availability, and eventual consistency (CAP Theorem).",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 3,
@@ -1657,8 +1861,12 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
-      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"]
+      "content_status": "draft",
+      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
+      "description": "Non-relational data stores (Document, Key-Value, Column-family, Graph) optimized for horizontal scalability, high availability, and eventual consistency (CAP Theorem).",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "sdlc-and-agile-methodologies",
@@ -3364,7 +3572,7 @@
     {
       "id": "intro-to-ai-and-search-algorithms",
       "title": "Intro to AI & Search Algorithms",
-      "summary": "Intro to AI & Search Algorithms \u2014 part of the Artificial Intelligence domain.",
+      "summary": "Foundational search strategies in artificial intelligence including Uninformed (BFS, DFS) and Informed/Heuristic search (A*, Greedy Best-First) across state spaces.",
       "domain_id": "artificial-intelligence",
       "domain_raw": "Artificial Intelligence",
       "difficulty": 2,
@@ -3376,7 +3584,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -3393,7 +3601,11 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Artificial Intelligence and Machine Learning"
         }
-      ]
+      ],
+      "description": "Foundational search strategies in artificial intelligence including Uninformed (BFS, DFS) and Informed/Heuristic search (A*, Greedy Best-First) across state spaces.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "knowledge-representation",
@@ -4009,7 +4221,7 @@
     {
       "id": "gpu-computing-cuda",
       "title": "GPU Computing (CUDA)",
-      "summary": "GPU Computing (CUDA) \u2014 part of the High-Performance Computing domain.",
+      "summary": "Parallel architecture designed for massive data-parallel throughput across thousands of lightweight cores. Applied in matrix multiplication, deep learning acceleration, and scientific simulation.",
       "domain_id": "high-performance-computing",
       "domain_raw": "High-Performance Computing",
       "difficulty": 4,
@@ -4021,7 +4233,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -4038,7 +4250,11 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between High-Performance Computing and Blockchain"
         }
-      ]
+      ],
+      "description": "Parallel architecture designed for massive data-parallel throughput across thousands of lightweight cores. Applied in matrix multiplication, deep learning acceleration, and scientific simulation.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "distributed-computing-mapreduce-spark",
@@ -4274,7 +4490,7 @@
     {
       "id": "quantum-algorithms",
       "title": "Quantum Algorithms",
-      "summary": "Quantum Algorithms \u2014 part of the Quantum Computing domain.",
+      "summary": "Quantum computing algorithms leveraging superposition and entanglement, such as Shor's factoring algorithm and Grover's database search algorithm.",
       "domain_id": "quantum-computing",
       "domain_raw": "Quantum Computing",
       "difficulty": 5,
@@ -4286,7 +4502,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -4303,7 +4519,11 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Quantum Computing and HCI / UI-UX"
         }
-      ]
+      ],
+      "description": "Quantum computing algorithms leveraging superposition and entanglement, such as Shor's factoring algorithm and Grover's database search algorithm.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "ux-research-and-design-principles",
@@ -4761,7 +4981,7 @@
     {
       "id": "statistics-for-data-science",
       "title": "Statistics for Data Science",
-      "summary": "Statistics for Data Science \u2014 part of the Data Engineering domain.",
+      "summary": "Descriptive and inferential statistics including hypothesis testing, distributions, confidence intervals, and regression. Used to draw rigorous conclusions from experimental data and performance benchmarks.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 2,
@@ -4773,7 +4993,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -4783,7 +5003,11 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Developer Tooling and Data Engineering"
         }
-      ]
+      ],
+      "description": "Descriptive and inferential statistics including hypothesis testing, distributions, confidence intervals, and regression. Used to draw rigorous conclusions from experimental data and performance benchmarks.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "big-data-processing",
@@ -5515,7 +5739,7 @@
     {
       "id": "kernel-development-fundamentals",
       "title": "Kernel Development Fundamentals",
-      "summary": "Kernel Development Fundamentals \u2014 part of the Operating Systems domain.",
+      "summary": "Architecture of operating system kernels (monolithic vs microkernel), system call dispatching, kernel memory allocation, and device driver interfaces.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 5,
@@ -5527,8 +5751,12 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
-      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"]
+      "content_status": "draft",
+      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
+      "description": "Architecture of operating system kernels (monolithic vs microkernel), system call dispatching, kernel memory allocation, and device driver interfaces.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "device-drivers",
@@ -5551,7 +5779,7 @@
     {
       "id": "optimization-theory-and-linear-programming",
       "title": "Optimization Theory & Linear Programming",
-      "summary": "Optimization Theory & Linear Programming \u2014 part of the Mathematics domain.",
+      "summary": "Techniques for maximizing or minimizing objective functions subject to constraints. Includes simplex algorithm, duality theory, and convex optimization applications in resource allocation.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 3,
@@ -5563,13 +5791,17 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
-      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"]
+      "content_status": "draft",
+      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
+      "description": "Techniques for maximizing or minimizing objective functions subject to constraints. Includes simplex algorithm, duality theory, and convex optimization applications in resource allocation.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "numerical-methods",
       "title": "Numerical Methods",
-      "summary": "Numerical Methods \u2014 part of the Mathematics domain.",
+      "summary": "Algorithms for solving mathematical problems numerically when analytical solutions are intractable. Covers root finding, numerical integration, and floating-point stability.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 3,
@@ -5581,8 +5813,12 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
-      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"]
+      "content_status": "draft",
+      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
+      "description": "Algorithms for solving mathematical problems numerically when analytical solutions are intractable. Covers root finding, numerical integration, and floating-point stability.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "agent-memory-and-planning",
@@ -5695,7 +5931,7 @@
     {
       "id": "llvm-ir-and-jit-compilation",
       "title": "LLVM IR & JIT Compilation",
-      "summary": "LLVM IR & JIT Compilation \u2014 part of the Compiler Design domain.",
+      "summary": "Modern modular compiler architecture operating on strongly typed LLVM Intermediate Representation, enabling just-in-time (JIT) runtime compilation and cross-target optimizations.",
       "domain_id": "compiler-design",
       "domain_raw": "Compiler Design",
       "difficulty": 4,
@@ -5707,8 +5943,12 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
-      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"]
+      "content_status": "draft",
+      "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
+      "description": "Modern modular compiler architecture operating on strongly typed LLVM Intermediate Representation, enabling just-in-time (JIT) runtime compilation and cross-target optimizations.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "quantum-error-correction",
@@ -5758,7 +5998,7 @@
     {
       "id": "dns-and-cdn-architecture",
       "title": "DNS & CDN Architecture",
-      "summary": "DNS & CDN Architecture \u2014 part of the Computer Networks domain.",
+      "summary": "Hierarchical domain name resolution systems and Content Delivery Networks distributing static assets globally for low latency and high availability.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 3,
@@ -5770,7 +6010,7 @@
       "resources": [],
       "simulators": [],
       "learning_outcomes": [],
-      "content_status": "stub",
+      "content_status": "draft",
       "missing_sections": ["summary", "skills", "resources", "learning_outcomes"],
       "cross_domain_connections": [
         {
@@ -5780,7 +6020,11 @@
           "relationship_type": "cross_domain",
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
-      ]
+      ],
+      "description": "Hierarchical domain name resolution systems and Content Delivery Networks distributing static assets globally for low latency and high availability.",
+      "metadata": {
+        "content_status": "draft"
+      }
     },
     {
       "id": "design-systems-at-scale",
