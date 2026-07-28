@@ -23,9 +23,10 @@ interface GraphNode {
 
 interface GraphEdge {
   id: string;
-  source: string;
-  target: string;
+  source_id: string;
+  target_id: string;
   relationship_type?: string;
+  edge_type?: string;
 }
 
 type GraphSubgraphData = { nodes: GraphNode[]; edges: GraphEdge[] } | null;
@@ -53,16 +54,15 @@ export default function GraphPage() {
   const nodes = useMemo(() => graphData?.nodes ?? [], [graphData]);
   const rawEdges = useMemo(() => graphData?.edges ?? [], [graphData]);
 
-  // Remap API edges (source/target) to component props (source_id/target_id)
+  // Strictly enforce canonical edge properties
   const edges = useMemo(
     () =>
       rawEdges.map((e) => ({
         id: e.id,
-        source_id: e.source,
-        target_id: e.target,
+        source_id: e.source_id,
+        target_id: e.target_id,
         relationship_type: e.relationship_type ?? 'related',
-        edge_type:
-          (e as unknown as { edge_type?: string }).edge_type ?? e.relationship_type ?? 'related',
+        edge_type: e.edge_type ?? e.relationship_type ?? 'related',
       })),
     [rawEdges],
   );

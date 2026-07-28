@@ -147,28 +147,38 @@ function ReactFlowGraphInner({
         )
       : rawEdges;
 
-    return filtered.map((edge) => {
-      const isCrossDomain =
-        edge.relationship_type === 'cross_domain' || edge.edge_type === 'cross_domain';
+    return filtered
+      .filter((edge) => {
+        if (!edge.source_id || !edge.target_id) {
+          console.error(
+            `[ReactFlow Boundary Error] Edge "${edge.id}" has missing source_id (${edge.source_id}) or target_id (${edge.target_id}). Edge dropped.`,
+          );
+          return false;
+        }
+        return true;
+      })
+      .map((edge) => {
+        const isCrossDomain =
+          edge.relationship_type === 'cross_domain' || edge.edge_type === 'cross_domain';
 
-      return {
-        id: edge.id,
-        source: edge.source_id,
-        target: edge.target_id,
-        type: 'smoothstep',
-        animated: isCrossDomain,
-        style: isCrossDomain
-          ? {
-              strokeWidth: 2.5,
-              stroke: '#EC4899',
-              strokeDasharray: '6 4',
-            }
-          : {
-              strokeWidth: 2,
-              stroke: '#94A3B8',
-            },
-      };
-    });
+        return {
+          id: edge.id,
+          source: edge.source_id,
+          target: edge.target_id,
+          type: 'smoothstep',
+          animated: isCrossDomain,
+          style: isCrossDomain
+            ? {
+                strokeWidth: 2.5,
+                stroke: '#EC4899',
+                strokeDasharray: '6 4',
+              }
+            : {
+                strokeWidth: 2,
+                stroke: '#94A3B8',
+              },
+        };
+      });
   }, [rawEdges, showCrossDomainOnly]);
 
   const onNodeClick = useCallback(

@@ -297,9 +297,8 @@ async def _main():
                         requirement_type=req_type,
                         order_index=order,
                     )
-                    req_count += 1
-
-        print(f"  Created {req_count} project requirement links")
+        await uow.commit()
+        print(f"  Created and committed {req_count} project requirement links")
 
     print(
         "\n✅ Phase 0 complete: categories + careers + 181 nodes + requirements + projects + multi-domain links imported"
