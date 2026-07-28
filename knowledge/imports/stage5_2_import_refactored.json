@@ -476,7 +476,7 @@
     {
       "id": "assembly-language",
       "title": "Assembly Language",
-      "summary": "Assembly Language \u2014 part of the Computer Architecture domain.",
+      "summary": "Assembly Language \u2014 foundational concept.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 3,
@@ -1871,7 +1871,7 @@
     {
       "id": "sdlc-and-agile-methodologies",
       "title": "SDLC & Agile Methodologies",
-      "summary": "SDLC & Agile Methodologies \u2014 part of the Software Engineering domain.",
+      "summary": "SDLC & Agile Methodologies \u2014 foundational concept.",
       "domain_id": "software-engineering",
       "domain_raw": "Software Engineering",
       "difficulty": 1,
@@ -1905,7 +1905,7 @@
     {
       "id": "requirements-engineering-and-design-patterns",
       "title": "Requirements Engineering & Design Patterns",
-      "summary": "Requirements Engineering & Design Patterns \u2014 part of the Software Engineering domain.",
+      "summary": "Requirements Engineering & Design Patterns \u2014 foundational concept.",
       "domain_id": "software-engineering",
       "domain_raw": "Software Engineering",
       "difficulty": 2,
@@ -1939,7 +1939,7 @@
     {
       "id": "testing-and-quality-assurance",
       "title": "Testing & Quality Assurance",
-      "summary": "Testing & Quality Assurance \u2014 part of the Software Engineering domain.",
+      "summary": "Testing & Quality Assurance \u2014 foundational concept.",
       "domain_id": "software-engineering",
       "domain_raw": "Software Engineering",
       "difficulty": 2,
@@ -1973,7 +1973,7 @@
     {
       "id": "version-control-git",
       "title": "Version Control (Git)",
-      "summary": "Version Control (Git) \u2014 part of the Software Engineering domain.",
+      "summary": "Version Control (Git) \u2014 foundational concept.",
       "domain_id": "software-engineering",
       "domain_raw": "Software Engineering",
       "difficulty": 1,
@@ -2014,7 +2014,7 @@
     {
       "id": "software-architecture-patterns",
       "title": "Software Architecture Patterns",
-      "summary": "Software Architecture Patterns \u2014 part of the Software Engineering domain.",
+      "summary": "Software Architecture Patterns \u2014 foundational concept.",
       "domain_id": "software-engineering",
       "domain_raw": "Software Engineering",
       "difficulty": 3,
@@ -2041,7 +2041,7 @@
     {
       "id": "classes-and-objects",
       "title": "Classes & Objects",
-      "summary": "Classes & Objects \u2014 part of the Object-Oriented Programming domain.",
+      "summary": "Classes & Objects \u2014 foundational concept.",
       "domain_id": "object-oriented-programming",
       "domain_raw": "Object-Oriented Programming",
       "difficulty": 1,
@@ -2075,7 +2075,7 @@
     {
       "id": "inheritance-and-polymorphism",
       "title": "Inheritance & Polymorphism",
-      "summary": "Inheritance & Polymorphism \u2014 part of the Object-Oriented Programming domain.",
+      "summary": "Inheritance & Polymorphism \u2014 foundational concept.",
       "domain_id": "object-oriented-programming",
       "domain_raw": "Object-Oriented Programming",
       "difficulty": 2,
@@ -2109,7 +2109,7 @@
     {
       "id": "solid-principles",
       "title": "SOLID Principles",
-      "summary": "SOLID Principles \u2014 part of the Object-Oriented Programming domain.",
+      "summary": "SOLID Principles \u2014 foundational concept.",
       "domain_id": "object-oriented-programming",
       "domain_raw": "Object-Oriented Programming",
       "difficulty": 2,
@@ -2143,7 +2143,7 @@
     {
       "id": "design-patterns-gang-of-four",
       "title": "Design Patterns (Gang of Four)",
-      "summary": "Design Patterns (Gang of Four) \u2014 part of the Object-Oriented Programming domain.",
+      "summary": "Design Patterns (Gang of Four) \u2014 foundational concept.",
       "domain_id": "object-oriented-programming",
       "domain_raw": "Object-Oriented Programming",
       "difficulty": 3,
@@ -2177,7 +2177,7 @@
     {
       "id": "distributed-systems-fundamentals",
       "title": "Distributed Systems Fundamentals",
-      "summary": "Distributed Systems Fundamentals \u2014 part of the Distributed Systems domain.",
+      "summary": "Distributed Systems Fundamentals \u2014 foundational concept.",
       "domain_id": "distributed-systems",
       "domain_raw": "Distributed Systems",
       "difficulty": 3,
@@ -2218,7 +2218,7 @@
     {
       "id": "consensus-algorithms-paxos--raft",
       "title": "Consensus Algorithms (Paxos / Raft)",
-      "summary": "Consensus Algorithms (Paxos / Raft) \u2014 part of the Distributed Systems domain.",
+      "summary": "Consensus Algorithms (Paxos / Raft) \u2014 foundational concept.",
       "domain_id": "distributed-systems",
       "domain_raw": "Distributed Systems",
       "difficulty": 5,
@@ -2259,7 +2259,7 @@
     {
       "id": "cap-theorem-and-consistency-models",
       "title": "CAP Theorem & Consistency Models",
-      "summary": "CAP Theorem & Consistency Models \u2014 part of the Distributed Systems domain.",
+      "summary": "CAP Theorem & Consistency Models \u2014 foundational concept.",
       "domain_id": "distributed-systems",
       "domain_raw": "Distributed Systems",
       "difficulty": 4,
@@ -2307,7 +2307,7 @@
     {
       "id": "microservices-architecture",
       "title": "Microservices Architecture",
-      "summary": "Microservices Architecture \u2014 part of the Distributed Systems domain.",
+      "summary": "Microservices Architecture \u2014 foundational concept.",
       "domain_id": "distributed-systems",
       "domain_raw": "Distributed Systems",
       "difficulty": 3,
@@ -2370,7 +2370,7 @@
     {
       "id": "message-queues-and-event-streaming",
       "title": "Message Queues & Event Streaming",
-      "summary": "Message Queues & Event Streaming \u2014 part of the Distributed Systems domain.",
+      "summary": "Message Queues & Event Streaming \u2014 foundational concept.",
       "domain_id": "distributed-systems",
       "domain_raw": "Distributed Systems",
       "difficulty": 3,
@@ -2397,7 +2397,7 @@
     {
       "id": "cloud-service-models-iaas-paas-saas",
       "title": "Cloud Service Models (IaaS/PaaS/SaaS)",
-      "summary": "Cloud Service Models (IaaS/PaaS/SaaS) \u2014 part of the Cloud Computing domain.",
+      "summary": "Cloud Service Models (IaaS/PaaS/SaaS) \u2014 foundational concept.",
       "domain_id": "cloud-computing",
       "domain_raw": "Cloud Computing",
       "difficulty": 1,
@@ -2431,7 +2431,7 @@
     {
       "id": "virtualization",
       "title": "Virtualization",
-      "summary": "Virtualization \u2014 part of the Cloud Computing domain.",
+      "summary": "Virtualization \u2014 foundational concept.",
       "domain_id": "cloud-computing",
       "domain_raw": "Cloud Computing",
       "difficulty": 3,
@@ -2465,7 +2465,7 @@
     {
       "id": "serverless-computing",
       "title": "Serverless Computing",
-      "summary": "Serverless Computing \u2014 part of the Cloud Computing domain.",
+      "summary": "Serverless Computing \u2014 foundational concept.",
       "domain_id": "cloud-computing",
       "domain_raw": "Cloud Computing",
       "difficulty": 3,
@@ -2499,7 +2499,7 @@
     {
       "id": "cloud-storage-and-managed-databases",
       "title": "Cloud Storage & Managed Databases",
-      "summary": "Cloud Storage & Managed Databases \u2014 part of the Cloud Computing domain.",
+      "summary": "Cloud Storage & Managed Databases \u2014 foundational concept.",
       "domain_id": "cloud-computing",
       "domain_raw": "Cloud Computing",
       "difficulty": 2,
@@ -2533,7 +2533,7 @@
     {
       "id": "ci-cd-pipelines",
       "title": "CI/CD Pipelines",
-      "summary": "CI/CD Pipelines \u2014 part of the DevOps domain.",
+      "summary": "CI/CD Pipelines \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 2,
@@ -2574,7 +2574,7 @@
     {
       "id": "docker-and-containerization",
       "title": "Docker & Containerization",
-      "summary": "Docker & Containerization \u2014 part of the DevOps domain.",
+      "summary": "Docker & Containerization \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 2,
@@ -2622,7 +2622,7 @@
     {
       "id": "kubernetes-and-orchestration",
       "title": "Kubernetes & Orchestration",
-      "summary": "Kubernetes & Orchestration \u2014 part of the DevOps domain.",
+      "summary": "Kubernetes & Orchestration \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 3,
@@ -2656,7 +2656,7 @@
     {
       "id": "infrastructure-as-code",
       "title": "Infrastructure as Code",
-      "summary": "Infrastructure as Code \u2014 part of the DevOps domain.",
+      "summary": "Infrastructure as Code \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 3,
@@ -2690,7 +2690,7 @@
     {
       "id": "monitoring-and-observability",
       "title": "Monitoring & Observability",
-      "summary": "Monitoring & Observability \u2014 part of the DevOps domain.",
+      "summary": "Monitoring & Observability \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 3,
@@ -2724,7 +2724,7 @@
     {
       "id": "security-fundamentals-and-threat-modeling",
       "title": "Security Fundamentals & Threat Modeling",
-      "summary": "Security Fundamentals & Threat Modeling \u2014 part of the Cybersecurity domain.",
+      "summary": "Security Fundamentals & Threat Modeling \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 2,
@@ -2758,7 +2758,7 @@
     {
       "id": "network-security",
       "title": "Network Security",
-      "summary": "Network Security \u2014 part of the Cybersecurity domain.",
+      "summary": "Network Security \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 3,
@@ -2795,7 +2795,7 @@
     {
       "id": "web-application-security-owasp-top-10",
       "title": "Web Application Security (OWASP Top 10)",
-      "summary": "Web Application Security (OWASP Top 10) \u2014 part of the Cybersecurity domain.",
+      "summary": "Web Application Security (OWASP Top 10) \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 3,
@@ -2832,7 +2832,7 @@
     {
       "id": "penetration-testing-fundamentals",
       "title": "Penetration Testing Fundamentals",
-      "summary": "Penetration Testing Fundamentals \u2014 part of the Cybersecurity domain.",
+      "summary": "Penetration Testing Fundamentals \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 4,
@@ -2866,7 +2866,7 @@
     {
       "id": "symmetric-cryptography",
       "title": "Symmetric Cryptography",
-      "summary": "Symmetric Cryptography \u2014 part of the Cryptography domain.",
+      "summary": "Symmetric Cryptography \u2014 foundational concept.",
       "domain_id": "cryptography",
       "domain_raw": "Cryptography",
       "difficulty": 3,
@@ -2907,7 +2907,7 @@
     {
       "id": "asymmetric-cryptography-and-pki",
       "title": "Asymmetric Cryptography & PKI",
-      "summary": "Asymmetric Cryptography & PKI \u2014 part of the Cryptography domain.",
+      "summary": "Asymmetric Cryptography & PKI \u2014 foundational concept.",
       "domain_id": "cryptography",
       "domain_raw": "Cryptography",
       "difficulty": 4,
@@ -2955,7 +2955,7 @@
     {
       "id": "hashing-and-digital-signatures",
       "title": "Hashing & Digital Signatures",
-      "summary": "Hashing & Digital Signatures \u2014 part of the Cryptography domain.",
+      "summary": "Hashing & Digital Signatures \u2014 foundational concept.",
       "domain_id": "cryptography",
       "domain_raw": "Cryptography",
       "difficulty": 3,
@@ -2996,7 +2996,7 @@
     {
       "id": "tls-ssl",
       "title": "TLS/SSL",
-      "summary": "TLS/SSL \u2014 part of the Cryptography domain.",
+      "summary": "TLS/SSL \u2014 foundational concept.",
       "domain_id": "cryptography",
       "domain_raw": "Cryptography",
       "difficulty": 3,
@@ -3030,7 +3030,7 @@
     {
       "id": "html-and-css-fundamentals",
       "title": "HTML & CSS Fundamentals",
-      "summary": "HTML & CSS Fundamentals \u2014 part of the Web Development domain.",
+      "summary": "HTML & CSS Fundamentals \u2014 foundational concept.",
       "domain_id": "web-development",
       "domain_raw": "Web Development",
       "difficulty": 1,
@@ -3064,7 +3064,7 @@
     {
       "id": "javascript-and-the-dom",
       "title": "JavaScript & the DOM",
-      "summary": "JavaScript & the DOM \u2014 part of the Web Development domain.",
+      "summary": "JavaScript & the DOM \u2014 foundational concept.",
       "domain_id": "web-development",
       "domain_raw": "Web Development",
       "difficulty": 2,
@@ -3105,7 +3105,7 @@
     {
       "id": "frontend-frameworks-react",
       "title": "Frontend Frameworks (React)",
-      "summary": "Frontend Frameworks (React) \u2014 part of the Web Development domain.",
+      "summary": "Frontend Frameworks (React) \u2014 foundational concept.",
       "domain_id": "web-development",
       "domain_raw": "Web Development",
       "difficulty": 2,
@@ -3139,7 +3139,7 @@
     {
       "id": "backend-development-and-rest-apis",
       "title": "Backend Development & REST APIs",
-      "summary": "Backend Development & REST APIs \u2014 part of the Web Development domain.",
+      "summary": "Backend Development & REST APIs \u2014 foundational concept.",
       "domain_id": "web-development",
       "domain_raw": "Web Development",
       "difficulty": 2,
@@ -3173,7 +3173,7 @@
     {
       "id": "full-stack-architecture",
       "title": "Full-Stack Architecture",
-      "summary": "Full-Stack Architecture \u2014 part of the Web Development domain.",
+      "summary": "Full-Stack Architecture \u2014 foundational concept.",
       "domain_id": "web-development",
       "domain_raw": "Web Development",
       "difficulty": 3,
@@ -3191,7 +3191,7 @@
     {
       "id": "mobile-ui-fundamentals",
       "title": "Mobile UI Fundamentals",
-      "summary": "Mobile UI Fundamentals \u2014 part of the Mobile Development domain.",
+      "summary": "Mobile UI Fundamentals \u2014 foundational concept.",
       "domain_id": "mobile-development",
       "domain_raw": "Mobile Development",
       "difficulty": 1,
@@ -3225,7 +3225,7 @@
     {
       "id": "native-development-ios-android",
       "title": "Native Development (iOS/Android)",
-      "summary": "Native Development (iOS/Android) \u2014 part of the Mobile Development domain.",
+      "summary": "Native Development (iOS/Android) \u2014 foundational concept.",
       "domain_id": "mobile-development",
       "domain_raw": "Mobile Development",
       "difficulty": 3,
@@ -3259,7 +3259,7 @@
     {
       "id": "cross-platform-frameworks",
       "title": "Cross-Platform Frameworks",
-      "summary": "Cross-Platform Frameworks \u2014 part of the Mobile Development domain.",
+      "summary": "Cross-Platform Frameworks \u2014 foundational concept.",
       "domain_id": "mobile-development",
       "domain_raw": "Mobile Development",
       "difficulty": 2,
@@ -3293,7 +3293,7 @@
     {
       "id": "game-loop-and-engine-basics",
       "title": "Game Loop & Engine Basics",
-      "summary": "Game Loop & Engine Basics \u2014 part of the Game Development domain.",
+      "summary": "Game Loop & Engine Basics \u2014 foundational concept.",
       "domain_id": "game-development",
       "domain_raw": "Game Development",
       "difficulty": 2,
@@ -3327,7 +3327,7 @@
     {
       "id": "physics-and-collision-detection",
       "title": "Physics & Collision Detection",
-      "summary": "Physics & Collision Detection \u2014 part of the Game Development domain.",
+      "summary": "Physics & Collision Detection \u2014 foundational concept.",
       "domain_id": "game-development",
       "domain_raw": "Game Development",
       "difficulty": 3,
@@ -3361,7 +3361,7 @@
     {
       "id": "game-ai",
       "title": "Game AI",
-      "summary": "Game AI \u2014 part of the Game Development domain.",
+      "summary": "Game AI \u2014 foundational concept.",
       "domain_id": "game-development",
       "domain_raw": "Game Development",
       "difficulty": 3,
@@ -3395,7 +3395,7 @@
     {
       "id": "multiplayer-networking",
       "title": "Multiplayer Networking",
-      "summary": "Multiplayer Networking \u2014 part of the Game Development domain.",
+      "summary": "Multiplayer Networking \u2014 foundational concept.",
       "domain_id": "game-development",
       "domain_raw": "Game Development",
       "difficulty": 4,
@@ -3422,7 +3422,7 @@
     {
       "id": "microcontrollers-and-gpio",
       "title": "Microcontrollers & GPIO",
-      "summary": "Microcontrollers & GPIO \u2014 part of the Embedded Systems domain.",
+      "summary": "Microcontrollers & GPIO \u2014 foundational concept.",
       "domain_id": "embedded-systems",
       "domain_raw": "Embedded Systems",
       "difficulty": 2,
@@ -3456,7 +3456,7 @@
     {
       "id": "real-time-operating-systems-rtos",
       "title": "Real-Time Operating Systems (RTOS)",
-      "summary": "Real-Time Operating Systems (RTOS) \u2014 part of the Embedded Systems domain.",
+      "summary": "Real-Time Operating Systems (RTOS) \u2014 foundational concept.",
       "domain_id": "embedded-systems",
       "domain_raw": "Embedded Systems",
       "difficulty": 3,
@@ -3504,7 +3504,7 @@
     {
       "id": "iot-protocols-mqtt-coap",
       "title": "IoT Protocols (MQTT/CoAP)",
-      "summary": "IoT Protocols (MQTT/CoAP) \u2014 part of the Embedded Systems domain.",
+      "summary": "IoT Protocols (MQTT/CoAP) \u2014 foundational concept.",
       "domain_id": "embedded-systems",
       "domain_raw": "Embedded Systems",
       "difficulty": 2,
@@ -3538,7 +3538,7 @@
     {
       "id": "sensor-integration",
       "title": "Sensor Integration",
-      "summary": "Sensor Integration \u2014 part of the Embedded Systems domain.",
+      "summary": "Sensor Integration \u2014 foundational concept.",
       "domain_id": "embedded-systems",
       "domain_raw": "Embedded Systems",
       "difficulty": 2,
@@ -3610,7 +3610,7 @@
     {
       "id": "knowledge-representation",
       "title": "Knowledge Representation",
-      "summary": "Knowledge Representation \u2014 part of the Artificial Intelligence domain.",
+      "summary": "Knowledge Representation \u2014 foundational concept.",
       "domain_id": "artificial-intelligence",
       "domain_raw": "Artificial Intelligence",
       "difficulty": 3,
@@ -3644,7 +3644,7 @@
     {
       "id": "constraint-satisfaction-and-planning",
       "title": "Constraint Satisfaction & Planning",
-      "summary": "Constraint Satisfaction & Planning \u2014 part of the Artificial Intelligence domain.",
+      "summary": "Constraint Satisfaction & Planning \u2014 foundational concept.",
       "domain_id": "artificial-intelligence",
       "domain_raw": "Artificial Intelligence",
       "difficulty": 3,
@@ -3678,7 +3678,7 @@
     {
       "id": "model-evaluation-and-metrics",
       "title": "Model Evaluation & Metrics",
-      "summary": "Model Evaluation & Metrics \u2014 part of the Machine Learning domain.",
+      "summary": "Model Evaluation & Metrics \u2014 foundational concept.",
       "domain_id": "machine-learning",
       "domain_raw": "Machine Learning",
       "difficulty": 2,
@@ -3712,7 +3712,7 @@
     {
       "id": "feature-engineering",
       "title": "Feature Engineering",
-      "summary": "Feature Engineering \u2014 part of the Machine Learning domain.",
+      "summary": "Feature Engineering \u2014 foundational concept.",
       "domain_id": "machine-learning",
       "domain_raw": "Machine Learning",
       "difficulty": 2,
@@ -3739,7 +3739,7 @@
     {
       "id": "ensemble-methods",
       "title": "Ensemble Methods",
-      "summary": "Ensemble Methods \u2014 part of the Machine Learning domain.",
+      "summary": "Ensemble Methods \u2014 foundational concept.",
       "domain_id": "machine-learning",
       "domain_raw": "Machine Learning",
       "difficulty": 3,
@@ -3766,7 +3766,7 @@
     {
       "id": "transformers-and-attention-mechanisms",
       "title": "Transformers & Attention Mechanisms",
-      "summary": "Transformers & Attention Mechanisms \u2014 part of the Deep Learning domain.",
+      "summary": "Transformers & Attention Mechanisms \u2014 foundational concept.",
       "domain_id": "deep-learning",
       "domain_raw": "Deep Learning",
       "difficulty": 4,
@@ -3800,7 +3800,7 @@
     {
       "id": "fine-tuning-and-rlhf",
       "title": "Fine-Tuning & RLHF",
-      "summary": "Fine-Tuning & RLHF \u2014 part of the Generative AI domain.",
+      "summary": "Fine-Tuning & RLHF \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 4,
@@ -3834,7 +3834,7 @@
     {
       "id": "retrieval-augmented-generation-rag",
       "title": "Retrieval-Augmented Generation (RAG)",
-      "summary": "Retrieval-Augmented Generation (RAG) \u2014 part of the Generative AI domain.",
+      "summary": "Retrieval-Augmented Generation (RAG) \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 3,
@@ -3861,7 +3861,7 @@
     {
       "id": "ai-agents-and-tool-use",
       "title": "AI Agents & Tool Use",
-      "summary": "AI Agents & Tool Use \u2014 part of the Generative AI domain.",
+      "summary": "AI Agents & Tool Use \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 3,
@@ -3888,7 +3888,7 @@
     {
       "id": "multi-agent-systems",
       "title": "Multi-Agent Systems",
-      "summary": "Multi-Agent Systems \u2014 part of the Generative AI domain.",
+      "summary": "Multi-Agent Systems \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 4,
@@ -3915,7 +3915,7 @@
     {
       "id": "kinematics-and-control",
       "title": "Kinematics & Control",
-      "summary": "Kinematics & Control \u2014 part of the Robotics domain.",
+      "summary": "Kinematics & Control \u2014 foundational concept.",
       "domain_id": "robotics",
       "domain_raw": "Robotics",
       "difficulty": 4,
@@ -3949,7 +3949,7 @@
     {
       "id": "sensors-and-perception",
       "title": "Sensors & Perception",
-      "summary": "Sensors & Perception \u2014 part of the Robotics domain.",
+      "summary": "Sensors & Perception \u2014 foundational concept.",
       "domain_id": "robotics",
       "domain_raw": "Robotics",
       "difficulty": 3,
@@ -3983,7 +3983,7 @@
     {
       "id": "path-planning",
       "title": "Path Planning",
-      "summary": "Path Planning \u2014 part of the Robotics domain.",
+      "summary": "Path Planning \u2014 foundational concept.",
       "domain_id": "robotics",
       "domain_raw": "Robotics",
       "difficulty": 3,
@@ -4017,7 +4017,7 @@
     {
       "id": "slam-simultaneous-localization-and-mapping",
       "title": "SLAM (Simultaneous Localization and Mapping)",
-      "summary": "SLAM (Simultaneous Localization and Mapping) \u2014 part of the Robotics domain.",
+      "summary": "SLAM (Simultaneous Localization and Mapping) \u2014 foundational concept.",
       "domain_id": "robotics",
       "domain_raw": "Robotics",
       "difficulty": 5,
@@ -4051,7 +4051,7 @@
     {
       "id": "rendering-pipeline",
       "title": "Rendering Pipeline",
-      "summary": "Rendering Pipeline \u2014 part of the Computer Graphics domain.",
+      "summary": "Rendering Pipeline \u2014 foundational concept.",
       "domain_id": "computer-graphics",
       "domain_raw": "Computer Graphics",
       "difficulty": 3,
@@ -4085,7 +4085,7 @@
     {
       "id": "3d-transformations-and-projections",
       "title": "3D Transformations & Projections",
-      "summary": "3D Transformations & Projections \u2014 part of the Computer Graphics domain.",
+      "summary": "3D Transformations & Projections \u2014 foundational concept.",
       "domain_id": "computer-graphics",
       "domain_raw": "Computer Graphics",
       "difficulty": 3,
@@ -4119,7 +4119,7 @@
     {
       "id": "shaders-and-gpu-programming",
       "title": "Shaders & GPU Programming",
-      "summary": "Shaders & GPU Programming \u2014 part of the Computer Graphics domain.",
+      "summary": "Shaders & GPU Programming \u2014 foundational concept.",
       "domain_id": "computer-graphics",
       "domain_raw": "Computer Graphics",
       "difficulty": 4,
@@ -4153,7 +4153,7 @@
     {
       "id": "ray-tracing",
       "title": "Ray Tracing",
-      "summary": "Ray Tracing \u2014 part of the Computer Graphics domain.",
+      "summary": "Ray Tracing \u2014 foundational concept.",
       "domain_id": "computer-graphics",
       "domain_raw": "Computer Graphics",
       "difficulty": 4,
@@ -4187,7 +4187,7 @@
     {
       "id": "parallel-programming-models",
       "title": "Parallel Programming Models",
-      "summary": "Parallel Programming Models \u2014 part of the High-Performance Computing domain.",
+      "summary": "Parallel Programming Models \u2014 foundational concept.",
       "domain_id": "high-performance-computing",
       "domain_raw": "High-Performance Computing",
       "difficulty": 3,
@@ -4259,7 +4259,7 @@
     {
       "id": "distributed-computing-mapreduce-spark",
       "title": "Distributed Computing (MapReduce/Spark)",
-      "summary": "Distributed Computing (MapReduce/Spark) \u2014 part of the High-Performance Computing domain.",
+      "summary": "Distributed Computing (MapReduce/Spark) \u2014 foundational concept.",
       "domain_id": "high-performance-computing",
       "domain_raw": "High-Performance Computing",
       "difficulty": 3,
@@ -4293,7 +4293,7 @@
     {
       "id": "hpc-cluster-architecture",
       "title": "HPC Cluster Architecture",
-      "summary": "HPC Cluster Architecture \u2014 part of the High-Performance Computing domain.",
+      "summary": "HPC Cluster Architecture \u2014 foundational concept.",
       "domain_id": "high-performance-computing",
       "domain_raw": "High-Performance Computing",
       "difficulty": 4,
@@ -4320,7 +4320,7 @@
     {
       "id": "blockchain-fundamentals",
       "title": "Blockchain Fundamentals",
-      "summary": "Blockchain Fundamentals \u2014 part of the Blockchain domain.",
+      "summary": "Blockchain Fundamentals \u2014 foundational concept.",
       "domain_id": "blockchain",
       "domain_raw": "Blockchain",
       "difficulty": 3,
@@ -4354,7 +4354,7 @@
     {
       "id": "consensus-mechanisms-pow-pos",
       "title": "Consensus Mechanisms (PoW/PoS)",
-      "summary": "Consensus Mechanisms (PoW/PoS) \u2014 part of the Blockchain domain.",
+      "summary": "Consensus Mechanisms (PoW/PoS) \u2014 foundational concept.",
       "domain_id": "blockchain",
       "domain_raw": "Blockchain",
       "difficulty": 4,
@@ -4388,7 +4388,7 @@
     {
       "id": "smart-contracts",
       "title": "Smart Contracts",
-      "summary": "Smart Contracts \u2014 part of the Blockchain domain.",
+      "summary": "Smart Contracts \u2014 foundational concept.",
       "domain_id": "blockchain",
       "domain_raw": "Blockchain",
       "difficulty": 3,
@@ -4422,7 +4422,7 @@
     {
       "id": "quantum-computing-fundamentals",
       "title": "Quantum Computing Fundamentals",
-      "summary": "Quantum Computing Fundamentals \u2014 part of the Quantum Computing domain.",
+      "summary": "Quantum Computing Fundamentals \u2014 foundational concept.",
       "domain_id": "quantum-computing",
       "domain_raw": "Quantum Computing",
       "difficulty": 4,
@@ -4456,7 +4456,7 @@
     {
       "id": "qubits-and-quantum-gates",
       "title": "Qubits & Quantum Gates",
-      "summary": "Qubits & Quantum Gates \u2014 part of the Quantum Computing domain.",
+      "summary": "Qubits & Quantum Gates \u2014 foundational concept.",
       "domain_id": "quantum-computing",
       "domain_raw": "Quantum Computing",
       "difficulty": 4,
@@ -4528,7 +4528,7 @@
     {
       "id": "ux-research-and-design-principles",
       "title": "UX Research & Design Principles",
-      "summary": "UX Research & Design Principles \u2014 part of the HCI / UI-UX domain.",
+      "summary": "UX Research & Design Principles \u2014 foundational concept.",
       "domain_id": "hci-ui-ux",
       "domain_raw": "HCI / UI-UX",
       "difficulty": 1,
@@ -4562,7 +4562,7 @@
     {
       "id": "ui-design-systems",
       "title": "UI Design Systems",
-      "summary": "UI Design Systems \u2014 part of the HCI / UI-UX domain.",
+      "summary": "UI Design Systems \u2014 foundational concept.",
       "domain_id": "hci-ui-ux",
       "domain_raw": "HCI / UI-UX",
       "difficulty": 2,
@@ -4596,7 +4596,7 @@
     {
       "id": "accessibility-and-usability-testing",
       "title": "Accessibility & Usability Testing",
-      "summary": "Accessibility & Usability Testing \u2014 part of the HCI / UI-UX domain.",
+      "summary": "Accessibility & Usability Testing \u2014 foundational concept.",
       "domain_id": "hci-ui-ux",
       "domain_raw": "HCI / UI-UX",
       "difficulty": 2,
@@ -4630,7 +4630,7 @@
     {
       "id": "scalability-and-load-balancing",
       "title": "Scalability & Load Balancing",
-      "summary": "Scalability & Load Balancing \u2014 part of the System Design domain.",
+      "summary": "Scalability & Load Balancing \u2014 foundational concept.",
       "domain_id": "system-design",
       "domain_raw": "System Design",
       "difficulty": 3,
@@ -4664,7 +4664,7 @@
     {
       "id": "caching-strategies",
       "title": "Caching Strategies",
-      "summary": "Caching Strategies \u2014 part of the System Design domain.",
+      "summary": "Caching Strategies \u2014 foundational concept.",
       "domain_id": "system-design",
       "domain_raw": "System Design",
       "difficulty": 3,
@@ -4712,7 +4712,7 @@
     {
       "id": "designing-large-scale-systems-case-studies",
       "title": "Designing Large-Scale Systems (Case Studies)",
-      "summary": "Designing Large-Scale Systems (Case Studies) \u2014 part of the System Design domain.",
+      "summary": "Designing Large-Scale Systems (Case Studies) \u2014 foundational concept.",
       "domain_id": "system-design",
       "domain_raw": "System Design",
       "difficulty": 4,
@@ -4750,7 +4750,7 @@
     {
       "id": "linux-and-shell-scripting",
       "title": "Linux & Shell Scripting",
-      "summary": "Linux & Shell Scripting \u2014 part of the Developer Tooling domain.",
+      "summary": "Linux & Shell Scripting \u2014 foundational concept.",
       "domain_id": "developer-tooling",
       "domain_raw": "Developer Tooling",
       "difficulty": 1,
@@ -4784,7 +4784,7 @@
     {
       "id": "git-and-version-control-workflows",
       "title": "Git & Version Control Workflows",
-      "summary": "Git & Version Control Workflows \u2014 part of the Developer Tooling domain.",
+      "summary": "Git & Version Control Workflows \u2014 foundational concept.",
       "domain_id": "developer-tooling",
       "domain_raw": "Developer Tooling",
       "difficulty": 1,
@@ -4818,7 +4818,7 @@
     {
       "id": "docker-fundamentals",
       "title": "Docker Fundamentals",
-      "summary": "Docker Fundamentals \u2014 part of the Developer Tooling domain.",
+      "summary": "Docker Fundamentals \u2014 foundational concept.",
       "domain_id": "developer-tooling",
       "domain_raw": "Developer Tooling",
       "difficulty": 2,
@@ -4852,7 +4852,7 @@
     {
       "id": "kubernetes-fundamentals",
       "title": "Kubernetes Fundamentals",
-      "summary": "Kubernetes Fundamentals \u2014 part of the Developer Tooling domain.",
+      "summary": "Kubernetes Fundamentals \u2014 foundational concept.",
       "domain_id": "developer-tooling",
       "domain_raw": "Developer Tooling",
       "difficulty": 3,
@@ -4879,7 +4879,7 @@
     {
       "id": "data-pipelines-and-etl",
       "title": "Data Pipelines & ETL",
-      "summary": "Data Pipelines & ETL \u2014 part of the Data Engineering domain.",
+      "summary": "Data Pipelines & ETL \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 2,
@@ -4913,7 +4913,7 @@
     {
       "id": "data-warehousing",
       "title": "Data Warehousing",
-      "summary": "Data Warehousing \u2014 part of the Data Engineering domain.",
+      "summary": "Data Warehousing \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 3,
@@ -4947,7 +4947,7 @@
     {
       "id": "data-visualization",
       "title": "Data Visualization",
-      "summary": "Data Visualization \u2014 part of the Data Engineering domain.",
+      "summary": "Data Visualization \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 2,
@@ -5012,7 +5012,7 @@
     {
       "id": "big-data-processing",
       "title": "Big Data Processing",
-      "summary": "Big Data Processing \u2014 part of the Data Engineering domain.",
+      "summary": "Big Data Processing \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 3,
@@ -5030,7 +5030,7 @@
     {
       "id": "system-design-interviews",
       "title": "System Design Interviews",
-      "summary": "System Design Interviews \u2014 part of the Career Preparation domain.",
+      "summary": "System Design Interviews \u2014 foundational concept.",
       "domain_id": "career-preparation",
       "domain_raw": "Career Preparation",
       "difficulty": 3,
@@ -5064,7 +5064,7 @@
     {
       "id": "resume-and-portfolio-building",
       "title": "Resume & Portfolio Building",
-      "summary": "Resume & Portfolio Building \u2014 part of the Career Preparation domain.",
+      "summary": "Resume & Portfolio Building \u2014 foundational concept.",
       "domain_id": "career-preparation",
       "domain_raw": "Career Preparation",
       "difficulty": 1,
@@ -5098,7 +5098,7 @@
     {
       "id": "behavioral-interviews-and-negotiation",
       "title": "Behavioral Interviews & Negotiation",
-      "summary": "Behavioral Interviews & Negotiation \u2014 part of the Career Preparation domain.",
+      "summary": "Behavioral Interviews & Negotiation \u2014 foundational concept.",
       "domain_id": "career-preparation",
       "domain_raw": "Career Preparation",
       "difficulty": 1,
@@ -5125,7 +5125,7 @@
     {
       "id": "functions-scope-and-recursion-basics",
       "title": "Functions, Scope & Recursion Basics",
-      "summary": "Functions, Scope & Recursion Basics \u2014 part of the Programming Fundamentals domain.",
+      "summary": "Functions, Scope & Recursion Basics \u2014 foundational concept.",
       "domain_id": "programming-fundamentals",
       "domain_raw": "Programming Fundamentals",
       "difficulty": 1,
@@ -5159,7 +5159,7 @@
     {
       "id": "debugging-fundamentals-and-tools",
       "title": "Debugging Fundamentals & Tools",
-      "summary": "Debugging Fundamentals & Tools \u2014 part of the Programming Fundamentals domain.",
+      "summary": "Debugging Fundamentals & Tools \u2014 foundational concept.",
       "domain_id": "programming-fundamentals",
       "domain_raw": "Programming Fundamentals",
       "difficulty": 1,
@@ -5193,7 +5193,7 @@
     {
       "id": "probability-and-statistical-inference",
       "title": "Probability & Statistical Inference",
-      "summary": "Probability & Statistical Inference \u2014 part of the Mathematics domain.",
+      "summary": "Probability & Statistical Inference \u2014 foundational concept.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 2,
@@ -5220,7 +5220,7 @@
     {
       "id": "natural-language-processing-fundamentals",
       "title": "Natural Language Processing Fundamentals",
-      "summary": "Natural Language Processing Fundamentals \u2014 part of the Artificial Intelligence domain.",
+      "summary": "Natural Language Processing Fundamentals \u2014 foundational concept.",
       "domain_id": "artificial-intelligence",
       "domain_raw": "Artificial Intelligence",
       "difficulty": 4,
@@ -5247,7 +5247,7 @@
     {
       "id": "computer-vision-fundamentals",
       "title": "Computer Vision Fundamentals",
-      "summary": "Computer Vision Fundamentals \u2014 part of the Artificial Intelligence domain.",
+      "summary": "Computer Vision Fundamentals \u2014 foundational concept.",
       "domain_id": "artificial-intelligence",
       "domain_raw": "Artificial Intelligence",
       "difficulty": 4,
@@ -5274,7 +5274,7 @@
     {
       "id": "information-retrieval-and-search-engines",
       "title": "Information Retrieval & Search Engines",
-      "summary": "Information Retrieval & Search Engines \u2014 part of the Data Engineering domain.",
+      "summary": "Information Retrieval & Search Engines \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 3,
@@ -5292,7 +5292,7 @@
     {
       "id": "recommendation-systems",
       "title": "Recommendation Systems",
-      "summary": "Recommendation Systems \u2014 part of the Artificial Intelligence domain.",
+      "summary": "Recommendation Systems \u2014 foundational concept.",
       "domain_id": "artificial-intelligence",
       "domain_raw": "Artificial Intelligence",
       "difficulty": 3,
@@ -5310,7 +5310,7 @@
     {
       "id": "performance-engineering-and-profiling",
       "title": "Performance Engineering & Profiling",
-      "summary": "Performance Engineering & Profiling \u2014 part of the Systems Engineering domain.",
+      "summary": "Performance Engineering & Profiling \u2014 foundational concept.",
       "domain_id": "systems",
       "domain_raw": "Systems Engineering",
       "difficulty": 3,
@@ -5344,7 +5344,7 @@
     {
       "id": "reverse-engineering-fundamentals",
       "title": "Reverse Engineering Fundamentals",
-      "summary": "Reverse Engineering Fundamentals \u2014 part of the Cybersecurity domain.",
+      "summary": "Reverse Engineering Fundamentals \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 4,
@@ -5371,7 +5371,7 @@
     {
       "id": "site-reliability-engineering",
       "title": "Site Reliability Engineering",
-      "summary": "Site Reliability Engineering \u2014 part of the DevOps domain.",
+      "summary": "Site Reliability Engineering \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 3,
@@ -5398,7 +5398,7 @@
     {
       "id": "storage-systems-and-distributed-storage",
       "title": "Storage Systems & Distributed Storage",
-      "summary": "Storage Systems & Distributed Storage \u2014 part of the Systems Engineering domain.",
+      "summary": "Storage Systems & Distributed Storage \u2014 foundational concept.",
       "domain_id": "systems",
       "domain_raw": "Systems Engineering",
       "difficulty": 4,
@@ -5432,7 +5432,7 @@
     {
       "id": "programming-language-paradigms",
       "title": "Programming Language Paradigms",
-      "summary": "Programming Language Paradigms \u2014 part of the Programming Languages domain.",
+      "summary": "Programming Language Paradigms \u2014 foundational concept.",
       "domain_id": "programming-languages",
       "domain_raw": "Programming Languages",
       "difficulty": 2,
@@ -5466,7 +5466,7 @@
     {
       "id": "type-systems",
       "title": "Type Systems",
-      "summary": "Type Systems \u2014 part of the Programming Languages domain.",
+      "summary": "Type Systems \u2014 foundational concept.",
       "domain_id": "programming-languages",
       "domain_raw": "Programming Languages",
       "difficulty": 3,
@@ -5500,7 +5500,7 @@
     {
       "id": "functional-programming-fundamentals",
       "title": "Functional Programming Fundamentals",
-      "summary": "Functional Programming Fundamentals \u2014 part of the Programming Languages domain.",
+      "summary": "Functional Programming Fundamentals \u2014 foundational concept.",
       "domain_id": "programming-languages",
       "domain_raw": "Programming Languages",
       "difficulty": 3,
@@ -5518,7 +5518,7 @@
     {
       "id": "browser-rendering-engine-fundamentals",
       "title": "Browser Rendering Engine Fundamentals",
-      "summary": "Browser Rendering Engine Fundamentals \u2014 part of the Browser Engineering domain.",
+      "summary": "Browser Rendering Engine Fundamentals \u2014 foundational concept.",
       "domain_id": "browser-engineering",
       "domain_raw": "Browser Engineering",
       "difficulty": 4,
@@ -5559,7 +5559,7 @@
     {
       "id": "javascript-engine-internals-jit-compilation",
       "title": "JavaScript Engine Internals (JIT Compilation)",
-      "summary": "JavaScript Engine Internals (JIT Compilation) \u2014 part of the Browser Engineering domain.",
+      "summary": "JavaScript Engine Internals (JIT Compilation) \u2014 foundational concept.",
       "domain_id": "browser-engineering",
       "domain_raw": "Browser Engineering",
       "difficulty": 4,
@@ -5596,7 +5596,7 @@
     {
       "id": "malware-analysis-fundamentals",
       "title": "Malware Analysis Fundamentals",
-      "summary": "Malware Analysis Fundamentals \u2014 part of the Cybersecurity domain.",
+      "summary": "Malware Analysis Fundamentals \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 4,
@@ -5623,7 +5623,7 @@
     {
       "id": "observability-fundamentals-logs-metrics-traces",
       "title": "Observability Fundamentals (Logs, Metrics, Traces)",
-      "summary": "Observability Fundamentals (Logs, Metrics, Traces) \u2014 part of the DevOps domain.",
+      "summary": "Observability Fundamentals (Logs, Metrics, Traces) \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 2,
@@ -5650,7 +5650,7 @@
     {
       "id": "distributed-tracing",
       "title": "Distributed Tracing",
-      "summary": "Distributed Tracing \u2014 part of the DevOps domain.",
+      "summary": "Distributed Tracing \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 3,
@@ -5671,7 +5671,7 @@
     {
       "id": "hypervisors-and-virtualization-internals",
       "title": "Hypervisors & Virtualization Internals",
-      "summary": "Hypervisors & Virtualization Internals \u2014 part of the Cloud Computing domain.",
+      "summary": "Hypervisors & Virtualization Internals \u2014 foundational concept.",
       "domain_id": "cloud-computing",
       "domain_raw": "Cloud Computing",
       "difficulty": 4,
@@ -5705,7 +5705,7 @@
     {
       "id": "container-internals-namespaces-and-cgroups",
       "title": "Container Internals (Namespaces & cgroups)",
-      "summary": "Container Internals (Namespaces & cgroups) \u2014 part of the DevOps domain.",
+      "summary": "Container Internals (Namespaces & cgroups) \u2014 foundational concept.",
       "domain_id": "devops",
       "domain_raw": "DevOps",
       "difficulty": 4,
@@ -5761,7 +5761,7 @@
     {
       "id": "device-drivers",
       "title": "Device Drivers",
-      "summary": "Device Drivers \u2014 part of the Operating Systems domain.",
+      "summary": "Device Drivers \u2014 foundational concept.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 4,
@@ -5823,7 +5823,7 @@
     {
       "id": "agent-memory-and-planning",
       "title": "Agent Memory & Planning",
-      "summary": "Agent Memory & Planning \u2014 part of the Generative AI domain.",
+      "summary": "Agent Memory & Planning \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 4,
@@ -5841,7 +5841,7 @@
     {
       "id": "tool-use-protocol-design",
       "title": "Tool-Use Protocol Design",
-      "summary": "Tool-Use Protocol Design \u2014 part of the Generative AI domain.",
+      "summary": "Tool-Use Protocol Design \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 3,
@@ -5859,7 +5859,7 @@
     {
       "id": "llm-inference-and-serving-kv-cache-batching",
       "title": "LLM Inference & Serving (KV Cache, Batching)",
-      "summary": "LLM Inference & Serving (KV Cache, Batching) \u2014 part of the Generative AI domain.",
+      "summary": "LLM Inference & Serving (KV Cache, Batching) \u2014 foundational concept.",
       "domain_id": "generative-ai",
       "domain_raw": "Generative AI",
       "difficulty": 4,
@@ -5877,7 +5877,7 @@
     {
       "id": "stream-processing",
       "title": "Stream Processing",
-      "summary": "Stream Processing \u2014 part of the Data Engineering domain.",
+      "summary": "Stream Processing \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 3,
@@ -5895,7 +5895,7 @@
     {
       "id": "data-governance-and-quality",
       "title": "Data Governance & Quality",
-      "summary": "Data Governance & Quality \u2014 part of the Data Engineering domain.",
+      "summary": "Data Governance & Quality \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 2,
@@ -5913,7 +5913,7 @@
     {
       "id": "webgpu-programming",
       "title": "WebGPU Programming",
-      "summary": "WebGPU Programming \u2014 part of the Computer Graphics domain.",
+      "summary": "WebGPU Programming \u2014 foundational concept.",
       "domain_id": "computer-graphics",
       "domain_raw": "Computer Graphics",
       "difficulty": 4,
@@ -5953,7 +5953,7 @@
     {
       "id": "quantum-error-correction",
       "title": "Quantum Error Correction",
-      "summary": "Quantum Error Correction \u2014 part of the Quantum Computing domain.",
+      "summary": "Quantum Error Correction \u2014 foundational concept.",
       "domain_id": "quantum-computing",
       "domain_raw": "Quantum Computing",
       "difficulty": 5,
@@ -5980,7 +5980,7 @@
     {
       "id": "ranking-algorithms-pagerank-learning-to-rank",
       "title": "Ranking Algorithms (PageRank, Learning-to-Rank)",
-      "summary": "Ranking Algorithms (PageRank, Learning-to-Rank) \u2014 part of the Data Engineering domain.",
+      "summary": "Ranking Algorithms (PageRank, Learning-to-Rank) \u2014 foundational concept.",
       "domain_id": "data-engineering",
       "domain_raw": "Data Engineering",
       "difficulty": 3,
@@ -6029,7 +6029,7 @@
     {
       "id": "design-systems-at-scale",
       "title": "Design Systems at Scale",
-      "summary": "Design Systems at Scale \u2014 part of the HCI / UI-UX domain.",
+      "summary": "Design Systems at Scale \u2014 foundational concept.",
       "domain_id": "hci-ui-ux",
       "domain_raw": "HCI / UI-UX",
       "difficulty": 3,
@@ -6056,7 +6056,7 @@
     {
       "id": "incident-response-and-digital-forensics",
       "title": "Incident Response & Digital Forensics",
-      "summary": "Incident Response & Digital Forensics \u2014 part of the Cybersecurity domain.",
+      "summary": "Incident Response & Digital Forensics \u2014 foundational concept.",
       "domain_id": "cybersecurity",
       "domain_raw": "Cybersecurity",
       "difficulty": 4,
@@ -6083,7 +6083,7 @@
     {
       "id": "firmware-and-bootloaders",
       "title": "Firmware & Bootloaders",
-      "summary": "Firmware & Bootloaders \u2014 part of the Embedded Systems domain.",
+      "summary": "Firmware & Bootloaders \u2014 foundational concept.",
       "domain_id": "embedded-systems",
       "domain_raw": "Embedded Systems",
       "difficulty": 4,
