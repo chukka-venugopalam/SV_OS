@@ -518,7 +518,7 @@ def create_app() -> FastAPI:
                 'success': True,
                 'message': (
                     'Database seeded successfully '
-                    '(categories, careers, 181 nodes, requirements, projects)'
+                    '(categories, careers, 221 nodes, requirements, projects)'
                 ),
                 'timestamp': datetime.now(UTC).isoformat(),
             }

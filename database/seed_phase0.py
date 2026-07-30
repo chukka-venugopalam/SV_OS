@@ -99,19 +99,25 @@ async def _main():
     import_path = os.path.join(
         project_root, "knowledge", "imports", "stage5_2_import_refactored.json"
     )
-    print(f"[3/4] Importing 181 nodes from {import_path}")
     with open(import_path, encoding="utf-8") as f:  # noqa: ASYNC230
         import_data = json.load(f)
 
-    # Pre-process: map domain_id/domain_raw → domain for the import service
     nodes = import_data.get("nodes", [])
+    print(f"[3/4] Importing {len(nodes)} nodes from {import_path}")
     for n in nodes:
-        n["domain"] = n.pop("domain_raw", n.get("domain_id", "unknown"))
+        if "domain" not in n or not n["domain"] or n["domain"] == "unknown":
+            n["domain"] = n.pop("domain_raw", n.get("domain_id", "Computer Science"))
         n.pop("domain_id", None)
+        n.pop("domain_raw", None)
         n.pop("content_status", None)
         n.pop("missing_sections", None)
-        if "estimated_hours" not in n:
-            n["estimated_hours"] = 10
+        if (
+            n.get("estimated_hours") is not None
+            and n.get("estimated_minutes") is not None
+        ):
+            n.pop("estimated_minutes", None)
+        elif n.get("estimated_hours") is None and n.get("estimated_minutes") is None:
+            n["estimated_hours"] = 1.0
 
     # Remove top-level keys not in ImportMap schema
     import_data.pop("careers", None)
