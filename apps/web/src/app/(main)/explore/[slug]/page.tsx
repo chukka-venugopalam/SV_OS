@@ -36,9 +36,16 @@ import { useParams } from 'next/navigation';
 
 import { NODE_TYPE_COLORS } from '@/components/graph';
 import { Shell } from '@/components/shared/shell';
+import { BTreeVisualizer } from '@/components/simulators/btree-visualizer';
+import { CpuRegisterVisualizer } from '@/components/simulators/cpu-register-visualizer';
+import { CpuSchedulerVisualizer } from '@/components/simulators/cpu-scheduler-visualizer';
+import { FiniteAutomataVisualizer } from '@/components/simulators/finite-automata-visualizer';
 import { GraphTraversalVisualizer } from '@/components/simulators/graph-traversal-visualizer';
+import { LexerVisualizer } from '@/components/simulators/lexer-visualizer';
 import { LogicCircuitSimulator } from '@/components/simulators/logic-circuit-simulator';
 import { SortingVisualizer } from '@/components/simulators/sorting-visualizer';
+import { TcpPacketFlowVisualizer } from '@/components/simulators/tcp-packet-flow-visualizer';
+import { TruthTableVisualizer } from '@/components/simulators/truth-table-visualizer';
 import {
   useIsBookmarked,
   useToggleBookmark,
@@ -218,7 +225,7 @@ export default function KnowledgeNodeDetailPage() {
         )}
       </div>
 
-      {/* Interactive Simulator (if slug matches) */}
+      {/* Interactive Simulator (if slug matches core subjects) */}
       {slug === 'logic-gates' && (
         <div className="mb-8">
           <LogicCircuitSimulator />
@@ -232,6 +239,41 @@ export default function KnowledgeNodeDetailPage() {
       {slug === 'intro-to-ai-and-search-algorithms' && (
         <div className="mb-8">
           <GraphTraversalVisualizer />
+        </div>
+      )}
+      {slug === 'cpu-scheduling' && (
+        <div className="mb-8">
+          <CpuSchedulerVisualizer />
+        </div>
+      )}
+      {slug === 'tcp-and-congestion-control' && (
+        <div className="mb-8">
+          <TcpPacketFlowVisualizer />
+        </div>
+      )}
+      {slug === 'indexing-b-tree-hash' && (
+        <div className="mb-8">
+          <BTreeVisualizer />
+        </div>
+      )}
+      {slug === 'finite-automata' && (
+        <div className="mb-8">
+          <FiniteAutomataVisualizer />
+        </div>
+      )}
+      {slug === 'cpu-architecture-and-instruction-cycle' && (
+        <div className="mb-8">
+          <CpuRegisterVisualizer />
+        </div>
+      )}
+      {slug === 'lexical-analysis' && (
+        <div className="mb-8">
+          <LexerVisualizer />
+        </div>
+      )}
+      {slug === 'set-theory-and-mathematical-logic' && (
+        <div className="mb-8">
+          <TruthTableVisualizer />
         </div>
       )}
 
