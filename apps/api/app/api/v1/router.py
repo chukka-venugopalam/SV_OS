@@ -32,6 +32,7 @@ from app.api.v1.endpoints import (
     recommendations,
     recommendations_platform,
     search,
+    simulators,
     skills,
 )
 from app.api.v1.endpoints import export_platform as exports_platform
@@ -215,6 +216,7 @@ router.include_router(projects.router, prefix='/projects', tags=['projects'])
 router.include_router(recommendations.router, prefix='/recommendations', tags=['recommendations'])
 router.include_router(search.router, prefix='/search', tags=['search'])
 router.include_router(skills.router, prefix='/skills', tags=['skills'])
+router.include_router(simulators.router)
 
 
 # ── Register health checks ─────────────────────────────────────────

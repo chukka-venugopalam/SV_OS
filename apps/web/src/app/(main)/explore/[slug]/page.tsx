@@ -37,12 +37,15 @@ import { useParams } from 'next/navigation';
 import { NODE_TYPE_COLORS } from '@/components/graph';
 import { Shell } from '@/components/shared/shell';
 import { BTreeVisualizer } from '@/components/simulators/btree-visualizer';
+import { CallStackVisualizer } from '@/components/simulators/call-stack-visualizer';
 import { CpuRegisterVisualizer } from '@/components/simulators/cpu-register-visualizer';
 import { CpuSchedulerVisualizer } from '@/components/simulators/cpu-scheduler-visualizer';
 import { FiniteAutomataVisualizer } from '@/components/simulators/finite-automata-visualizer';
 import { GraphTraversalVisualizer } from '@/components/simulators/graph-traversal-visualizer';
+import { HashTableVisualizer } from '@/components/simulators/hash-table-visualizer';
 import { LexerVisualizer } from '@/components/simulators/lexer-visualizer';
 import { LogicCircuitSimulator } from '@/components/simulators/logic-circuit-simulator';
+import { MemoryPageReplacementVisualizer } from '@/components/simulators/memory-page-replacement-visualizer';
 import { SortingVisualizer } from '@/components/simulators/sorting-visualizer';
 import { TcpPacketFlowVisualizer } from '@/components/simulators/tcp-packet-flow-visualizer';
 import { TruthTableVisualizer } from '@/components/simulators/truth-table-visualizer';
@@ -274,6 +277,21 @@ export default function KnowledgeNodeDetailPage() {
       {slug === 'set-theory-and-mathematical-logic' && (
         <div className="mb-8">
           <TruthTableVisualizer />
+        </div>
+      )}
+      {slug === 'dsa-hash-tables' && (
+        <div className="mb-8">
+          <HashTableVisualizer />
+        </div>
+      )}
+      {slug === 'virtual-memory' && (
+        <div className="mb-8">
+          <MemoryPageReplacementVisualizer />
+        </div>
+      )}
+      {slug === 'recursion-and-divide-and-conquer' && (
+        <div className="mb-8">
+          <CallStackVisualizer />
         </div>
       )}
 
