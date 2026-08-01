@@ -73,7 +73,7 @@ class ImportNode(BaseModel):
         default_factory=list,
         description='Career/learning-goal tags',
     )
-    resources: list[str] = Field(
+    resources: list[str | dict[str, Any]] = Field(
         default_factory=list,
         description='External learning resource descriptions',
     )
