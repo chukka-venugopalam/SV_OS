@@ -10716,6 +10716,1004 @@
   ],
   "projects": [
     {
+      "id": "personal-website",
+      "title": "Personal Portfolio Website",
+      "difficulty": 1,
+      "estimated_hours": 20,
+      "portfolio_value": "medium",
+      "linked_nodes": [
+        "html-and-css-fundamentals",
+        "javascript-and-the-dom",
+        "browser-rendering-engine-fundamentals",
+        "application-layer-protocols-http-dns"
+      ],
+      "careers": ["Frontend Developer", "Web Developer"],
+      "description": "Design and build a responsive personal portfolio website showcasing software projects, technical articles, and professional experience. Implement custom layout styling, interactive DOM components, accessible UI elements, and fast asset loading.",
+      "tech_stack": ["HTML5", "CSS3", "JavaScript", "Vite"],
+      "architecture_overview": "Static Web Client -> DOM Event Handler -> LocalStorage Cache -> HTTP Asset CDN",
+      "linked_node_explanations": {
+        "html-and-css-fundamentals": "Provides semantic layout structure, Flexbox/Grid CSS styling, and responsive media queries.",
+        "javascript-and-the-dom": "Powers dynamic UI interactions, theme switching, and DOM event listeners.",
+        "browser-rendering-engine-fundamentals": "Guides DOM reflow/repaint optimization and layout layer rendering performance.",
+        "application-layer-protocols-http-dns": "Explains asset fetching, caching headers, and DNS domain resolution."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Semantic HTML & Responsive Layout",
+          "description": "Construct accessible semantic page sections and mobile-first CSS grid layouts.",
+          "deliverables": [
+            "Responsive navigation header and hero section",
+            "Flexbox/Grid projects gallery grid",
+            "W3C HTML validator pass"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Interactive DOM Components",
+          "description": "Build interactive JavaScript widgets for theme toggle, contact form validation, and project filtering.",
+          "deliverables": [
+            "Dark mode theme toggle using LocalStorage",
+            "Client-side form input sanitizer",
+            "Filtered project category buttons"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Performance Optimization & Deployment",
+          "description": "Optimize critical rendering path asset loading and deploy to production CDN.",
+          "deliverables": [
+            "Lighthouse Performance score > 95",
+            "WebP image asset compression",
+            "Automated GitHub Pages deployment pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task-manager",
+      "title": "Task Manager App",
+      "difficulty": 2,
+      "estimated_hours": 40,
+      "portfolio_value": "medium",
+      "linked_nodes": [
+        "frontend-frameworks-react",
+        "backend-development-and-rest-apis",
+        "relational-model-and-sql",
+        "threads-and-concurrency"
+      ],
+      "careers": ["Fullstack Engineer", "Backend Developer"],
+      "description": "Full-stack kanban task management application featuring JWT authentication, task drag-and-drop organization, subtask tracking, and real-time updates across concurrent user sessions.",
+      "tech_stack": ["React", "TypeScript", "Node.js", "Express", "PostgreSQL", "Socket.io"],
+      "architecture_overview": "React Web Client -> Express REST API -> PostgreSQL Database & WebSocket Event Relay",
+      "linked_node_explanations": {
+        "frontend-frameworks-react": "Manages component state, drag-and-drop UI hooks, and virtual DOM reconciliation.",
+        "backend-development-and-rest-apis": "Implements RESTful endpoint routing, middleware authentication, and request handling.",
+        "relational-model-and-sql": "Structures user, board, list, and task table schemas with foreign key constraints.",
+        "threads-and-concurrency": "Handles concurrent WebSocket connections and asynchronous event loop I/O."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Database Schema & REST API Backend",
+          "description": "Design relational database tables and build authenticated REST API endpoints.",
+          "deliverables": [
+            "PostgreSQL schema migrations",
+            "JWT authentication middleware",
+            "CRUD endpoints for boards and tasks"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "React Kanban Drag-and-Drop Frontend",
+          "description": "Build interactive React frontend with drag-and-drop task movement across columns.",
+          "deliverables": [
+            "Board column drag-and-drop UI component",
+            "Optimistic state update hooks",
+            "Form modal for task creation"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Real-time WebSocket Synchronization",
+          "description": "Integrate WebSockets to broadcast live task edits across connected client sessions.",
+          "deliverables": [
+            "Socket.io event emitter integration",
+            "Live cursor and active user indicators",
+            "Conflict handling for concurrent updates"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "url-shortener",
+      "title": "URL Shortener Service",
+      "difficulty": 2,
+      "estimated_hours": 30,
+      "portfolio_value": "medium",
+      "linked_nodes": [
+        "backend-development-and-rest-apis",
+        "indexing-b-tree-hash",
+        "caching-strategies",
+        "relational-model-and-sql"
+      ],
+      "careers": ["Backend Engineer", "Systems Architect"],
+      "description": "High-throughput URL shortening service supporting Base62 encoding, custom aliases, Redis sub-millisecond redirect caching, and click analytics tracking.",
+      "tech_stack": ["Python", "FastAPI", "Redis", "PostgreSQL"],
+      "architecture_overview": "Client Request -> FastAPI Router -> Redis Cache (Hit) OR PostgreSQL (Miss) -> Base62 Redirect",
+      "linked_node_explanations": {
+        "backend-development-and-rest-apis": "Exposes URL shortening API and HTTP 301/302 redirect handlers.",
+        "indexing-b-tree-hash": "Accelerates short key lookups using O(1) hash table caching and database index scans.",
+        "caching-strategies": "Implements LRU cache eviction and write-through caching to offload database reads.",
+        "relational-model-and-sql": "Persists long-to-short URL mappings, expiration timestamps, and access metrics."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Base62 Encoding & Storage Engine",
+          "description": "Implement Base62 auto-increment ID encoding and persistent URL database storage.",
+          "deliverables": [
+            "Base62 encoding/decoding module",
+            "PostgreSQL URL mapping schema",
+            "Redirect handler endpoint"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Redis Sub-Millisecond Caching Layer",
+          "description": "Integrate Redis caching to serve hot URL redirects directly from memory.",
+          "deliverables": [
+            "Redis cache-aside lookup wrapper",
+            "TTL cache invalidation strategy",
+            "Benchmark demonstrating < 5ms latency"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Analytics Tracking & Rate Limiting",
+          "description": "Add asynchronous click tracking and sliding window API rate limiting.",
+          "deliverables": [
+            "Asynchronous click analytics logger",
+            "Redis sliding-window rate limiter middleware",
+            "Analytics summary dashboard endpoint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chat-app",
+      "title": "Real-time Messaging Platform",
+      "difficulty": 2,
+      "estimated_hours": 45,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "threads-and-concurrency",
+        "processes-and-process-management",
+        "nosql-and-distributed-databases",
+        "asymmetric-cryptography-and-pki"
+      ],
+      "careers": ["Backend Developer", "Security Engineer"],
+      "description": "End-to-end encrypted messaging platform featuring low-latency WebSocket communication, message channel persistence, typing indicators, and RSA/AES hybrid payload encryption.",
+      "tech_stack": ["React", "Node.js", "Socket.io", "MongoDB", "Web Crypto API"],
+      "architecture_overview": "React Client (Crypto Worker) <-> WebSocket Server <-> MongoDB Message Store",
+      "linked_node_explanations": {
+        "threads-and-concurrency": "Manages non-blocking WebSocket I/O event loops and concurrent client connections.",
+        "processes-and-process-management": "Utilizes worker processes for offloading heavy encryption key generation tasks.",
+        "nosql-and-distributed-databases": "Stores unstructured chat message documents and conversation metadata.",
+        "asymmetric-cryptography-and-pki": "Secures message payloads using public-key RSA key exchange and symmetric AES-GCM encryption."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "WebSocket Signaling & Connection Manager",
+          "description": "Build real-time WebSocket connection manager supporting room joining and broadcast events.",
+          "deliverables": [
+            "Socket.io server room gateway",
+            "Client connection reconnect logic",
+            "Online presence heartbeat status"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "End-to-End Cryptography Layer",
+          "description": "Implement client-side RSA key pair generation and AES-GCM message payload encryption.",
+          "deliverables": [
+            "Web Crypto API key exchange protocol",
+            "Encrypted payload serializer",
+            "Zero-knowledge server payload relay"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Message Persistence & Media Streaming",
+          "description": "Persist message history in MongoDB and handle file attachment uploads.",
+          "deliverables": [
+            "MongoDB chat message schema",
+            "Chunked file upload handler",
+            "Infinite scroll message history UI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ecommerce-api",
+      "title": "E-Commerce REST API Engine",
+      "difficulty": 2,
+      "estimated_hours": 50,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "backend-development-and-rest-apis",
+        "relational-model-and-sql",
+        "caching-strategies",
+        "docker-and-containerization"
+      ],
+      "careers": ["Backend Developer", "Software Engineer"],
+      "description": "Production-grade e-commerce REST API featuring catalog search, shopping cart management, Stripe payment processing, transactional inventory locks, and Docker containerization.",
+      "tech_stack": ["Python", "FastAPI", "PostgreSQL", "Stripe API", "Docker"],
+      "architecture_overview": "API Gateway / Nginx -> FastAPI App Cluster -> PostgreSQL (ACID Locks) & Redis Cache",
+      "linked_node_explanations": {
+        "backend-development-and-rest-apis": "Exposes OpenAPI REST endpoints for inventory, orders, and checkouts.",
+        "relational-model-and-sql": "Enforces strict ACID database transactions for inventory deduction and order processing.",
+        "caching-strategies": "Caches product catalog read queries in Redis to minimize database stress.",
+        "docker-and-containerization": "Packages API services into multi-stage Docker containers for deployment."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Product Catalog & Search Service",
+          "description": "Build catalog endpoints with category filtering, full-text search, and Redis caching.",
+          "deliverables": [
+            "PostgreSQL product schema with JSONB metadata",
+            "Redis query cache integration",
+            "Paginated search endpoint"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Transactional Checkout & Payment Gateway",
+          "description": "Implement checkout API enforcing row-level database locks for inventory allocation.",
+          "deliverables": [
+            "Stripe PaymentIntent webhook handler",
+            "Pessimistic inventory locking SQL transaction",
+            "Order receipt generation module"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Dockerization & Integration Testing",
+          "description": "Containerize API services and write automated integration tests for order flows.",
+          "deliverables": [
+            "Multi-stage Dockerfile and Docker Compose setup",
+            "PyTest integration test suite covering checkout flows",
+            "Swagger API documentation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "netflix-clone",
+      "title": "Video Streaming Platform Clone",
+      "difficulty": 3,
+      "estimated_hours": 80,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "microservices-architecture",
+        "caching-strategies",
+        "cloud-storage-and-managed-databases",
+        "frontend-frameworks-react"
+      ],
+      "careers": ["Fullstack Engineer", "System Architect"],
+      "description": "Scalable video streaming platform featuring HLS adaptive bitrate video streaming, user watch history tracking, content recommendation carousels, and AWS S3/CloudFront CDN integration.",
+      "tech_stack": ["React", "Next.js", "Node.js", "FFmpeg", "AWS S3", "CloudFront"],
+      "architecture_overview": "Next.js Client -> Microservices Gateway -> FFmpeg Transcoder -> S3 Bucket -> CloudFront CDN",
+      "linked_node_explanations": {
+        "microservices-architecture": "Decouples video catalog, auth, and transcoding into microservices.",
+        "caching-strategies": "Utilizes Edge CDN caching for low-latency HLS video segment delivery.",
+        "cloud-storage-and-managed-databases": "Stores raw and transcoded video files in object storage buckets.",
+        "frontend-frameworks-react": "Powers custom video player UI with adaptive bitrate stream switching."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Video Transcoding & HLS Packaging",
+          "description": "Build video upload pipeline using FFmpeg to segment videos into HLS (.m3u8) bitrates.",
+          "deliverables": [
+            "FFmpeg automated transcoding script",
+            "Multi-bitrate HLS playlist generator",
+            "AWS S3 storage uploader"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Custom Video Player & Stream Switcher",
+          "description": "Integrate HLS.js in React to build responsive video player with quality selector.",
+          "deliverables": [
+            "Custom HTML5 video controls",
+            "Adaptive bitrate quality selector UI",
+            "Playback progress and watch state saver"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "CloudFront CDN Integration & Catalog API",
+          "description": "Configure CDN distribution and build catalog search service.",
+          "deliverables": [
+            "AWS CloudFront signed URL CDN integration",
+            "Next.js SSR movie catalog pages",
+            "User watch history tracking API"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "social-media-dashboard",
+      "title": "Social Media Analytics Dashboard",
+      "difficulty": 3,
+      "estimated_hours": 60,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "data-visualization",
+        "relational-model-and-sql",
+        "message-queues-and-event-streaming",
+        "caching-strategies"
+      ],
+      "careers": ["Frontend Developer", "Data Engineer"],
+      "description": "Real-time analytics dashboard rendering high-dimensional social media engagement metrics, custom time-series aggregations, D3.js interactive charts, and CSV/PDF export generation.",
+      "tech_stack": ["React", "D3.js", "TypeScript", "FastAPI", "PostgreSQL", "Redis"],
+      "architecture_overview": "React Dashboard (D3.js) -> FastAPI Analytics Service -> Redis Cache -> PostgreSQL (Time Series)",
+      "linked_node_explanations": {
+        "data-visualization": "Renders D3.js line graphs, heatmaps, and interactive analytics charts.",
+        "relational-model-and-sql": "Executes SQL time-series window functions and aggregation queries.",
+        "message-queues-and-event-streaming": "Ingests continuous social media metric event streams asynchronously.",
+        "caching-strategies": "Caches heavy metric aggregation calculations in Redis."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Time-Series Database Aggregations",
+          "description": "Build SQL time-series queries aggregating engagement metrics across hourly/daily windows.",
+          "deliverables": [
+            "PostgreSQL analytics table indexing",
+            "Time-series window query functions",
+            "FastAPI analytics metric endpoint"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "D3.js Interactive Chart Component Suite",
+          "description": "Build custom D3.js chart components for time-series lines, bar charts, and heatmaps.",
+          "deliverables": [
+            "D3.js responsive SVG line chart",
+            "Tooltip interaction and zoom controller",
+            "Theme-aware chart styling"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Export Engine & Live Data Polling",
+          "description": "Implement automated PDF report generation and live metric refresh triggers.",
+          "deliverables": [
+            "Client-side CSV/PDF report exporter",
+            "Redis cached metric polling hook",
+            "Filter controls for date range selection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "docker-voting-app",
+      "title": "Distributed Containerized Voting App",
+      "difficulty": 3,
+      "estimated_hours": 25,
+      "portfolio_value": "medium",
+      "linked_nodes": [
+        "docker-and-containerization",
+        "microservices-architecture",
+        "scalability-and-load-balancing",
+        "message-queues-and-event-streaming"
+      ],
+      "careers": ["DevOps Engineer", "Cloud Engineer"],
+      "description": "Multi-service microservice voting application demonstrating container orchestration, Redis message queue decoupling, background worker processing, and live result visualization.",
+      "tech_stack": ["Docker", "Docker Compose", "Python", "Node.js", "Redis", "PostgreSQL"],
+      "architecture_overview": "Vote UI (Python) -> Redis Queue -> Java Worker -> PostgreSQL -> Results UI (Node.js)",
+      "linked_node_explanations": {
+        "docker-and-containerization": "Encapsulates distinct microservices into isolated Docker container images.",
+        "microservices-architecture": "Decouples voter intake frontend from result processing workers.",
+        "scalability-and-load-balancing": "Enables independent horizontal scaling of voter intake containers.",
+        "message-queues-and-event-streaming": "Buffers incoming vote payloads in Redis queue for worker ingestion."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Microservice Containerization",
+          "description": "Write optimized Dockerfiles for voter frontend, background worker, and result frontend.",
+          "deliverables": [
+            "Python voting frontend Dockerfile",
+            "Node.js results frontend Dockerfile",
+            "Java/C# background worker Dockerfile"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Docker Compose Orchestration",
+          "description": "Configure multi-container environment with network bridges and storage volumes.",
+          "deliverables": [
+            "Docker Compose YAML specification",
+            "Inter-container isolated bridge network",
+            "PostgreSQL persistent volume mount"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Worker Queue Integration & Load Testing",
+          "description": "Integrate Redis queue processing and execute load testing across worker containers.",
+          "deliverables": [
+            "Worker Redis-to-PostgreSQL sync loop",
+            "Docker Compose horizontal scaling command test",
+            "End-to-end voting dataflow validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "machine-learning-pipeline",
+      "title": "Automated ML Pipeline Orchestrator",
+      "difficulty": 3,
+      "estimated_hours": 70,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "calculus-and-optimization-basics",
+        "computer-vision-fundamentals",
+        "docker-and-containerization",
+        "backend-development-and-rest-apis"
+      ],
+      "careers": ["AI/ML Engineer", "Data Scientist"],
+      "description": "Automated machine learning workflow orchestrator handling dataset preprocessing, model training experiments, metrics logging via MLflow, and REST inference model serving.",
+      "tech_stack": ["Python", "PyTorch", "FastAPI", "MLflow", "Docker"],
+      "architecture_overview": "Dataset Ingestion -> Preprocessing -> PyTorch Trainer -> MLflow Tracking -> FastAPI Serving",
+      "linked_node_explanations": {
+        "calculus-and-optimization-basics": "Applies gradient descent loss minimization and backpropagation optimization.",
+        "computer-vision-fundamentals": "Implements image feature extraction and neural network architectures.",
+        "docker-and-containerization": "Packages ML training and inference environments into reproducible containers.",
+        "backend-development-and-rest-apis": "Exposes model prediction REST endpoints with input validation."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Data Pipeline & Feature Extractor",
+          "description": "Build automated dataset downloader, validation schema check, and tensor preprocessor.",
+          "deliverables": [
+            "Automated dataset loader module",
+            "Data cleaning and normalization transforms",
+            "PyTorch DataLoader pipeline"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Model Training & MLflow Experiment Tracking",
+          "description": "Train CNN model while logging hyperparameters, loss curves, and artifact weights in MLflow.",
+          "deliverables": [
+            "PyTorch training loop script",
+            "MLflow metric tracking integration",
+            "Model checkpoint evaluator"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Model Serving & Containerized Inference API",
+          "description": "Deploy trained model checkpoint behind a FastAPI REST inference service.",
+          "deliverables": [
+            "FastAPI batch prediction endpoint",
+            "Input payload validator schema",
+            "Containerized inference Docker image"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "api-gateway",
+      "title": "Microservice API Gateway Service",
+      "difficulty": 3,
+      "estimated_hours": 55,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "scalability-and-load-balancing",
+        "backend-development-and-rest-apis",
+        "caching-strategies",
+        "microservices-architecture"
+      ],
+      "careers": ["Systems Architect", "Backend Developer"],
+      "description": "High-throughput API Gateway proxy supporting token bucket rate limiting, JWT auth validation, reverse proxy request routing, dynamic service discovery, and access logging.",
+      "tech_stack": ["Python", "FastAPI", "Redis", "Docker", "PostgreSQL"],
+      "architecture_overview": "Client -> API Gateway (Token Bucket Rate Limiter & JWT Validator) -> Reverse Proxy Router -> Microservices",
+      "linked_node_explanations": {
+        "scalability-and-load-balancing": "Distributes incoming client requests across downstream microservice instances.",
+        "backend-development-and-rest-apis": "Handles HTTP request proxying, header mutation, and error responses.",
+        "caching-strategies": "Stores client rate-limit token counts in Redis memory.",
+        "microservices-architecture": "Decouples API gateway routing logic from individual backend microservices."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Reverse Proxy Router & Request Dispatcher",
+          "description": "Build async reverse proxy forwarding HTTP client requests to downstream microservice URLs.",
+          "deliverables": [
+            "HTTP request forwarder using HTTPX",
+            "Header forwarding and mutation logic",
+            "Custom 502/504 gateway error responses"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Distributed Token-Bucket Rate Limiter",
+          "description": "Implement Redis-backed token bucket algorithm preventing API client abuse.",
+          "deliverables": [
+            "Lua script for atomic Redis token bucket ops",
+            "Rate-limit HTTP response header injection",
+            "Configurable IP/API-key rate limit rules"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "JWT Auth & Service Health Monitor",
+          "description": "Add central JWT authentication validation and automated downstream service health probes.",
+          "deliverables": [
+            "JWT signature verification middleware",
+            "Automated service health checker",
+            "Structured access logging pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "relational-dbms-engine",
+      "title": "Relational DBMS Storage & Query Engine",
+      "difficulty": 4,
+      "estimated_hours": 75,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "indexing-b-tree-hash",
+        "relational-model-and-sql",
+        "file-systems",
+        "virtual-memory"
+      ],
+      "careers": ["Database Engineer", "Systems Developer"],
+      "description": "Build a relational database management system engine from scratch in C++ or Rust. Implements disk page storage management, a B+ Tree index engine, a SQL lexer and recursive parser, a query execution plan evaluator, and two-phase locking ACID transactions.",
+      "tech_stack": ["C++20", "Rust", "CMake", "GoogleTest"],
+      "architecture_overview": "SQL String -> Lexer & AST Parser -> Query Plan Generator -> B+ Tree Index Scanner -> Page Buffer Manager -> Disk File",
+      "linked_node_explanations": {
+        "indexing-b-tree-hash": "Guides implementation of B+ Tree node splitting, merging, and leaf chaining for disk block access.",
+        "relational-model-and-sql": "Provides relational algebra rules for SQL query execution plans (Filter, Project, Join).",
+        "file-systems": "Defines block allocation and direct page byte I/O operations.",
+        "virtual-memory": "Informs LRU page table buffer pool management swapping disk pages into RAM."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Disk Storage & Buffer Pool Manager",
+          "description": "Design fixed-size 4KB disk page structures and an LRU page buffer pool.",
+          "deliverables": [
+            "Disk page layout and byte serializer",
+            "LRU buffer pool manager with frame pinning",
+            "Page read/write unit test suite"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "B+ Tree Disk Index Engine",
+          "description": "Implement persistent B+ Tree node split and merge algorithms for key indexing.",
+          "deliverables": [
+            "B+ Tree internal and leaf node structures",
+            "Disk-backed key search, insert, and delete methods",
+            "Range scan leaf iterator"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "SQL Parser & AST Compiler",
+          "description": "Build a lexer and parser constructing Abstract Syntax Trees for SELECT, INSERT, UPDATE queries.",
+          "deliverables": [
+            "SQL lexer and recursive-descent parser",
+            "AST node builder",
+            "Relational plan generator (Filter, Join)"
+          ]
+        },
+        {
+          "step": 4,
+          "title": "Volcano Execution Engine & ACID Transactions",
+          "description": "Implement Volcano iterator query execution engine and Strict 2PL concurrency locks.",
+          "deliverables": [
+            "Volcano Open()-Next()-Close() iterator engine",
+            "Strict Two-Phase Locking (2PL) manager",
+            "ACID compliance test suite"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kv-store-lsm",
+      "title": "LSM-Tree Key-Value Storage Engine",
+      "difficulty": 4,
+      "estimated_hours": 50,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "indexing-b-tree-hash",
+        "file-systems",
+        "sorting-algorithms",
+        "threads-and-concurrency"
+      ],
+      "careers": ["Database Engineer", "Infrastructure Developer"],
+      "description": "High-throughput log-structured merge-tree (LSM-Tree) key-value storage engine inspired by RocksDB. Implements Write-Ahead Logging (WAL), an in-memory SkipList MemTable, SSTable file flushing, and background multi-level compaction.",
+      "tech_stack": ["C++", "Rust", "Google Benchmark"],
+      "architecture_overview": "Write Request -> Write-Ahead Log (WAL) -> MemTable (SkipList) -> Flush -> SSTable Level 0 -> Levelled Compaction",
+      "linked_node_explanations": {
+        "indexing-b-tree-hash": "Compares LSM-tree sequential write performance against B+ Tree random write amplification.",
+        "file-systems": "Handles sequential file append operations and immutable SSTable block reads.",
+        "sorting-algorithms": "Utilizes k-way merge sort during SSTable compaction passes.",
+        "threads-and-concurrency": "Executes background SSTable compaction threads without blocking client write queries."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Write-Ahead Log (WAL) & MemTable",
+          "description": "Build crash-resilient WAL append log and in-memory SkipList MemTable.",
+          "deliverables": [
+            "Binary WAL append and recovery parser",
+            "Concurrent SkipList MemTable implementation",
+            "Get/Put/Delete API handlers"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "SSTable Builder & Bloom Filter Index",
+          "description": "Flush MemTables into immutable SSTable files containing sparse index blocks and Bloom filters.",
+          "deliverables": [
+            "SSTable block serializer with sparse index",
+            "Bloom filter generator for key presence checks",
+            "SSTable point query scanner"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Background Levelled Compaction Engine",
+          "description": "Implement multi-threaded compaction merging overlapping Level N SSTables into Level N+1.",
+          "deliverables": [
+            "K-way merge sort compaction algorithm",
+            "Tombstone garbage collection pass",
+            "Throughput benchmark showing > 50k write ops/sec"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unix-shell-and-kernel",
+      "title": "Custom Unix Shell & Process Controller",
+      "difficulty": 3,
+      "estimated_hours": 35,
+      "portfolio_value": "medium",
+      "linked_nodes": [
+        "processes-and-process-management",
+        "i-o-and-device-management",
+        "c-programming-and-memory-management"
+      ],
+      "careers": ["Systems Programmer", "OS Engineer"],
+      "description": "POSIX-compliant Unix shell built in C. Implements process spawning (fork/execvp), pipeline redirection (`|`, `>`, `<`), background job control (`&`, `fg`, `bg`), and signal handling (`SIGINT`, `SIGTSTP`, `SIGCHLD`).",
+      "tech_stack": ["C", "GCC", "Make", "GDB"],
+      "architecture_overview": "CLI Input -> Tokenizer & AST -> Fork Process -> Dup2 File Redirection -> Pipe Exec -> Signal Handler",
+      "linked_node_explanations": {
+        "processes-and-process-management": "Explores system call process lifecycles using fork(), exec(), and waitpid().",
+        "i-o-and-device-management": "Manipulates file descriptors using dup2() and pipe() for I/O redirection.",
+        "c-programming-and-memory-management": "Requires manual C dynamic memory allocation and pointer string parsing."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Command Parser & Process Execution",
+          "description": "Build command loop reading CLI strings, parsing tokens, and executing binaries with fork/execvp.",
+          "deliverables": [
+            "REPL reading loop with GNU Readline",
+            "Token parser handling whitespace and quotes",
+            "Process spawner with waitpid exit code handling"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "I/O Redirection & Pipeline Chains",
+          "description": "Implement file redirection (`>`, `<`) and multi-stage pipe chains (`cmd1 | cmd2 | cmd3`).",
+          "deliverables": [
+            "File descriptor dup2 redirection module",
+            "Pipe system call pipeline chain execution",
+            "Multi-stage pipe test suite"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Job Control & Signal Handling",
+          "description": "Handle background jobs (`&`), process signals, and terminal control commands (`fg`/`bg`).",
+          "deliverables": [
+            "SIGCHLD zombie process reaper",
+            "SIGINT/SIGTSTP signal trap handler",
+            "Job table tracker for background process IDs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user-threads-scheduler",
+      "title": "User-Space Threading & Coroutine Library",
+      "difficulty": 4,
+      "estimated_hours": 40,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "threads-and-concurrency",
+        "cpu-scheduling",
+        "registers-and-the-alu",
+        "assembly-language"
+      ],
+      "careers": ["Systems Engineer", "Infrastructure Developer"],
+      "description": "Preemptive user-space threading and coroutine library written in C and assembly. Implements custom context switching, user-space CPU scheduling (Round Robin), stack frame allocations, and coroutine yield primitives.",
+      "tech_stack": ["C", "x86-64 Assembly", "Make"],
+      "architecture_overview": "Thread Create -> Allocate Stack -> Save Registers (setjmp/asm) -> Timer Signal -> Round Robin Scheduler Context Switch",
+      "linked_node_explanations": {
+        "threads-and-concurrency": "Illustrates green-thread user-space context switching vs OS kernel threads.",
+        "cpu-scheduling": "Applies Round Robin timer interrupt context switching algorithms.",
+        "registers-and-the-alu": "Manipulates x86-64 stack pointers (RSP) and instruction pointers (RIP).",
+        "assembly-language": "Requires assembly routines for CPU register saving and stack frame initialization."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Thread Control Block & Stack Allocation",
+          "description": "Allocate custom 64KB stack frames and initialize Thread Control Block (TCB) memory structures.",
+          "deliverables": [
+            "TCB struct definition with thread state flags",
+            "posix_memalign 64KB stack frame allocator",
+            "Thread creation API (`uthread_create`)"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "x86-64 Context Switching Assembly Routine",
+          "description": "Write assembly context-switch function saving general-purpose registers and swapping RSP stack pointers.",
+          "deliverables": [
+            "`uthread_switch` assembly routine in x86-64",
+            "Register save/restore stack frame validation",
+            "Manual cooperative yield test (`uthread_yield`)"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Preemptive Timer Scheduler",
+          "description": "Integrate POSIX `setitimer` signals to trigger preemptive Round Robin context switching.",
+          "deliverables": [
+            "SIGALRM timer signal interrupt handler",
+            "Round Robin thread queue scheduler",
+            "Multithreaded matrix multiplication stress test"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "custom-tcp-stack",
+      "title": "Userspace TCP/IP Protocol Stack",
+      "difficulty": 4,
+      "estimated_hours": 65,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "tcp-and-congestion-control",
+        "ip-addressing-and-routing",
+        "physical-and-data-link-layer",
+        "i-o-and-device-management"
+      ],
+      "careers": ["Network Engineer", "Systems Developer"],
+      "description": "Userspace TCP/IP protocol stack built over Linux TUN/TAP virtual network interfaces. Implements Ethernet frame parsing, ARP table resolution, IPv4 packet routing, TCP 3-way handshake state machines, and sliding window flow control.",
+      "tech_stack": ["C", "Linux TUN/TAP", "Wireshark"],
+      "architecture_overview": "TUN/TAP Device -> Frame Parser -> ARP Table -> IP Router -> TCP Finite State Machine -> Socket API",
+      "linked_node_explanations": {
+        "tcp-and-congestion-control": "Implements TCP state machine, sequence numbers, and sliding window ARQ.",
+        "ip-addressing-and-routing": "Parses IPv4 headers, checksums, and routing table egress matching.",
+        "physical-and-data-link-layer": "Processes raw Ethernet frames and MAC address headers.",
+        "i-o-and-device-management": "Interacts with Linux TUN/TAP virtual network character devices."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "TUN/TAP Interface & Ethernet/ARP Handler",
+          "description": "Open TUN/TAP device, read raw network packets, and implement ARP protocol resolution.",
+          "deliverables": [
+            "Linux TUN/TAP device initializer",
+            "Ethernet frame header parser",
+            "ARP table request/reply handler"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "IPv4 Header Parsing & Routing Engine",
+          "description": "Parse IPv4 packets, verify IP header checksums, and route ICMP ping echo requests.",
+          "deliverables": [
+            "IPv4 header structure and checksum validator",
+            "ICMP echo response engine",
+            "IP network subnet match router"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "TCP State Machine & Sliding Window",
+          "description": "Implement full TCP connection state machine (SYN, ESTABLISHED, FIN) and sliding window receiver.",
+          "deliverables": [
+            "TCP 3-way handshake state machine",
+            "Sliding window sequence number buffer",
+            "Netcat HTTP echo server test running over custom stack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "http-proxy-cache",
+      "title": "Asynchronous HTTP/1.1 Proxy Server",
+      "difficulty": 3,
+      "estimated_hours": 40,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "application-layer-protocols-http-dns",
+        "caching-strategies",
+        "threads-and-concurrency",
+        "tcp-and-congestion-control"
+      ],
+      "careers": ["Backend Developer", "Systems Engineer"],
+      "description": "High-throughput asynchronous HTTP/1.1 reverse proxy and cache server built using C epoll event loops. Features HTTP header parsing, connection pooling, thread pool worker dispatching, and LRU response caching.",
+      "tech_stack": ["C", "epoll", "CMake", "curl"],
+      "architecture_overview": "Client HTTP Request -> Non-blocking epoll Loop -> LRU Cache (Hit) OR Backend Server -> Client Response",
+      "linked_node_explanations": {
+        "application-layer-protocols-http-dns": "Parses HTTP/1.1 request/response headers and status codes.",
+        "caching-strategies": "Implements concurrent LRU memory cache offloading backend HTTP requests.",
+        "threads-and-concurrency": "Uses Linux epoll non-blocking I/O event loops for 10k+ concurrent connections.",
+        "tcp-and-congestion-control": "Manages persistent TCP connection keep-alive pools."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Non-blocking epoll Event Loop",
+          "description": "Construct single-threaded non-blocking socket server using Linux epoll event notifications.",
+          "deliverables": [
+            "Non-blocking socket listener initialization",
+            "epoll_wait event dispatcher loop",
+            "Echo socket connection handler"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "HTTP/1.1 Parser & Proxy Request Forwarder",
+          "description": "Parse incoming HTTP GET requests and forward streams to target backend servers.",
+          "deliverables": [
+            "HTTP request line and header parser",
+            "Asynchronous backend socket connector",
+            "Response chunk forwarding engine"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Thread-Safe LRU Response Cache",
+          "description": "Integrate thread-safe LRU cache storing HTTP response payloads with TTL invalidation.",
+          "deliverables": [
+            "Mutex-protected LRU hash map cache",
+            "Cache-Control header parser (`max-age`, `no-cache`)",
+            "ApacheBench load test achieving 20k req/sec"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c-compiler-subset",
+      "title": "Subset C Compiler & x86-64 Code Generator",
+      "difficulty": 4,
+      "estimated_hours": 70,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "lexical-analysis",
+        "regular-languages-and-regular-expressions",
+        "cpu-architecture-and-instruction-cycle",
+        "assembly-language"
+      ],
+      "careers": ["Compiler Engineer", "Systems Programmer"],
+      "description": "Complete compiler compiling a subset of C language into executable x86-64 assembly. Implements a lexical scanner, recursive-descent AST parser, semantic type checker, stack-frame variable allocator, and assembly code generator.",
+      "tech_stack": ["C++", "x86-64 Assembly", "GCC", "Make"],
+      "architecture_overview": "C Source Text -> Lexer -> Recursive Parser -> AST -> Type Checker -> Assembly Generator -> GCC Assembler -> Binary",
+      "linked_node_explanations": {
+        "lexical-analysis": "Scans source tokens and resolves identifier/keyword ambiguity.",
+        "regular-languages-and-regular-expressions": "Defines token grammar rules for numbers, operators, and strings.",
+        "cpu-architecture-and-instruction-cycle": "Translates high-level expressions into register instructions.",
+        "assembly-language": "Generates valid x86-64 assembly instructions (MOV, PUSH, POP, CALL)."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Lexer & AST Parser",
+          "description": "Construct scanner and recursive-descent parser for C function declarations, variables, and expressions.",
+          "deliverables": [
+            "C syntax token scanner",
+            "AST nodes for statements, binary expressions, and function calls",
+            "AST printer for debug inspection"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Symbol Table & Type Checker",
+          "description": "Build symbol table managing variable scopes, types, and function signature verification.",
+          "deliverables": [
+            "Scoped symbol table data structure",
+            "Type inference and type checking pass",
+            "Semantic error diagnostic reporter"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "x86-64 Code Generator & Execution",
+          "description": "Generate x86-64 assembly instructions, manage function stack frames, and link with GCC.",
+          "deliverables": [
+            "Stack frame stack-pointer math code generator",
+            "x86-64 instruction emitter (`mov`, `add`, `call`, `ret`)",
+            "Compilation test suite compiling recursive Fibonacci to working binary"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bytecode-virtual-machine",
+      "title": "Register-Based Bytecode Virtual Machine",
+      "difficulty": 4,
+      "estimated_hours": 45,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "cpu-architecture-and-instruction-cycle",
+        "registers-and-the-alu",
+        "assembly-language",
+        "c-programming-and-memory-management"
+      ],
+      "careers": ["Compiler Engineer", "Virtual Machine Developer"],
+      "description": "Register-based bytecode virtual machine and assembler execution environment. Implements custom instruction set architecture (ISA), bytecode compiler, register dispatch loop, garbage-collected heap memory, and stack frame evaluator.",
+      "tech_stack": ["C++17", "CMake", "GoogleTest"],
+      "architecture_overview": "Assembly Text -> Bytecode Assembler -> Binary Bytecode -> VM Fetch-Decode-Execute Loop -> Virtual Registers",
+      "linked_node_explanations": {
+        "cpu-architecture-and-instruction-cycle": "Models instruction fetch, decode, and execute loops in virtual hardware.",
+        "registers-and-the-alu": "Simulates virtual registers (R0-R15) and ALU arithmetic operations.",
+        "assembly-language": "Defines custom opcode assembly language instructions.",
+        "c-programming-and-memory-management": "Manages virtual machine heap allocations and pointer offsets."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "ISA Design & Bytecode Assembler",
+          "description": "Design 32-bit instruction set architecture (ISA) and build bytecode assembler.",
+          "deliverables": [
+            "Opcode specification (LOAD, STORE, ADD, JMP, CALL)",
+            "Bytecode binary format serializer",
+            "Assembler compiling text assembly to `.bin` bytecode"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Fetch-Decode-Execute Virtual CPU Loop",
+          "description": "Build VM core loop executing opcodes over 16 virtual registers and stack call frames.",
+          "deliverables": [
+            "Computed goto / switch-case instruction decoder",
+            "Virtual register bank and program counter (PC)",
+            "Call stack frame push/pop evaluator"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Mark-and-Sweep Garbage Collector",
+          "description": "Integrate mark-and-sweep garbage collector managing heap object allocations.",
+          "deliverables": [
+            "Heap object header memory allocator",
+            "Mark phase scanning registers and call stacks",
+            "Sweep phase freeing unreachable heap memory"
+          ]
+        }
+      ]
+    },
+    {
       "id": "regex-engine-nfa-dfa",
       "title": "Regular Expression Engine (Thompson's NFA & DFA Minimization)",
       "difficulty": 4,
@@ -10727,10 +11725,10 @@
         "lexical-analysis",
         "recursion-and-divide-and-conquer"
       ],
-      "careers": ["Compiler Engineer", "Systems Engineer", "Core Infrastructure Developer"],
-      "description": "Build a high-performance regular expression evaluation engine from scratch in C++ or Python without relying on built-in regex engines. This project implements Thompson's NFA construction algorithm to translate regex patterns into Nondeterministic Finite Automata with epsilon transitions, followed by Powerset (Subset Construction) to convert NFAs into Deterministic Finite Automata (DFAs), and Hopcroft's state equivalence algorithm for DFA minimization.\n\nThe engine supports concatenation, alternation (`|`), Kleene star (`*`), positive closure (`+`), optional matching (`?`), character classes (`[a-z]`), and sub-expression grouping `(...)`. You will design a custom lexer/parser for regex syntax, evaluate string matching in guaranteed O(N) linear time, and benchmark state execution against catastrophic backtracking engines.",
+      "careers": ["Compiler Engineer", "Systems Engineer"],
+      "description": "High-performance regular expression evaluation engine implementing Thompson's NFA construction algorithm, Powerset subset construction (NFA to DFA conversion), and Hopcroft's DFA state minimization algorithm for guaranteed O(N) linear-time string matching.",
       "tech_stack": ["Python", "C++", "Graphviz", "PyTest"],
-      "architecture_overview": "Regex Pattern -> Lexer & Shunting-Yard Parser -> Postfix AST -> Thompson NFA Construction -> Powerset Subset Construction (DFA) -> Hopcroft DFA Minimization -> O(N) Execution Engine",
+      "architecture_overview": "Regex Pattern -> Lexer & Shunting-Yard Parser -> Postfix AST -> Thompson NFA -> Powerset DFA -> Hopcroft Minimal DFA -> O(N) Matcher",
       "linked_node_explanations": {
         "finite-automata": "Provides formal NFA and DFA state transition matrices and state acceptance conditions.",
         "regular-languages-and-regular-expressions": "Establishes algebraic equivalence between regular expressions, regular grammars, and finite automata.",
@@ -10740,18 +11738,18 @@
       "milestones": [
         {
           "step": 1,
-          "title": "Lexical Analysis & Abstract Syntax Tree (AST) Parsing",
-          "description": "Parse raw regex strings into tokens and construct an infix-to-postfix AST representation enforcing operator precedence (Kleene star > Concatenation > Alternation).",
+          "title": "Lexical Analysis & AST Parsing",
+          "description": "Parse raw regex strings into tokens and construct an AST enforcing operator precedence.",
           "deliverables": [
             "Regex syntax lexer emitting char and operator tokens",
             "Shunting-Yard algorithm implementation handling parentheses grouping",
-            "AST nodes (`ConcatNode`, `AltNode`, `StarNode`, `CharNode`) with tree visualization"
+            "AST nodes (`ConcatNode`, `AltNode`, `StarNode`, `CharNode`)"
           ]
         },
         {
           "step": 2,
           "title": "Thompson's NFA Construction with Epsilon Transitions",
-          "description": "Implement Thompson's construction algorithm to recursively assemble primitive NFAs into composite state machines linked by non-deterministic epsilon transitions.",
+          "description": "Recursively assemble primitive NFAs into composite state machines linked by non-deterministic epsilon transitions.",
           "deliverables": [
             "NFA State object with transition tables and acceptance flags",
             "Epsilon-closure graph traversal algorithm using BFS/DFS",
@@ -10761,7 +11759,7 @@
         {
           "step": 3,
           "title": "Powerset Subset Construction (NFA to DFA Conversion)",
-          "description": "Transform non-deterministic NFA state sets into deterministic DFA states using powerset construction, eliminating non-deterministic backtracking.",
+          "description": "Transform non-deterministic NFA state sets into deterministic DFA states using powerset construction.",
           "deliverables": [
             "Subset construction algorithm mapping NFA epsilon-closures to single DFA states",
             "DFA transition matrix generator",
@@ -10771,7 +11769,7 @@
         {
           "step": 4,
           "title": "Hopcroft's DFA State Minimization",
-          "description": "Partition DFA states into equivalent distinguishable sets using Hopcroft's algorithm to produce the minimal canonical DFA state machine.",
+          "description": "Partition DFA states into equivalent distinguishable sets using Hopcroft's algorithm.",
           "deliverables": [
             "State partition refinement loops using inverse transition lookups",
             "Redundant state collapsing algorithm",
@@ -10781,11 +11779,861 @@
         {
           "step": 5,
           "title": "O(N) Execution Engine & Exponential Backtracking Benchmarking",
-          "description": "Execute string matching over minimal DFAs in strictly O(N) linear time with respect to input string length, benchmarking performance against backtracking regex engines.",
+          "description": "Execute string matching over minimal DFAs in strictly O(N) linear time, benchmarking against backtracking engines.",
           "deliverables": [
             "Linear-time DFA execution engine evaluating string streams",
             "Capture group match index evaluator",
             "Benchmark suite comparing linear DFA evaluation vs catastrophic exponential backtracking on adversarial inputs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sat-solver-dpll",
+      "title": "DPLL Boolean Satisfiability (SAT) Solver",
+      "difficulty": 4,
+      "estimated_hours": 40,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "set-theory-and-mathematical-logic",
+        "boolean-algebra",
+        "recursion-and-divide-and-conquer",
+        "np-completeness-and-exact-algorithms"
+      ],
+      "careers": ["Algorithm Engineer", "Formal Verification Specialist"],
+      "description": "Boolean Satisfiability (SAT) solver implementing the Davis-Putnam-Logemann-Loveland (DPLL) algorithm. Features Conjunctive Normal Form (CNF) DIMACS parsing, unit propagation, pure literal elimination, and backtracking search.",
+      "tech_stack": ["C++", "Python", "PyTest"],
+      "architecture_overview": "DIMACS CNF Input -> Formula Parser -> Unit Propagation Loop -> Pure Literal Eliminator -> Backtracking Branching Solver",
+      "linked_node_explanations": {
+        "set-theory-and-mathematical-logic": "Evaluates propositional logic satisfaction, truth assignments, and clauses.",
+        "boolean-algebra": "Applies De Morgan's laws and CNF clause transformation rules.",
+        "recursion-and-divide-and-conquer": "Executes recursive decision-tree branching search passes.",
+        "np-completeness-and-exact-algorithms": "Demonstrates solving canonical NP-complete decision problems."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "DIMACS CNF Parser & Clause Storage",
+          "description": "Build parser reading standard DIMACS CNF files into internal boolean clause data structures.",
+          "deliverables": [
+            "DIMACS CNF file format parser",
+            "Clause and Literal vector representation",
+            "Formula validity checker"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Unit Propagation & Pure Literal Elimination",
+          "description": "Implement deterministic unit propagation and pure literal simplification loops.",
+          "deliverables": [
+            "Unit clause detection and assignment propagation",
+            "Pure literal scan and removal pass",
+            "Clause reduction helper routines"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "DPLL Backtracking Solver & Benchmark",
+          "description": "Build recursive DPLL backtracking decision-tree solver and test against SAT benchmark suites.",
+          "deliverables": [
+            "Recursive DPLL decision branch solver",
+            "Satisfiable assignment model printer",
+            "Benchmark evaluation against SATLIB test benchmarks"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transformer-nlp-engine",
+      "title": "PyTorch Causal Transformer NLP Engine",
+      "difficulty": 4,
+      "estimated_hours": 65,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "calculus-and-optimization-basics",
+        "combinatorics-and-probability",
+        "frontend-frameworks-react"
+      ],
+      "careers": ["AI/ML Engineer", "LLM Researcher"],
+      "description": "Build a GPT-style Causal Transformer decoder model from scratch in PyTorch. Implements multi-head self-attention mechanisms, positional encodings, layer normalization, BPE tokenization, and auto-regressive text generation.",
+      "tech_stack": ["Python", "PyTorch", "HuggingFace Tokenizers", "FastAPI"],
+      "architecture_overview": "Text Tokens -> Embedding & Positional Encoding -> Multi-Head Self-Attention Blocks -> LayerNorm -> Logits -> Temperature Sampler",
+      "linked_node_explanations": {
+        "calculus-and-optimization-basics": "Applies AdamW optimizer weight updates and cross-entropy loss gradients.",
+        "combinatorics-and-probability": "Calculates softmax probability distributions for token sampling.",
+        "frontend-frameworks-react": "Powers interactive chat UI displaying streamed generated tokens."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Multi-Head Self-Attention Layer",
+          "description": "Implement scaled dot-product query, key, value attention matrices with causal masking.",
+          "deliverables": [
+            "Causal masked self-attention PyTorch module",
+            "Multi-head attention projection layers",
+            "Attention weight matrix shape unit tests"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Transformer Decoder Architecture",
+          "description": "Assemble residual connection blocks, feed-forward networks, and layer normalization.",
+          "deliverables": [
+            "TransformerBlock PyTorch module",
+            "GPT model architecture configuration",
+            "Forward pass loss benchmark"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "BPE Tokenizer & Auto-Regressive Text Generator",
+          "description": "Train Byte-Pair Encoding (BPE) tokenizer and build top-k/top-p sampling text generation API.",
+          "deliverables": [
+            "Custom BPE tokenizer training script",
+            "Auto-regressive text generator with temperature control",
+            "FastAPI model inference endpoint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "computer-vision-segmentation",
+      "title": "U-Net Medical Image Segmentation Engine",
+      "difficulty": 4,
+      "estimated_hours": 55,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "computer-vision-fundamentals",
+        "calculus-and-optimization-basics",
+        "docker-and-containerization"
+      ],
+      "careers": ["AI/ML Engineer", "Computer Vision Specialist"],
+      "description": "Deep learning image segmentation engine implementing U-Net architecture in PyTorch for pixel-level medical MRI scan segmentation, complete with Dice loss optimization and data augmentation pipelines.",
+      "tech_stack": ["Python", "PyTorch", "OpenCV", "Albumentations"],
+      "architecture_overview": "Input Image -> Encoder Contracting Path -> Bottleneck -> Decoder Expanding Path (Skip Connections) -> Pixel Mask",
+      "linked_node_explanations": {
+        "computer-vision-fundamentals": "Applies 2D convolutions, transposed convolutions, and feature map extraction.",
+        "calculus-and-optimization-basics": "Optimizes combined Dice Loss and Binary Cross-Entropy (BCE) loss gradients.",
+        "docker-and-containerization": "Packages CUDA GPU training environment into reproducible containers."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "U-Net Network Architecture",
+          "description": "Construct U-Net encoder, decoder, and skip-connection concatenation layers.",
+          "deliverables": [
+            "Encoder double-convolution block",
+            "Decoder up-sampling transposed convolution layer",
+            "Skip-connection feature map joiner"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Data Augmentation & Dice Loss Function",
+          "description": "Build image transformation pipeline and implement custom Dice coefficient loss.",
+          "deliverables": [
+            "Albumentations spatial rotation/flip pipeline",
+            "Combined BCE + Dice Loss PyTorch module",
+            "Validation IoU metric evaluator"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Training & Medical Mask Inference API",
+          "description": "Train network on MRI segmentation dataset and deploy mask prediction service.",
+          "deliverables": [
+            "PyTorch training loop with early stopping",
+            "Inference mask overlay generator",
+            "FastAPI image segmentation endpoint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "realtime-flink-stream",
+      "title": "Apache Flink Real-Time Event Processor",
+      "difficulty": 4,
+      "estimated_hours": 60,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "message-queues-and-event-streaming",
+        "nosql-and-distributed-databases",
+        "scalability-and-load-balancing"
+      ],
+      "careers": ["Data Engineer", "Distributed Systems Engineer"],
+      "description": "Event-driven stream processing pipeline using Apache Flink and Kafka. Ingests high-volume financial transaction streams, computes tumbling/sliding window aggregations, detects fraud anomalies, and sinks metrics into Elasticsearch.",
+      "tech_stack": ["Java", "Apache Flink", "Apache Kafka", "Elasticsearch", "Docker"],
+      "architecture_overview": "Transaction Producer -> Kafka Topic -> Flink Stream Processor (Sliding Window & KeyBy) -> Elasticsearch Sink -> Kibana",
+      "linked_node_explanations": {
+        "message-queues-and-event-streaming": "Ingests partitioned Kafka event streams with event-time watermark alignment.",
+        "nosql-and-distributed-databases": "Sinks aggregated analytics documents into Elasticsearch for fast querying.",
+        "scalability-and-load-balancing": "Distributes stream processing tasks across Flink TaskManager workers."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Kafka Producer & Event Generator",
+          "description": "Build multi-threaded transaction event generator producing JSON payloads to Kafka topics.",
+          "deliverables": [
+            "Kafka topic configuration with 4 partitions",
+            "High-throughput mock event generator",
+            "Kafka consumer verification script"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Flink Window Aggregations & Fraud Detector",
+          "description": "Implement Flink KeyedStream sliding event-time window aggregations and pattern rules.",
+          "deliverables": [
+            "Flink DataStream job implementation",
+            "Sliding 5-minute event-time window aggregation",
+            "Fraud pattern alert filter state machine"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Elasticsearch Sink & Kibana Dashboard",
+          "description": "Configure fault-tolerant Flink Elasticsearch sink and build real-time monitoring dashboard.",
+          "deliverables": [
+            "Flink Elasticsearch sink integration",
+            "RocksDB state backend checkpointing config",
+            "Kibana real-time fraud alert dashboard"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data-warehouse-elt",
+      "title": "Snowflake & dbt Cloud ELT Data Pipeline",
+      "difficulty": 3,
+      "estimated_hours": 45,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "relational-model-and-sql",
+        "caching-strategies",
+        "backend-development-and-rest-apis"
+      ],
+      "careers": ["Data Engineer", "Analytics Engineer"],
+      "description": "Modern analytics ELT data warehouse pipeline using Snowflake and dbt (data build tool). Transforms raw transactional data streams into Kimball dimensional star schema data marts with automated schema testing and documentation.",
+      "tech_stack": ["SQL", "dbt", "Snowflake", "Python", "GitHub Actions"],
+      "architecture_overview": "Raw Data Ingestion -> Snowflake Staging -> dbt Transformation DAG -> Star Schema Data Marts -> BI Dashboard",
+      "linked_node_explanations": {
+        "relational-model-and-sql": "Applies SQL DDL/DML, window functions, and dimensional modeling.",
+        "caching-strategies": "Optimizes Snowflake query result caching and materialized view performance.",
+        "backend-development-and-rest-apis": "Extracts raw source data from external API webhooks."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Snowflake Storage Architecture & Ingestion",
+          "description": "Set up Snowflake virtual warehouses, databases, and automated raw staging copy commands.",
+          "deliverables": [
+            "Snowflake RBAC roles and database DDL scripts",
+            "Automated JSON raw data ingestion pipe",
+            "Staging schema view layer"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "dbt Dimensional Star Schema Transformation",
+          "description": "Build dbt models transforming raw events into Dimension and Fact tables.",
+          "deliverables": [
+            "Kimball star schema DDL models",
+            "dbt Jinja macros and incremental models",
+            "dbt lineage graph documentation"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "dbt Data Quality Testing & CI/CD Pipeline",
+          "description": "Write automated dbt schema tests and configure GitHub Actions CI/CD deployment.",
+          "deliverables": [
+            "dbt unique/not_null/relationship tests",
+            "Custom SQL data audit test assertions",
+            "GitHub Actions automated dbt build workflow"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kubernetes-operator-custom",
+      "title": "Custom Kubernetes Operator in Go",
+      "difficulty": 4,
+      "estimated_hours": 50,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "docker-and-containerization",
+        "microservices-architecture",
+        "scalability-and-load-balancing"
+      ],
+      "careers": ["DevOps Engineer", "Cloud Infrastructure Developer"],
+      "description": "Custom Kubernetes Controller Operator built in Go using `operator-sdk` and `controller-runtime`. Extends the Kubernetes API with a custom DatabaseCluster CRD automating primary-replica failovers, backup snapshots, and rolling upgrades.",
+      "tech_stack": ["Go", "Kubernetes", "Docker", "Operator SDK", "Kustomize"],
+      "architecture_overview": "Kubernetes API Server -> Custom Controller Reconcile Loop -> PostgreSQL Primary/Replica StatefulSets",
+      "linked_node_explanations": {
+        "docker-and-containerization": "Manages container runtime state and image versioning within K8s pods.",
+        "microservices-architecture": "Decouples control plane infrastructure management from application workloads.",
+        "scalability-and-load-balancing": "Reconciles replica pod counts and Kubernetes headless service endpoints."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Custom Resource Definition (CRD) Spec",
+          "description": "Define OpenAPI v3 schema for `DatabaseCluster` CRD using Go struct tags.",
+          "deliverables": [
+            "Go API type definitions (`DatabaseClusterSpec`, `Status`)",
+            "Generated CRD YAML manifest",
+            "Kustomize deployment configuration"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Controller Reconciliation Loop",
+          "description": "Implement Go reconciliation loop creating StatefulSets, Services, and ConfigMaps.",
+          "deliverables": [
+            "`Reconcile()` loop logic managing K8s resources",
+            "OwnerReference garbage collection links",
+            "Status subresource condition updater"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Automated Failover & Snapshot Backup Handler",
+          "description": "Add primary pod failure detection, automatic replica promotion, and CronJob backups.",
+          "deliverables": [
+            "Pod health status evaluation routine",
+            "Automated primary promotion failover sequence",
+            "K8s CronJob backup snapshot generator"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "terraform-multi-cloud-infra",
+      "title": "Multi-Cloud Terraform Infrastructure Automation",
+      "difficulty": 3,
+      "estimated_hours": 40,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "cloud-storage-and-managed-databases",
+        "docker-and-containerization",
+        "network-models-osi--tcp-ip"
+      ],
+      "careers": ["Cloud Engineer", "DevOps Engineer"],
+      "description": "Modular Infrastructure-as-Code (IaC) project using Terraform to provision multi-region AWS and GCP cloud infrastructure, complete with VPC peering, EKS Kubernetes clusters, IAM policies, and remote S3 state locking.",
+      "tech_stack": ["Terraform", "HCL", "AWS CLI", "GCP SDK"],
+      "architecture_overview": "Terraform HCL Modules -> AWS S3 Remote State & DynamoDB Lock -> AWS/GCP Provider APIs -> VPCs & EKS Clusters",
+      "linked_node_explanations": {
+        "cloud-storage-and-managed-databases": "Provisions managed RDS databases, S3 buckets, and Cloud Storage.",
+        "docker-and-containerization": "Sets up Elastic Kubernetes Service (EKS) for container orchestration.",
+        "network-models-osi--tcp-ip": "Configures CIDR subnets, NAT Gateways, and Security Group ingress rules."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Remote Backend & State Locking Setup",
+          "description": "Configure S3 remote state storage bucket and DynamoDB state locking table.",
+          "deliverables": [
+            "Terraform S3 backend configuration",
+            "DynamoDB state lock integration",
+            "Encrypted state storage policy"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Modular VPC Network Architecture",
+          "description": "Build reusable Terraform network module provisioning public/private subnets across 3 Availability Zones.",
+          "deliverables": [
+            "AWS VPC module with public/private subnets",
+            "Internet Gateway and NAT Gateway routing tables",
+            "Security Group ingress/egress rules"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Managed Kubernetes Cluster (EKS) Provisioning",
+          "description": "Provision AWS EKS cluster with managed node groups and IAM OIDC roles.",
+          "deliverables": [
+            "EKS control plane and node group HCL module",
+            "IAM service account role bindings",
+            "kubectl cluster verification test"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "network-packet-ids",
+      "title": "High-Speed Network Intrusion Detection System (IDS)",
+      "difficulty": 4,
+      "estimated_hours": 60,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "network-security-fundamentals",
+        "physical-and-data-link-layer",
+        "tcp-and-congestion-control"
+      ],
+      "careers": ["Cybersecurity Engineer", "Security Analyst"],
+      "description": "Network Intrusion Detection System (IDS) capturing live network interface traffic via libpcap. Performs real-time packet protocol decoding, signature-based pattern matching (Snort rules), and port scan anomaly detection.",
+      "tech_stack": ["C++", "libpcap", "Snort Rules", "CMake"],
+      "architecture_overview": "NIC Packet Capture -> libpcap Buffer -> Ethernet/IP/TCP Decoders -> Signature Matcher -> Security Alert Engine",
+      "linked_node_explanations": {
+        "network-security-fundamentals": "Detects malicious traffic patterns, SYN floods, and unauthorized port scans.",
+        "physical-and-data-link-layer": "Inspects promiscuous mode raw Ethernet frame headers.",
+        "tcp-and-congestion-control": "Monitors TCP SYN/ACK flags to identify incomplete connection probes."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "libpcap Promiscuous Packet Capture",
+          "description": "Initialize libpcap capture loop capturing live network packets in promiscuous mode.",
+          "deliverables": [
+            "libpcap device initializer with BPF filter",
+            "Packet capture loop callback handler",
+            "PCAP file reader/writer module"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Protocol Header Decoder Suite",
+          "description": "Parse Ethernet, IP, ICMP, UDP, and TCP packet headers into structured C++ objects.",
+          "deliverables": [
+            "Ethernet frame decoder",
+            "IPv4 packet parser with checksum verification",
+            "TCP/UDP port and flag extractor"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Snort Signature Matcher & Port Scan Detector",
+          "description": "Implement Aho-Corasick string matcher evaluating packet payloads against Snort IDS rules.",
+          "deliverables": [
+            "Snort rule file parser",
+            "Aho-Corasick multi-pattern payload matcher",
+            "SYN flood and port scan alert logger"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vulnerability-scanner-static",
+      "title": "AST-Based Static Security Code Analyzer",
+      "difficulty": 3,
+      "estimated_hours": 45,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "network-security-fundamentals",
+        "lexical-analysis",
+        "regular-languages-and-regular-expressions"
+      ],
+      "careers": ["Application Security Engineer", "DevSecOps Specialist"],
+      "description": "Static Application Security Testing (SAST) tool analyzing source code Abstract Syntax Trees (AST) to detect OWASP Top 10 security vulnerabilities including SQL Injection, Command Injection, XSS, and hardcoded secrets.",
+      "tech_stack": ["Python", "ast module", "Click", "SARIF"],
+      "architecture_overview": "Source Code -> AST Parser -> Taint Tracking Visitor -> Rule Engine -> SARIF Security Report",
+      "linked_node_explanations": {
+        "network-security-fundamentals": "Identifies OWASP Top 10 vulnerabilities (SQLi, XSS, hardcoded credentials).",
+        "lexical-analysis": "Parses source code into tokenized syntax trees for static analysis.",
+        "regular-languages-and-regular-expressions": "Uses regex patterns for detecting hardcoded API keys and secrets."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "AST Tree Visitor & Taint Analyzer",
+          "description": "Build AST visitor traversing Python code nodes to trace untrusted user input sources.",
+          "deliverables": [
+            "Python `ast.NodeVisitor` implementation",
+            "Taint source identifier (e.g. `request.args`)",
+            "Taint sink tracer (e.g. `cursor.execute`)"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Security Vulnerability Rule Engine",
+          "description": "Implement rule detectors for SQL injection, command injection, and hardcoded secrets.",
+          "deliverables": [
+            "SQL Injection AST pattern detector",
+            "OS Command Injection detector (`os.system`, `subprocess`)",
+            "Entropy-based secret scanner"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "SARIF Exporter & CI/CD Pipeline Integration",
+          "description": "Generate standard SARIF security reports for integration with GitHub Code Scanning.",
+          "deliverables": [
+            "SARIF v2.1.0 JSON report formatter",
+            "CLI interface with line-number code snippets",
+            "GitHub Actions SAST workflow integration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "distributed-consensus-raft",
+      "title": "Raft Distributed Consensus Engine",
+      "difficulty": 4,
+      "estimated_hours": 70,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "synchronization-and-deadlocks",
+        "threads-and-concurrency",
+        "backend-development-and-rest-apis"
+      ],
+      "careers": ["Distributed Systems Engineer", "Backend Developer"],
+      "description": "Go implementation of the Raft distributed consensus protocol. Implements leader election, randomized term timeouts, replicated write-ahead log state machines, log compaction, and cluster membership changes.",
+      "tech_stack": ["Go", "gRPC", "Protobuf"],
+      "architecture_overview": "Client Command -> Leader Node -> AppendEntries gRPC RPC -> Majority Quorum ACK -> State Machine Commit",
+      "linked_node_explanations": {
+        "synchronization-and-deadlocks": "Prevents split-brain deadlocks using majority quorum votes.",
+        "threads-and-concurrency": "Uses Go channels and goroutines for randomized election timers.",
+        "backend-development-and-rest-apis": "Exposes gRPC cluster endpoints for node communication."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Leader Election & Heartbeat Protocol",
+          "description": "Implement Raft node state machine (Follower, Candidate, Leader) with randomized election timers.",
+          "deliverables": [
+            "gRPC RequestVote RPC protocol",
+            "Randomized election timer goroutine",
+            "Leader heartbeat broadcasting loop"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Replicated Log & Majority Quorum Commitment",
+          "description": "Replicate log entries across follower nodes and commit commands upon majority ACK.",
+          "deliverables": [
+            "gRPC AppendEntries RPC protocol",
+            "Log index and term match validator",
+            "Commit index state machine updater"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Snapshot Compaction & Cluster Membership",
+          "description": "Implement log snapshot compaction freeing memory and dynamic node addition.",
+          "deliverables": [
+            "Log compaction snapshot creation",
+            "InstallSnapshot RPC for slow followers",
+            "Network partition split-brain resilience test"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "distributed-file-system-gfs",
+      "title": "Distributed File System (Google File System Clone)",
+      "difficulty": 4,
+      "estimated_hours": 75,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "file-systems",
+        "cloud-storage-and-managed-databases",
+        "microservices-architecture"
+      ],
+      "careers": ["Distributed Systems Engineer", "Storage Architect"],
+      "description": "Distributed object storage system modeled after Google File System (GFS). Features a central Master node managing metadata and chunk leases, multi-chunkserver data replication, and client streaming read/write access.",
+      "tech_stack": ["Go", "gRPC", "Protobuf"],
+      "architecture_overview": "Client -> Master Node (Metadata Lookup) -> Direct Streaming Write -> Chunkserver Primary & Replicas",
+      "linked_node_explanations": {
+        "file-systems": "Implements chunk-based file slicing and block allocation.",
+        "cloud-storage-and-managed-databases": "Provides fault-tolerant distributed block object storage.",
+        "microservices-architecture": "Decouples metadata Master nodes from data Chunkservers."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Master Node Metadata Engine",
+          "description": "Build Master node managing filename-to-chunk mappings in RAM with WAL logging.",
+          "deliverables": [
+            "In-memory namespace directory tree",
+            "Chunk ID generator and mapping table",
+            "Master WAL persistent log"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Chunkserver Storage & Heartbeat Protocol",
+          "description": "Implement Chunkserver nodes storing 64MB data chunks on local disks with checksums.",
+          "deliverables": [
+            "64MB chunk file reader/writer",
+            "Chunkserver heartbeat register RPC",
+            "Chunk checksum integrity verifier"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Client Read/Write Pipeline & Replication",
+          "description": "Build client library performing direct parallel chunkserver writes with primary leases.",
+          "deliverables": [
+            "Client chunk location lookup client",
+            "Primary chunkserver lease manager",
+            "Automated chunk re-replication on server failure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "react-native-crypto-wallet",
+      "title": "Cross-Platform Web3 Mobile Wallet",
+      "difficulty": 3,
+      "estimated_hours": 50,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "asymmetric-cryptography-and-pki",
+        "frontend-frameworks-react",
+        "network-security-fundamentals"
+      ],
+      "careers": ["Mobile Developer", "Blockchain Engineer"],
+      "description": "Cross-platform mobile cryptocurrency wallet built in React Native. Implements BIP-39 mnemonic seed generation, BIP-32/44 hierarchical deterministic key derivation, secure local storage encryption, and RPC transaction signing.",
+      "tech_stack": ["React Native", "TypeScript", "ethers.js", "Expo"],
+      "architecture_overview": "React Native UI -> Keychain Encrypted Storage -> BIP-39 HD Node -> Ethers.js Signing -> JSON-RPC Provider",
+      "linked_node_explanations": {
+        "asymmetric-cryptography-and-pki": "Generates secp256k1 public/private keypairs and cryptographic signatures.",
+        "frontend-frameworks-react": "Powers responsive mobile screens and state management.",
+        "network-security-fundamentals": "Secures local private key storage using device hardware Enclaves."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "BIP-39 Seed Generator & HD Wallet",
+          "description": "Implement 12-word seed phrase generation and derivation of public/private keys.",
+          "deliverables": [
+            "BIP-39 mnemonic generator",
+            "BIP-44 HD key derivation path calculator",
+            "Ethereum address generator"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Hardware Keychain Encryption & Auth",
+          "description": "Store private keys in iOS Keychain / Android Keystore secured by Biometrics.",
+          "deliverables": [
+            "React Native Keychain encrypted storage",
+            "Biometric (TouchID/FaceID) authentication prompt",
+            "PIN code fallback protection"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "JSON-RPC Transaction Signer & Balance UI",
+          "description": "Build transaction signing interface and query live account balances via JSON-RPC.",
+          "deliverables": [
+            "JSON-RPC provider integration",
+            "Transaction sign and broadcast modal",
+            "Token balance and transaction history UI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wasm-video-editor",
+      "title": "In-Browser WebAssembly Video Editor",
+      "difficulty": 4,
+      "estimated_hours": 55,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "browser-rendering-engine-fundamentals",
+        "c-programming-and-memory-management",
+        "javascript-and-the-dom"
+      ],
+      "careers": ["Web Engineer", "Systems Developer"],
+      "description": "Browser-based non-linear video editing tool leveraging Rust compiled to WebAssembly (Wasm). Executes FFmpeg frame processing, video trimming, format transcoding, and visual filters client-side in the browser without server rendering.",
+      "tech_stack": ["Rust", "WebAssembly", "wasm-bindgen", "React", "WebCodecs API"],
+      "architecture_overview": "React Timeline UI -> Web Worker (Rust Wasm / FFmpeg) -> WebCodecs Video Decoder -> Canvas 2D Render",
+      "linked_node_explanations": {
+        "browser-rendering-engine-fundamentals": "Utilizes Web Workers and HTML5 Canvas for high-FPS rendering.",
+        "c-programming-and-memory-management": "Manages Wasm linear memory buffers and C-FFmpeg bindings.",
+        "javascript-and-the-dom": "Binds JS UI events to Wasm WebAssembly memory pointers."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Rust Wasm Toolchain & Memory Bridge",
+          "description": "Set up Rust `wasm-pack` compilation pipeline and linear memory buffer passing.",
+          "deliverables": [
+            "Rust `wasm-bindgen` build setup",
+            "Shared ArrayBuffer memory bridge",
+            "Wasm image frame grayscaling benchmark"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "FFmpeg Wasm Frame Processing Engine",
+          "description": "Compile FFmpeg C libraries to Wasm and build frame extraction and trimming routines.",
+          "deliverables": [
+            "FFmpeg WebAssembly build module",
+            "Frame-accurate video trimming pipeline",
+            "Audio/video stream demuxer"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "React Video Timeline & Canvas Renderer",
+          "description": "Build interactive multi-track video timeline UI rendering frames to Canvas.",
+          "deliverables": [
+            "Multi-track drag-and-drop timeline UI",
+            "HTML5 Canvas frame renderer",
+            "Export mp4 video generator"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stm32-rtos-weather-station",
+      "title": "STM32 FreeRTOS Environmental Weather Station",
+      "difficulty": 3,
+      "estimated_hours": 45,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "i-o-and-device-management",
+        "threads-and-concurrency",
+        "c-programming-and-memory-management"
+      ],
+      "careers": ["Embedded Systems Engineer", "IoT Developer"],
+      "description": "Real-time embedded firmware running on STM32 ARM Cortex-M microcontroller using FreeRTOS. Reads I2C temperature/pressure sensors via Direct Memory Access (DMA), processes sensor telemetry, and transmits data over SPI Wi-Fi module.",
+      "tech_stack": ["C", "FreeRTOS", "STM32CubeIDE", "ARM GCC"],
+      "architecture_overview": "I2C Sensor -> STM32 DMA Buffer -> FreeRTOS Sensor Task -> Queue -> Wi-Fi SPI Task -> MQTT Server",
+      "linked_node_explanations": {
+        "i-o-and-device-management": "Configures I2C, SPI, and UART hardware peripherals and DMA buffers.",
+        "threads-and-concurrency": "Uses FreeRTOS tasks, queues, and semaphores for real-time task scheduling.",
+        "c-programming-and-memory-management": "Requires strict memory bounds and low-level register bitwise operations."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Hardware Peripheral Drivers (I2C/UART)",
+          "description": "Write non-blocking I2C sensor driver reading BME280 temperature and pressure values.",
+          "deliverables": [
+            "STM32 HAL I2C sensor driver",
+            "UART debug CLI logger",
+            "Sensor raw byte conversion formulas"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "FreeRTOS Multitasking Architecture",
+          "description": "Configure FreeRTOS kernel tasks, queues, and mutexes for sensor reading and logging.",
+          "deliverables": [
+            "FreeRTOS sensor reading task (10Hz)",
+            "FreeRTOS queue transferring sensor structs",
+            "Mutex-protected UART logger task"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Low-Power DMA & SPI Telemetry Transmission",
+          "description": "Optimize DMA buffer transfers and transmit telemetry via SPI Wi-Fi module.",
+          "deliverables": [
+            "Direct Memory Access (DMA) circular buffer config",
+            "SPI Wi-Fi MQTT packet sender",
+            "Low-power STOP mode sleep optimizer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vulkan-3d-render-engine",
+      "title": "Vulkan 3D Physically Based Rendering (PBR) Engine",
+      "difficulty": 4,
+      "estimated_hours": 80,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "calculus-and-optimization-basics",
+        "c-programming-and-memory-management",
+        "data-visualization"
+      ],
+      "careers": ["Game Graphics Engineer", "Engine Developer"],
+      "description": "Modern 3D graphics rendering engine built from scratch using Vulkan API in C++17. Features Physically Based Rendering (PBR) lighting equations, GLTF 3D model loading, shadow mapping, and dynamic Vulkan command buffer pipelines.",
+      "tech_stack": ["C++17", "Vulkan SDK", "GLSL Shaders", "GLM", "glfw"],
+      "architecture_overview": "3D Scene AST -> Vulkan Command Buffers -> PBR GLSL Shaders -> Vulkan Swapchain -> Display",
+      "linked_node_explanations": {
+        "calculus-and-optimization-basics": "Applies vector 3D linear algebra transformations and Cook-Torrance specular reflectance integrals.",
+        "c-programming-and-memory-management": "Manages Vulkan GPU memory allocations (VMA) and pointer offsets.",
+        "data-visualization": "Renders 3D mesh geometries, textures, and lighting shaders."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Vulkan Instance & Graphics Pipeline Setup",
+          "description": "Initialize Vulkan instance, physical device selection, logical device creation, and swapchain.",
+          "deliverables": [
+            "Vulkan instance and validation layers",
+            "Swapchain image view manager",
+            "Graphics pipeline and GLSL shader compiler"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "GLTF 3D Model & Texture Loader",
+          "description": "Parse GLTF 3D meshes and upload vertex buffers and texture samplers to GPU memory.",
+          "deliverables": [
+            "GLTF model parser using tinygltf",
+            "Vulkan Memory Allocator (VMA) GPU staging buffers",
+            "Texture image sampler pipeline"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Physically Based Rendering (PBR) & Shadow Maps",
+          "description": "Implement Cook-Torrance PBR lighting GLSL shaders and depth shadow mapping.",
+          "deliverables": [
+            "PBR fragment shader (Metallic-Roughness workflow)",
+            "Offscreen shadow map render pass",
+            "Interactive 3D camera controller"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zero-trust-auth-mesh",
+      "title": "Zero-Trust Service Mesh Proxy Engine",
+      "difficulty": 4,
+      "estimated_hours": 50,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "asymmetric-cryptography-and-pki",
+        "network-security-fundamentals",
+        "microservices-architecture"
+      ],
+      "careers": ["Security Engineer", "DevSecOps Specialist"],
+      "description": "Zero-Trust service mesh sidecar proxy enforcing Mutual TLS (mTLS) encryption, SPIFFE/SPIRE cryptographic workload identity verification, and fine-grained Open Policy Agent (OPA) RBAC authorization across microservices.",
+      "tech_stack": ["Go", "gRPC", "SPIFFE/SPIRE", "Open Policy Agent (OPA)", "Docker"],
+      "architecture_overview": "Client Microservice -> Sidecar Proxy -> SPIRE Identity Check -> mTLS Handshake -> OPA AuthZ -> Service",
+      "linked_node_explanations": {
+        "asymmetric-cryptography-and-pki": "Generates short-lived X.509 SVID certificates for mTLS authentication.",
+        "network-security-fundamentals": "Enforces Zero-Trust microservice network access control policies.",
+        "microservices-architecture": "Functions as a transparent sidecar proxy handling service-to-service traffic."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "SPIFFE/SPIRE Workload Attestation",
+          "description": "Integrate SPIRE Workload API fetching short-lived X.509 SVID identity certificates.",
+          "deliverables": [
+            "SPIRE Workload API client implementation",
+            "X.509 SVID certificate auto-renewer",
+            "Workload SPIFFE ID validator"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Mutual TLS (mTLS) Sidecar Reverse Proxy",
+          "description": "Build TCP reverse proxy requiring bidirectional mTLS client authentication.",
+          "deliverables": [
+            "Go TLS server requiring `RequireAndVerifyClientCert`",
+            "Dynamic SVID certificate key pair reloader",
+            "Encrypted sidecar proxy tunnel"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "OPA Policy Enforcement & Telemetry Logger",
+          "description": "Embed Open Policy Agent (OPA) engine evaluating Rego authorization policies.",
+          "deliverables": [
+            "OPA Rego policy evaluator module",
+            "Fine-grained HTTP path and method RBAC rules",
+            "Audit logging telemetry exporter"
           ]
         }
       ]

@@ -258,22 +258,26 @@ async def _main():
         "netflix-clone": [
             ("microservices-architecture", "required"),
             ("caching-strategies", "required"),
-            ("cloud-storage-and-managed-databases", "recommended"),
+            ("cloud-storage-and-managed-databases", "required"),
+            ("frontend-frameworks-react", "recommended"),
         ],
         "social-media-dashboard": [
             ("data-visualization", "required"),
             ("relational-model-and-sql", "required"),
-            ("message-queues-and-event-streaming", "recommended"),
+            ("message-queues-and-event-streaming", "required"),
+            ("caching-strategies", "recommended"),
         ],
         "docker-voting-app": [
             ("docker-and-containerization", "required"),
             ("microservices-architecture", "required"),
-            ("scalability-and-load-balancing", "recommended"),
+            ("scalability-and-load-balancing", "required"),
+            ("message-queues-and-event-streaming", "recommended"),
         ],
         "machine-learning-pipeline": [
             ("calculus-and-optimization-basics", "required"),
             ("computer-vision-fundamentals", "required"),
-            ("docker-and-containerization", "recommended"),
+            ("docker-and-containerization", "required"),
+            ("backend-development-and-rest-apis", "recommended"),
         ],
         "api-gateway": [
             ("scalability-and-load-balancing", "required"),
@@ -281,11 +285,139 @@ async def _main():
             ("caching-strategies", "required"),
             ("microservices-architecture", "recommended"),
         ],
+        "relational-dbms-engine": [
+            ("indexing-b-tree-hash", "required"),
+            ("relational-model-and-sql", "required"),
+            ("file-systems", "required"),
+            ("virtual-memory", "recommended"),
+        ],
+        "kv-store-lsm": [
+            ("indexing-b-tree-hash", "required"),
+            ("file-systems", "required"),
+            ("sorting-algorithms", "required"),
+            ("threads-and-concurrency", "recommended"),
+        ],
+        "unix-shell-and-kernel": [
+            ("processes-and-process-management", "required"),
+            ("i-o-and-device-management", "required"),
+            ("c-programming-and-memory-management", "required"),
+        ],
+        "user-threads-scheduler": [
+            ("threads-and-concurrency", "required"),
+            ("cpu-scheduling", "required"),
+            ("registers-and-the-alu", "required"),
+            ("assembly-language", "recommended"),
+        ],
+        "custom-tcp-stack": [
+            ("tcp-and-congestion-control", "required"),
+            ("ip-addressing-and-routing", "required"),
+            ("physical-and-data-link-layer", "required"),
+            ("i-o-and-device-management", "recommended"),
+        ],
+        "http-proxy-cache": [
+            ("application-layer-protocols-http-dns", "required"),
+            ("caching-strategies", "required"),
+            ("threads-and-concurrency", "required"),
+            ("tcp-and-congestion-control", "recommended"),
+        ],
+        "c-compiler-subset": [
+            ("lexical-analysis", "required"),
+            ("regular-languages-and-regular-expressions", "required"),
+            ("cpu-architecture-and-instruction-cycle", "required"),
+            ("assembly-language", "recommended"),
+        ],
+        "bytecode-virtual-machine": [
+            ("cpu-architecture-and-instruction-cycle", "required"),
+            ("registers-and-the-alu", "required"),
+            ("assembly-language", "required"),
+            ("c-programming-and-memory-management", "recommended"),
+        ],
         "regex-engine-nfa-dfa": [
             ("finite-automata", "required"),
             ("regular-languages-and-regular-expressions", "required"),
             ("lexical-analysis", "required"),
             ("recursion-and-divide-and-conquer", "recommended"),
+        ],
+        "sat-solver-dpll": [
+            ("set-theory-and-mathematical-logic", "required"),
+            ("boolean-algebra", "required"),
+            ("recursion-and-divide-and-conquer", "required"),
+            ("np-completeness-and-exact-algorithms", "recommended"),
+        ],
+        "transformer-nlp-engine": [
+            ("calculus-and-optimization-basics", "required"),
+            ("combinatorics-and-probability", "required"),
+            ("frontend-frameworks-react", "required"),
+        ],
+        "computer-vision-segmentation": [
+            ("computer-vision-fundamentals", "required"),
+            ("calculus-and-optimization-basics", "required"),
+            ("docker-and-containerization", "required"),
+        ],
+        "realtime-flink-stream": [
+            ("message-queues-and-event-streaming", "required"),
+            ("nosql-and-distributed-databases", "required"),
+            ("scalability-and-load-balancing", "required"),
+        ],
+        "data-warehouse-elt": [
+            ("relational-model-and-sql", "required"),
+            ("caching-strategies", "required"),
+            ("backend-development-and-rest-apis", "required"),
+        ],
+        "kubernetes-operator-custom": [
+            ("docker-and-containerization", "required"),
+            ("microservices-architecture", "required"),
+            ("scalability-and-load-balancing", "required"),
+        ],
+        "terraform-multi-cloud-infra": [
+            ("cloud-storage-and-managed-databases", "required"),
+            ("docker-and-containerization", "required"),
+            ("network-models-osi--tcp-ip", "required"),
+        ],
+        "network-packet-ids": [
+            ("network-security-fundamentals", "required"),
+            ("physical-and-data-link-layer", "required"),
+            ("tcp-and-congestion-control", "required"),
+        ],
+        "vulnerability-scanner-static": [
+            ("network-security-fundamentals", "required"),
+            ("lexical-analysis", "required"),
+            ("regular-languages-and-regular-expressions", "required"),
+        ],
+        "distributed-consensus-raft": [
+            ("synchronization-and-deadlocks", "required"),
+            ("threads-and-concurrency", "required"),
+            ("backend-development-and-rest-apis", "required"),
+        ],
+        "distributed-file-system-gfs": [
+            ("file-systems", "required"),
+            ("cloud-storage-and-managed-databases", "required"),
+            ("microservices-architecture", "required"),
+        ],
+        "react-native-crypto-wallet": [
+            ("asymmetric-cryptography-and-pki", "required"),
+            ("frontend-frameworks-react", "required"),
+            ("network-security-fundamentals", "required"),
+        ],
+        "wasm-video-editor": [
+            ("browser-rendering-engine-fundamentals", "required"),
+            ("c-programming-and-memory-management", "required"),
+            ("javascript-and-the-dom", "required"),
+        ],
+        "stm32-rtos-weather-station": [
+            ("i-o-and-device-management", "required"),
+            ("threads-and-concurrency", "required"),
+            ("c-programming-and-memory-management", "required"),
+        ],
+        "vulkan-3d-render-engine": [
+            ("calculus-and-optimization-basics", "required"),
+            ("c-programming-and-memory-management", "required"),
+            ("data-visualization", "required"),
+        ],
+        "zero-trust-auth-mesh": [
+            ("asymmetric-cryptography-and-pki", "required"),
+            ("network-security-fundamentals", "required"),
+            ("microservices-architecture", "required"),
         ],
     }
 
