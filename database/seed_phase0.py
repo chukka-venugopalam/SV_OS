@@ -134,6 +134,7 @@ async def _main():
         service = KnowledgeImportService(uow)
         report = await service.run_import(import_data)
         service.print_report()
+        await uow.commit()
 
         if not report.success:
             print("\n❌ IMPORT FAILED — see errors above")
