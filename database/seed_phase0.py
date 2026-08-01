@@ -320,13 +320,13 @@ async def _main():
         "kv-store-lsm": [
             ("indexing-b-tree-hash", "required"),
             ("file-systems", "required"),
-            ("sorting-algorithms", "required"),
+            ("algo-sorting", "required"),
             ("threads-and-concurrency", "recommended"),
         ],
         "unix-shell-and-kernel": [
             ("processes-and-process-management", "required"),
             ("i-o-and-device-management", "required"),
-            ("c-programming-and-memory-management", "required"),
+            ("os-process-memory", "required"),
         ],
         "user-threads-scheduler": [
             ("threads-and-concurrency", "required"),
@@ -356,7 +356,7 @@ async def _main():
             ("cpu-architecture-and-instruction-cycle", "required"),
             ("registers-and-the-alu", "required"),
             ("assembly-language", "required"),
-            ("c-programming-and-memory-management", "recommended"),
+            ("os-process-memory", "recommended"),
         ],
         "regex-engine-nfa-dfa": [
             ("finite-automata", "required"),
@@ -368,7 +368,7 @@ async def _main():
             ("set-theory-and-mathematical-logic", "required"),
             ("boolean-algebra", "required"),
             ("recursion-and-divide-and-conquer", "required"),
-            ("np-completeness-and-exact-algorithms", "recommended"),
+            ("complexity-theory-p-vs-np", "recommended"),
         ],
         "transformer-nlp-engine": [
             ("calculus-and-optimization-basics", "required"),
@@ -427,17 +427,17 @@ async def _main():
         ],
         "wasm-video-editor": [
             ("browser-rendering-engine-fundamentals", "required"),
-            ("c-programming-and-memory-management", "required"),
+            ("os-process-memory", "required"),
             ("javascript-and-the-dom", "required"),
         ],
         "stm32-rtos-weather-station": [
             ("i-o-and-device-management", "required"),
             ("threads-and-concurrency", "required"),
-            ("c-programming-and-memory-management", "required"),
+            ("os-process-memory", "required"),
         ],
         "vulkan-3d-render-engine": [
             ("calculus-and-optimization-basics", "required"),
-            ("c-programming-and-memory-management", "required"),
+            ("os-process-memory", "required"),
             ("data-visualization", "required"),
         ],
         "zero-trust-auth-mesh": [

@@ -11339,7 +11339,7 @@
       "linked_nodes": [
         "indexing-b-tree-hash",
         "file-systems",
-        "sorting-algorithms",
+        "algo-sorting",
         "threads-and-concurrency"
       ],
       "careers": ["Database Engineer", "Infrastructure Developer"],
@@ -11394,7 +11394,7 @@
       "linked_nodes": [
         "processes-and-process-management",
         "i-o-and-device-management",
-        "c-programming-and-memory-management"
+        "os-process-memory"
       ],
       "careers": ["Systems Programmer", "OS Engineer"],
       "description": "POSIX-compliant Unix shell built in C. Implements process spawning (fork/execvp), pipeline redirection (`|`, `>`, `<`), background job control (`&`, `fg`, `bg`), and signal handling (`SIGINT`, `SIGTSTP`, `SIGCHLD`).",
@@ -11668,7 +11668,7 @@
         "cpu-architecture-and-instruction-cycle",
         "registers-and-the-alu",
         "assembly-language",
-        "c-programming-and-memory-management"
+        "os-process-memory"
       ],
       "careers": ["Compiler Engineer", "Virtual Machine Developer"],
       "description": "Register-based bytecode virtual machine and assembler execution environment. Implements custom instruction set architecture (ISA), bytecode compiler, register dispatch loop, garbage-collected heap memory, and stack frame evaluator.",
@@ -11798,7 +11798,7 @@
         "set-theory-and-mathematical-logic",
         "boolean-algebra",
         "recursion-and-divide-and-conquer",
-        "np-completeness-and-exact-algorithms"
+        "complexity-theory-p-vs-np"
       ],
       "careers": ["Algorithm Engineer", "Formal Verification Specialist"],
       "description": "Boolean Satisfiability (SAT) solver implementing the Davis-Putnam-Logemann-Loveland (DPLL) algorithm. Features Conjunctive Normal Form (CNF) DIMACS parsing, unit propagation, pure literal elimination, and backtracking search.",
@@ -12434,7 +12434,7 @@
       "portfolio_value": "high",
       "linked_nodes": [
         "browser-rendering-engine-fundamentals",
-        "c-programming-and-memory-management",
+        "os-process-memory",
         "javascript-and-the-dom"
       ],
       "careers": ["Web Engineer", "Systems Developer"],
@@ -12485,11 +12485,7 @@
       "difficulty": 3,
       "estimated_hours": 45,
       "portfolio_value": "high",
-      "linked_nodes": [
-        "i-o-and-device-management",
-        "threads-and-concurrency",
-        "c-programming-and-memory-management"
-      ],
+      "linked_nodes": ["i-o-and-device-management", "threads-and-concurrency", "os-process-memory"],
       "careers": ["Embedded Systems Engineer", "IoT Developer"],
       "description": "Real-time embedded firmware running on STM32 ARM Cortex-M microcontroller using FreeRTOS. Reads I2C temperature/pressure sensors via Direct Memory Access (DMA), processes sensor telemetry, and transmits data over SPI Wi-Fi module.",
       "tech_stack": ["C", "FreeRTOS", "STM32CubeIDE", "ARM GCC"],
@@ -12497,7 +12493,7 @@
       "linked_node_explanations": {
         "i-o-and-device-management": "Configures I2C, SPI, and UART hardware peripherals and DMA buffers.",
         "threads-and-concurrency": "Uses FreeRTOS tasks, queues, and semaphores for real-time task scheduling.",
-        "c-programming-and-memory-management": "Requires strict memory bounds and low-level register bitwise operations."
+        "os-process-memory": "Requires strict memory bounds and low-level register bitwise operations."
       },
       "milestones": [
         {
@@ -12540,7 +12536,7 @@
       "portfolio_value": "high",
       "linked_nodes": [
         "calculus-and-optimization-basics",
-        "c-programming-and-memory-management",
+        "os-process-memory",
         "data-visualization"
       ],
       "careers": ["Game Graphics Engineer", "Engine Developer"],
