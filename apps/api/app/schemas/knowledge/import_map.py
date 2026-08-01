@@ -85,6 +85,14 @@ class ImportNode(BaseModel):
         default_factory=list,
         description='Measurable learning outcomes',
     )
+    common_mistakes: list[str] = Field(
+        default_factory=list,
+        description='Common student misconceptions',
+    )
+    content_status: str = Field(
+        default='published',
+        description='Content publishing status',
+    )
 
 
 class ImportProject(BaseModel):

@@ -479,6 +479,8 @@ class KnowledgeImportService:
                 'domain': n.domain,
                 'skills': n.skills,
                 'learning_outcomes': n.learning_outcomes,
+                'common_mistakes': getattr(n, 'common_mistakes', []),
+                'resources': getattr(n, 'resources', []),
                 'simulators': n.simulators,
                 'import_version': '5.1',
             }
@@ -492,7 +494,7 @@ class KnowledgeImportService:
                     difficulty=difficulty_str,
                     estimated_minutes=estimated_minutes,
                     extra_metadata=metadata,
-                    content_status=getattr(n, 'content_status', 'draft'),
+                    content_status=getattr(n, 'content_status', 'published'),
                     is_published=True,
                     is_deleted=False,
                 )
