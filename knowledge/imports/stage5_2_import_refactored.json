@@ -10713,5 +10713,82 @@
     "git-and-version-control-workflows",
     "resume-and-portfolio-building",
     "behavioral-interviews-and-negotiation"
+  ],
+  "projects": [
+    {
+      "id": "regex-engine-nfa-dfa",
+      "title": "Regular Expression Engine (Thompson's NFA & DFA Minimization)",
+      "difficulty": 4,
+      "estimated_hours": 35,
+      "portfolio_value": "high",
+      "linked_nodes": [
+        "finite-automata",
+        "regular-languages-and-regular-expressions",
+        "lexical-analysis",
+        "recursion-and-divide-and-conquer"
+      ],
+      "careers": ["Compiler Engineer", "Systems Engineer", "Core Infrastructure Developer"],
+      "description": "Build a high-performance regular expression evaluation engine from scratch in C++ or Python without relying on built-in regex engines. This project implements Thompson's NFA construction algorithm to translate regex patterns into Nondeterministic Finite Automata with epsilon transitions, followed by Powerset (Subset Construction) to convert NFAs into Deterministic Finite Automata (DFAs), and Hopcroft's state equivalence algorithm for DFA minimization.\n\nThe engine supports concatenation, alternation (`|`), Kleene star (`*`), positive closure (`+`), optional matching (`?`), character classes (`[a-z]`), and sub-expression grouping `(...)`. You will design a custom lexer/parser for regex syntax, evaluate string matching in guaranteed O(N) linear time, and benchmark state execution against catastrophic backtracking engines.",
+      "tech_stack": ["Python", "C++", "Graphviz", "PyTest"],
+      "architecture_overview": "Regex Pattern -> Lexer & Shunting-Yard Parser -> Postfix AST -> Thompson NFA Construction -> Powerset Subset Construction (DFA) -> Hopcroft DFA Minimization -> O(N) Execution Engine",
+      "linked_node_explanations": {
+        "finite-automata": "Provides formal NFA and DFA state transition matrices and state acceptance conditions.",
+        "regular-languages-and-regular-expressions": "Establishes algebraic equivalence between regular expressions, regular grammars, and finite automata.",
+        "lexical-analysis": "Applies lexer tokenization and Maximal Munch scanning techniques used in compiler frontends.",
+        "recursion-and-divide-and-conquer": "Enables recursive AST parsing and Shunting-Yard operator precedence evaluation."
+      },
+      "milestones": [
+        {
+          "step": 1,
+          "title": "Lexical Analysis & Abstract Syntax Tree (AST) Parsing",
+          "description": "Parse raw regex strings into tokens and construct an infix-to-postfix AST representation enforcing operator precedence (Kleene star > Concatenation > Alternation).",
+          "deliverables": [
+            "Regex syntax lexer emitting char and operator tokens",
+            "Shunting-Yard algorithm implementation handling parentheses grouping",
+            "AST nodes (`ConcatNode`, `AltNode`, `StarNode`, `CharNode`) with tree visualization"
+          ]
+        },
+        {
+          "step": 2,
+          "title": "Thompson's NFA Construction with Epsilon Transitions",
+          "description": "Implement Thompson's construction algorithm to recursively assemble primitive NFAs into composite state machines linked by non-deterministic epsilon transitions.",
+          "deliverables": [
+            "NFA State object with transition tables and acceptance flags",
+            "Epsilon-closure graph traversal algorithm using BFS/DFS",
+            "DOT file exporter for visual Graphviz NFA state diagrams"
+          ]
+        },
+        {
+          "step": 3,
+          "title": "Powerset Subset Construction (NFA to DFA Conversion)",
+          "description": "Transform non-deterministic NFA state sets into deterministic DFA states using powerset construction, eliminating non-deterministic backtracking.",
+          "deliverables": [
+            "Subset construction algorithm mapping NFA epsilon-closures to single DFA states",
+            "DFA transition matrix generator",
+            "Dead-state trap handler for invalid input symbols"
+          ]
+        },
+        {
+          "step": 4,
+          "title": "Hopcroft's DFA State Minimization",
+          "description": "Partition DFA states into equivalent distinguishable sets using Hopcroft's algorithm to produce the minimal canonical DFA state machine.",
+          "deliverables": [
+            "State partition refinement loops using inverse transition lookups",
+            "Redundant state collapsing algorithm",
+            "Minimal DFA transition table compiler"
+          ]
+        },
+        {
+          "step": 5,
+          "title": "O(N) Execution Engine & Exponential Backtracking Benchmarking",
+          "description": "Execute string matching over minimal DFAs in strictly O(N) linear time with respect to input string length, benchmarking performance against backtracking regex engines.",
+          "deliverables": [
+            "Linear-time DFA execution engine evaluating string streams",
+            "Capture group match index evaluator",
+            "Benchmark suite comparing linear DFA evaluation vs catastrophic exponential backtracking on adversarial inputs"
+          ]
+        }
+      ]
+    }
   ]
 }

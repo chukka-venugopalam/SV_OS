@@ -609,17 +609,25 @@ class KnowledgeImportService:
                 p.estimated_hours or p.estimated_minutes // 60 if p.estimated_minutes else 10
             )
 
+            metadata = {
+                'portfolio_value': p.portfolio_value,
+                'milestones': getattr(p, 'milestones', []),
+                'architecture_overview': getattr(p, 'architecture_overview', None),
+                'tech_stack': getattr(p, 'tech_stack', []),
+                'linked_node_explanations': getattr(p, 'linked_node_explanations', {}),
+                'import_version': '5.1',
+            }
+            desc = p.description if p.description else p.title
+
             existing = await uow.projects.find_by_slug(p.id)
             if existing:
                 await uow.projects.update(
                     existing.id,
                     title=p.title,
+                    description=desc,
                     difficulty=difficulty_str,
                     estimated_hours=estimated_hours,
-                    extra_metadata={
-                        'portfolio_value': p.portfolio_value,
-                        'import_version': '5.1',
-                    },
+                    extra_metadata=metadata,
                     is_published=True,
                 )
                 project_id = existing.id
@@ -627,13 +635,10 @@ class KnowledgeImportService:
                 created = await uow.projects.create(
                     slug=p.id,
                     title=p.title,
-                    description=p.title,
+                    description=desc,
                     difficulty=difficulty_str,
                     estimated_hours=estimated_hours,
-                    extra_metadata={
-                        'portfolio_value': p.portfolio_value,
-                        'import_version': '5.1',
-                    },
+                    extra_metadata=metadata,
                     is_published=True,
                 )
                 project_id = created.id

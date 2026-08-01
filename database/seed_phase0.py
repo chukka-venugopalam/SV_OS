@@ -259,6 +259,12 @@ async def _main():
             ("caching-strategies", "required"),
             ("microservices-architecture", "recommended"),
         ],
+        "regex-engine-nfa-dfa": [
+            ("finite-automata", "required"),
+            ("regular-languages-and-regular-expressions", "required"),
+            ("lexical-analysis", "required"),
+            ("recursion-and-divide-and-conquer", "recommended"),
+        ],
     }
 
     async with (

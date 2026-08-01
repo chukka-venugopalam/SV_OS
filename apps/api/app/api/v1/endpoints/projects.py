@@ -126,6 +126,7 @@ async def get_project_requirements(
 
 
 def _project_to_dict(p) -> dict:
+    meta = p.extra_metadata or {}
     return {
         'id': str(p.id),
         'slug': p.slug,
@@ -133,7 +134,11 @@ def _project_to_dict(p) -> dict:
         'description': p.description,
         'difficulty': p.difficulty.value if hasattr(p.difficulty, 'value') else p.difficulty,
         'estimated_hours': p.estimated_hours,
-        'tech_stack': p.tech_stack,
+        'tech_stack': p.tech_stack or meta.get('tech_stack', []),
+        'milestones': meta.get('milestones', []),
+        'architecture_overview': meta.get('architecture_overview'),
+        'linked_node_explanations': meta.get('linked_node_explanations', {}),
+        'extra_metadata': meta,
         'icon': p.icon,
         'color': p.color,
         'is_published': p.is_published,

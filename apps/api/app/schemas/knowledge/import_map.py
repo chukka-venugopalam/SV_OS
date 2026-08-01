@@ -119,9 +119,29 @@ class ImportProject(BaseModel):
         default_factory=list,
         description='Career tags for relevance',
     )
+    description: str = Field(
+        default='',
+        description='Detailed project brief',
+    )
     portfolio_value: str = Field(
         default='medium',
         description='Portfolio value (low/medium/high)',
+    )
+    milestones: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description='Sequential project milestones and step-by-step deliverables',
+    )
+    architecture_overview: str | None = Field(
+        default=None,
+        description='System architecture and component dataflow overview',
+    )
+    tech_stack: list[str] = Field(
+        default_factory=list,
+        description='Recommended technologies and tools',
+    )
+    linked_node_explanations: dict[str, str] = Field(
+        default_factory=dict,
+        description='Explanation of why each linked node is required',
     )
 
     @model_validator(mode='after')
