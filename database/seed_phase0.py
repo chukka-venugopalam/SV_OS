@@ -109,8 +109,12 @@ async def _main():
             n["domain"] = n.pop("domain_raw", n.get("domain_id", "Computer Science"))
         n.pop("domain_id", None)
         n.pop("domain_raw", None)
-        n.pop("content_status", None)
         n.pop("missing_sections", None)
+        if "resources" in n and isinstance(n["resources"], list):
+            n["resources"] = [
+                r["title"] if isinstance(r, dict) and "title" in r else str(r)
+                for r in n["resources"]
+            ]
         if (
             n.get("estimated_hours") is not None
             and n.get("estimated_minutes") is not None
