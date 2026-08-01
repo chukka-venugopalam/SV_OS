@@ -247,6 +247,7 @@ async def _main():
                         is_published=True,
                         extra_metadata=meta,
                     )
+            await uow.commit()
 
     # ── Step 6: Seed multi-domain project_requirements ────────────────
     print("[6/6] Linking projects to multi-domain knowledge nodes")
