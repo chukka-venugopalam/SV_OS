@@ -289,7 +289,7 @@ export default function KnowledgeNodeDetailPage() {
           <MemoryPageReplacementVisualizer />
         </div>
       )}
-      {slug === 'recursion-and-divide-and-conquer' && (
+      {slug === 'stacks-and-queues' && (
         <div className="mb-8">
           <CallStackVisualizer />
         </div>

@@ -146,12 +146,12 @@ const FALLBACK_SIMULATORS: SimulatorData[] = [
   {
     id: 'call-stack-sim',
     title: 'Recursion Call Stack Visualizer',
-    domain: 'Algorithms',
-    target_node_slug: 'recursion-and-divide-and-conquer',
+    domain: 'Data Structures',
+    target_node_slug: 'stacks-and-queues',
     description:
       'Step through stack frame pushing, popping, and activation record returns in recursive calls.',
     component_name: 'CallStackVisualizer',
-    badge: 'Algorithms',
+    badge: 'Data Structures',
   },
 ];
 
