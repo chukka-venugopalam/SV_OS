@@ -537,6 +537,23 @@ def create_app() -> FastAPI:
                 'timestamp': datetime.now(UTC).isoformat(),
             }
 
+    @app.get('/debug/projects-count', include_in_schema=False)
+    async def debug_projects_count() -> dict:
+        from sqlalchemy import text
+
+        from app.core.database import async_session_factory
+
+        async with async_session_factory() as session:
+            stmt = text('SELECT slug, is_published, is_deleted FROM projects ORDER BY slug')
+            res = await session.execute(stmt)
+            rows = res.fetchall()
+            return {
+                'total_in_db': len(rows),
+                'projects': [
+                    {'slug': r[0], 'is_published': r[1], 'is_deleted': r[2]} for r in rows
+                ],
+            }
+
     return app
 
 
