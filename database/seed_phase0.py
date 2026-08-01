@@ -206,20 +206,46 @@ async def _main():
         ):
             for p in import_data.get("projects", []):
                 existing_p = await uow.projects.find_by_slug(p["id"])
+                diff_str = {
+                    1: "beginner",
+                    2: "intermediate",
+                    3: "advanced",
+                    4: "expert",
+                    5: "master",
+                }.get(p.get("difficulty"), "intermediate")
+                meta = {
+                    "portfolio_value": p.get("portfolio_value", "high"),
+                    "milestones": p.get("milestones", []),
+                    "architecture_overview": p.get("architecture_overview"),
+                    "tech_stack": p.get("tech_stack", []),
+                    "linked_node_explanations": p.get("linked_node_explanations", {}),
+                    "import_version": "5.1",
+                }
                 if existing_p:
                     await uow.projects.update(
                         existing_p.id,
+                        title=p["title"],
                         description=p.get("description", existing_p.description),
-                        extra_metadata={
-                            "portfolio_value": p.get("portfolio_value", "high"),
-                            "milestones": p.get("milestones", []),
-                            "architecture_overview": p.get("architecture_overview"),
-                            "tech_stack": p.get("tech_stack", []),
-                            "linked_node_explanations": p.get(
-                                "linked_node_explanations", {}
-                            ),
-                            "import_version": "5.1",
-                        },
+                        difficulty=diff_str,
+                        estimated_hours=p.get(
+                            "estimated_hours", existing_p.estimated_hours
+                        ),
+                        tech_stack=p.get("tech_stack", existing_p.tech_stack),
+                        extra_metadata=meta,
+                        is_published=True,
+                    )
+                else:
+                    await uow.projects.create(
+                        slug=p["id"],
+                        title=p["title"],
+                        description=p.get("description", p["title"]),
+                        difficulty=diff_str,
+                        estimated_hours=p.get("estimated_hours", 20),
+                        tech_stack=p.get("tech_stack", []),
+                        icon="code",
+                        color="#3B82F6",
+                        is_published=True,
+                        extra_metadata=meta,
                     )
 
     # ── Step 6: Seed multi-domain project_requirements ────────────────
