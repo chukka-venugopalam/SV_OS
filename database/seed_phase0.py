@@ -200,6 +200,28 @@ async def _main():
             await session.commit()
             print("  Projects seeded successfully")
 
+        async with (
+            async_session_factory() as session,
+            UnitOfWork(session) as uow,
+        ):
+            for p in import_data.get("projects", []):
+                existing_p = await uow.projects.find_by_slug(p["id"])
+                if existing_p:
+                    await uow.projects.update(
+                        existing_p.id,
+                        description=p.get("description", existing_p.description),
+                        extra_metadata={
+                            "portfolio_value": p.get("portfolio_value", "high"),
+                            "milestones": p.get("milestones", []),
+                            "architecture_overview": p.get("architecture_overview"),
+                            "tech_stack": p.get("tech_stack", []),
+                            "linked_node_explanations": p.get(
+                                "linked_node_explanations", {}
+                            ),
+                            "import_version": "5.1",
+                        },
+                    )
+
     # ── Step 6: Seed multi-domain project_requirements ────────────────
     print("[6/6] Linking projects to multi-domain knowledge nodes")
     PROJECT_NODES_MAP = {

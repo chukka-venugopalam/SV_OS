@@ -41,5 +41,9 @@ INSERT INTO projects (slug, title, description, difficulty, estimated_hours, tec
 
 ('api-gateway', 'API Gateway Service',
  'Implement an API gateway with rate limiting, authentication, request routing, caching, and logging for microservices architecture.',
- 'advanced', 55, ARRAY['FastAPI', 'Redis', 'Docker', 'PostgreSQL'], 'shield', '#22C55E', true)
+ 'advanced', 55, ARRAY['FastAPI', 'Redis', 'Docker', 'PostgreSQL'], 'shield', '#22C55E', true),
+
+('regex-engine-nfa-dfa', 'Regular Expression Engine (Thompson''s NFA & DFA Minimization)',
+ 'Build a high-performance regular expression evaluation engine from scratch implementing Thompson''s NFA construction, Powerset subset construction (NFA to DFA conversion), and Hopcroft''s DFA state minimization algorithm.',
+ 'advanced', 35, ARRAY['Python', 'C++', 'Graphviz', 'PyTest'], 'cpu', '#A855F7', true)
 ON CONFLICT (slug) DO NOTHING;
