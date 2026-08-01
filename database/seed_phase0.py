@@ -211,7 +211,7 @@ async def _main():
                     2: "intermediate",
                     3: "advanced",
                     4: "expert",
-                    5: "master",
+                    5: "expert",
                 }.get(p.get("difficulty"), "intermediate")
                 meta = {
                     "portfolio_value": p.get("portfolio_value", "high"),
