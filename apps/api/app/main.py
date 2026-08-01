@@ -513,13 +513,20 @@ def create_app() -> FastAPI:
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-            await module._main()
+            import io
+            from contextlib import redirect_stdout
+
+            f = io.StringIO()
+            with redirect_stdout(f):
+                await module._main()
+            logs = f.getvalue().splitlines()
             return {
                 'success': True,
                 'message': (
                     'Database seeded successfully '
                     '(categories, careers, 221 nodes, requirements, projects)'
                 ),
+                'logs': logs[-30:],
                 'timestamp': datetime.now(UTC).isoformat(),
             }
         except Exception as e:
