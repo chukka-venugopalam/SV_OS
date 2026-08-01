@@ -207,11 +207,18 @@ async def get_node_careers(
 
 def _node_to_dict(node) -> dict:
     """Convert a KnowledgeNode ORM model to a dict for JSON response."""
+    meta = node.extra_metadata or {}
     return {
         'id': str(node.id),
         'slug': node.slug,
         'title': node.title,
+        'summary': node.description,
         'description': node.description,
+        'domain': meta.get('domain', 'Computer Science'),
+        'content_status': getattr(
+            node.content_status, 'value', str(getattr(node, 'content_status', 'published'))
+        ),
+        'extra_metadata': meta,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
         'difficulty': node.difficulty.value
         if hasattr(node.difficulty, 'value')
