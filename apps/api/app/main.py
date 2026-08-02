@@ -620,6 +620,44 @@ def create_app() -> FastAPI:
             'timestamp': datetime.now(UTC).isoformat(),
         }
 
+    @app.get('/debug/sql-audit', include_in_schema=False)
+    async def debug_sql_audit() -> dict:
+        """Run the exact 3 audit queries on the live production database."""
+        from sqlalchemy import text
+
+        from app.core.database import async_session_factory
+
+        async with async_session_factory() as session:
+            q1 = text(
+                'SELECT COUNT(*) FROM knowledge_nodes '
+                "WHERE description LIKE '%Technical analysis of%covering fundamental principles%';"
+            )
+            r1 = (await session.execute(q1)).scalar()
+
+            q2 = text(
+                'SELECT COUNT(*) FROM knowledge_nodes '
+                "WHERE description NOT LIKE '%Technical analysis of%';"
+            )
+            r2 = (await session.execute(q2)).scalar()
+
+            q3 = text(
+                'SELECT COUNT(*) FROM knowledge_nodes '
+                "WHERE extra_metadata->'cross_domain_connections' IS NOT NULL "
+                "AND extra_metadata->'cross_domain_connections' != '[]'::jsonb;"
+            )
+            r3 = (await session.execute(q3)).scalar()
+
+            q_total = text('SELECT COUNT(*) FROM knowledge_nodes;')
+            r_total = (await session.execute(q_total)).scalar()
+
+            return {
+                'total_nodes_in_db': r_total,
+                'templated_nodes_count': r1,
+                'non_templated_nodes_count': r2,
+                'nodes_with_cross_domain_connections_count': r3,
+                'timestamp': datetime.now(UTC).isoformat(),
+            }
+
     return app
 
 
