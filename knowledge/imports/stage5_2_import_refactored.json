@@ -12,7 +12,7 @@
     {
       "id": "discrete-math-foundations",
       "title": "Discrete Math Foundations",
-      "summary": "Foundational mathematical structures essential for computing, including set theory, logic proposition syntax, mathematical induction, and relation properties.",
+      "summary": "Study of discrete mathematical structures that form the foundational language of computer science. Covers proof techniques, sets, relations, functions, and recurrence relations used to analyze discrete algorithms.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 1,
@@ -71,7 +71,7 @@
           "reason": "Cross-domain concept connection between Browser Engineering and Mathematics"
         }
       ],
-      "description": "Foundational mathematical structures essential for computing, including set theory, logic proposition syntax, mathematical induction, and relation properties.",
+      "description": "Study of discrete mathematical structures that form the foundational language of computer science. Covers proof techniques, sets, relations, functions, and recurrence relations used to analyze discrete algorithms.",
       "metadata": {
         "content_status": "draft"
       },
@@ -80,12 +80,59 @@
         "Failing to establish a valid base case when setting up proof by mathematical induction.",
         "Assuming transitivity holds automatically in arbitrary binary relation definitions."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Construct direct, inductive, and contradiction proofs for mathematical propositions.",
+          "Solve linear recurrence relations using characteristic equations and the Master Theorem.",
+          "Analyze properties of binary relations including reflexivity, symmetry, transitivity, and partial orders."
+        ],
+        "common_mistakes": [
+          "Failing to establish a rigorous base case when proving theorems by mathematical induction.",
+          "Confusing partial order relations (POSets) with total orders.",
+          "Misapplying the Master Theorem on recurrences that violate asymptotic regularity conditions."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "asymptotic-complexity-and-big-o",
+            "reason": "Recurrence relation solutions directly establish algorithm time complexity bounds."
+          },
+          {
+            "target_slug": "relational-model-and-sql",
+            "reason": "Mathematical relations and cartesian products define relational database tables."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Discrete Mathematics and Its Applications \u2014 Kenneth Rosen",
+            "url": "https://www.mheducation.com",
+            "resource_type": "book",
+            "platform": "Textbook"
+          },
+          {
+            "title": "MIT 6.042J Mathematics for Computer Science",
+            "url": "https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-fall-2010/",
+            "resource_type": "course",
+            "platform": "MIT OCW"
+          }
+        ],
+        "interview_questions": [
+          "Prove that the square root of 2 is irrational using proof by contradiction.",
+          "Solve the recurrence T(n) = 2T(n/2) + O(n) and state its asymptotic bound."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Recurrence Solver CLI",
+            "description": "Implement a script to calculate the N-th term of a linear homogeneous recurrence relation.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "set-theory-and-mathematical-logic",
       "title": "Set Theory & Mathematical Logic",
-      "summary": "Formal study of set operations, Venn diagrams, power sets, first-order predicate logic, quantifiers, and inference rules for rigorous reasoning.",
+      "summary": "Formal mathematical study of sets, logic operations, truth tables, and predicate quantifiers. Provides the foundation for database relational algebra, formal verification, and automated reasoning systems.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 1,
@@ -122,7 +169,7 @@
           "reason": "Cross-domain concept connection between Browser Engineering and Mathematics"
         }
       ],
-      "description": "Formal study of set operations, Venn diagrams, power sets, first-order predicate logic, quantifiers, and inference rules for rigorous reasoning.",
+      "description": "Formal mathematical study of sets, logic operations, truth tables, and predicate quantifiers. Provides the foundation for database relational algebra, formal verification, and automated reasoning systems.",
       "metadata": {
         "content_status": "draft"
       },
@@ -131,12 +178,53 @@
         "Incorrectly negating quantified expressions involving universal ($\forall$) and existential ($\\exists$) operators.",
         "Assuming finite set properties automatically generalize to infinite set cardinalities."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Construct and verify truth tables for complex propositional logic expressions.",
+          "Apply De Morgan's Laws and set identities to simplify Boolean and set-theoretic equations.",
+          "Translate natural language logic into first-order predicate calculus with universal and existential quantifiers."
+        ],
+        "common_mistakes": [
+          "Confusing set element membership (\u2208) with subset inclusion (\u2286).",
+          "Distributing existential quantifiers incorrectly over logical conjunctions.",
+          "Assuming logical implication (P \u2192 Q) implies physical causality rather than truth value evaluation."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "boolean-algebra",
+            "reason": "Set union and intersection map directly to OR and AND Boolean logic operations."
+          },
+          {
+            "target_slug": "relational-model-and-sql",
+            "reason": "SQL JOINs and UNIONs are direct implementations of set operations."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Logic and Proof \u2014 Carnegie Mellon University",
+            "url": "https://cmu.edu",
+            "resource_type": "course",
+            "platform": "CMU Open Learning"
+          }
+        ],
+        "interview_questions": [
+          "How do SQL inner joins and left outer joins map to set intersection and set difference?",
+          "Explain Cantor's diagonal argument proving that real numbers are uncountably infinite."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Set Operations Engine",
+            "description": "Implement set union, intersection, symmetric difference, and power set in Python.",
+            "difficulty": "easy"
+          }
+        ]
+      }
     },
     {
       "id": "combinatorics-and-probability",
       "title": "Combinatorics & Probability",
-      "summary": "Rigorous analysis of Combinatorics & Probability focusing on mathematical foundations, axiomatic proofs, computational formulations, and problem-solving techniques.",
+      "summary": "Mathematical principles of counting, permutations, combinations, and probability distributions. Essential for analyzing randomized algorithms, hash table collision probabilities, and statistical models.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 2,
@@ -166,7 +254,7 @@
           "reason": "Cross-domain concept connection between Mathematics and Digital Logic"
         }
       ],
-      "description": "Rigorous analysis of Combinatorics & Probability focusing on mathematical foundations, axiomatic proofs, computational formulations, and problem-solving techniques.",
+      "description": "Mathematical principles of counting, permutations, combinations, and probability distributions. Essential for analyzing randomized algorithms, hash table collision probabilities, and statistical models.",
       "metadata": {
         "content_status": "draft"
       },
@@ -175,12 +263,53 @@
         "Applying theorems without verifying that initial boundary conditions and hypotheses are met.",
         "Overlooking edge cases in edge-condition bounds when executing proofs in Combinatorics & Probability."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Calculate permutations and combinations using the inclusion-exclusion principle and pigeonhole principle.",
+          "Compute conditional probabilities and update beliefs using Bayes' Theorem.",
+          "Evaluate expected value, variance, and standard deviation for discrete random variables."
+        ],
+        "common_mistakes": [
+          "Confusing ordered permutations with unordered combinations.",
+          "Ignoring independence assumptions when calculating joint probabilities P(A \u2229 B).",
+          "Misinterpreting p-values as the probability that the null hypothesis is true."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "indexing-b-tree-hash",
+            "reason": "Hash table collision rates are computed using birthday paradox probability equations."
+          },
+          {
+            "target_slug": "intro-to-ai-and-search-algorithms",
+            "reason": "Bayesian networks and Naive Bayes classifiers rely directly on conditional probability."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Introduction to Probability by Joseph K. Blitzstein",
+            "url": "https://hardy.uhasselt.be",
+            "resource_type": "book",
+            "platform": "Harvard"
+          }
+        ],
+        "interview_questions": [
+          "State Bayes' Theorem and explain how it updates prior probabilities given new evidence.",
+          "What is the expected number of coin flips needed to get 2 consecutive heads?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Monte Carlo Probability Simulator",
+            "description": "Write a simulation program estimating birthday paradox collision probability across N items.",
+            "difficulty": "easy"
+          }
+        ]
+      }
     },
     {
       "id": "calculus-and-optimization-basics",
       "title": "Calculus & Optimization Basics",
-      "summary": "Continuous mathematics covering limits, derivatives, integrals, partial derivatives, gradients, and optimization techniques for computer science applications.",
+      "summary": "Study of continuous change including limits, derivatives, integrals, and gradient-based optimization algorithms. Forms the core mathematical substrate for continuous machine learning models and optimization routines.",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
       "difficulty": 2,
@@ -210,7 +339,7 @@
           "reason": "Cross-domain concept connection between Mathematics and Digital Logic"
         }
       ],
-      "description": "Continuous mathematics covering limits, derivatives, integrals, partial derivatives, gradients, and optimization techniques for computer science applications.",
+      "description": "Study of continuous change including limits, derivatives, integrals, and gradient-based optimization algorithms. Forms the core mathematical substrate for continuous machine learning models and optimization routines.",
       "metadata": {
         "content_status": "draft"
       },
@@ -219,12 +348,48 @@
         "Confusing local minima with global minima in non-convex optimization landscapes.",
         "Ignoring convergence boundary conditions when computing Taylor series approximations."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Compute partial derivatives, Jacobians, and Hessians for multivariable functions.",
+          "Derive gradient descent parameter update equations for convex loss functions.",
+          "Evaluate definite and indefinite integrals for continuous probability density functions."
+        ],
+        "common_mistakes": [
+          "Misapplying the multivariable chain rule when calculating partial derivatives of composite functions.",
+          "Confusing local minima with global minima in non-convex optimization landscapes."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "intro-to-ai-and-search-algorithms",
+            "reason": "Backpropagation in neural networks relies on multivariable chain rule differentiation."
+          }
+        ],
+        "resources": [
+          {
+            "title": "3Blue1Brown Essence of Calculus",
+            "url": "https://www.3blue1brown.com",
+            "resource_type": "video",
+            "platform": "YouTube"
+          }
+        ],
+        "interview_questions": [
+          "Derive the gradient update rule for Linear Regression with Mean Squared Error loss.",
+          "Explain the difference between batch gradient descent, stochastic gradient descent, and Adam optimization."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Gradient Descent Optimizer",
+            "description": "Implement 2D Gradient Descent with momentum in Python.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "boolean-algebra",
       "title": "Boolean Algebra",
-      "summary": "Algebraic structure operating on binary values (0 and 1) utilizing AND, OR, and NOT operations, forming the mathematical foundation for digital logic design.",
+      "summary": "Algebraic system governing binary values (0 and 1) and fundamental logic operators AND, OR, and NOT. Forms the mathematical foundation for digital logic gate design and circuit minimization.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 1,
@@ -261,7 +426,7 @@
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
       ],
-      "description": "Algebraic structure operating on binary values (0 and 1) utilizing AND, OR, and NOT operations, forming the mathematical foundation for digital logic design.",
+      "description": "Algebraic system governing binary values (0 and 1) and fundamental logic operators AND, OR, and NOT. Forms the mathematical foundation for digital logic gate design and circuit minimization.",
       "metadata": {
         "content_status": "draft"
       },
@@ -270,12 +435,53 @@
         "Misinterpreting NAND/NOR universal gate conversions in logic synthesis.",
         "Overlooking don't-care conditions during Karnaugh map grouping."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Simplify complex Boolean functions using algebraic laws and De Morgan's identities.",
+          "Derive canonical Sum-of-Products (SOP) and Product-of-Sums (POS) forms from truth tables.",
+          "Minimize Boolean expressions using Karnaugh maps up to 4 variables."
+        ],
+        "common_mistakes": [
+          "Misapplying distribution laws over AND and OR operators.",
+          "Failing to utilize don't-care conditions during Karnaugh map grouping.",
+          "Confusing active-high and active-low logic representations."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "logic-gates",
+            "reason": "Boolean equations map directly to physical transistor gate layouts."
+          },
+          {
+            "target_slug": "parsing-syntax-analysis",
+            "reason": "Compiler conditional branch expressions evaluate as Boolean AST nodes."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Digital Design by M. Morris Mano",
+            "url": "https://www.pearson.com",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Simplify F = A'B + AB' + AB using Boolean algebra rules.",
+          "Why are NAND and NOR gates called universal logic gates?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "K-Map Logic Minimizer",
+            "description": "Write a program to parse a truth table and return minimal SOP expression.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "logic-gates",
       "title": "Logic Gates",
-      "summary": "Hardware logic representation of Logic Gates detailing gate-level implementations, circuit timing diagrams, signal propagation, and structural synthesis.",
+      "summary": "Physical and logical building blocks of digital hardware components. Implements basic binary logic functions AND, OR, NOT, NAND, NOR, XOR, and XNOR using transistor topologies.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 1,
@@ -312,7 +518,7 @@
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
       ],
-      "description": "Hardware logic representation of Logic Gates detailing gate-level implementations, circuit timing diagrams, signal propagation, and structural synthesis.",
+      "description": "Physical and logical building blocks of digital hardware components. Implements basic binary logic functions AND, OR, NOT, NAND, NOR, XOR, and XNOR using transistor topologies.",
       "metadata": {
         "content_status": "draft"
       },
@@ -321,12 +527,48 @@
         "Creating unintended latch hazards due to incomplete conditional assignments.",
         "Misinterpreting active-high versus active-low control signal conventions in Logic Gates."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Analyze and synthesize circuit diagrams using basic logic gates and universal gates.",
+          "Construct truth tables and timing diagrams for multi-gate logic circuits.",
+          "Implement arbitrary Boolean functions using exclusively NAND or NOR gates."
+        ],
+        "common_mistakes": [
+          "Confusing XOR (exclusive OR) behavior with standard inclusive OR.",
+          "Overlooking gate propagation delay in multi-stage logic gate networks."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "combinational-circuits",
+            "reason": "Logic gates interconnect to construct adders, multiplexers, and ALUs."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Nand2Tetris Unit 1: Boolean Logic & Gates",
+            "url": "https://www.nand2tetris.org",
+            "resource_type": "course",
+            "platform": "Nand2Tetris"
+          }
+        ],
+        "interview_questions": [
+          "Implement a 2-input XOR gate using only 4 NAND gates.",
+          "Explain transistor-level CMOS implementation of a NAND gate."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Logic Gate Simulator",
+            "description": "Build an interactive logic gate evaluator supporting custom wired gate nets.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "combinational-circuits",
       "title": "Combinational Circuits",
-      "summary": "Logic circuits whose outputs depend solely on current input combinations, including Adders, Subtractors, Multiplexers, Decoders, and ALUs.",
+      "summary": "Digital circuits whose output is determined exclusively by current inputs without internal state memory. Includes adders, subtractors, multiplexers, decoders, and encoders.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 2,
@@ -363,7 +605,7 @@
           "reason": "Cross-domain concept connection between Mathematics and Digital Logic"
         }
       ],
-      "description": "Logic circuits whose outputs depend solely on current input combinations, including Adders, Subtractors, Multiplexers, Decoders, and ALUs.",
+      "description": "Digital circuits whose output is determined exclusively by current inputs without internal state memory. Includes adders, subtractors, multiplexers, decoders, and encoders.",
       "metadata": {
         "content_status": "draft"
       },
@@ -372,12 +614,48 @@
         "Connecting multiple active outputs directly without tri-state buffer controls.",
         "Misconfiguring enable pins on active-low decoder chips."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Design multi-channel multiplexers and demultiplexers for data routing.",
+          "Synthesize decoders and encoders for memory address translation.",
+          "Construct Carry-Lookahead adders to mitigate propagation delay in binary addition."
+        ],
+        "common_mistakes": [
+          "Creating unintended feedback paths that cause combinational oscillation.",
+          "Ignoring propagation delay hazards leading to temporary output glitches."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "registers-and-the-alu",
+            "reason": "Combinational circuits form the internal arithmetic routing circuits inside ALUs."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Digital Electronics \u2014 Combinational Logic",
+            "url": "https://www.allaboutcircuits.com",
+            "resource_type": "article",
+            "platform": "AllAboutCircuits"
+          }
+        ],
+        "interview_questions": [
+          "Design a 4-to-1 multiplexer using only 2-to-1 multiplexers.",
+          "Explain how a 3-to-8 decoder can implement any 3-variable Boolean function."
+        ],
+        "coding_challenges": [
+          {
+            "title": "4-bit Multiplexer Emulator",
+            "description": "Implement a software multiplexer routing 4 data lines to 1 output line.",
+            "difficulty": "easy"
+          }
+        ]
+      }
     },
     {
       "id": "sequential-circuits",
       "title": "Sequential Circuits",
-      "summary": "Memory-capable logic circuits relying on clock pulses and feedback loops, encompassing latches, flip-flops, registers, and counters.",
+      "summary": "Digital circuits whose output depends on current inputs and past execution history stored in memory elements. Includes flip-flops, registers, counters, and Finite State Machines (FSMs).",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 2,
@@ -414,7 +692,7 @@
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
       ],
-      "description": "Memory-capable logic circuits relying on clock pulses and feedback loops, encompassing latches, flip-flops, registers, and counters.",
+      "description": "Digital circuits whose output depends on current inputs and past execution history stored in memory elements. Includes flip-flops, registers, counters, and Finite State Machines (FSMs).",
       "metadata": {
         "content_status": "draft"
       },
@@ -423,12 +701,49 @@
         "Violating flip-flop setup/hold times causing metastable state latching.",
         "Mixing synchronous and asynchronous reset triggers within the same clock domain."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Analyze timing specifications (setup time, hold time, propagation delay) for flip-flops.",
+          "Design synchronous Mealy and Moore Finite State Machines using state transition tables.",
+          "Construct multi-bit registers, shift registers, and ripple/synchronous counters."
+        ],
+        "common_mistakes": [
+          "Violating setup or hold times causing flip-flop metastability.",
+          "Confusing level-sensitive latches with edge-triggered flip-flops.",
+          "Leaving unused state transitions undefined in FSM synthesis."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "finite-automata",
+            "reason": "Sequential hardware state machines are physical realizations of theoretical finite automata."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Computer Organization & Design \u2014 Hennessy & Patterson",
+            "url": "https://www.elsevier.com",
+            "resource_type": "book",
+            "platform": "Morgan Kaufmann"
+          }
+        ],
+        "interview_questions": [
+          "What is metastability in flip-flops and how do double-flop synchronizers mitigate it?",
+          "Differentiate between Mealy and Moore state machine outputs."
+        ],
+        "coding_challenges": [
+          {
+            "title": "FSM State Machine Simulator",
+            "description": "Simulate a sequence detector FSM that detects binary pattern '1011'.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "karnaugh-maps-and-circuit-minimization",
       "title": "Karnaugh Maps & Circuit Minimization",
-      "summary": "Hardware logic representation of Karnaugh Maps & Circuit Minimization detailing gate-level implementations, circuit timing diagrams, signal propagation, and structural synthesis.",
+      "summary": "Graphical minimization technique for simplifying Boolean expressions into minimal Sum-of-Products (SOP) or Product-of-Sums (POS) forms without algebraic manipulation.",
       "domain_id": "digital-logic",
       "domain_raw": "Digital Logic",
       "difficulty": 2,
@@ -465,7 +780,7 @@
           "reason": "Cross-domain concept connection between Digital Logic and Computer Architecture"
         }
       ],
-      "description": "Hardware logic representation of Karnaugh Maps & Circuit Minimization detailing gate-level implementations, circuit timing diagrams, signal propagation, and structural synthesis.",
+      "description": "Graphical minimization technique for simplifying Boolean expressions into minimal Sum-of-Products (SOP) or Product-of-Sums (POS) forms without algebraic manipulation.",
       "metadata": {
         "content_status": "draft"
       },
@@ -474,12 +789,49 @@
         "Creating unintended latch hazards due to incomplete conditional assignments.",
         "Misinterpreting active-high versus active-low control signal conventions in Karnaugh Maps & Circuit Minimization."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Plot Boolean functions onto 2, 3, and 4-variable Gray code Karnaugh maps.",
+          "Identify Prime Implicants, Essential Prime Implicants, and minimal cover groups.",
+          "Utilize Don't-Care conditions (X) to maximize group sizes for gate reduction."
+        ],
+        "common_mistakes": [
+          "Forming K-Map groups that are not powers of two (e.g., grouping 3 or 6 cells).",
+          "Wrapping edges incorrectly across non-adjacent Gray code grid boundaries.",
+          "Overlooking Essential Prime Implicants during final expression selection."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "boolean-algebra",
+            "reason": "K-Maps visually enforce Boolean absorption and idempotence laws."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Karnaugh Map Interactive Tutorial",
+            "url": "https://www.electronics-tutorials.ws",
+            "resource_type": "article",
+            "platform": "Electronics Tutorials"
+          }
+        ],
+        "interview_questions": [
+          "Minimize F(A,B,C,D) = \u03a3m(0, 2, 8, 10, 14, 15) using a 4-variable K-Map.",
+          "Why must Karnaugh map rows and columns follow Gray code order?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "K-Map Grouping Parser",
+            "description": "Implement Quine-McCluskey tabular minimization algorithm in C++.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "number-systems-and-data-representation",
       "title": "Number Systems & Data Representation",
-      "summary": "Detailed technical analysis of Number Systems & Data Representation covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Internal digital representation of numbers and characters in computer hardware. Covers binary, octal, hexadecimal, Two's Complement signed integers, and IEEE 754 floating point numbers.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 1,
@@ -516,7 +868,7 @@
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
       ],
-      "description": "Detailed technical analysis of Number Systems & Data Representation covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Internal digital representation of numbers and characters in computer hardware. Covers binary, octal, hexadecimal, Two's Complement signed integers, and IEEE 754 floating point numbers.",
       "metadata": {
         "content_status": "draft"
       },
@@ -525,12 +877,49 @@
         "Overlooking edge-case boundary conditions and failure modes when deploying Number Systems & Data Representation.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Convert numbers between Binary, Octal, Decimal, and Hexadecimal systems.",
+          "Perform signed binary arithmetic using Two's Complement representation and detect overflow.",
+          "Deconstruct IEEE 754 32-bit single precision floats into Sign, Exponent, and Mantissa."
+        ],
+        "common_mistakes": [
+          "Confusing Two's Complement negation with One's Complement invert.",
+          "Performing direct equality comparisons (==) on floating-point numbers.",
+          "Misinterpreting sign extension during right shift operations on signed integers."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "registers-and-the-alu",
+            "reason": "Hardware ALUs compute integer additions directly using Two's Complement logic."
+          }
+        ],
+        "resources": [
+          {
+            "title": "IEEE 754 Floating-Point Standard Documentation",
+            "url": "https://ieee.org",
+            "resource_type": "documentation",
+            "platform": "IEEE"
+          }
+        ],
+        "interview_questions": [
+          "Explain why 0.1 + 0.2 != 0.3 in IEEE 754 double precision floating point.",
+          "How is overflow detected in 8-bit Two's Complement addition?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Float Unpacker Tool",
+            "description": "Write a C function converting a float to binary bit pattern string representation.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "registers-and-the-alu",
       "title": "Registers & the ALU",
-      "summary": "Detailed technical analysis of Registers & the ALU covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Central computational engine of the CPU containing the Arithmetic Logic Unit (ALU) and high-speed register files for immediate data manipulation and state retention.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 2,
@@ -567,7 +956,7 @@
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
       ],
-      "description": "Detailed technical analysis of Registers & the ALU covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Central computational engine of the CPU containing the Arithmetic Logic Unit (ALU) and high-speed register files for immediate data manipulation and state retention.",
       "metadata": {
         "content_status": "draft"
       },
@@ -576,12 +965,48 @@
         "Overlooking edge-case boundary conditions and failure modes when deploying Registers & the ALU.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Design 4-bit ALU circuits performing addition, subtraction, bitwise AND/OR/XOR operations.",
+          "Construct register files with read/write ports and decoder-based register selection.",
+          "Analyze ALU status flags: Zero (Z), Carry (C), Overflow (V), and Negative (N)."
+        ],
+        "common_mistakes": [
+          "Confusing Carry Out flag (unsigned overflow) with Overflow flag (signed 2's complement overflow).",
+          "Mismanaging multi-port register file read/write clock phase timing."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "cpu-architecture-and-instruction-cycle",
+            "reason": "The ALU and register file execute the core EX phase of instruction execution."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Nand2Tetris Unit 2: ALU Design",
+            "url": "https://www.nand2tetris.org",
+            "resource_type": "course",
+            "platform": "Nand2Tetris"
+          }
+        ],
+        "interview_questions": [
+          "How does an ALU execute subtraction using an adder and XOR gates?",
+          "What happens inside a register file during a simultaneous read/write to the same register index?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "ALU Simulator Engine",
+            "description": "Build a software ALU module evaluating 8-bit opcodes and updating status flags.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "cpu-architecture-and-instruction-cycle",
       "title": "CPU Architecture & Instruction Cycle",
-      "summary": "Internal design of Central Processing Units covering the instruction fetch-decode-execute cycle, ALU, registers, and control unit design.",
+      "summary": "Organizational structure of the Central Processing Unit and the sequential Fetch-Decode-Execute instruction pipeline. Explores Program Counter, Instruction Register, and Control Unit operation.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 3,
@@ -618,7 +1043,7 @@
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
       ],
-      "description": "Internal design of Central Processing Units covering the instruction fetch-decode-execute cycle, ALU, registers, and control unit design.",
+      "description": "Organizational structure of the Central Processing Unit and the sequential Fetch-Decode-Execute instruction pipeline. Explores Program Counter, Instruction Register, and Control Unit operation.",
       "metadata": {
         "content_status": "draft"
       },
@@ -627,12 +1052,48 @@
         "Misunderstanding program counter (PC) increment timing during branch instruction execution.",
         "Assuming register transfers occur asynchronously without clock edge triggers."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Trace the step-by-step Fetch, Decode, Execute instruction cycle through micro-operations.",
+          "Differentiate between RISC and CISC instruction set architectures (ISA).",
+          "Design hardwired vs microprogrammed Control Units for CPU instruction decoding."
+        ],
+        "common_mistakes": [
+          "Confusing Program Counter (PC) increment timing with memory fetch bus cycles.",
+          "Assuming RISC instruction execution is slower because it requires more total instructions."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "pipelining-and-instruction-level-parallelism",
+            "reason": "The basic instruction cycle is overlapped across pipeline stages to achieve high CPI."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Computer Organization and Architecture \u2014 William Stallings",
+            "url": "https://www.pearson.com",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Trace the micro-operations during execution of a LOAD instruction from RAM into ACC.",
+          "Compare hardwired control units vs microprogrammed control units."
+        ],
+        "coding_challenges": [
+          {
+            "title": "CPU Register Instruction Cycle Emulator",
+            "description": "Build a 16-bit CPU cycle simulator processing Fetch, Decode, Execute loops.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "assembly-language",
       "title": "Assembly Language",
-      "summary": "Detailed technical analysis of Assembly Language covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Low-level human-readable symbolic representation of machine code instructions. Covers registers, memory addressing modes, stack frames, and hardware control instructions.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 3,
@@ -669,18 +1130,54 @@
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
       ],
-      "description": "Detailed technical analysis of Assembly Language covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Low-level human-readable symbolic representation of machine code instructions. Covers registers, memory addressing modes, stack frames, and hardware control instructions.",
       "common_mistakes": [
         "Confusing theoretical abstraction boundaries with physical implementation details in Assembly Language.",
         "Overlooking edge-case boundary conditions and failure modes when deploying Assembly Language.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Write assembly program routines implementing control flow, loops, and function calls.",
+          "Apply x86-64/MIPS memory addressing modes: immediate, direct, indirect, indexed, and base-offset.",
+          "Manage function call stack frames (push/pop registers, stack pointer, frame pointer)."
+        ],
+        "common_mistakes": [
+          "Violating calling conventions (caller-saved vs callee-saved registers).",
+          "Corrupting the stack pointer (ESP/RSP) alignment during function prologue/epilogue."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "code-generation-and-linking",
+            "reason": "Compiler code generators produce assembly code targeted to specific instruction sets."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Computer Systems: A Programmer's Perspective (CS:APP)",
+            "url": "https://csapp.cs.cmu.edu",
+            "resource_type": "book",
+            "platform": "CMU"
+          }
+        ],
+        "interview_questions": [
+          "Explain how the x86-64 function call stack frame is set up and torn down.",
+          "What is the difference between little-endian and big-endian memory layout?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Assembly String Reverse Function",
+            "description": "Write an x86-64 assembly snippet reversing an ASCII string in-place.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "memory-hierarchy-and-caching",
       "title": "Memory Hierarchy & Caching",
-      "summary": "Detailed technical analysis of Memory Hierarchy & Caching covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Hierarchical memory organization balancing speed, capacity, and cost. Covers Registers, L1/L2/L3 Caches, Main RAM, and Secondary Storage, along with cache mapping techniques.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 3,
@@ -724,7 +1221,7 @@
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
       ],
-      "description": "Detailed technical analysis of Memory Hierarchy & Caching covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Hierarchical memory organization balancing speed, capacity, and cost. Covers Registers, L1/L2/L3 Caches, Main RAM, and Secondary Storage, along with cache mapping techniques.",
       "metadata": {
         "content_status": "draft"
       },
@@ -733,12 +1230,48 @@
         "Overlooking edge-case boundary conditions and failure modes when deploying Memory Hierarchy & Caching.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Deconstruct physical memory addresses into Cache Tag, Index, and Offset fields.",
+          "Compare Direct-Mapped, N-Way Set-Associative, and Fully-Associative cache organizations.",
+          "Calculate cache Hit/Miss ratios, Average Memory Access Time (AMAT), and write policies."
+        ],
+        "common_mistakes": [
+          "Confusing temporal locality (reusing same item) with spatial locality (using adjacent items).",
+          "Ignoring write-back vs write-through policy effects on memory bus traffic."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "virtual-memory",
+            "reason": "Cache memory policies mirror virtual memory page replacement and TLB operation."
+          }
+        ],
+        "resources": [
+          {
+            "title": "CMU 15-213 Memory Hierarchy & Caches",
+            "url": "https://www.cs.cmu.edu/~213/",
+            "resource_type": "course",
+            "platform": "CMU"
+          }
+        ],
+        "interview_questions": [
+          "Calculate AMAT for L1 hit time 1ns, L2 hit time 5ns, L2 miss penalty 100ns, L1 miss rate 5%, L2 miss rate 10%.",
+          "Explain spatial vs temporal locality with loop code examples."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Cache Simulator (Direct & Set-Associative)",
+            "description": "Build a CLI simulator reading memory traces and printing hit/miss statistics.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "pipelining-and-instruction-level-parallelism",
       "title": "Pipelining & Instruction-Level Parallelism",
-      "summary": "Detailed technical analysis of Pipelining & Instruction-Level Parallelism covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Microarchitectural optimization technique overlapping the execution of multiple instructions. Covers 5-stage MIPS pipeline, structural/data/control hazards, and speculative execution.",
       "domain_id": "computer-architecture",
       "domain_raw": "Computer Architecture",
       "difficulty": 4,
@@ -768,7 +1301,7 @@
           "reason": "Cross-domain concept connection between Computer Architecture and Operating Systems"
         }
       ],
-      "description": "Detailed technical analysis of Pipelining & Instruction-Level Parallelism covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Microarchitectural optimization technique overlapping the execution of multiple instructions. Covers 5-stage MIPS pipeline, structural/data/control hazards, and speculative execution.",
       "metadata": {
         "content_status": "draft"
       },
@@ -777,7 +1310,43 @@
         "Overlooking edge-case boundary conditions and failure modes when deploying Pipelining & Instruction-Level Parallelism.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Trace instruction flow through 5-stage MIPS pipeline (IF, ID, EX, MEM, WB).",
+          "Identify structural hazards, data hazards (RAW, WAR, WAW), and control hazards.",
+          "Resolve hazards using data forwarding, branch prediction, and pipeline stalls (NOPs)."
+        ],
+        "common_mistakes": [
+          "Confusing Read-After-Write (RAW) true data dependencies with WAR/WAW name dependencies.",
+          "Assuming pipelining decreases latency of an individual instruction rather than throughput."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "intermediate-code-and-optimization",
+            "reason": "Compilers reorder instructions to prevent pipeline stalls and data hazards."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Pipelining Concepts \u2014 Hennessy & Patterson",
+            "url": "https://www.elsevier.com",
+            "resource_type": "book",
+            "platform": "Morgan Kaufmann"
+          }
+        ],
+        "interview_questions": [
+          "Explain how Data Forwarding (bypassing) resolves Read-After-Write (RAW) data hazards.",
+          "Why do branch mispredictions introduce severe performance penalties in deep pipelines?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "MIPS Pipeline Hazard Detector",
+            "description": "Write a script detecting RAW data hazards in a list of assembly instructions.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "processes-and-process-management",
@@ -8821,8 +9390,8 @@
     {
       "id": "linear-algebra",
       "title": "Linear Algebra",
-      "summary": "Rigorous analysis of Linear Algebra focusing on mathematical foundations, axiomatic proofs, computational formulations, and problem-solving techniques.",
-      "description": "Rigorous analysis of Linear Algebra focusing on mathematical foundations, axiomatic proofs, computational formulations, and problem-solving techniques.",
+      "summary": "Branch of mathematics studying vector spaces, linear transformations, matrices, and systems of linear equations. Crucial for computer graphics, machine learning, and quantum computing.",
+      "description": "Branch of mathematics studying vector spaces, linear transformations, matrices, and systems of linear equations. Crucial for computer graphics, machine learning, and quantum computing.",
       "domain": "Mathematics",
       "domain_id": "mathematics",
       "domain_raw": "Mathematics",
@@ -8855,7 +9424,43 @@
         "Applying theorems without verifying that initial boundary conditions and hypotheses are met.",
         "Overlooking edge cases in edge-condition bounds when executing proofs in Linear Algebra."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Compute matrix multiplication, determinants, inverses, and rank.",
+          "Formulate and solve system of linear equations using Gaussian elimination.",
+          "Calculate eigenvalues, eigenvectors, and Singular Value Decomposition (SVD)."
+        ],
+        "common_mistakes": [
+          "Assuming matrix multiplication is commutative (AB != BA).",
+          "Attempting to invert singular matrices with determinant zero."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "intro-to-ai-and-search-algorithms",
+            "reason": "Neural network weight transformations rely directly on matrix multiplications."
+          }
+        ],
+        "resources": [
+          {
+            "title": "MIT 18.06 Linear Algebra by Gilbert Strang",
+            "url": "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/",
+            "resource_type": "course",
+            "platform": "MIT OCW"
+          }
+        ],
+        "interview_questions": [
+          "Explain the geometric interpretation of eigenvalues and eigenvectors.",
+          "What is the geometric meaning of a matrix determinant?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Matrix Multiplication & Inversion Engine",
+            "description": "Implement Strassen's matrix multiplication algorithm in Python.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "calculus-basics",
@@ -9367,8 +9972,8 @@
     {
       "id": "digital-logic",
       "title": "Digital Logic & Boolean Algebra",
-      "summary": "Fundamentals of hardware design, binary representation, logic gates, combinational circuit synthesis, and sequential state machines.",
-      "description": "Fundamentals of hardware design, binary representation, logic gates, combinational circuit synthesis, and sequential state machines.",
+      "summary": "Core discipline covering binary representation, gate-level synthesis, combinational routing, and sequential timing systems. Forms the hardware foundations of all computing hardware.",
+      "description": "Core discipline covering binary representation, gate-level synthesis, combinational routing, and sequential timing systems. Forms the hardware foundations of all computing hardware.",
       "domain": "Computer Organization",
       "domain_id": "computer-organization",
       "domain_raw": "Computer Organization",
@@ -9401,7 +10006,43 @@
         "Confusing setup time and hold time requirements in clocked sequential flip-flop inputs.",
         "Failing to prevent floating input pins in physical CMOS circuit schematics."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Convert numbers across Binary, Octal, Decimal, and Hexadecimal representations.",
+          "Analyze timing specifications and clock distribution in digital systems.",
+          "Synthesize complex logic functionality using Programmable Logic Devices (PLDs)."
+        ],
+        "common_mistakes": [
+          "Miscalculating Two's Complement overflow conditions in signed arithmetic.",
+          "Mixing up active-high and active-low control signals in digital chips."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "cpu-architecture-and-instruction-cycle",
+            "reason": "Digital logic circuits construct CPU control units and arithmetic logic units."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Digital Electronics Lecture Series \u2014 Carnegie Mellon",
+            "url": "https://www.cmu.edu",
+            "resource_type": "course",
+            "platform": "CMU"
+          }
+        ],
+        "interview_questions": [
+          "How is 2's complement negation computed for binary -5 in 8 bits?",
+          "Explain how tri-state buffers manage shared data buses."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Binary Number System Converter",
+            "description": "Build a CLI tool converting floating point numbers to IEEE 754 32-bit format.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "computer-organization",
