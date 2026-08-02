@@ -4069,7 +4069,7 @@
     {
       "id": "indexing-b-tree-hash",
       "title": "Indexing (B-Tree, Hash)",
-      "summary": "Specialized tree structures engineered for high-performance retrieval and range queries. Covers Tries for prefix matching, Segment Trees for range updates, and B-Trees for disk block indexing.",
+      "summary": "Database physical storage access structures accelerating query lookups. Covers Primary vs Secondary indexes, Clustered indexes, B+ Trees, and Hash Indexing.",
       "domain_id": "databases",
       "domain_raw": "Databases",
       "difficulty": 3,
@@ -4126,37 +4126,37 @@
       "is_published": true,
       "extra_metadata": {
         "learning_outcomes": [
-          "Construct Tries (Prefix Trees) for O(L) string search and autocomplete.",
-          "Implement Segment Trees for O(log N) range sum/minimum queries and point updates.",
-          "Analyze B-Tree and B+ Tree node split/merge algorithms for database disk pages."
+          "Analyze search, insert, and delete I/O costs across B+ Trees and Hash Indexes.",
+          "Design composite multi-column indexes adhering to the Leftmost Prefix Rule.",
+          "Evaluate index selectivity and index-only scan query optimization."
         ],
         "common_mistakes": [
-          "Failing to handle lazy propagation in Segment Tree range updates.",
-          "Consuming excessive memory in naive Trie implementations without compression (Radix Trees)."
+          "Creating indexes on low-cardinality boolean columns, rendering index scans useless.",
+          "Violating the leftmost prefix rule in multi-column composite index queries."
         ],
         "cross_domain_connections": [
           {
-            "target_slug": "indexing-b-tree-hash",
-            "reason": "B+ Trees form the core index structure in database engines."
+            "target_slug": "memory-hierarchy-and-caching",
+            "reason": "Index pages are cached in database Buffer Pools to minimize disk I/O."
           }
         ],
         "resources": [
           {
-            "title": "CLRS Chapter 18: B-Trees",
-            "url": "https://mitpress.mit.edu",
-            "resource_type": "book",
-            "platform": "MIT Press"
+            "title": "Use The Index, Luke! (Markus Winand)",
+            "url": "https://use-the-index-luke.com",
+            "resource_type": "article",
+            "platform": "Web Guide"
           }
         ],
         "interview_questions": [
-          "Compare Tries with Hash Tables for string lookup.",
-          "Explain how Segment Trees support O(log N) range minimum queries."
+          "Why do database engines use B+ Trees instead of Binary Search Trees or Standard B-Trees?",
+          "Explain clustered vs non-clustered indexes."
         ],
         "coding_challenges": [
           {
-            "title": "Trie Prefix Search Engine",
-            "description": "Implement a Trie supporting insert, search, and startsWith methods.",
-            "difficulty": "medium"
+            "title": "B+ Tree In-Memory Index",
+            "description": "Implement a B+ Tree index insertion and search module in Python.",
+            "difficulty": "hard"
           }
         ]
       }

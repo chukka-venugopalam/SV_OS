@@ -559,6 +559,67 @@ def create_app() -> FastAPI:
                 ],
             }
 
+    @app.get('/debug/sync-all-nodes', include_in_schema=False)
+    async def debug_sync_all_nodes() -> dict:
+        """Fast direct DB sync of all 221 nodes from stage5_2_import_refactored.json."""
+        import json
+        from pathlib import Path
+
+        from sqlalchemy import select
+
+        from app.core.database import async_session_factory
+        from app.models.knowledge_node import KnowledgeNode
+
+        curr = Path(__file__).resolve()
+        json_path = None
+        for p in [curr, *list(curr.parents)]:
+            candidate = p / 'knowledge' / 'imports' / 'stage5_2_import_refactored.json'
+            if candidate.exists():
+                json_path = candidate
+                break
+
+        if not json_path:
+            return {'success': False, 'message': 'JSON file not found'}
+
+        with open(json_path, encoding='utf-8') as f:
+            import_data = json.load(f)
+
+        nodes_list = import_data.get('nodes', [])
+        synced = 0
+
+        async with async_session_factory() as session:
+            stmt = select(KnowledgeNode)
+            res = await session.execute(stmt)
+            existing_nodes = {n.slug: n for n in res.scalars().all()}
+
+            for n in nodes_list:
+                slug = n['id']
+                existing = existing_nodes.get(slug)
+                meta = n.get('extra_metadata', {})
+                if existing:
+                    existing.description = n.get('summary', n.get('description'))
+                    existing.extra_metadata = {
+                        'domain': n.get('domain', 'Computer Science'),
+                        'skills': n.get('skills', []),
+                        'learning_outcomes': meta.get('learning_outcomes', []),
+                        'common_mistakes': meta.get('common_mistakes', []),
+                        'cross_domain_connections': meta.get('cross_domain_connections', []),
+                        'resources': meta.get('resources', n.get('resources', [])),
+                        'simulators': n.get('simulators', []),
+                        'interview_questions': meta.get('interview_questions', []),
+                        'coding_challenges': meta.get('coding_challenges', []),
+                        'import_version': '5.2',
+                    }
+                    synced += 1
+
+            await session.commit()
+
+        return {
+            'success': True,
+            'message': f'Successfully synced {synced} of {len(nodes_list)} nodes into live DB',
+            'timestamp': datetime.now(UTC).isoformat(),
+        }
+
     return app
 
 

@@ -89,6 +89,22 @@ class ImportNode(BaseModel):
         default_factory=list,
         description='Common student misconceptions',
     )
+    cross_domain_connections: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description='Cross domain connections',
+    )
+    interview_questions: list[str] = Field(
+        default_factory=list,
+        description='Interview questions',
+    )
+    coding_challenges: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description='Coding challenges',
+    )
+    extra_metadata: dict[str, Any] = Field(
+        default_factory=dict,
+        description='Additional extra metadata',
+    )
     content_status: str = Field(
         default='published',
         description='Content publishing status',

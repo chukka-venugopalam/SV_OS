@@ -475,14 +475,26 @@ class KnowledgeImportService:
             difficulty_str = DIFFICULTY_MAP.get(n.difficulty, 'beginner')
             estimated_minutes = n.estimated_minutes or 30
 
+            extra_meta = getattr(n, 'extra_metadata', {}) or {}
             metadata = {
                 'domain': n.domain,
                 'skills': n.skills,
                 'learning_outcomes': n.learning_outcomes,
-                'common_mistakes': getattr(n, 'common_mistakes', []),
-                'resources': getattr(n, 'resources', []),
+                'common_mistakes': getattr(
+                    n, 'common_mistakes', extra_meta.get('common_mistakes', [])
+                ),
+                'cross_domain_connections': getattr(
+                    n, 'cross_domain_connections', extra_meta.get('cross_domain_connections', [])
+                ),
+                'resources': getattr(n, 'resources', extra_meta.get('resources', [])),
                 'simulators': n.simulators,
-                'import_version': '5.1',
+                'interview_questions': getattr(
+                    n, 'interview_questions', extra_meta.get('interview_questions', [])
+                ),
+                'coding_challenges': getattr(
+                    n, 'coding_challenges', extra_meta.get('coding_challenges', [])
+                ),
+                'import_version': '5.2',
             }
 
             existing = existing_by_slug.get(n.id)
