@@ -2,7 +2,7 @@ import { API_PREFIX } from '@sv-os/config';
 
 /** Build an absolute API URL from a relative path */
 export function apiUrl(path: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://sv-os.onrender.com';
   return `${baseUrl}${API_PREFIX}${path}`;
 }
 

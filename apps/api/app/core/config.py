@@ -63,8 +63,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     BCRYPT_ROUNDS: int = 12
 
-    # ── CORS ─────────────────────────────────────────────────────────
-    CORS_ORIGINS: list[str] = ['http://localhost:3000']
+    CORS_ORIGINS: list[str] = [
+        'http://localhost:3000',
+        'https://sv-os-web.vercel.app',
+        'https://sv-os.onrender.com',
+    ]
 
     # ── Rate Limiting ────────────────────────────────────────────────
     API_RATE_LIMIT: int = 100  # requests per minute (authenticated)

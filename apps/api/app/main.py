@@ -126,9 +126,9 @@ def create_app() -> FastAPI:
     # ── Outer middleware (added last, runs first) ────────────────────
 
     app.add_middleware(  # 9. CORS — outermost; handles OPTIONS preflight
-        #    before any inner middleware can reject it
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
+        allow_origin_regex=r'https://.*\.vercel\.app|https://.*\.onrender\.com|http://localhost:\d+',
         allow_credentials=True,
         allow_methods=['*'],
         allow_headers=['*'],

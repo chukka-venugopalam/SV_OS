@@ -11,7 +11,7 @@
 
 import type { ApiResponse } from '@sv-os/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sv-os.onrender.com';
 const API_PREFIX = '/api/v1';
 
 type RequestOptions = Omit<RequestInit, 'body'> & {

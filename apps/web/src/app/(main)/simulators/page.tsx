@@ -17,6 +17,7 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 import { Shell } from '@/components/shared/shell';
+import { apiClient } from '@/lib/api-client';
 
 interface SimulatorData {
   id: string;
@@ -339,11 +340,11 @@ export default function SimulatorsPage() {
 
   useEffect(() => {
     // Fetch live inventory from API, fallback to client inventory
-    fetch('/api/v1/simulators')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
-          setSimulators(data.data);
+    apiClient
+      .get<SimulatorData[]>('/simulators')
+      .then((res) => {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setSimulators(res.data);
         }
       })
       .catch(() => {

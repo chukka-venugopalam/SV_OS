@@ -213,7 +213,7 @@ export default function AIChatPage() {
       const token = localStorage.getItem('access_token');
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/v1/ai/chat/stream`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://sv-os.onrender.com'}/api/v1/ai/chat/stream`,
         {
           method: 'POST',
           headers: {

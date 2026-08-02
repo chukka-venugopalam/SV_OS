@@ -33,7 +33,8 @@ function createEnv(): EnvConfig {
   > = {
     NEXT_PUBLIC_API_URL: {
       value: env.NEXT_PUBLIC_API_URL,
-      required: true,
+      required: false,
+      fallback: 'https://sv-os.onrender.com',
     },
     NEXT_PUBLIC_SUPABASE_URL: {
       value: env.NEXT_PUBLIC_SUPABASE_URL,

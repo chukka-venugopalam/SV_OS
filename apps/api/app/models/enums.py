@@ -131,8 +131,10 @@ class PgEnumType(TypeDecorator):
             except (ValueError, KeyError):
                 # Fallback: return as-is (shouldn't happen with CHECK constraint)
                 return value  # type: ignore[return-value]
-        # Defensive fallback for unexpected types
-        return self._user_enum(str(value))
+        try:
+            return self._user_enum(str(value))
+        except (ValueError, KeyError):
+            return str(value)  # type: ignore[return-value]
 
 
 # Backward-compatible alias — every model imports ``pg_enum``.
@@ -166,6 +168,9 @@ class EdgeType(enum.StrEnum):
     RELATED_TO = 'related_to'
     LEADS_TO = 'leads_to'
     REQUIRES = 'requires'
+    CROSS_DOMAIN = 'cross_domain'
+    CROSS_SUBJECT = 'cross_subject'
+    RELATED = 'related'
 
 
 class EdgeDirection(enum.StrEnum):
