@@ -26,12 +26,27 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "apps", "api"))
 
 
-async def _main():
+async def _main(existing_session=None):
     from app.core.database import async_session_factory
     from app.repositories import UnitOfWork
     from app.services.knowledge_import import KnowledgeImportService
 
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # Helper context manager for session
+    class SessionContext:
+        def __init__(self, sess):
+            self.sess = sess
+
+        async def __aenter__(self):
+            if self.sess:
+                return self.sess
+            self.new_sess = async_session_factory()
+            return await self.new_sess.__aenter__()
+
+        async def __aexit__(self, exc_type, exc_val, exc_tb):
+            if not self.sess and hasattr(self, "new_sess"):
+                await self.new_sess.__aexit__(exc_type, exc_val, exc_tb)
 
     # ── Step 1: Seed categories ─────────────────────────────────────
     categories_path = os.path.join(project_root, "database", "categories_40.json")
@@ -39,10 +54,8 @@ async def _main():
     with open(categories_path, encoding="utf-8") as f:  # noqa: ASYNC230
         category_list = json.load(f)
 
-    async with (
-        async_session_factory() as session,
-        UnitOfWork(session) as uow,
-    ):
+    async with SessionContext(existing_session) as session:
+        uow = UnitOfWork(session)
         created = 0
         for c in category_list:
             existing = await uow.categories.find_by_slug(c["slug"])

@@ -10,6 +10,7 @@ export const ROUTES = {
   CAREERS: '/careers',
   PROJECTS: '/projects',
   SIMULATORS: '/simulators',
+  LEARNING_PATH: '/learning-path',
   KNOWLEDGE: '/knowledge',
   PROGRESS: '/progress',
   BOOKMARKS: '/bookmarks',
@@ -42,6 +43,7 @@ export const API_ROUTES = {
 export const NAV_ITEMS = [
   { label: 'Dashboard', href: ROUTES.DASHBOARD, icon: 'LayoutDashboard' },
   { label: 'Explore', href: ROUTES.EXPLORE, icon: 'Compass' },
+  { label: 'Guided Path', href: '/learning-path', icon: 'Sparkles' },
   { label: 'Graph', href: ROUTES.GRAPH, icon: 'Share2' },
   { label: 'AI Chat', href: ROUTES.AI_CHAT, icon: 'Bot' },
   { label: 'Careers', href: ROUTES.CAREERS, icon: 'Briefcase' },

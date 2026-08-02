@@ -196,20 +196,28 @@ async def get_prerequisite_chain(
 
 def _node_to_dict(node, depth: int = 0) -> dict:
     meta = node.extra_metadata or {}
+    node_type = (
+        node.node_type.value
+        if hasattr(node.node_type, 'value')
+        else (str(node.node_type) if node.node_type is not None else 'concept')
+    )
+    difficulty = (
+        node.difficulty.value
+        if hasattr(node.difficulty, 'value')
+        else (str(node.difficulty) if node.difficulty is not None else 'intermediate')
+    )
     return {
         'id': str(node.id),
         'slug': node.slug,
         'title': node.title,
         'description': node.description,
-        'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
-        'difficulty': node.difficulty.value
-        if hasattr(node.difficulty, 'value')
-        else node.difficulty,
+        'node_type': node_type,
+        'difficulty': difficulty,
         'estimated_minutes': getattr(node, 'estimated_minutes', None),
-        'icon': node.icon,
-        'color': node.color,
+        'icon': node.icon or 'book',
+        'color': node.color or '#3B82F6',
         'depth': depth,
-        'domain': meta.get('domain', 'General CS'),
+        'domain': meta.get('domain', getattr(node, 'domain_raw', 'General CS')),
         'cross_domain_connections': meta.get('cross_domain_connections', []),
     }
 
@@ -218,7 +226,16 @@ def _edge_to_dict(edge) -> dict:
     rel_type = (
         edge.relationship_type.value
         if hasattr(edge.relationship_type, 'value')
-        else edge.relationship_type
+        else (str(edge.relationship_type) if edge.relationship_type is not None else 'related')
+    )
+    direction_val = (
+        edge.direction.value
+        if hasattr(getattr(edge, 'direction', None), 'value')
+        else (
+            str(getattr(edge, 'direction', 'forward'))
+            if getattr(edge, 'direction', None) is not None
+            else 'forward'
+        )
     )
     return {
         'id': str(edge.id),
@@ -226,7 +243,5 @@ def _edge_to_dict(edge) -> dict:
         'target_id': str(edge.target_node_id),
         'relationship_type': rel_type,
         'edge_type': rel_type,
-        'direction': edge.direction.value
-        if hasattr(edge.direction, 'value')
-        else getattr(edge, 'direction', 'forward'),
+        'direction': direction_val,
     }

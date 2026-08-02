@@ -36,19 +36,38 @@ import { useParams } from 'next/navigation';
 
 import { NODE_TYPE_COLORS } from '@/components/graph';
 import { Shell } from '@/components/shared/shell';
+import { AluBitwiseVisualizer } from '@/components/simulators/alu-bitwise-visualizer';
+import { AstParserVisualizer } from '@/components/simulators/ast-parser-visualizer';
+import { BstAvlVisualizer } from '@/components/simulators/bst-avl-visualizer';
 import { BTreeVisualizer } from '@/components/simulators/btree-visualizer';
+import { CacheMappingVisualizer } from '@/components/simulators/cache-mapping-visualizer';
 import { CallStackVisualizer } from '@/components/simulators/call-stack-visualizer';
 import { CpuRegisterVisualizer } from '@/components/simulators/cpu-register-visualizer';
 import { CpuSchedulerVisualizer } from '@/components/simulators/cpu-scheduler-visualizer';
+import { DeadlockBankerVisualizer } from '@/components/simulators/deadlock-banker-visualizer';
+import { DijkstraGraphVisualizer } from '@/components/simulators/dijkstra-graph-visualizer';
+import { DpMatrixVisualizer } from '@/components/simulators/dp-matrix-visualizer';
 import { FiniteAutomataVisualizer } from '@/components/simulators/finite-automata-visualizer';
 import { GraphTraversalVisualizer } from '@/components/simulators/graph-traversal-visualizer';
 import { HashTableVisualizer } from '@/components/simulators/hash-table-visualizer';
+import { HeapOperationsVisualizer } from '@/components/simulators/heap-operations-visualizer';
+import { KmapLogicVisualizer } from '@/components/simulators/kmap-logic-visualizer';
 import { LexerVisualizer } from '@/components/simulators/lexer-visualizer';
 import { LogicCircuitSimulator } from '@/components/simulators/logic-circuit-simulator';
+import { LruCacheVisualizer } from '@/components/simulators/lru-cache-visualizer';
+import { MatrixTransformVisualizer } from '@/components/simulators/matrix-transform-visualizer';
 import { MemoryPageReplacementVisualizer } from '@/components/simulators/memory-page-replacement-visualizer';
+import { MmuAddressTranslationVisualizer } from '@/components/simulators/mmu-address-translation-visualizer';
+import { PipelineHazardVisualizer } from '@/components/simulators/pipeline-hazard-visualizer';
+import { RegexNfaVisualizer } from '@/components/simulators/regex-nfa-visualizer';
+import { RelationalAlgebraVisualizer } from '@/components/simulators/relational-algebra-visualizer';
+import { RsaCryptoVisualizer } from '@/components/simulators/rsa-crypto-visualizer';
+import { SlidingWindowVisualizer } from '@/components/simulators/sliding-window-visualizer';
 import { SortingVisualizer } from '@/components/simulators/sorting-visualizer';
+import { SubnetCalculatorVisualizer } from '@/components/simulators/subnet-calculator-visualizer';
 import { TcpPacketFlowVisualizer } from '@/components/simulators/tcp-packet-flow-visualizer';
 import { TruthTableVisualizer } from '@/components/simulators/truth-table-visualizer';
+import { TuringMachineVisualizer } from '@/components/simulators/turing-machine-visualizer';
 import {
   useIsBookmarked,
   useToggleBookmark,
@@ -292,6 +311,91 @@ export default function KnowledgeNodeDetailPage() {
       {slug === 'stacks-and-queues' && (
         <div className="mb-8">
           <CallStackVisualizer />
+        </div>
+      )}
+      {slug === 'algo-graph-algorithms' && (
+        <div className="mb-8">
+          <DijkstraGraphVisualizer />
+        </div>
+      )}
+      {slug === 'dsa-trees' && (
+        <div className="mb-8">
+          <BstAvlVisualizer />
+        </div>
+      )}
+      {slug === 'turing-machines-and-computability' && (
+        <div className="mb-8">
+          <TuringMachineVisualizer />
+        </div>
+      )}
+      {slug === 'parsing-syntax-analysis' && (
+        <div className="mb-8">
+          <AstParserVisualizer />
+        </div>
+      )}
+      {slug === 'synchronization-and-deadlocks' && (
+        <div className="mb-8">
+          <DeadlockBankerVisualizer />
+        </div>
+      )}
+      {slug === 'heaps-and-priority-queues' && (
+        <div className="mb-8">
+          <HeapOperationsVisualizer />
+        </div>
+      )}
+      {slug === 'memory-hierarchy-and-caching' && (
+        <div className="mb-8">
+          <CacheMappingVisualizer />
+        </div>
+      )}
+      {slug === 'application-layer-protocols-http-dns' && (
+        <div className="mb-8">
+          <SlidingWindowVisualizer />
+        </div>
+      )}
+      {slug === 'relational-model-and-sql' && (
+        <div className="mb-8">
+          <RelationalAlgebraVisualizer />
+        </div>
+      )}
+      {slug === 'algo-dp' && (
+        <div className="mb-8">
+          <DpMatrixVisualizer />
+        </div>
+      )}
+      {slug === 'digital-logic' && (
+        <div className="mb-8">
+          <AluBitwiseVisualizer />
+        </div>
+      )}
+      {slug === 'asymmetric-cryptography-and-pki' && (
+        <div className="mb-8">
+          <RsaCryptoVisualizer />
+        </div>
+      )}
+      {slug === 'regular-languages-and-regular-expressions' && (
+        <div className="mb-8">
+          <RegexNfaVisualizer />
+        </div>
+      )}
+      {slug === 'ip-addressing-and-routing' && (
+        <div className="mb-8">
+          <SubnetCalculatorVisualizer />
+        </div>
+      )}
+      {slug === 'caching-strategies' && (
+        <div className="mb-8">
+          <LruCacheVisualizer />
+        </div>
+      )}
+      {slug === 'linear-algebra' && (
+        <div className="mb-8">
+          <MatrixTransformVisualizer />
+        </div>
+      )}
+      {slug === 'boolean-algebra' && (
+        <div className="mb-8">
+          <KmapLogicVisualizer />
         </div>
       )}
 

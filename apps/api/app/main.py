@@ -12,13 +12,15 @@ Builds and configures the FastAPI application with:
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import Annotated
 from uuid import uuid4
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from structlog.stdlib import get_logger
 
+from app.api.deps import get_uow
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.logging import configure_logging
@@ -32,6 +34,7 @@ from app.middleware import (
     SecurityHeadersMiddleware,
     TrustedHostsMiddleware,
 )
+from app.repositories import UnitOfWork
 from app.startup.lifespan import lifespan
 
 logger = get_logger(__name__)
@@ -480,7 +483,9 @@ def create_app() -> FastAPI:
         tags=['debug'],
         include_in_schema=False,
     )
-    async def debug_seed_database() -> dict:
+    async def debug_seed_database(
+        uow: Annotated[UnitOfWork, Depends(get_uow)],
+    ) -> dict:
         """Run Phase 0 database seed script on active production database."""
         import importlib.util
         import sys
@@ -518,7 +523,7 @@ def create_app() -> FastAPI:
 
             f = io.StringIO()
             with redirect_stdout(f):
-                await module._main()
+                await module._main(uow.session)
             logs = f.getvalue().splitlines()
             return {
                 'success': True,

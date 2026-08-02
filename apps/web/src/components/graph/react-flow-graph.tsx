@@ -99,7 +99,19 @@ function ReactFlowGraphInner({
   showCrossDomainOnly = false,
   onNodeSelect,
 }: ReactFlowGraphProps) {
-  // Group nodes by depth for topological depth layout
+  // Identify set of node IDs connected by cross-domain edges
+  const crossDomainNodeIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const e of rawEdges) {
+      if (e.relationship_type === 'cross_domain' || e.edge_type === 'cross_domain') {
+        if (e.source_id) ids.add(e.source_id);
+        if (e.target_id) ids.add(e.target_id);
+      }
+    }
+    return ids;
+  }, [rawEdges]);
+
+  // Compute flow nodes with topological layout
   const flowNodes: FlowNode[] = useMemo(() => {
     const depthGroups: Record<number, typeof rawNodes> = {};
     for (const node of rawNodes) {
@@ -123,10 +135,14 @@ function ReactFlowGraphInner({
       const x = d * 280;
       const y = (indexInDepth - (totalAtDepth - 1) / 2) * 110;
 
+      const isConnectedInCross = crossDomainNodeIds.has(node.id);
+      const isDimmed = showCrossDomainOnly && !isConnectedInCross;
+
       return {
         id: node.id,
         type: 'knowledgeNode',
         position: { x, y },
+        style: isDimmed ? { opacity: 0.12, filter: 'grayscale(1)' } : { opacity: 1 },
         data: {
           label: node.title,
           nodeType: node.node_type,
@@ -137,7 +153,7 @@ function ReactFlowGraphInner({
         selected: node.id === selectedNodeId,
       };
     });
-  }, [rawNodes, selectedNodeId]);
+  }, [rawNodes, selectedNodeId, showCrossDomainOnly, crossDomainNodeIds]);
 
   // Filter edges and style prerequisite vs cross-domain differently
   const flowEdges: FlowEdge[] = useMemo(() => {
@@ -169,7 +185,7 @@ function ReactFlowGraphInner({
           animated: isCrossDomain,
           style: isCrossDomain
             ? {
-                strokeWidth: 2.5,
+                strokeWidth: 3,
                 stroke: '#EC4899',
                 strokeDasharray: '6 4',
               }
