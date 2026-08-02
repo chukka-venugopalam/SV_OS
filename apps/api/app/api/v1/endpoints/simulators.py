@@ -159,7 +159,9 @@ REGISTERED_SIMULATORS: list[dict[str, Any]] = [
         'title': "Dijkstra's Shortest Path Visualizer",
         'domain': 'Algorithms',
         'target_node_slug': 'algo-graph-algorithms',
-        'description': "Visualize greedy priority queue graph exploration for Dijkstra's algorithm.",
+        'description': (
+            "Visualize greedy priority queue graph exploration for Dijkstra's algorithm."
+        ),
         'component_name': 'DijkstraGraphVisualizer',
         'badge': 'Algorithms',
     },
@@ -296,9 +298,9 @@ REGISTERED_SIMULATORS: list[dict[str, Any]] = [
         'id': 'pipeline-hazard-sim',
         'title': 'MIPS Pipeline Hazard Detector',
         'domain': 'Computer Architecture',
-        'target_node_slug': 'cpu-architecture-and-instruction-cycle',
+        'target_node_slug': 'pipelining-and-instruction-level-parallelism',
         'description': (
-            'Detect data and control hazards across 5-stage MIPS IF/ID/EX/MEM/WB pipeline registers.'
+            'Detect data and control hazards across 5-stage MIPS IF/ID/EX/MEM/WB registers.'
         ),
         'component_name': 'PipelineHazardVisualizer',
         'badge': 'Architecture',
@@ -320,7 +322,7 @@ REGISTERED_SIMULATORS: list[dict[str, Any]] = [
         'domain': 'Data Engineering',
         'target_node_slug': 'caching-strategies',
         'description': (
-            'Simulate Least Recently Used (LRU) cache eviction using hash map + doubly linked list.'
+            'Simulate Least Recently Used (LRU) cache eviction using hash map + linked list.'
         ),
         'component_name': 'LruCacheVisualizer',
         'badge': 'Data Engineering',
@@ -341,7 +343,9 @@ REGISTERED_SIMULATORS: list[dict[str, Any]] = [
         'title': 'Karnaugh Map Logic Minimizer',
         'domain': 'Digital Logic',
         'target_node_slug': 'boolean-algebra',
-        'description': 'Group 4-variable Gray code Karnaugh map cells into minimal SOP expressions.',
+        'description': (
+            'Group 4-variable Gray code Karnaugh map cells into minimal SOP expressions.'
+        ),
         'component_name': 'KmapLogicVisualizer',
         'badge': 'Digital Logic',
     },

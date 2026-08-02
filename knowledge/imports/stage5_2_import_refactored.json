@@ -105,9 +105,9 @@
         "resources": [
           {
             "title": "Discrete Mathematics and Its Applications \u2014 Kenneth Rosen",
-            "url": "https://www.mheducation.com",
+            "url": "https://www.mheducation.com/highered/product/discrete-mathematics-applications-rosen/M9781259676512.html",
             "resource_type": "book",
-            "platform": "Textbook"
+            "platform": "McGraw Hill"
           },
           {
             "title": "MIT 6.042J Mathematics for Computer Science",
@@ -288,9 +288,9 @@
         "resources": [
           {
             "title": "Introduction to Probability by Joseph K. Blitzstein",
-            "url": "https://hardy.uhasselt.be",
+            "url": "https://stat110.net",
             "resource_type": "book",
-            "platform": "Harvard"
+            "platform": "Harvard Stat 110"
           }
         ],
         "interview_questions": [
@@ -460,7 +460,7 @@
         "resources": [
           {
             "title": "Digital Design by M. Morris Mano",
-            "url": "https://www.pearson.com",
+            "url": "https://www.pearson.com/en-us/subject-catalog/p/digital-design-with-an-introduction-to-the-verilog-hdl-vhdl-and-systemverilog/P200000003328",
             "resource_type": "book",
             "platform": "Pearson"
           }
@@ -722,7 +722,7 @@
         "resources": [
           {
             "title": "Computer Organization & Design \u2014 Hennessy & Patterson",
-            "url": "https://www.elsevier.com",
+            "url": "https://www.elsevier.com/books/computer-organization-and-design-mips-edition/patterson/978-0-12-801733-4",
             "resource_type": "book",
             "platform": "Morgan Kaufmann"
           }
@@ -1330,7 +1330,7 @@
         "resources": [
           {
             "title": "Pipelining Concepts \u2014 Hennessy & Patterson",
-            "url": "https://www.elsevier.com",
+            "url": "https://www.elsevier.com/books/computer-architecture/hennessy/978-0-12-811905-1",
             "resource_type": "book",
             "platform": "Morgan Kaufmann"
           }
@@ -1351,7 +1351,7 @@
     {
       "id": "processes-and-process-management",
       "title": "Processes & Process Management",
-      "summary": "Core operating system mechanisms of Processes & Process Management detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "summary": "Core operating system abstraction managing execution of programs. Covers process control blocks (PCB), process state transitions, context switching overhead, and process creation semantics via fork() and exec().",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 2,
@@ -1388,7 +1388,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Core operating system mechanisms of Processes & Process Management detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "description": "Core operating system abstraction managing execution of programs. Covers process control blocks (PCB), process state transitions, context switching overhead, and process creation semantics via fork() and exec().",
       "metadata": {
         "content_status": "draft"
       },
@@ -1397,12 +1397,59 @@
         "Ignoring race conditions and memory safety guarantees when managing shared resources in Processes & Process Management.",
         "Assuming synchronous blocking behavior when executing asynchronous OS routines."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Trace process state transitions across Ready, Running, Waiting, Terminated, and Suspended states.",
+          "Analyze PCB memory organization including CPU registers, stack pointer, and open file descriptors.",
+          "Compare process creation and address space duplication semantics between fork() and exec() syscalls."
+        ],
+        "common_mistakes": [
+          "Assuming fork() creates a thread rather than an entirely independent process address space.",
+          "Failing to reap child processes using waitpid(), creating zombie processes.",
+          "Confusing context switch hardware overhead with CPU scheduling algorithm delay."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "threads-and-concurrency",
+            "reason": "Processes define isolated memory boundaries while threads share a process virtual address space."
+          },
+          {
+            "target_slug": "cpu-scheduling",
+            "reason": "The OS process scheduler picks processes from the Ready queue for CPU core assignment."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Operating System Concepts (Silberschatz, Galvin, Gagne)",
+            "url": "https://www.wiley.com/en-us/Operating+System+Concepts%2C+10th+Edition-p-9781119320913",
+            "resource_type": "book",
+            "platform": "Wiley"
+          },
+          {
+            "title": "OSTEP Chapter 4: Processes",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "What happens step-by-step during a hardware context switch between two OS processes?",
+          "Explain the difference between a zombie process and an orphan process in Linux."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Process Forking Tree Simulator",
+            "description": "Write a C program using fork() to generate a binary process tree of depth 3.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "threads-and-concurrency",
       "title": "Threads & Concurrency",
-      "summary": "Core operating system mechanisms of Threads & Concurrency detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "summary": "Lightweight units of execution within a process that share code, data, and heap memory while maintaining independent registers and call stacks. Covers user-level vs kernel-level threads and POSIX pthreads.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -1439,7 +1486,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Core operating system mechanisms of Threads & Concurrency detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "description": "Lightweight units of execution within a process that share code, data, and heap memory while maintaining independent registers and call stacks. Covers user-level vs kernel-level threads and POSIX pthreads.",
       "metadata": {
         "content_status": "draft",
         "cross_domain_connections": [
@@ -1456,12 +1503,49 @@
         "Ignoring race conditions and memory safety guarantees when managing shared resources in Threads & Concurrency.",
         "Assuming synchronous blocking behavior when executing asynchronous OS routines."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Differentiate between User-Level Threads (ULT) and Kernel-Level Threads (KLT) mapping models (1:1, N:1, M:N).",
+          "Identify race conditions, data races, and memory visibility issues in concurrent multithreaded code.",
+          "Implement thread synchronization using POSIX pthreads, mutexes, condition variables, and atomics."
+        ],
+        "common_mistakes": [
+          "Assuming thread-local variables are shared across threads in the same process.",
+          "Using non-reentrant or non-thread-safe library functions inside worker thread loops.",
+          "Confusing parallelism (simultaneous hardware execution) with concurrency (interleaved execution)."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "synchronization-and-deadlocks",
+            "reason": "Concurrent threads competing for shared memory require mutex locks and semaphores to avoid deadlocks."
+          }
+        ],
+        "resources": [
+          {
+            "title": "OSTEP Chapter 26: Concurrency Intro",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "Why is a context switch between threads of the same process faster than a context switch between processes?",
+          "Explain memory barriers and atomic operations in multi-core CPU architectures."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Thread Pool Implementation",
+            "description": "Implement a fixed-size worker thread pool in C++11 executing queued tasks.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "cpu-scheduling",
       "title": "CPU Scheduling",
-      "summary": "Operating system process management algorithms allocating CPU time across processes using FCFS, SJF, SRTF, Round Robin, and Priority scheduling.",
+      "summary": "Algorithmic selection of Ready processes for allocation of CPU core time. Covers preemptive vs non-preemptive algorithms including FCFS, Shortest Job First (SJF), Round Robin (RR), and Multilevel Feedback Queues (MLFQ).",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -1505,7 +1589,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Operating system process management algorithms allocating CPU time across processes using FCFS, SJF, SRTF, Round Robin, and Priority scheduling.",
+      "description": "Algorithmic selection of Ready processes for allocation of CPU core time. Covers preemptive vs non-preemptive algorithms including FCFS, Shortest Job First (SJF), Round Robin (RR), and Multilevel Feedback Queues (MLFQ).",
       "metadata": {
         "content_status": "draft"
       },
@@ -1514,12 +1598,48 @@
         "Neglecting context switch overhead time when setting small Round Robin quantum values.",
         "Failing to account for arrival time offsets when building Gantt chart schedules."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Calculate Average Waiting Time, Turnaround Time, and Response Time across scheduling algorithms.",
+          "Analyze convoy effects in FCFS and starvation in Shortest Job First scheduling.",
+          "Design Multilevel Feedback Queue (MLFQ) priority boost and aging parameters."
+        ],
+        "common_mistakes": [
+          "Confusing Turnaround Time (Completion - Arrival) with Waiting Time (Turnaround - Burst).",
+          "Ignoring time slice quantum overhead in Round Robin scheduling."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "processes-and-process-management",
+            "reason": "The scheduler manipulates process state transitions between Ready and Running queues."
+          }
+        ],
+        "resources": [
+          {
+            "title": "OSTEP Chapter 7: CPU Scheduling",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "How does Multilevel Feedback Queue (MLFQ) prevent starvation for CPU-bound processes?",
+          "Compare Shortest Remaining Time First (SRTF) with Round Robin scheduling."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Round Robin Gantt Simulator",
+            "description": "Build a CLI simulator calculating process Gantt charts and average waiting time for Round Robin.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "synchronization-and-deadlocks",
       "title": "Synchronization & Deadlocks",
-      "summary": "Core operating system mechanisms of Synchronization & Deadlocks detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "summary": "Mechanisms enforcing mutual exclusion for shared resources and preventing system deadlocks. Covers Semaphores, Mutexes, Readers-Writers problems, Coffman conditions, and Banker's Algorithm.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 4,
@@ -1556,7 +1676,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Core operating system mechanisms of Synchronization & Deadlocks detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "description": "Mechanisms enforcing mutual exclusion for shared resources and preventing system deadlocks. Covers Semaphores, Mutexes, Readers-Writers problems, Coffman conditions, and Banker's Algorithm.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1565,12 +1685,48 @@
         "Ignoring race conditions and memory safety guarantees when managing shared resources in Synchronization & Deadlocks.",
         "Assuming synchronous blocking behavior when executing asynchronous OS routines."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Solve Critical Section problems using Peterson's Algorithm, Mutexes, and Counting Semaphores.",
+          "Identify the 4 Coffman conditions required for deadlock: Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait.",
+          "Evaluate system safe states and safe execution sequences using the Banker's Algorithm."
+        ],
+        "common_mistakes": [
+          "Swapping Semaphore Wait (P) and Signal (V) calls, causing immediate deadlocks.",
+          "Confusing Mutex ownership semantics with Counting Semaphore signal flexibility."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "transactions-and-acid",
+            "reason": "Database two-phase locking protocols use lock synchronization to prevent lost updates."
+          }
+        ],
+        "resources": [
+          {
+            "title": "OSTEP Chapter 31: Semaphores",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-semaphores.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "Explain the Bounded-Buffer Producer-Consumer problem using semaphores.",
+          "How does Resource Ordering prevent circular wait deadlocks?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Dining Philosophers Solution",
+            "description": "Implement a deadlock-free Dining Philosophers solution in C++ using std::unique_lock.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "virtual-memory",
       "title": "Virtual Memory",
-      "summary": "Memory management abstraction presenting processes with contiguous logical addresses backed by physical RAM paging and secondary storage swapping.",
+      "summary": "Operating system memory virtualization separating process logical address spaces from physical RAM. Covers Paging, Page Tables, Translation Lookaside Buffers (TLB), Page Faults, and FIFO/LRU replacement.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 4,
@@ -1614,7 +1770,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Memory management abstraction presenting processes with contiguous logical addresses backed by physical RAM paging and secondary storage swapping.",
+      "description": "Operating system memory virtualization separating process logical address spaces from physical RAM. Covers Paging, Page Tables, Translation Lookaside Buffers (TLB), Page Faults, and FIFO/LRU replacement.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1623,12 +1779,48 @@
         "Miscalculating Page Table memory overhead when utilizing multi-level page tables.",
         "Confusing page size with segment length limits."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Translate virtual addresses to physical RAM addresses using Page Tables and TLBs.",
+          "Calculate page fault penalties and page hit rates across FIFO, LRU, and Optimal replacement.",
+          "Analyze multi-level page table memory overhead for 64-bit address spaces."
+        ],
+        "common_mistakes": [
+          "Confusing virtual page numbers with physical frame numbers.",
+          "Ignoring Thrashing caused by working set sizes exceeding physical memory capacity."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "memory-hierarchy-and-caching",
+            "reason": "TLBs act as specialized high-speed hardware caches for page table entries."
+          }
+        ],
+        "resources": [
+          {
+            "title": "OSTEP Chapter 18: Paging",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-paging.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "Explain Belady's Anomaly in FIFO page replacement.",
+          "Trace what happens inside the OS kernel when a hardware Page Fault exception occurs."
+        ],
+        "coding_challenges": [
+          {
+            "title": "LRU Page Replacement Emulator",
+            "description": "Implement a software page replacement simulator evaluating LRU cache hits on page trace inputs.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "file-systems",
       "title": "File Systems",
-      "summary": "Core operating system mechanisms of File Systems detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "summary": "Persistent data storage abstractions organizing files, directories, inodes, allocation tables, and journaling structures across physical storage media.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -1665,7 +1857,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Core operating system mechanisms of File Systems detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "description": "Persistent data storage abstractions organizing files, directories, inodes, allocation tables, and journaling structures across physical storage media.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1674,12 +1866,48 @@
         "Ignoring race conditions and memory safety guarantees when managing shared resources in File Systems.",
         "Assuming synchronous blocking behavior when executing asynchronous OS routines."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Analyze UNIX inode structures containing direct, single, double, and triple indirect pointers.",
+          "Compare contiguous, linked, and indexed block allocation strategies.",
+          "Explain how Write-Ahead Logging / Journaling prevents file system corruption after crashes."
+        ],
+        "common_mistakes": [
+          "Confusing hard links (pointing to same inode) with soft/symbolic links (pointing to path string).",
+          "Assuming file data blocks are written atomically without journaling."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "transactions-and-acid",
+            "reason": "Database Write-Ahead Logging (WAL) uses crash recovery principles identical to file system journaling."
+          }
+        ],
+        "resources": [
+          {
+            "title": "OSTEP Chapter 39: Files and Directories",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/file-intro.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "Calculate maximum file size supported by an inode with 12 direct, 1 single, 1 double indirect pointer (4KB blocks).",
+          "What is the difference between hard links and symbolic links in Linux?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Simple Inode File System Emulator",
+            "description": "Implement a simplified in-memory file system supporting create, read, write, and mkdir.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "i-o-and-device-management",
       "title": "I/O & Device Management",
-      "summary": "Core operating system mechanisms of I/O & Device Management detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "summary": "Hardware device communication abstractions managing disk drives, SSDs, controllers, interrupts, Direct Memory Access (DMA), and disk scheduling algorithms.",
       "domain_id": "operating-systems",
       "domain_raw": "Operating Systems",
       "difficulty": 3,
@@ -1709,7 +1937,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Core operating system mechanisms of I/O & Device Management detailing kernel privilege boundaries, resource allocation policies, hardware abstraction layers, and system calls.",
+      "description": "Hardware device communication abstractions managing disk drives, SSDs, controllers, interrupts, Direct Memory Access (DMA), and disk scheduling algorithms.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1718,12 +1946,48 @@
         "Ignoring race conditions and memory safety guarantees when managing shared resources in I/O & Device Management.",
         "Assuming synchronous blocking behavior when executing asynchronous OS routines."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Differentiate between Programmed I/O, Interrupt-Driven I/O, and Direct Memory Access (DMA).",
+          "Calculate disk head seek times across FCFS, SSTF, SCAN (Elevator), and C-SCAN scheduling.",
+          "Analyze block layer buffering, caching, and double buffering techniques."
+        ],
+        "common_mistakes": [
+          "Confusing CPU polling in Programmed I/O with hardware interrupt-driven execution.",
+          "Ignoring disk rotational latency when calculating total disk access time."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "indexing-b-tree-hash",
+            "reason": "B+ Tree node size is optimized to match physical disk block I/O sector sizes."
+          }
+        ],
+        "resources": [
+          {
+            "title": "OSTEP Chapter 36: I/O Devices",
+            "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/file-io.pdf",
+            "resource_type": "book",
+            "platform": "UW-Madison OSTEP"
+          }
+        ],
+        "interview_questions": [
+          "How does Direct Memory Access (DMA) free up the CPU during large disk transfers?",
+          "Compare SSTF disk scheduling with C-SCAN disk scheduling."
+        ],
+        "coding_challenges": [
+          {
+            "title": "C-SCAN Disk Scheduler",
+            "description": "Write a simulation program calculating total head movement for C-SCAN disk requests.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "network-models-osi--tcp-ip",
       "title": "Network Models (OSI / TCP-IP)",
-      "summary": "Networking mechanisms of Network Models (OSI / TCP-IP) specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "summary": "Layered protocol stack architectures organizing computer network communications. Covers OSI 7-Layer Model, TCP/IP 4-Layer Model, encapsulation, and decapsulation.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 1,
@@ -1760,7 +2024,7 @@
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
       ],
-      "description": "Networking mechanisms of Network Models (OSI / TCP-IP) specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "description": "Layered protocol stack architectures organizing computer network communications. Covers OSI 7-Layer Model, TCP/IP 4-Layer Model, encapsulation, and decapsulation.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1769,12 +2033,48 @@
         "Neglecting network latency overhead when designing high-throughput distributed APIs.",
         "Assuming network communication channels are reliable and error-free by default."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Map protocols (HTTP, TCP, IP, Ethernet) to OSI and TCP/IP model layers.",
+          "Trace packet encapsulation headers (Application Payload \u2192 TCP Segment \u2192 IP Packet \u2192 Ethernet Frame).",
+          "Analyze end-to-end data delivery across routers, switches, and network gateways."
+        ],
+        "common_mistakes": [
+          "Confusing OSI Layer 2 Data Link MAC addresses with OSI Layer 3 IP addresses.",
+          "Assuming OSI 7-layer model is implemented directly in modern operating systems rather than TCP/IP."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "ip-addressing-and-routing",
+            "reason": "OSI Layer 3 network protocols rely on IP header processing."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Computer Networking: A Top-Down Approach (Kurose & Ross)",
+            "url": "https://www.pearson.com/en-us/subject-catalog/p/computer-networking-a-top-down-approach/P200000003336",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Trace what happens at every network layer when typing 'https://example.com' in a web browser.",
+          "Explain encapsulation and decapsulation as a data packet moves through network switches."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Packet Encapsulator CLI",
+            "description": "Build a CLI script taking payload strings and constructing Ethernet/IP/TCP byte headers.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "physical-and-data-link-layer",
       "title": "Physical & Data Link Layer",
-      "summary": "Networking mechanisms of Physical & Data Link Layer specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "summary": "Low-level network layers governing physical bit transmission over media, framing, error detection/correction (CRC), and medium access control (CSMA/CD, Ethernet).",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 2,
@@ -1811,7 +2111,7 @@
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
       ],
-      "description": "Networking mechanisms of Physical & Data Link Layer specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "description": "Low-level network layers governing physical bit transmission over media, framing, error detection/correction (CRC), and medium access control (CSMA/CD, Ethernet).",
       "metadata": {
         "content_status": "draft"
       },
@@ -1820,12 +2120,48 @@
         "Neglecting network latency overhead when designing high-throughput distributed APIs.",
         "Assuming network communication channels are reliable and error-free by default."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Calculate Cyclic Redundancy Check (CRC) checksums using polynomial division.",
+          "Analyze CSMA/CD collision detection protocol in shared Ethernet networks.",
+          "Differentiate between Layer 2 switches (MAC learning) and Layer 1 hubs (broadcasting)."
+        ],
+        "common_mistakes": [
+          "Confusing Bit Error Rate (BER) with packet loss rates at higher transport layers.",
+          "Assuming modern full-duplex Ethernet switches still experience CSMA/CD collisions."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "network-models-osi--tcp-ip",
+            "reason": "Data Link frames transport network layer IP packets across local physical segments."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Kurose & Ross Chapter 6: The Link Layer",
+            "url": "https://www.pearson.com",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "How does a Layer 2 Ethernet switch build its MAC address forwarding table?",
+          "Explain polynomial division in CRC error detection."
+        ],
+        "coding_challenges": [
+          {
+            "title": "CRC Checksum Generator",
+            "description": "Implement 32-bit CRC calculation algorithm for binary data blocks in C++.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "ip-addressing-and-routing",
       "title": "IP Addressing & Routing",
-      "summary": "Networking mechanisms of IP Addressing & Routing specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "summary": "Layer 3 Internet Protocol routing infrastructure. Covers IPv4/IPv6 addressing, CIDR subnetting, NAT, and routing algorithms (Dijkstra Link-State, Bellman-Ford Distance Vector).",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 3,
@@ -1862,7 +2198,7 @@
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
       ],
-      "description": "Networking mechanisms of IP Addressing & Routing specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "description": "Layer 3 Internet Protocol routing infrastructure. Covers IPv4/IPv6 addressing, CIDR subnetting, NAT, and routing algorithms (Dijkstra Link-State, Bellman-Ford Distance Vector).",
       "metadata": {
         "content_status": "draft"
       },
@@ -1871,12 +2207,48 @@
         "Neglecting network latency overhead when designing high-throughput distributed APIs.",
         "Assuming network communication channels are reliable and error-free by default."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Deconstruct IPv4 addresses into Network ID, Subnet ID, and Host ID using CIDR masks.",
+          "Compute shortest routing paths using Open Shortest Path First (OSPF / Dijkstra) and BGP.",
+          "Analyze Network Address Translation (NAT) table mapping for private subnets."
+        ],
+        "common_mistakes": [
+          "Confusing usable host IP range with network address and broadcast address.",
+          "Ignoring count-to-infinity problems in Bellman-Ford Distance Vector routing."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "algo-graph-algorithms",
+            "reason": "Network link-state routing protocols directly execute Dijkstra's algorithm."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Kurose & Ross Chapter 4: The Network Layer",
+            "url": "https://www.pearson.com",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Calculate network address, broadcast address, and host range for 192.168.10.35/27.",
+          "Compare Distance Vector (RIP) and Link State (OSPF) routing protocols."
+        ],
+        "coding_challenges": [
+          {
+            "title": "CIDR Subnet Calculator",
+            "description": "Write a Python script parsing IP/prefix notation and returning valid host range and broadcast IP.",
+            "difficulty": "easy"
+          }
+        ]
+      }
     },
     {
       "id": "tcp-and-congestion-control",
       "title": "TCP & Congestion Control",
-      "summary": "Transport layer protocol providing reliable stream-oriented transmission via 3-way handshake, sequence acknowledgement, sliding window flow control, and congestion avoidance.",
+      "summary": "Layer 4 Transport Layer protocols providing reliable connection-oriented byte stream delivery (TCP) and low-latency datagram delivery (UDP). Covers 3-way handshake, sliding window, AIMD, and Reno/Cubic congestion control.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 4,
@@ -1913,7 +2285,7 @@
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
       ],
-      "description": "Transport layer protocol providing reliable stream-oriented transmission via 3-way handshake, sequence acknowledgement, sliding window flow control, and congestion avoidance.",
+      "description": "Layer 4 Transport Layer protocols providing reliable connection-oriented byte stream delivery (TCP) and low-latency datagram delivery (UDP). Covers 3-way handshake, sliding window, AIMD, and Reno/Cubic congestion control.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1922,12 +2294,48 @@
         "Misunderstanding duplicate ACK triggers for Fast Retransmit vs Timeout retries.",
         "Assuming TCP packets arrive in identical order without sequence number reordering."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Trace TCP 3-Way Handshake (SYN, SYN-ACK, ACK) and 4-Way Connection Teardown.",
+          "Analyze TCP Congestion Control phases: Slow Start, Congestion Avoidance, Fast Retransmit, Fast Recovery.",
+          "Calculate throughput using TCP Sliding Window size and Round Trip Time (RTT)."
+        ],
+        "common_mistakes": [
+          "Confusing TCP Flow Control (receiver buffer protection) with TCP Congestion Control (network protection).",
+          "Assuming UDP packets are guaranteed to arrive in order without application-level sequencing."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "application-layer-protocols-http-dns",
+            "reason": "HTTP/1.1 and HTTP/2 rely on underlying persistent TCP connection streams."
+          }
+        ],
+        "resources": [
+          {
+            "title": "TCP/IP Illustrated, Volume 1 (W. Richard Stevens)",
+            "url": "https://www.pearson.com/en-us/subject-catalog/p/tcpip-illustrated-volume-1-the-protocols/P200000003350",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Explain the TCP 3-Way Handshake sequence and SYN flood DDoS attack mitigations.",
+          "How does TCP Fast Retransmit detect packet loss using 3 duplicate ACKs?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "TCP Sliding Window Simulator",
+            "description": "Implement a Go-Back-N sliding window sender/receiver simulator handling dropped ACKs.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "application-layer-protocols-http-dns",
       "title": "Application Layer Protocols (HTTP/DNS)",
-      "summary": "Networking mechanisms of Application Layer Protocols (HTTP/DNS) specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "summary": "High-level application protocols enabling web communications, domain name resolution, and file transfers. Covers HTTP/1.1, HTTP/2, HTTP/3 QUIC, DNS resolution hierarchies, and SSH/TLS.",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 2,
@@ -1971,7 +2379,7 @@
           "reason": "Cross-domain concept connection between Computer Networks and Theory of Computation"
         }
       ],
-      "description": "Networking mechanisms of Application Layer Protocols (HTTP/DNS) specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "description": "High-level application protocols enabling web communications, domain name resolution, and file transfers. Covers HTTP/1.1, HTTP/2, HTTP/3 QUIC, DNS resolution hierarchies, and SSH/TLS.",
       "metadata": {
         "content_status": "draft"
       },
@@ -1980,12 +2388,48 @@
         "Neglecting network latency overhead when designing high-throughput distributed APIs.",
         "Assuming network communication channels are reliable and error-free by default."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Trace recursive and iterative Domain Name System (DNS) query resolution steps.",
+          "Compare HTTP/1.1 head-of-line blocking with HTTP/2 multiplexed streams and HTTP/3 QUIC (UDP).",
+          "Analyze HTTP stateless RESTful requests, headers, status codes, and cookies."
+        ],
+        "common_mistakes": [
+          "Assuming DNS A records return MAC addresses rather than IPv4 addresses.",
+          "Confusing HTTP persistent connections (Keep-Alive) with HTTP/2 stream multiplexing."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "network-security-fundamentals",
+            "reason": "HTTPS secures HTTP application traffic via TLS handshake encryption."
+          }
+        ],
+        "resources": [
+          {
+            "title": "MDN Web Docs: HTTP Overview",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview",
+            "resource_type": "documentation",
+            "platform": "MDN"
+          }
+        ],
+        "interview_questions": [
+          "Explain DNS recursive vs iterative query resolution.",
+          "How does HTTP/2 multiplexing eliminate HTTP/1.1 head-of-line blocking?"
+        ],
+        "coding_challenges": [
+          {
+            "title": "Simple HTTP/1.1 Server",
+            "description": "Write a minimal HTTP server in C/Python parsing GET requests and serving files.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "network-security-fundamentals",
       "title": "Network Security Fundamentals",
-      "summary": "Networking mechanisms of Network Security Fundamentals specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "summary": "Principles of computer network security, encryption, and authentication. Covers Symmetric/Asymmetric encryption, TLS/SSL handshake, Firewalls, IPSec, and common attack vectors (MitM, DDoS, Spoofing).",
       "domain_id": "computer-networks",
       "domain_raw": "Computer Networks",
       "difficulty": 3,
@@ -2015,7 +2459,7 @@
           "reason": "Cross-domain concept connection between Operating Systems and Computer Networks"
         }
       ],
-      "description": "Networking mechanisms of Network Security Fundamentals specifying protocol header formats, packet routing policies, layered encapsulation, and throughput optimization.",
+      "description": "Principles of computer network security, encryption, and authentication. Covers Symmetric/Asymmetric encryption, TLS/SSL handshake, Firewalls, IPSec, and common attack vectors (MitM, DDoS, Spoofing).",
       "metadata": {
         "content_status": "draft"
       },
@@ -2024,12 +2468,48 @@
         "Neglecting network latency overhead when designing high-throughput distributed APIs.",
         "Assuming network communication channels are reliable and error-free by default."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Analyze the TLS 1.3 cryptographic handshake (Key Exchange, Certificate Verification, Session Keys).",
+          "Differentiate between Symmetric encryption (AES) speed and Asymmetric encryption (RSA/ECC) key distribution.",
+          "Configure stateless packet filtering and stateful firewall security rules."
+        ],
+        "common_mistakes": [
+          "Confusing encryption (confidentiality) with hashing (integrity) and digital signatures (non-repudiation).",
+          "Using self-signed certificates in production without establishing a trusted Certificate Authority (CA) chain."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "asymmetric-cryptography-and-pki",
+            "reason": "TLS security certificates directly implement Public Key Infrastructure (PKI)."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Network Security Essentials \u2014 William Stallings",
+            "url": "https://www.pearson.com",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Trace step-by-step how a TLS handshake establishes a secure session key.",
+          "Explain how a Denial of Service (SYN Flood) attack works and how SYN cookies mitigate it."
+        ],
+        "coding_challenges": [
+          {
+            "title": "TLS Handshake Packet Tracer",
+            "description": "Write a script analyzing packet captures to extract TLS certificate SAN names.",
+            "difficulty": "medium"
+          }
+        ]
+      }
     },
     {
       "id": "finite-automata",
       "title": "Finite Automata",
-      "summary": "Detailed technical analysis of Finite Automata covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Theoretical state machine models representing regular computation. Covers Deterministic Finite Automata (DFA), Non-deterministic Finite Automata (NFA), NFA-to-DFA subset construction, and DFA state minimization.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 2,
@@ -2066,7 +2546,7 @@
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
       ],
-      "description": "Detailed technical analysis of Finite Automata covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Theoretical state machine models representing regular computation. Covers Deterministic Finite Automata (DFA), Non-deterministic Finite Automata (NFA), NFA-to-DFA subset construction, and DFA state minimization.",
       "metadata": {
         "content_status": "draft"
       },
@@ -2075,12 +2555,48 @@
         "Overlooking edge-case boundary conditions and failure modes when deploying Finite Automata.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Construct DFAs and NFAs accepting specified regular languages over binary alphabets.",
+          "Convert non-deterministic NFAs (with \u03b5-transitions) into equivalent DFAs using Subset Construction.",
+          "Minimize DFA state count using Myhill-Nerode equivalence partitioning."
+        ],
+        "common_mistakes": [
+          "Confusing non-deterministic state choices in NFAs with probabilistic transitions.",
+          "Assuming DFAs can recognize non-regular languages such as balanced parentheses {a^n b^n}."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "lexical-analysis",
+            "reason": "Compiler lexers construct DFAs from regular expressions to tokenize source code strings."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Introduction to Automata Theory, Languages, and Computation (Hopcroft, Motwani, Ullman)",
+            "url": "https://www.pearson.com/en-us/subject-catalog/p/introduction-to-automata-theory-languages-and-computation/P200000003340",
+            "resource_type": "book",
+            "platform": "Pearson"
+          }
+        ],
+        "interview_questions": [
+          "Construct a DFA accepting binary strings containing an even number of 0s and odd number of 1s.",
+          "Explain the Subset Construction algorithm converting NFA to DFA."
+        ],
+        "coding_challenges": [
+          {
+            "title": "DFA Engine Simulator",
+            "description": "Implement a generic DFA state machine evaluator reading transition tables and inputs.",
+            "difficulty": "easy"
+          }
+        ]
+      }
     },
     {
       "id": "regular-languages-and-regular-expressions",
       "title": "Regular Languages & Regular Expressions",
-      "summary": "Detailed technical analysis of Regular Languages & Regular Expressions covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "summary": "Formal language class recognized by Finite Automata. Covers Regular Expressions, Regular Grammars, Pumping Lemma for Regular Languages, and closure properties under Union, Intersection, and Kleene Star.",
       "domain_id": "theory-of-computation",
       "domain_raw": "Theory of Computation",
       "difficulty": 2,
@@ -2117,7 +2633,7 @@
           "reason": "Cross-domain concept connection between Theory of Computation and Compiler Design"
         }
       ],
-      "description": "Detailed technical analysis of Regular Languages & Regular Expressions covering core architectural concepts, operational mechanisms, implementation strategies, and trade-offs.",
+      "description": "Formal language class recognized by Finite Automata. Covers Regular Expressions, Regular Grammars, Pumping Lemma for Regular Languages, and closure properties under Union, Intersection, and Kleene Star.",
       "metadata": {
         "content_status": "draft"
       },
@@ -2126,7 +2642,43 @@
         "Overlooking edge-case boundary conditions and failure modes when deploying Regular Languages & Regular Expressions.",
         "Applying default configurations without tuning for specific operational workload demands."
       ],
-      "is_published": true
+      "is_published": true,
+      "extra_metadata": {
+        "learning_outcomes": [
+          "Construct regular expressions for complex pattern matching specifications.",
+          "Apply the Pumping Lemma for Regular Languages to prove languages non-regular.",
+          "Convert regular expressions to Thompson NFA state diagrams."
+        ],
+        "common_mistakes": [
+          "Misapplying Pumping Lemma by choosing a specific string decomposition rather than showing ALL decompositions fail.",
+          "Assuming regular expressions with backreferences are still theoretically regular."
+        ],
+        "cross_domain_connections": [
+          {
+            "target_slug": "finite-automata",
+            "reason": "Kleene's Theorem proves Regular Expressions and Finite Automata are equivalent in expressive power."
+          }
+        ],
+        "resources": [
+          {
+            "title": "Introduction to the Theory of Computation \u2014 Michael Sipser",
+            "url": "https://www.cengage.com/c/introduction-to-the-theory-of-computation-3e-sipser/9781133187790/",
+            "resource_type": "book",
+            "platform": "Cengage"
+          }
+        ],
+        "interview_questions": [
+          "State the Pumping Lemma for Regular Languages and prove L = {0^n 1^n | n >= 0} is not regular.",
+          "Are regular languages closed under set intersection and set complementation? Prove why."
+        ],
+        "coding_challenges": [
+          {
+            "title": "Regex NFA Thompson Builder",
+            "description": "Build a Thompson Construction algorithm parsing simple regex (concatenation, OR, Kleene star) into NFA.",
+            "difficulty": "hard"
+          }
+        ]
+      }
     },
     {
       "id": "context-free-grammars-and-pushdown-automata",

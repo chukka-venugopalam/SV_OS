@@ -304,8 +304,14 @@ export default function KnowledgeNodeDetailPage() {
         </div>
       )}
       {slug === 'virtual-memory' && (
-        <div className="mb-8">
+        <div className="mb-8 space-y-8">
           <MemoryPageReplacementVisualizer />
+          <MmuAddressTranslationVisualizer />
+        </div>
+      )}
+      {slug === 'pipelining-and-instruction-level-parallelism' && (
+        <div className="mb-8">
+          <PipelineHazardVisualizer />
         </div>
       )}
       {slug === 'stacks-and-queues' && (
