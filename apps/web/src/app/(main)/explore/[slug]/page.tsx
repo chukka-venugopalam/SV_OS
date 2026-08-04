@@ -30,6 +30,11 @@ import {
   FileText,
   Globe,
   Github,
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  Code,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -145,6 +150,17 @@ export default function KnowledgeNodeDetailPage() {
   }
 
   const nodeColor = NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)';
+
+  const extraMetadata = ((node as unknown as Record<string, unknown>).extra_metadata ||
+    node.metadata ||
+    {}) as {
+    learning_outcomes?: string[];
+    common_mistakes?: string[];
+    cross_domain_connections?: Array<{ target_slug: string; reason: string }>;
+    resources?: Array<{ title: string; url?: string; platform?: string; resource_type?: string }>;
+    interview_questions?: string[];
+    coding_challenges?: Array<{ title: string; description: string; difficulty?: string }>;
+  };
 
   return (
     <Shell maxWidth="4xl">
@@ -447,39 +463,168 @@ export default function KnowledgeNodeDetailPage() {
           )}
         </TabsList>
 
-        <TabsContent value="details" className="mt-6">
+        <TabsContent value="details" className="mt-6 space-y-6">
+          {/* Main Summary / Overview */}
           <Card>
-            <CardContent className="prose prose-neutral dark:prose-invert max-w-none p-6">
-              {node.content ? (
-                <div className="whitespace-pre-line text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                  {node.content}
-                </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <BookOpen className="text-primary-500 h-5 w-5" />
+                Overview & Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+              {(node as { summary?: string }).summary || node.description || node.content ? (
+                <p className="whitespace-pre-line text-sm leading-relaxed">
+                  {(node as { summary?: string }).summary || node.description || node.content}
+                </p>
               ) : (
                 <p className="text-sm text-neutral-400 dark:text-neutral-500">
-                  No additional details available for this node.
+                  No summary available for this node.
                 </p>
               )}
             </CardContent>
           </Card>
 
-          {node.metadata && Object.keys(node.metadata).length > 0 && (
-            <Card className="mt-4">
+          {/* Learning Outcomes */}
+          {extraMetadata.learning_outcomes && extraMetadata.learning_outcomes.length > 0 && (
+            <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Metadata</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  Key Learning Outcomes
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-2 gap-2 text-sm">
-                  {Object.entries(node.metadata as Record<string, unknown>).map(([key, value]) => (
-                    <div key={key}>
-                      <dt className="text-xs font-medium capitalize text-neutral-500 dark:text-neutral-400">
-                        {key.replace(/_/g, ' ')}
-                      </dt>
-                      <dd className="text-neutral-900 dark:text-neutral-100">
-                        {String(value ?? '')}
-                      </dd>
-                    </div>
+                <ul className="space-y-2.5">
+                  {extraMetadata.learning_outcomes.map((outcome: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-sm text-neutral-700 dark:text-neutral-300"
+                    >
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                        {idx + 1}
+                      </span>
+                      <span>{outcome}</span>
+                    </li>
                   ))}
-                </dl>
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Common Mistakes */}
+          {extraMetadata.common_mistakes && extraMetadata.common_mistakes.length > 0 && (
+            <Card className="border-amber-200/60 bg-amber-50/30 dark:border-amber-900/40 dark:bg-amber-950/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold text-amber-900 dark:text-amber-300">
+                  <AlertTriangle className="h-5 w-5 text-amber-500" />
+                  Common Misconceptions & Mistakes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {extraMetadata.common_mistakes.map((mistake: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-sm text-amber-950 dark:text-amber-200"
+                    >
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                      <span>{mistake}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Cross Domain Connections */}
+          {extraMetadata.cross_domain_connections &&
+            extraMetadata.cross_domain_connections.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <Sparkles className="h-5 w-5 text-indigo-500" />
+                    Cross-Domain Connections
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {extraMetadata.cross_domain_connections.map(
+                    (conn: { target_slug: string; reason: string }, idx: number) => (
+                      <Link
+                        key={idx}
+                        href={`/explore/${conn.target_slug}`}
+                        className="group flex flex-col gap-1 rounded-lg border border-neutral-200 p-3.5 transition-all hover:border-indigo-300 hover:bg-indigo-50/40 dark:border-neutral-800 dark:hover:border-indigo-800 dark:hover:bg-indigo-950/20"
+                      >
+                        <div className="flex items-center justify-between text-sm font-medium text-indigo-600 group-hover:underline dark:text-indigo-400">
+                          <span>{slugToTitle(conn.target_slug)}</span>
+                          <ArrowRight className="h-4 w-4 text-neutral-400 transition-transform group-hover:translate-x-0.5 group-hover:text-indigo-500" />
+                        </div>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                          {conn.reason}
+                        </p>
+                      </Link>
+                    ),
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+          {/* Interview Questions */}
+          {extraMetadata.interview_questions && extraMetadata.interview_questions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                  <HelpCircle className="h-5 w-5 text-sky-500" />
+                  Interview Questions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {extraMetadata.interview_questions.map((q: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="rounded-md bg-neutral-50 p-3 text-sm font-medium text-neutral-800 dark:bg-neutral-900 dark:text-neutral-200"
+                    >
+                      Q: {q}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Coding Challenges */}
+          {extraMetadata.coding_challenges && extraMetadata.coding_challenges.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                  <Code className="h-5 w-5 text-purple-500" />
+                  Coding Challenges
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {extraMetadata.coding_challenges.map(
+                  (c: { title: string; description: string; difficulty?: string }, idx: number) => (
+                    <div
+                      key={idx}
+                      className="rounded-lg border border-neutral-200 p-3.5 dark:border-neutral-800"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                          {c.title}
+                        </h4>
+                        {c.difficulty && (
+                          <Badge variant={difficultyColors[c.difficulty] ?? 'info'} size="sm">
+                            {c.difficulty}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+                        {c.description}
+                      </p>
+                    </div>
+                  ),
+                )}
               </CardContent>
             </Card>
           )}
