@@ -101,6 +101,18 @@ class ImportNode(BaseModel):
         default_factory=list,
         description='Coding challenges',
     )
+    previous_year_questions: list[Any] = Field(
+        default_factory=list,
+        description='Previous year exam questions (GATE PYQs)',
+    )
+    exam_traps: list[str] = Field(
+        default_factory=list,
+        description='Specific exam traps and wrong-answer patterns',
+    )
+    quick_techniques: list[str] = Field(
+        default_factory=list,
+        description='Fast problem-solving techniques and shortcuts',
+    )
     extra_metadata: dict[str, Any] = Field(
         default_factory=dict,
         description='Additional extra metadata',

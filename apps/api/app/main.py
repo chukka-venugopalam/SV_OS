@@ -608,6 +608,9 @@ def create_app() -> FastAPI:
                         'simulators': n.get('simulators', []),
                         'interview_questions': meta.get('interview_questions', []),
                         'coding_challenges': meta.get('coding_challenges', []),
+                        'previous_year_questions': meta.get('previous_year_questions', []),
+                        'exam_traps': meta.get('exam_traps', []),
+                        'quick_techniques': meta.get('quick_techniques', []),
                         'import_version': '5.2',
                     }
                     synced += 1

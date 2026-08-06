@@ -160,6 +160,11 @@ export default function KnowledgeNodeDetailPage() {
     resources?: Array<{ title: string; url?: string; platform?: string; resource_type?: string }>;
     interview_questions?: string[];
     coding_challenges?: Array<{ title: string; description: string; difficulty?: string }>;
+    quick_techniques?: string[];
+    exam_traps?: string[];
+    previous_year_questions?: Array<
+      string | { year?: string; question?: string; marks?: number; explanation?: string }
+    >;
   };
 
   return (
@@ -536,6 +541,101 @@ export default function KnowledgeNodeDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Quick Problem-Solving Techniques */}
+          {extraMetadata.quick_techniques && extraMetadata.quick_techniques.length > 0 && (
+            <Card className="border-emerald-200/60 bg-emerald-50/20 dark:border-emerald-900/40 dark:bg-emerald-950/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold text-emerald-900 dark:text-emerald-300">
+                  <Sparkles className="h-5 w-5 text-emerald-500" />
+                  Quick Problem-Solving Techniques
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {extraMetadata.quick_techniques.map((tech: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-sm text-emerald-950 dark:text-emerald-200"
+                    >
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                        ⚡
+                      </span>
+                      <span>{tech}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Exam Traps & Wrong-Answer Patterns */}
+          {extraMetadata.exam_traps && extraMetadata.exam_traps.length > 0 && (
+            <Card className="border-rose-200/60 bg-rose-50/30 dark:border-rose-900/40 dark:bg-rose-950/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold text-rose-900 dark:text-rose-300">
+                  <AlertTriangle className="h-5 w-5 text-rose-500" />
+                  Exam Traps & Wrong-Answer Patterns
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2.5">
+                  {extraMetadata.exam_traps.map((trap: string, idx: number) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 text-sm text-rose-950 dark:text-rose-200"
+                    >
+                      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-rose-500" />
+                      <span>{trap}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Previous Year Questions */}
+          {extraMetadata.previous_year_questions &&
+            extraMetadata.previous_year_questions.length > 0 && (
+              <Card className="border-purple-200/60 bg-purple-50/20 dark:border-purple-900/40 dark:bg-purple-950/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold text-purple-900 dark:text-purple-300">
+                    <HelpCircle className="h-5 w-5 text-purple-500" />
+                    Previous Year Questions (GATE)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {extraMetadata.previous_year_questions.map((pyq, idx: number) => (
+                      <div
+                        key={idx}
+                        className="rounded-md border border-purple-200/80 bg-white p-3.5 text-sm dark:border-purple-900/60 dark:bg-neutral-900"
+                      >
+                        {typeof pyq === 'string' ? (
+                          <p className="text-neutral-800 dark:text-neutral-200">{pyq}</p>
+                        ) : (
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-xs font-semibold text-purple-600 dark:text-purple-400">
+                              <span>GATE {pyq.year || ''}</span>
+                              {pyq.marks && <span>{pyq.marks} Mark(s)</span>}
+                            </div>
+                            <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                              {pyq.question}
+                            </p>
+                            {pyq.explanation && (
+                              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                                <span className="font-semibold">Explanation:</span>{' '}
+                                {pyq.explanation}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Cross Domain Connections */}
           {extraMetadata.cross_domain_connections &&

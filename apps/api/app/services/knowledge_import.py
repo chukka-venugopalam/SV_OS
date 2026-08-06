@@ -494,6 +494,15 @@ class KnowledgeImportService:
                 'coding_challenges': getattr(
                     n, 'coding_challenges', extra_meta.get('coding_challenges', [])
                 ),
+                'previous_year_questions': getattr(
+                    n, 'previous_year_questions', extra_meta.get('previous_year_questions', [])
+                ),
+                'exam_traps': getattr(
+                    n, 'exam_traps', extra_meta.get('exam_traps', [])
+                ),
+                'quick_techniques': getattr(
+                    n, 'quick_techniques', extra_meta.get('quick_techniques', [])
+                ),
                 'import_version': '5.2',
             }
 
