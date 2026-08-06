@@ -4886,7 +4886,7 @@
     {
       "id": "distributed-systems-fundamentals",
       "title": "Distributed Systems Fundamentals",
-      "summary": "Multi-machine systems introducing partial failure, coordination, and consistency challenges.",
+      "summary": "Systems-engineering-focused view of building and operating reliable multi-machine systems in production.",
       "domain_id": "distributed-systems",
       "domain_raw": "Distributed Systems",
       "difficulty": 3,
@@ -4930,7 +4930,7 @@
           "reason": "Cross-domain concept connection between Distributed Systems and Cloud Computing"
         }
       ],
-      "description": "Multi-machine systems introducing partial failure, coordination, and consistency challenges.",
+      "description": "Systems-engineering-focused view of building and operating reliable multi-machine systems in production.",
       "common_mistakes": [
         "Confusing theoretical abstraction boundaries with physical implementation details in Distributed Systems Fundamentals.",
         "Overlooking edge-case boundary conditions and failure modes when deploying Distributed Systems Fundamentals.",
@@ -4939,18 +4939,16 @@
       "is_published": true,
       "extra_metadata": {
         "learning_outcomes": [
-          "Explain partial failure vs single-machine failure.",
-          "Role of timeouts/retries.",
-          "Sync vs async system models."
+          "Design for graceful degradation under partial failure.",
+          "Explain the operational cost of distributed systems complexity."
         ],
         "common_mistakes": [
-          "Treating a network call like a local call.",
-          "Ignoring idempotency on retries."
+          "Underestimating operational (not just design) complexity of distributed systems."
         ],
         "cross_domain_connections": [
           {
-            "target_slug": "consensus-algorithms-paxos--raft",
-            "reason": "Consensus is the core technique for agreeing on state despite failure."
+            "target_title": "Monitoring & Observability",
+            "reason": "Operating distributed systems in production depends directly on observability tooling."
           }
         ],
         "resources": [
