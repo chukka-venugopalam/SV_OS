@@ -613,6 +613,9 @@ def create_app() -> FastAPI:
                         'quick_techniques': meta.get('quick_techniques', []),
                         'import_version': '5.2',
                     }
+                    from sqlalchemy.orm.attributes import flag_modified
+
+                    flag_modified(existing, 'extra_metadata')
                     synced += 1
 
             await session.commit()
