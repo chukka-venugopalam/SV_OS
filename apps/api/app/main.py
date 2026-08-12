@@ -755,6 +755,7 @@ def create_app() -> FastAPI:
     async def debug_sync_all_careers() -> dict:
         """Fast direct DB sync of all 12 careers from all_12_careers.json."""
         import json
+        import traceback
         from pathlib import Path
 
         from sqlalchemy import select
@@ -764,90 +765,98 @@ def create_app() -> FastAPI:
         from app.models.career import Career
         from app.models.enums import DemandLevel
 
-        curr = Path(__file__).resolve()
-        json_path = None
-        for p in [curr, *list(curr.parents)]:
-            candidate = p / 'knowledge' / 'imports' / 'all_12_careers.json'
-            if candidate.exists():
-                json_path = candidate
-                break
+        try:
+            curr = Path(__file__).resolve()
+            json_path = None
+            for p in [curr, *list(curr.parents)]:
+                candidate = p / 'knowledge' / 'imports' / 'all_12_careers.json'
+                if candidate.exists():
+                    json_path = candidate
+                    break
 
-        if not json_path:
-            return {'success': False, 'message': 'JSON file not found'}
+            if not json_path:
+                return {'success': False, 'message': 'JSON file not found'}
 
-        with open(json_path, encoding='utf-8') as f:
-            careers_list = json.load(f)
+            with open(json_path, encoding='utf-8') as f:
+                careers_list = json.load(f)
 
-        updated_count = 0
-        created_count = 0
+            updated_count = 0
+            created_count = 0
 
-        demand_map = {
-            'high': DemandLevel.HIGH_DEMAND,
-            'growing': DemandLevel.GROWING,
-            'stable': DemandLevel.STABLE,
-            'declining': DemandLevel.DECLINING,
-        }
+            demand_map = {
+                'high': DemandLevel.HIGH_DEMAND,
+                'growing': DemandLevel.GROWING,
+                'stable': DemandLevel.STABLE,
+                'declining': DemandLevel.DECLINING,
+            }
 
-        def title_to_slug(t: str) -> str:
-            return t.lower().replace(' ', '-').replace('/', '-').replace('&', 'and')
+            def title_to_slug(t: str) -> str:
+                return t.lower().replace(' ', '-').replace('/', '-').replace('&', 'and')
 
-        async with async_session_factory() as session:
-            res1 = await session.execute(select(Career))
-            all_c = res1.scalars().all()
-            existing_careers_by_title = {c.title.lower(): c for c in all_c if c.title}
-            existing_careers_by_slug = {c.slug.lower(): c for c in all_c if c.slug}
+            async with async_session_factory() as session:
+                res1 = await session.execute(select(Career))
+                all_c = res1.scalars().all()
+                existing_careers_by_title = {c.title.lower(): c for c in all_c if c.title}
+                existing_careers_by_slug = {c.slug.lower(): c for c in all_c if c.slug}
 
-            for item in careers_list:
-                raw_title = item.get('title', '')
-                slug = item.get('slug') or title_to_slug(raw_title)
+                for item in careers_list:
+                    raw_title = item.get('title', '')
+                    slug = item.get('slug') or title_to_slug(raw_title)
 
-                by_t = existing_careers_by_title.get(raw_title.lower())
-                by_s = existing_careers_by_slug.get(slug.lower())
-                existing = by_t or by_s
-                demand_raw = str(item.get('demand_level', '')).lower()
-                demand_enum = DemandLevel.GROWING
-                for d_k, d_v in demand_map.items():
-                    if d_k in demand_raw:
-                        demand_enum = d_v
-                        break
+                    by_t = existing_careers_by_title.get(raw_title.lower())
+                    by_s = existing_careers_by_slug.get(slug.lower())
+                    existing = by_t or by_s
+                    demand_raw = str(item.get('demand_level', '')).lower()
+                    demand_enum = DemandLevel.GROWING
+                    for d_k, d_v in demand_map.items():
+                        if d_k in demand_raw:
+                            demand_enum = d_v
+                            break
 
-                meta = {
-                    'companies_hiring': item.get('companies_hiring', []),
-                    'certifications': item.get('certifications', []),
-                    'salary_range': item.get('salary_range'),
-                    'linked_projects': item.get('linked_projects', []),
-                }
+                    meta = {
+                        'companies_hiring': item.get('companies_hiring', []),
+                        'certifications': item.get('certifications', []),
+                        'salary_range': item.get('salary_range'),
+                        'linked_projects': item.get('linked_projects', []),
+                    }
 
-                sal_str = (item.get('salary_range') or '')[:99]
+                    sal_str = (item.get('salary_range') or '')[:99]
 
-                if existing:
-                    existing.title = raw_title
-                    existing.description = item.get('description', existing.description)
-                    existing.average_salary = sal_str
-                    existing.demand_level = demand_enum
-                    existing.extra_metadata = meta
-                    flag_modified(existing, 'extra_metadata')
-                    updated_count += 1
-                else:
-                    new_career = Career(
-                        slug=slug,
-                        title=raw_title,
-                        description=item.get('description', ''),
-                        average_salary=sal_str,
-                        demand_level=demand_enum,
-                        extra_metadata=meta,
-                        is_published=True,
-                    )
-                    session.add(new_career)
-                    created_count += 1
+                    if existing:
+                        existing.title = raw_title
+                        existing.description = item.get('description', existing.description)
+                        existing.average_salary = sal_str
+                        existing.demand_level = demand_enum
+                        existing.extra_metadata = meta
+                        flag_modified(existing, 'extra_metadata')
+                        updated_count += 1
+                    else:
+                        new_career = Career(
+                            slug=slug,
+                            title=raw_title,
+                            description=item.get('description', ''),
+                            average_salary=sal_str,
+                            demand_level=demand_enum,
+                            extra_metadata=meta,
+                            is_published=True,
+                        )
+                        session.add(new_career)
+                        created_count += 1
 
-            await session.commit()
+                await session.commit()
 
-        return {
-            'success': True,
-            'message': f'Synced 12 careers (Upd: {updated_count}, New: {created_count})',
-            'timestamp': datetime.now(UTC).isoformat(),
-        }
+            return {
+                'success': True,
+                'message': f'Synced 12 careers (Upd: {updated_count}, New: {created_count})',
+                'timestamp': datetime.now(UTC).isoformat(),
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'traceback': traceback.format_exc(),
+                'timestamp': datetime.now(UTC).isoformat(),
+            }
 
     return app
 
