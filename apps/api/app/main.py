@@ -833,7 +833,7 @@ def create_app() -> FastAPI:
                                 description = :description,
                                 average_salary = :average_salary,
                                 demand_level = :demand_level,
-                                metadata = :metadata::jsonb,
+                                metadata = CAST(:metadata AS JSONB),
                                 updated_at = NOW()
                             WHERE id = :id;
                         """)
@@ -858,7 +858,7 @@ def create_app() -> FastAPI:
                             )
                             VALUES (
                                 gen_random_uuid(), :slug, :title, :description, :average_salary,
-                                :demand_level, :metadata::jsonb, true, NOW(), NOW()
+                                :demand_level, CAST(:metadata AS JSONB), true, NOW(), NOW()
                             );
                         """)
                         await session.execute(
