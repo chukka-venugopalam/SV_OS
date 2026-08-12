@@ -822,8 +822,7 @@ def create_app() -> FastAPI:
                     if existing_id:
                         upd_sql = text("""
                             UPDATE careers
-                            SET slug = :slug,
-                                title = :title,
+                            SET title = :title,
                                 description = :description,
                                 average_salary = :average_salary,
                                 demand_level = :demand_level,
