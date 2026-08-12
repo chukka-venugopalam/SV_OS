@@ -834,6 +834,7 @@ def create_app() -> FastAPI:
                             upd_sql,
                             {
                                 'id': existing_id,
+                                'slug': slug,
                                 'title': raw_title,
                                 'description': desc,
                                 'average_salary': sal_str,
