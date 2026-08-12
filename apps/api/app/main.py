@@ -766,7 +766,7 @@ def create_app() -> FastAPI:
         from pathlib import Path
 
         from fastapi.responses import JSONResponse
-        from sqlalchemy import select, text
+        from sqlalchemy import select
         from sqlalchemy.orm.attributes import flag_modified
 
         from app.core.database import async_session_factory
@@ -799,13 +799,30 @@ def create_app() -> FastAPI:
             async with async_session_factory() as session:
                 stmt = select(Career)
                 res = await session.execute(stmt)
-                all_existing = res.scalars().all()
-                existing_by_slug = {c.slug.lower(): c for c in all_existing}
-                existing_by_title = {c.title.lower().replace(' ', ''): c for c in all_existing}
+                all_existing = list(res.scalars().all())
+
+                existing_map = {}
+                for c in all_existing:
+                    norm_t = (
+                        c.title.lower()
+                        .replace(' ', '')
+                        .replace('/', '')
+                        .replace('&', 'and')
+                    )
+                    existing_map[norm_t] = c
+                    existing_map[c.slug.lower()] = c
+
+                processed_ids = set()
 
                 for item in careers_list:
                     raw_title = item.get('title', '')
                     slug = item.get('slug') or title_to_slug(raw_title)
+                    norm_t = (
+                        raw_title.lower()
+                        .replace(' ', '')
+                        .replace('/', '')
+                        .replace('&', 'and')
+                    )
 
                     meta = {
                         'companies_hiring': item.get('companies_hiring', []),
@@ -825,19 +842,17 @@ def create_app() -> FastAPI:
                     elif 'declining' in demand_raw:
                         demand_enum = DemandLevel.DECLINING
 
-                    norm_title = raw_title.lower().replace(' ', '')
-                    existing = (
-                        existing_by_slug.get(slug.lower())
-                        or existing_by_title.get(norm_title)
-                    )
+                    existing = existing_map.get(norm_t) or existing_map.get(slug.lower())
 
-                    if existing:
+                    if existing and existing.id not in processed_ids:
+                        existing.slug = slug
                         existing.title = raw_title
                         existing.description = desc
                         existing.average_salary = sal_str
                         existing.demand_level = demand_enum
                         existing.extra_metadata = meta
                         flag_modified(existing, 'extra_metadata')
+                        processed_ids.add(existing.id)
                         updated_count += 1
                     else:
                         new_car = Career(
@@ -852,9 +867,10 @@ def create_app() -> FastAPI:
                         session.add(new_car)
                         created_count += 1
 
-                # Purge any legacy placeholder seed careers with 'car-' prefix
-                del_legacy_sql = text("DELETE FROM careers WHERE LOWER(slug) LIKE 'car-%';")
-                await session.execute(del_legacy_sql)
+                for c in all_existing:
+                    if c.id not in processed_ids:
+                        await session.delete(c)
+
                 await session.commit()
 
             return JSONResponse(
