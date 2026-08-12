@@ -752,18 +752,16 @@ def create_app() -> FastAPI:
         }
 
     @app.get('/debug/sync-all-careers', include_in_schema=False)
-    async def debug_sync_all_careers() -> dict:
-        """Fast direct DB sync of all 12 careers from all_12_careers.json."""
+    async def debug_sync_all_careers():
+        """Fast direct raw-SQL DB sync of all 12 careers from all_12_careers.json."""
         import json
         import traceback
         from pathlib import Path
 
-        from sqlalchemy import select
-        from sqlalchemy.orm.attributes import flag_modified
+        from fastapi.responses import JSONResponse
+        from sqlalchemy import text
 
         from app.core.database import async_session_factory
-        from app.models.career import Career
-        from app.models.enums import DemandLevel
 
         try:
             curr = Path(__file__).resolve()
@@ -775,7 +773,10 @@ def create_app() -> FastAPI:
                     break
 
             if not json_path:
-                return {'success': False, 'message': 'JSON file not found'}
+                return JSONResponse(
+                    status_code=404,
+                    content={'success': False, 'message': 'JSON file not found'},
+                )
 
             with open(json_path, encoding='utf-8') as f:
                 careers_list = json.load(f)
@@ -783,35 +784,13 @@ def create_app() -> FastAPI:
             updated_count = 0
             created_count = 0
 
-            demand_map = {
-                'high': DemandLevel.HIGH_DEMAND,
-                'growing': DemandLevel.GROWING,
-                'stable': DemandLevel.STABLE,
-                'declining': DemandLevel.DECLINING,
-            }
-
             def title_to_slug(t: str) -> str:
                 return t.lower().replace(' ', '-').replace('/', '-').replace('&', 'and')
 
             async with async_session_factory() as session:
-                res1 = await session.execute(select(Career))
-                all_c = res1.scalars().all()
-                existing_careers_by_title = {c.title.lower(): c for c in all_c if c.title}
-                existing_careers_by_slug = {c.slug.lower(): c for c in all_c if c.slug}
-
                 for item in careers_list:
                     raw_title = item.get('title', '')
                     slug = item.get('slug') or title_to_slug(raw_title)
-
-                    by_t = existing_careers_by_title.get(raw_title.lower())
-                    by_s = existing_careers_by_slug.get(slug.lower())
-                    existing = by_t or by_s
-                    demand_raw = str(item.get('demand_level', '')).lower()
-                    demand_enum = DemandLevel.GROWING
-                    for d_k, d_v in demand_map.items():
-                        if d_k in demand_raw:
-                            demand_enum = d_v
-                            break
 
                     meta = {
                         'companies_hiring': item.get('companies_hiring', []),
@@ -819,44 +798,92 @@ def create_app() -> FastAPI:
                         'salary_range': item.get('salary_range'),
                         'linked_projects': item.get('linked_projects', []),
                     }
-
+                    meta_json = json.dumps(meta)
                     sal_str = (item.get('salary_range') or '')[:99]
+                    desc = item.get('description', '')
 
-                    if existing:
-                        existing.title = raw_title
-                        existing.description = item.get('description', existing.description)
-                        existing.average_salary = sal_str
-                        existing.demand_level = demand_enum
-                        existing.extra_metadata = meta
-                        flag_modified(existing, 'extra_metadata')
+                    demand_raw = str(item.get('demand_level', '')).lower()
+                    demand_val = 'growing'
+                    if 'high' in demand_raw:
+                        demand_val = 'high_demand'
+                    elif 'stable' in demand_raw:
+                        demand_val = 'stable'
+                    elif 'declining' in demand_raw:
+                        demand_val = 'declining'
+
+                    chk_sql = text(
+                        'SELECT id FROM careers '
+                        'WHERE LOWER(title) = LOWER(:title) OR LOWER(slug) = LOWER(:slug);'
+                    )
+                    res = await session.execute(chk_sql, {'title': raw_title, 'slug': slug})
+                    existing_id = res.scalar()
+
+                    if existing_id:
+                        upd_sql = text("""
+                            UPDATE careers
+                            SET title = :title,
+                                description = :description,
+                                average_salary = :average_salary,
+                                demand_level = :demand_level,
+                                metadata = :metadata::jsonb,
+                                updated_at = NOW()
+                            WHERE id = :id;
+                        """)
+                        await session.execute(
+                            upd_sql,
+                            {
+                                'id': existing_id,
+                                'title': raw_title,
+                                'description': desc,
+                                'average_salary': sal_str,
+                                'demand_level': demand_val,
+                                'metadata': meta_json,
+                            },
+                        )
                         updated_count += 1
                     else:
-                        new_career = Career(
-                            slug=slug,
-                            title=raw_title,
-                            description=item.get('description', ''),
-                            average_salary=sal_str,
-                            demand_level=demand_enum,
-                            extra_metadata=meta,
-                            is_published=True,
+                        ins_sql = text("""
+                            INSERT INTO careers (
+                                id, slug, title, description, average_salary,
+                                demand_level, metadata, is_published, created_at, updated_at
+                            )
+                            VALUES (
+                                gen_random_uuid(), :slug, :title, :description, :average_salary,
+                                :demand_level, :metadata::jsonb, true, NOW(), NOW()
+                            );
+                        """)
+                        await session.execute(
+                            ins_sql,
+                            {
+                                'slug': slug,
+                                'title': raw_title,
+                                'description': desc,
+                                'average_salary': sal_str,
+                                'demand_level': demand_val,
+                                'metadata': meta_json,
+                            },
                         )
-                        session.add(new_career)
                         created_count += 1
 
                 await session.commit()
 
-            return {
-                'success': True,
-                'message': f'Synced 12 careers (Upd: {updated_count}, New: {created_count})',
-                'timestamp': datetime.now(UTC).isoformat(),
-            }
+            return JSONResponse(
+                content={
+                    'success': True,
+                    'message': f'Synced 12 careers (Upd: {updated_count}, New: {created_count})',
+                    'timestamp': datetime.now(UTC).isoformat(),
+                }
+            )
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'traceback': traceback.format_exc(),
-                'timestamp': datetime.now(UTC).isoformat(),
-            }
+            return JSONResponse(
+                status_code=200,
+                content={
+                    'success': False,
+                    'error': str(e),
+                    'traceback': traceback.format_exc(),
+                    'timestamp': datetime.now(UTC).isoformat(),
+                },
+            )
 
     return app
 
