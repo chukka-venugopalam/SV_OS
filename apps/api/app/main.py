@@ -760,15 +760,17 @@ def create_app() -> FastAPI:
 
     @app.get('/debug/sync-all-careers', include_in_schema=False)
     async def debug_sync_all_careers():
-        """Fast direct raw-SQL DB sync of all 12 careers from all_12_careers.json."""
+        """Fast direct DB sync of all 12 careers using SQLAlchemy ORM."""
         import json
         import traceback
         from pathlib import Path
 
         from fastapi.responses import JSONResponse
-        from sqlalchemy import text
+        from sqlalchemy import select
+        from sqlalchemy.orm.attributes import flag_modified
 
         from app.core.database import async_session_factory
+        from app.models.career import Career, DemandLevel
 
         try:
             curr = Path(__file__).resolve()
@@ -795,6 +797,12 @@ def create_app() -> FastAPI:
                 return t.lower().replace(' ', '-').replace('/', '-').replace('&', 'and')
 
             async with async_session_factory() as session:
+                stmt = select(Career)
+                res = await session.execute(stmt)
+                all_existing = res.scalars().all()
+                existing_by_slug = {c.slug.lower(): c for c in all_existing}
+                existing_by_title = {c.title.lower().replace(' ', ''): c for c in all_existing}
+
                 for item in careers_list:
                     raw_title = item.get('title', '')
                     slug = item.get('slug') or title_to_slug(raw_title)
@@ -805,105 +813,59 @@ def create_app() -> FastAPI:
                         'salary_range': item.get('salary_range'),
                         'linked_projects': item.get('linked_projects', []),
                     }
-                    meta_json = json.dumps(meta)
                     sal_str = (item.get('salary_range') or '')[:99]
                     desc = item.get('description', '')
 
                     demand_raw = str(item.get('demand_level', '')).lower()
-                    demand_val = 'growing'
+                    demand_enum = DemandLevel.GROWING
                     if 'high' in demand_raw:
-                        demand_val = 'high_demand'
+                        demand_enum = DemandLevel.HIGH_DEMAND
                     elif 'stable' in demand_raw:
-                        demand_val = 'stable'
+                        demand_enum = DemandLevel.STABLE
                     elif 'declining' in demand_raw:
-                        demand_val = 'declining'
+                        demand_enum = DemandLevel.DECLINING
 
-                    chk_sql = text(
-                        'SELECT id FROM careers '
-                        "WHERE REPLACE(LOWER(title), ' ', '') = REPLACE(LOWER(:title), ' ', '') "
-                        'OR LOWER(slug) = LOWER(:slug);'
+                    norm_title = raw_title.lower().replace(' ', '')
+                    existing = (
+                        existing_by_slug.get(slug.lower())
+                        or existing_by_title.get(norm_title)
                     )
-                    res = await session.execute(chk_sql, {'title': raw_title, 'slug': slug})
-                    existing_id = res.scalar()
 
-                    if existing_id:
-                        upd_sql = text("""
-                            UPDATE careers
-                            SET title = :title,
-                                description = :description,
-                                average_salary = :average_salary,
-                                demand_level = :demand_level,
-                                metadata = CAST(:metadata AS JSONB),
-                                updated_at = NOW()
-                            WHERE id = :id;
-                        """)
-                        await session.execute(
-                            upd_sql,
-                            {
-                                'id': existing_id,
-                                'slug': slug,
-                                'title': raw_title,
-                                'description': desc,
-                                'average_salary': sal_str,
-                                'demand_level': demand_val,
-                                'metadata': meta_json,
-                            },
-                        )
+                    if existing:
+                        existing.title = raw_title
+                        existing.description = desc
+                        existing.average_salary = sal_str
+                        existing.demand_level = demand_enum
+                        existing.extra_metadata = meta
+                        flag_modified(existing, 'extra_metadata')
                         updated_count += 1
                     else:
-                        ins_sql = text("""
-                            INSERT INTO careers (
-                                id, slug, title, description, average_salary,
-                                demand_level, metadata, is_published, created_at, updated_at
-                            )
-                            VALUES (
-                                gen_random_uuid(), :slug, :title, :description, :average_salary,
-                                :demand_level, CAST(:metadata AS JSONB), true, NOW(), NOW()
-                            );
-                        """)
-                        await session.execute(
-                            ins_sql,
-                            {
-                                'slug': slug,
-                                'title': raw_title,
-                                'description': desc,
-                                'average_salary': sal_str,
-                                'demand_level': demand_val,
-                                'metadata': meta_json,
-                            },
+                        new_car = Career(
+                            slug=slug,
+                            title=raw_title,
+                            description=desc,
+                            average_salary=sal_str,
+                            demand_level=demand_enum,
+                            extra_metadata=meta,
+                            is_published=True,
                         )
+                        session.add(new_car)
                         created_count += 1
 
-                # Deduplicate any duplicate rows created by title variations
-                dedup_sql = text("""
-                    DELETE FROM careers
-                    WHERE id IN (
-                        SELECT id FROM (
-                            SELECT id, ROW_NUMBER() OVER (
-                                PARTITION BY REPLACE(LOWER(title), ' ', '') ORDER BY created_at ASC
-                            ) as rnum
-                            FROM careers
-                        ) t WHERE t.rnum > 1
-                    );
-                """)
-                await session.execute(dedup_sql)
-
                 # Clean up any legacy dummy careers not in the 12 valid content careers
-                valid_career_titles = [item.get('title', '') for item in careers_list]
-                valid_slugs = [
-                    item.get('slug') or title_to_slug(item.get('title', ''))
+                valid_slugs = {
+                    (item.get('slug') or title_to_slug(item.get('title', ''))).lower()
                     for item in careers_list
-                ]
+                }
+                valid_titles = {
+                    item.get('title', '').lower().replace(' ', '') for item in careers_list
+                }
 
-                clean_sql = text("""
-                    DELETE FROM careers
-                    WHERE LOWER(slug) NOT IN (SELECT LOWER(unnest(:slugs::text[])))
-                    AND LOWER(title) NOT IN (SELECT LOWER(unnest(:titles::text[])));
-                """)
-                await session.execute(
-                    clean_sql,
-                    {'slugs': valid_slugs, 'titles': valid_career_titles},
-                )
+                for c in all_existing:
+                    c_norm = c.title.lower().replace(' ', '')
+                    if c.slug.lower() not in valid_slugs and c_norm not in valid_titles:
+                        await session.delete(c)
+
                 await session.commit()
 
             return JSONResponse(
