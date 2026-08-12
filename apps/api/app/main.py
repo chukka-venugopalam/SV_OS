@@ -852,8 +852,8 @@ def create_app() -> FastAPI:
                         session.add(new_car)
                         created_count += 1
 
-                # Purge any legacy placeholder seed careers with 'CAR-' prefix
-                del_legacy_sql = text("DELETE FROM careers WHERE slug LIKE 'CAR-%';")
+                # Purge any legacy placeholder seed careers with 'car-' prefix
+                del_legacy_sql = text("DELETE FROM careers WHERE LOWER(slug) LIKE 'car-%';")
                 await session.execute(del_legacy_sql)
                 await session.commit()
 
