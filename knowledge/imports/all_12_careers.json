@@ -1,0 +1,139 @@
+[
+  {
+    "title": "AI Engineer",
+    "description": "An AI Engineer builds and deploys applications on top of foundation models \u2014 designing RAG pipelines with vector databases like Pinecone or FAISS, fine-tuning pretrained transformers using techniques like LoRA, and writing evaluation harnesses to catch hallucination and regressions before shipping. Day-to-day work also includes optimizing inference cost and latency through quantization, batching, and caching strategies, and wiring model outputs into product APIs with guardrails for safety and reliability.",
+    "companies_hiring": ["Google", "Microsoft", "Amazon", "Meta", "NVIDIA"],
+    "certifications": [
+      "AWS Certified Machine Learning Engineer \u2013 Associate",
+      "Google Cloud Professional Machine Learning Engineer",
+      "Microsoft Certified: Azure AI Engineer Associate"
+    ],
+    "demand_level": "Very high \u2014 NASSCOM reports roughly 40% year-over-year growth in AI hiring in India; GenAI/LLM specialization is the fastest-growing, highest-paid segment within the role.",
+    "salary_range": "India: ~\u20b96\u20138 LPA entry, \u20b915\u201330 LPA mid, \u20b940\u201380+ LPA senior/GenAI specialist. Gap between IT-services and product/GCC employers at equal experience is large (60\u2013150%), so averages alone are misleading.",
+    "linked_projects": ["transformer-nlp-engine", "computer-vision-segmentation"]
+  },
+  {
+    "title": "Backend Engineer",
+    "description": "A Backend Engineer designs and maintains the server-side logic, APIs, and data layer that power an application \u2014 writing REST or gRPC services, modeling relational or NoSQL data stores, and tuning database queries and indexes for latency under load. Day-to-day work includes handling concurrency and race conditions, implementing caching layers (Redis, Memcached) and message queues (Kafka, RabbitMQ) for async processing, and ensuring services scale horizontally with proper retries and idempotency guarantees.",
+    "companies_hiring": ["Amazon", "Google", "Microsoft", "Flipkart", "Razorpay"],
+    "demand_level": "High and stable \u2014 a foundational, evergreen hiring category across both IT-services and product companies.",
+    "salary_range": "India: ~\u20b94\u20139 LPA entry, \u20b910\u201324 LPA mid, \u20b925\u201360+ LPA senior. System-design skill is the single biggest lever above the ~5-year mark; unicorn/FAANG offices pay well above this range.",
+    "linked_projects": ["api-gateway", "ecommerce-api", "http-proxy-cache"]
+  },
+  {
+    "title": "Frontend Engineer",
+    "description": "A Frontend Engineer builds the user-facing layer of web or mobile applications \u2014 implementing component-based UIs in frameworks like React or Vue, managing application state (Redux, Context API, or signals), and integrating with backend APIs via REST or GraphQL. Day-to-day work includes optimizing rendering performance (minimizing re-renders, code-splitting, lazy loading), ensuring accessibility (WCAG/ARIA) and cross-browser compatibility, and translating design specs into responsive layouts.",
+    "companies_hiring": ["Google", "Meta", "Amazon", "Flipkart", "Swiggy"],
+    "demand_level": "High and stable \u2014 consumer and SaaS product companies pay the largest premiums here since UI quality drives retention and conversion directly.",
+    "salary_range": "India: ~\u20b94\u201310 LPA entry, \u20b914\u201332 LPA mid, \u20b940\u201390+ LPA senior/principal at top product companies and GCCs.",
+    "linked_projects": ["netflix-clone", "personal-website", "social-media-dashboard"]
+  },
+  {
+    "title": "ML Engineer",
+    "description": "An ML Engineer builds the pipeline that takes raw data to a trained, served model \u2014 engineering features, running experiments to compare algorithms (gradient boosting, neural networks) against baseline metrics, and packaging models for production with tools like MLflow or Kubeflow. Day-to-day work includes managing training infrastructure (distributed training, GPU scheduling), monitoring deployed models for data drift and performance decay, and automating retraining pipelines as data distributions shift.",
+    "companies_hiring": ["Google", "Meta", "Amazon", "Microsoft", "NVIDIA"],
+    "certifications": [
+      "AWS Certified Machine Learning Engineer \u2013 Associate",
+      "Google Cloud Professional Machine Learning Engineer"
+    ],
+    "demand_level": "Very high \u2014 multiple 2026 salary surveys report ML engineering has overtaken backend engineering as India's highest-paid mainstream technical specialization.",
+    "salary_range": "India: ~\u20b96\u201318 LPA entry, \u20b920\u201342 LPA mid, \u20b940\u201380+ LPA senior. GenAI/LLM and MLOps specialists sit at the top of this band; the ML/data-scientist boundary is blurring.",
+    "linked_projects": ["machine-learning-pipeline", "transformer-nlp-engine"]
+  },
+  {
+    "title": "Systems/Kernel Engineer",
+    "description": "A Systems/Kernel Engineer works at the OS layer \u2014 writing or modifying kernel modules and device drivers, implementing or tuning scheduler and memory-management algorithms, and debugging race conditions and deadlocks with tools like ftrace, perf, or kgdb. Day-to-day work includes profiling syscall overhead, working directly with page tables and interrupt handlers, and validating changes against kernel regression suites (e.g., the Linux Test Project) before upstreaming patches.",
+    "companies_hiring": ["Red Hat", "Google", "Microsoft", "Amazon", "Qualcomm"],
+    "demand_level": "Niche and steady rather than high-volume \u2014 far fewer dedicated openings than mainstream application-development roles, concentrated at semiconductor, OS, and cloud-infrastructure companies doing genuine kernel-level work.",
+    "salary_range": "not available \u2014 India-specific salary data for this exact title is too sparse and inconsistent to report confidently. The samples found ranged from single-digit numbers of data points to figures differing by roughly 10x for similarly-named titles, which is not a basis for a real number.",
+    "linked_projects": [
+      "unix-shell-and-kernel",
+      "user-threads-scheduler",
+      "bytecode-virtual-machine"
+    ]
+  },
+  {
+    "title": "Compiler Engineer",
+    "description": "A Compiler Engineer builds and optimizes the toolchain that translates source code into executable machine code \u2014 implementing lexers and parsers, designing intermediate representations (IR), and writing optimization passes for tasks like constant folding, loop unrolling, and register allocation. Day-to-day work often involves working within frameworks like LLVM or MLIR, debugging miscompilations via test-case reduction (e.g., with creduce), and benchmarking generated code against target instruction sets.",
+    "companies_hiring": ["Google", "NVIDIA", "Intel", "ARM", "Qualcomm"],
+    "demand_level": "Very niche \u2014 one of the smallest, most specialized hiring categories in this list, concentrated at a handful of semiconductor and platform companies with dedicated compiler teams.",
+    "salary_range": "not available \u2014 reliable India-specific salary data could not be confidently established. Search results returned single-data-point 'averages' and figures varying by roughly 10x across sources, which is not a reliable basis for a range.",
+    "linked_projects": ["c-compiler-subset", "bytecode-virtual-machine", "regex-engine-nfa-dfa"]
+  },
+  {
+    "title": "Cloud/DevOps Engineer",
+    "description": "A Cloud/DevOps Engineer builds and maintains the infrastructure and automation pipelines that let teams ship software reliably \u2014 writing Infrastructure-as-Code with tools like Terraform or Pulumi, containerizing services with Docker, and orchestrating deployments on Kubernetes. Day-to-day work includes building CI/CD pipelines (Jenkins, GitHub Actions, GitLab CI), setting up observability with metrics/logging/tracing stacks (Prometheus, Grafana, ELK), and managing on-call incident response against SLOs/SLIs and error budgets.",
+    "companies_hiring": ["Amazon", "Google", "Microsoft", "Flipkart", "HashiCorp"],
+    "certifications": [
+      "AWS Certified DevOps Engineer \u2013 Professional",
+      "AWS Certified Solutions Architect \u2013 Associate",
+      "Google Cloud Professional Cloud DevOps Engineer",
+      "Microsoft Certified: DevOps Engineer Expert",
+      "Certified Kubernetes Administrator (CKA)",
+      "HashiCorp Certified: Terraform Associate"
+    ],
+    "demand_level": "High and growing \u2014 platform-engineering roles inside Global Capability Centres are expanding at roughly 18% year-over-year as they build internal developer platforms rather than just maintaining infrastructure.",
+    "salary_range": "India: ~\u20b94\u20139 LPA entry, \u20b98\u201335 LPA mid, \u20b918\u201360+ LPA senior/SRE/platform. Cloud certifications reliably add 20\u201335% to offers at 2\u20136 years of experience; staff/principal roles at top firms go well above this range.",
+    "linked_projects": [
+      "kubernetes-operator-custom",
+      "terraform-multi-cloud-infra",
+      "docker-voting-app"
+    ]
+  },
+  {
+    "title": "Cybersecurity Engineer",
+    "description": "A Cybersecurity Engineer secures systems against attack \u2014 running vulnerability assessments and penetration tests, configuring and tuning SIEM tools (Splunk, QRadar) to detect anomalous activity, and hardening infrastructure against common attack classes like SQL injection, privilege escalation, and lateral movement. Day-to-day work includes threat modeling new features before launch, investigating incidents by analyzing logs and malware samples, and implementing controls such as network segmentation, least-privilege IAM policies, and encryption key management.",
+    "companies_hiring": ["Microsoft", "Google", "Cisco", "CrowdStrike", "Palo Alto Networks"],
+    "certifications": [
+      "CompTIA Security+",
+      "Certified Ethical Hacker (CEH)",
+      "OSCP (Offensive Security Certified Professional)",
+      "CISSP"
+    ],
+    "demand_level": "High and rising \u2014 driven by expanding digital-security investment across sectors plus new compliance work created by India's DPDP Act.",
+    "salary_range": "India: ~\u20b93.5\u20137 LPA entry, \u20b98\u201328 LPA mid, \u20b918\u201350 LPA senior/architect. OSCP- and CISSP-holders and specialists (AppSec, cloud security, red team) trend toward the top of each band; CISO-level pay goes considerably higher still.",
+    "linked_projects": [
+      "vulnerability-scanner-static",
+      "network-packet-ids",
+      "zero-trust-auth-mesh"
+    ]
+  },
+  {
+    "title": "Blockchain Engineer",
+    "description": "A Blockchain Engineer designs and builds decentralized applications and protocol-level infrastructure \u2014 writing and auditing smart contracts (commonly Solidity on EVM chains, or Rust on Solana), optimizing for gas efficiency, and reasoning about the security trade-offs of consensus mechanisms like proof-of-stake and BFT variants. Day-to-day work includes writing test suites to catch reentrancy and overflow vulnerabilities before deployment, integrating with node infrastructure and oracles, and monitoring contract behavior after mainnet launch.",
+    "companies_hiring": ["Coinbase", "Polygon", "Binance", "ConsenSys"],
+    "demand_level": "High but volatile \u2014 a smaller, far less standardized market than mainstream software roles. Reported hiring and salary figures vary widely across sources, more so than any other role in this set.",
+    "salary_range": "India: roughly \u20b95\u201311 LPA entry, \u20b910\u201320 LPA mid, \u20b920\u201330+ LPA senior/architect \u2014 treat as a rough guide only. This was the least consistent dataset found; one otherwise-credible source reported a \u20b932.6L average, well above what most others show, and none of the sources agreed closely.",
+    "linked_projects": []
+  },
+  {
+    "title": "Robotics Engineer",
+    "description": "A Robotics Engineer builds systems that sense, plan, and act in the physical world \u2014 implementing sensor fusion (combining IMU, LiDAR, and camera data via Kalman or particle filters), writing motion-planning and control algorithms (PID, MPC), and working within frameworks like ROS/ROS2 to coordinate perception, planning, and actuation nodes. Day-to-day work includes calibrating sensors, tuning controllers for stability under real-world noise, and testing in simulation (Gazebo, Isaac Sim) before deploying to physical hardware.",
+    "companies_hiring": ["Boston Dynamics", "NVIDIA", "Tesla", "Amazon Robotics", "Skild AI"],
+    "demand_level": "Growing but smaller in absolute hiring volume than mainstream software roles \u2014 accelerating with Industry 4.0 adoption in manufacturing, logistics, and warehouse automation.",
+    "salary_range": "India: ~\u20b94\u20136.5 LPA entry, \u20b99\u201318 LPA mid, \u20b918\u201324+ LPA senior. Software/perception-heavy specialists (computer vision, SLAM) trend toward the top of this band.",
+    "linked_projects": ["stm32-rtos-weather-station"]
+  },
+  {
+    "title": "Game Developer",
+    "description": "A Game Developer builds interactive experiences using engines like Unity or Unreal Engine \u2014 implementing gameplay systems (character state machines, physics interactions), optimizing rendering pipelines (draw calls, LOD, shader performance) to hit frame-rate targets, and scripting in C# or C++/Blueprints. Day-to-day work includes profiling for performance bottlenecks on target hardware, tuning game feel through iteration (hitboxes, input latency, animation blending), and working closely with artists and designers to implement levels and mechanics.",
+    "companies_hiring": ["Ubisoft", "Gameloft", "Nazara Technologies", "Dream11", "Moonfrog Labs"],
+    "demand_level": "Moderate \u2014 a smaller domestic market than mainstream IT roles, though mobile gaming and esports are expanding it. India pay for this title trails US/EU studio pay by a wide margin for the same work.",
+    "salary_range": "India: ~\u20b93.5\u20136 LPA entry, \u20b98\u201315 LPA mid, \u20b915\u201322 LPA senior \u2014 notably below backend/frontend/ML pay at equivalent experience.",
+    "linked_projects": ["vulkan-3d-render-engine"]
+  },
+  {
+    "title": "Data Engineer/Data Scientist",
+    "description": "A Data Engineer/Data Scientist builds the pipelines that move and transform data at scale, then uses that data to answer questions and build models \u2014 writing ETL/ELT jobs with tools like Spark or Airflow, designing warehouse schemas (star/snowflake) for efficient querying, and running statistical analysis or building predictive models (regression, classification, clustering) to guide decisions. Day-to-day work includes optimizing SQL queries and pipeline runtimes for large datasets, validating data quality and lineage, and communicating findings through dashboards or A/B test results.",
+    "companies_hiring": ["Amazon", "Google", "Flipkart", "Swiggy", "Uber"],
+    "certifications": [
+      "AWS Certified Data Engineer \u2013 Associate",
+      "Google Cloud Professional Data Engineer",
+      "Microsoft Certified: Azure Data Engineer Associate",
+      "Databricks Certified Data Engineer Associate"
+    ],
+    "demand_level": "Very high \u2014 industry hiring projections put India's additional data-professional requirement at 300,000+ by 2028.",
+    "salary_range": "India: ~\u20b95\u201310 LPA entry, \u20b912\u201332 LPA mid, \u20b919\u201380 LPA senior/AI-specialized. The data-engineer/data-scientist distinction is blurring in practice, with GenAI/LLM-adjacent specialists earning the most.",
+    "linked_projects": ["data-warehouse-elt", "realtime-flink-stream", "kv-store-lsm"]
+  }
+]

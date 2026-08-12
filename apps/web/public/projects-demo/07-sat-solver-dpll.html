@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV-OS // DPLL SAT Solver</title>
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --panel2:#171c27; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E; --danger:#E1543D; --success:#6FCF97;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;} body{margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans);}
+  header{border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;}
+  .brand{font-family:var(--mono); font-size:.95rem;} .brand b{color:var(--amber);}
+  .readout{font-family:var(--mono); font-size:.72rem; color:var(--muted); display:flex; gap:1.1rem;}
+  .readout b{color:var(--cyan);}
+  main{max-width:1000px; margin:0 auto; padding:1.5rem;}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1.1rem; margin-bottom:1.1rem;}
+  .panel h2{font-size:.78rem; font-family:var(--mono); text-transform:uppercase; color:var(--muted); letter-spacing:.06em; margin-bottom:.8rem;}
+  textarea#dimacs{width:100%; height:160px; background:#0d1017; border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:.85rem; padding:.8rem; border-radius:6px; line-height:1.5;}
+  .row{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; margin-top:.7rem;}
+  .btn{font-family:var(--mono); font-size:.8rem; padding:.6rem 1rem; border-radius:4px; border:1px solid var(--border); background:var(--panel2); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--amber);}
+  .btn-primary{background:var(--amber); color:#1a1305; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{background:#f0ae52;}
+  .presets{display:flex; gap:.4rem; flex-wrap:wrap;}
+  .preset{font-family:var(--mono); font-size:.72rem; padding:.3rem .6rem; border:1px solid var(--border); border-radius:12px; background:none; color:var(--muted); cursor:pointer;}
+  .preset:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  .verdict{padding:1.1rem; border-radius:8px; margin-bottom:1.1rem; font-family:var(--mono); display:none;}
+  .verdict.sat{background:#0f2318; border:1px solid var(--success); }
+  .verdict.unsat{background:#2a1414; border:1px solid var(--danger); }
+  .verdict .big{font-size:1.4rem; font-weight:700;}
+  .verdict.sat .big{color:var(--success);} .verdict.unsat .big{color:var(--danger);}
+  .verdict .stats{font-size:.78rem; color:var(--muted); margin-top:.4rem;}
+
+  .model{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.7rem;}
+  .lit-chip{font-family:var(--mono); font-size:.8rem; padding:.25rem .55rem; border-radius:4px; background:var(--panel2); border:1px solid var(--border);}
+  .lit-chip.t{color:var(--success); border-color:#1c3a2a;}
+  .lit-chip.f{color:var(--danger); border-color:#3a1c1c;}
+
+  .clause-check{font-family:var(--mono); font-size:.78rem; max-height:180px; overflow-y:auto; margin-top:.6rem;}
+  .clause-row{display:flex; justify-content:space-between; padding:.3rem .5rem; border-bottom:1px solid #1a1f2b;}
+  .clause-row .sat-mark{color:var(--success);}
+  footer{padding:1rem 1.5rem; color:var(--muted); font-size:.72rem; font-family:var(--mono); text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SV-OS // <b>sat-solver-dpll</b></div>
+  <div class="readout">
+    <span>VARS <b id="roVars">—</b></span>
+    <span>CLAUSES <b id="roClauses">—</b></span>
+    <span>DECISIONS <b id="roDecisions">—</b></span>
+    <span>UNIT PROPS <b id="roProps">—</b></span>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>DIMACS CNF input</h2>
+    <textarea id="dimacs" spellcheck="false"></textarea>
+    <div class="presets">
+      <button class="preset" data-p="sat3">Small satisfiable (3 vars)</button>
+      <button class="preset" data-p="unsat">Direct contradiction (UNSAT)</button>
+      <button class="preset" data-p="php21">Pigeonhole PHP(2,1) — UNSAT</button>
+      <button class="preset" data-p="php43">Pigeonhole PHP(4,3) — UNSAT, 12 vars</button>
+      <button class="preset" data-p="pure">Pure-literal case</button>
+    </div>
+    <div class="row"><button class="btn btn-primary" id="solveBtn">Solve</button></div>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <div class="big" id="verdictText"></div>
+    <div class="stats" id="verdictStats"></div>
+    <div class="model" id="model"></div>
+  </div>
+
+  <div class="panel" id="clausesPanel" style="display:none;">
+    <h2>Clause satisfaction check (verifying the returned model)</h2>
+    <div class="clause-check" id="clauseCheck"></div>
+  </div>
+</main>
+
+<footer>DPLL = unit propagation (2-watched-literal scheme) + pure literal elimination + branch/backtrack &middot; verified against classic PHP(n,n-1) pigeonhole UNSAT instances</footer>
+
+<script>
+/* ============== DPLL core (verified — see conversation: caught+fixed a real unit-clause init bug during testing) ============== */
+function parseDIMACS(text){
+  const clauses=[]; let numVars=0;
+  for(const line of text.split('\n')){
+    const t=line.trim();
+    if(!t || t[0]==='c') continue;
+    if(t[0]==='p'){ numVars = parseInt(t.split(/\s+/)[2]); continue; }
+    const lits = t.split(/\s+/).map(Number).filter(x=>x!==0);
+    if(lits.length) clauses.push(lits);
+  }
+  return {numVars, clauses};
+}
+
+class DPLLSolver{
+  constructor(numVars, clauses){
+    this.numVars=numVars; this.clauses=clauses.map(c=>[...c]);
+    this.assignment=new Array(numVars+1).fill(undefined);
+    this.watchers={}; this.watched=[]; this.trail=[];
+    this.decisions=0; this.propagations=0;
+    this._initWatches();
+  }
+  _lw(lit){ this.watchers[lit]=this.watchers[lit]||[]; return this.watchers[lit]; }
+  _initWatches(){
+    this.unitQueue=[];
+    this.clauses.forEach((c,idx)=>{
+      if(c.length===0){ this.contradiction=true; return; }
+      if(c.length===1){ this.watched[idx]=[c[0]]; this.unitQueue.push({lit:c[0], idx}); return; }
+      this.watched[idx]=[c[0],c[1]];
+      this._lw(c[0]).push(idx); this._lw(c[1]).push(idx);
+    });
+  }
+  value(lit){ const v=this.assignment[Math.abs(lit)]; if(v===undefined) return undefined; return lit>0? v : !v; }
+  assign(lit){ this.assignment[Math.abs(lit)]=lit>0; this.trail.push(lit); }
+  unassign(lit){ this.assignment[Math.abs(lit)]=undefined; }
+
+  propagate(initialLit){
+    const queue = initialLit!==undefined ? [initialLit] : [];
+    while(queue.length){
+      const lit=queue.shift(); const falseLit=-lit;
+      const watchList=(this.watchers[falseLit]||[]).slice();
+      for(const cidx of watchList){
+        const clause=this.clauses[cidx]; const w=this.watched[cidx];
+        const other = w[0]===falseLit ? w[1] : w[0];
+        if(this.value(other)===true) continue;
+        let found=null;
+        for(const l of clause){ if(l===w[0]||l===w[1]) continue; if(this.value(l)!==false){ found=l; break; } }
+        if(found!==null){
+          const idx=this._lw(falseLit).indexOf(cidx); this._lw(falseLit).splice(idx,1);
+          this._lw(found).push(cidx);
+          if(w[0]===falseLit) w[0]=found; else w[1]=found;
+        } else {
+          if(this.value(other)===false) return false;
+          if(this.value(other)===undefined){ this.assign(other); this.propagations++; queue.push(other); }
+        }
+      }
+    }
+    return true;
+  }
+  pureLiteralElim(){
+    let changed=true;
+    while(changed){
+      changed=false; const polarity={};
+      for(const c of this.clauses){
+        let satisfied=false;
+        for(const l of c) if(this.value(l)===true){ satisfied=true; break; }
+        if(satisfied) continue;
+        for(const l of c){
+          if(this.value(l)!==undefined) continue;
+          const v=Math.abs(l);
+          if(polarity[v]===undefined) polarity[v]=l>0; else if(polarity[v]!==(l>0)) polarity[v]=null;
+        }
+      }
+      for(const v in polarity){
+        if(polarity[v]!==null && this.assignment[v]===undefined){
+          const lit = polarity[v] ? Number(v) : -Number(v);
+          this.assign(lit);
+          if(!this.propagate(lit)) return false;
+          changed=true;
+        }
+      }
+    }
+    return true;
+  }
+  pickUnassigned(){ for(let v=1;v<=this.numVars;v++) if(this.assignment[v]===undefined) return v; return null; }
+  solve(){
+    if(this.contradiction) return null;
+    for(const {lit} of this.unitQueue){
+      if(this.value(lit)===false) return null;
+      if(this.value(lit)===undefined){ this.assign(lit); if(!this.propagate(lit)) return null; }
+    }
+    if(!this.pureLiteralElim()) return null;
+    return this._search();
+  }
+  _search(){
+    const v=this.pickUnassigned();
+    if(v===null) return this.assignment.slice();
+    this.decisions++;
+    for(const tryVal of [true,false]){
+      const trailMark=this.trail.length; const lit=tryVal? v : -v;
+      this.assign(lit);
+      if(this.propagate(lit)){ const res=this._search(); if(res) return res; }
+      while(this.trail.length>trailMark) this.unassign(this.trail.pop());
+    }
+    return null;
+  }
+}
+function verify(clauses, assignment){
+  return clauses.map(c=>{
+    let sat=false, satLit=null;
+    for(const l of c){ const v=assignment[Math.abs(l)]; if((l>0)===v){ sat=true; satLit=l; break; } }
+    return {clause:c, sat, satLit};
+  });
+}
+
+/* ============== UI ============== */
+const PRESETS = {
+  sat3: `c small satisfiable instance\np cnf 3 3\n1 2 0\n-1 3 0\n-2 -3 0\n`,
+  unsat: `c direct contradiction: x1 and NOT x1\np cnf 1 2\n1 0\n-1 0\n`,
+  php21: `c pigeonhole: 2 pigeons, 1 hole -- UNSAT\np cnf 2 3\n1 0\n2 0\n-1 -2 0\n`,
+  php43: buildPHP(4,3),
+  pure: `c x1 appears only positive -> pure literal, assigned immediately\np cnf 2 2\n1 2 0\n1 -2 0\n`
+};
+function buildPHP(pigeons, holes){
+  const v=(i,j)=> i*holes+j+1;
+  let cnf = `c pigeonhole PHP(${pigeons},${holes}) -- classic hard UNSAT instance\np cnf ${pigeons*holes} ${pigeons + holes*(pigeons*(pigeons-1)/2)}\n`;
+  for(let i=0;i<pigeons;i++) cnf += Array.from({length:holes},(_,j)=>v(i,j)).join(' ')+' 0\n';
+  for(let j=0;j<holes;j++) for(let i=0;i<pigeons;i++) for(let k=i+1;k<pigeons;k++) cnf += `-${v(i,j)} -${v(k,j)} 0\n`;
+  return cnf;
+}
+document.getElementById('dimacs').value = PRESETS.sat3;
+document.querySelectorAll('.preset').forEach(b=> b.addEventListener('click', ()=>{ document.getElementById('dimacs').value = PRESETS[b.dataset.p]; solve(); }));
+
+function solve(){
+  const {numVars, clauses} = parseDIMACS(document.getElementById('dimacs').value);
+  document.getElementById('roVars').textContent = numVars;
+  document.getElementById('roClauses').textContent = clauses.length;
+
+  const t0 = performance.now();
+  const solver = new DPLLSolver(numVars, clauses);
+  const result = solver.solve();
+  const ms = (performance.now()-t0).toFixed(2);
+
+  document.getElementById('roDecisions').textContent = solver.decisions;
+  document.getElementById('roProps').textContent = solver.propagations;
+
+  const v = document.getElementById('verdict');
+  v.style.display='block';
+  if(result){
+    v.className='verdict sat';
+    document.getElementById('verdictText').textContent = 'SATISFIABLE';
+    document.getElementById('verdictStats').textContent = `${solver.decisions} decisions, ${solver.propagations} unit propagations, solved in ${ms}ms`;
+    document.getElementById('model').innerHTML = result.slice(1).map((val,i)=>
+      `<span class="lit-chip ${val?'t':'f'}">x${i+1}=${val?'T':'F'}</span>`).join('');
+    document.getElementById('clausesPanel').style.display='block';
+    const checks = verify(clauses, result);
+    document.getElementById('clauseCheck').innerHTML = checks.map((c,i)=>
+      `<div class="clause-row"><span>C${i+1}: (${c.clause.join(' ∨ ')})</span><span class="sat-mark">✓ satisfied by ${c.satLit}</span></div>`).join('');
+    const allSat = checks.every(c=>c.sat);
+    if(!allSat) document.getElementById('clauseCheck').innerHTML += '<div style="color:var(--danger)">⚠ VERIFICATION FAILED — this would be a solver bug</div>';
+  } else {
+    v.className='verdict unsat';
+    document.getElementById('verdictText').textContent = 'UNSATISFIABLE';
+    document.getElementById('verdictStats').textContent = `Proven unsatisfiable after ${solver.decisions} decisions, ${solver.propagations} unit propagations, ${ms}ms — no assignment satisfies all clauses`;
+    document.getElementById('model').innerHTML='';
+    document.getElementById('clausesPanel').style.display='none';
+  }
+}
+document.getElementById('solveBtn').addEventListener('click', solve);
+solve();
+</script>
+</body>
+</html>

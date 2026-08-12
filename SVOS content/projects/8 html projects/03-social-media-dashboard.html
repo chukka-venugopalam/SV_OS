@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV-OS // Social Analytics Dashboard</title>
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --panel2:#171c27; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E; --danger:#E1543D; --success:#6FCF97;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;} body{margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans);}
+  header{border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;}
+  .brand{font-family:var(--mono); font-size:.95rem;} .brand b{color:var(--amber);}
+  .readout{font-family:var(--mono); font-size:.72rem; color:var(--muted); display:flex; gap:1.2rem;}
+  .readout b{color:var(--cyan);}
+
+  .filters{display:flex; gap:.6rem; padding:1rem 1.5rem; border-bottom:1px solid var(--border); align-items:center; flex-wrap:wrap;}
+  .filters label{font-family:var(--mono); font-size:.7rem; color:var(--muted); text-transform:uppercase; margin-right:.3rem;}
+  select, input[type=text]{background:var(--panel); border:1px solid var(--border); color:var(--text); padding:.45rem .6rem; border-radius:4px; font-family:var(--sans); font-size:.85rem;}
+  input:focus, select:focus{border-color:var(--amber); outline:none;}
+
+  main{padding:1.5rem; max-width:1200px; margin:0 auto;}
+  .cards{display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem;}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1rem;}
+  .card .label{font-family:var(--mono); font-size:.68rem; text-transform:uppercase; color:var(--muted); letter-spacing:.06em;}
+  .card .value{font-size:1.5rem; font-weight:700; margin:.3rem 0;}
+  .card .delta{font-family:var(--mono); font-size:.75rem;}
+  .delta.up{color:var(--success);} .delta.down{color:var(--danger);}
+  .card canvas{width:100%; height:36px; display:block; margin-top:.4rem;}
+  .skeleton{background:linear-gradient(90deg,#171c27,#1c2230,#171c27); background-size:200% 100%; animation:shimmer 1.2s infinite; border-radius:4px; height:1.5rem;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+  .charts{display:grid; grid-template-columns:2fr 1fr; gap:1rem; margin-bottom:1.5rem;}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1rem;}
+  .panel h3{font-size:.85rem; font-family:var(--mono); text-transform:uppercase; color:var(--muted); margin-bottom:.8rem; letter-spacing:.05em;}
+  #lineChart{width:100%; height:220px;}
+  #donutChart{width:100%; height:220px;}
+  .legend{display:flex; gap:1rem; margin-top:.6rem; flex-wrap:wrap; font-size:.78rem; font-family:var(--mono);}
+  .legend span{display:inline-flex; align-items:center; gap:.35rem;}
+  .swatch{width:9px; height:9px; border-radius:2px; display:inline-block;}
+
+  .table-panel{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1rem;}
+  .table-head{display:grid; grid-template-columns:90px 100px 1fr 90px 90px 90px; gap:.5rem; font-family:var(--mono); font-size:.7rem; text-transform:uppercase; color:var(--muted); padding:.4rem .6rem; border-bottom:1px solid var(--border);}
+  #vlist{position:relative; height:340px; overflow-y:auto;}
+  #vlist-spacer{position:absolute; top:0; left:0; width:1px;}
+  .row{position:absolute; left:0; right:0; display:grid; grid-template-columns:90px 100px 1fr 90px 90px 90px; gap:.5rem; padding:.5rem .6rem; font-size:.82rem; border-bottom:1px solid #1a1f2b; align-items:center;}
+  .row:hover{background:var(--panel2);}
+  .plat{font-family:var(--mono); font-size:.7rem; padding:.1rem .4rem; border-radius:3px; width:fit-content;}
+  .plat.instagram{background:#3a1f2e; color:#ff8fc0;}
+  .plat.youtube{background:#3a1414; color:#ff8080;}
+  .plat.twitter{background:#12283a; color:var(--cyan);}
+  .row .num{font-family:var(--mono); color:var(--muted);}
+
+  footer{padding:1rem 1.5rem; color:var(--muted); font-size:.75rem; font-family:var(--mono); text-align:center;}
+  @media (max-width:900px){ .cards{grid-template-columns:repeat(2,1fr);} .charts{grid-template-columns:1fr;} .table-head,.row{grid-template-columns:70px 80px 1fr 70px 70px 70px;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SV-OS // <b>social-analytics</b></div>
+  <div class="readout">
+    <span>POSTS <b id="roPosts">—</b></span>
+    <span>RANGE <b id="roRange">—</b></span>
+    <span>RENDERED ROWS <b id="roRows">—</b></span>
+  </div>
+</header>
+
+<div class="filters">
+  <label for="rangeSel">Range</label>
+  <select id="rangeSel">
+    <option value="7">Last 7 days</option>
+    <option value="30" selected>Last 30 days</option>
+    <option value="60">Last 60 days</option>
+  </select>
+  <label for="platSel">Platform</label>
+  <select id="platSel">
+    <option value="all">All platforms</option>
+    <option value="instagram">Instagram</option>
+    <option value="youtube">YouTube</option>
+    <option value="twitter">Twitter / X</option>
+  </select>
+  <label for="searchBox">Search</label>
+  <input type="text" id="searchBox" placeholder="Filter posts by title…">
+</div>
+
+<main>
+  <div class="cards" id="cards"></div>
+  <div class="charts">
+    <div class="panel">
+      <h3>7-day rolling engagement rate</h3>
+      <canvas id="lineChart"></canvas>
+    </div>
+    <div class="panel">
+      <h3>Engagement share by platform</h3>
+      <canvas id="donutChart"></canvas>
+      <div class="legend" id="donutLegend"></div>
+    </div>
+  </div>
+  <div class="table-panel">
+    <h3 style="font-family:var(--mono); font-size:.85rem; text-transform:uppercase; color:var(--muted); margin-bottom:.6rem;">Recent posts (virtualized — only visible rows exist in the DOM)</h3>
+    <div class="table-head"><span>Date</span><span>Platform</span><span>Title</span><span>Likes</span><span>Comments</span><span>Reach</span></div>
+    <div id="vlist"><div id="vlist-spacer"></div></div>
+  </div>
+</main>
+
+<footer>data is a seeded mock dataset · pub/sub bus rebroadcasts filter changes to every widget · rolling average uses an O(n) sliding-window sum</footer>
+
+<script>
+/* ================= Pub/Sub bus ================= */
+const bus = (()=>{
+  const subs = {};
+  return {
+    on(evt,fn){ (subs[evt]=subs[evt]||[]).push(fn); },
+    emit(evt,data){ (subs[evt]||[]).forEach(fn=>fn(data)); }
+  };
+})();
+
+/* ================= Seeded mock data ================= */
+function mulberry32(seed){ return function(){ let t=seed+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
+const rand = mulberry32(20260810);
+const PLATFORMS = ['instagram','youtube','twitter'];
+const DAYS = 60;
+const TITLES = ['Product update','Behind the scenes','Weekly recap','Tutorial drop','Community Q&A','Launch teaser','Milestone thread','Customer story','Feature deep-dive','Team spotlight'];
+
+// per-day per-platform aggregate metrics
+const daily = []; // {date, platform, likes, comments, shares, reach}
+const today = new Date();
+for(let d=DAYS-1; d>=0; d--){
+  const date = new Date(today); date.setDate(date.getDate()-d);
+  const iso = date.toISOString().slice(0,10);
+  PLATFORMS.forEach(p=>{
+    const base = p==='youtube'? 4000 : p==='instagram'? 2600 : 1400;
+    const reach = Math.round(base*(0.7+rand()*0.8));
+    const likes = Math.round(reach*(0.03+rand()*0.05));
+    const comments = Math.round(reach*(0.004+rand()*0.01));
+    const shares = Math.round(reach*(0.002+rand()*0.006));
+    daily.push({date:iso, platform:p, likes, comments, shares, reach});
+  });
+}
+// individual posts for the table (more granular, ~4/day across platforms)
+const posts = [];
+let pid=0;
+for(let d=DAYS-1; d>=0; d--){
+  const date = new Date(today); date.setDate(date.getDate()-d);
+  const iso = date.toISOString().slice(0,10);
+  const nPosts = 1+Math.floor(rand()*3);
+  for(let i=0;i<nPosts;i++){
+    const platform = PLATFORMS[Math.floor(rand()*PLATFORMS.length)];
+    const reach = Math.round(500+rand()*4000);
+    posts.push({
+      id: pid++, date: iso, platform,
+      title: TITLES[Math.floor(rand()*TITLES.length)] + ' #' + (pid),
+      likes: Math.round(reach*(0.02+rand()*0.06)),
+      comments: Math.round(reach*(0.003+rand()*0.012)),
+      reach
+    });
+  }
+}
+posts.sort((a,b)=> b.date.localeCompare(a.date));
+
+/* ================= Derived metrics ================= */
+// Sliding-window 7-day rolling engagement rate: O(n) via running sums, not O(n*w) recompute-per-window.
+function rollingEngagement(rows, platformFilter){
+  const byDate = {};
+  rows.forEach(r=>{
+    if(platformFilter!=='all' && r.platform!==platformFilter) return;
+    byDate[r.date] = byDate[r.date] || {likes:0, comments:0, shares:0, reach:0};
+    byDate[r.date].likes += r.likes; byDate[r.date].comments += r.comments;
+    byDate[r.date].shares += r.shares; byDate[r.date].reach += r.reach;
+  });
+  const dates = Object.keys(byDate).sort();
+  const engagementByDate = dates.map(d=>{
+    const v = byDate[d];
+    return v.reach ? (v.likes+v.comments+v.shares)/v.reach : 0;
+  });
+  const WINDOW = 7;
+  const out = [];
+  let windowSum = 0;
+  for(let i=0;i<engagementByDate.length;i++){
+    windowSum += engagementByDate[i];
+    if(i>=WINDOW) windowSum -= engagementByDate[i-WINDOW];
+    const count = Math.min(WINDOW, i+1);
+    out.push({date: dates[i], value: windowSum/count});
+  }
+  return out;
+}
+
+function currentStats(rangeDays, platformFilter){
+  const cutoff = new Date(today); cutoff.setDate(cutoff.getDate()-rangeDays);
+  const cutoffIso = cutoff.toISOString().slice(0,10);
+  const rows = daily.filter(r=> r.date>=cutoffIso && (platformFilter==='all'||r.platform===platformFilter));
+  const totals = rows.reduce((a,r)=>({likes:a.likes+r.likes,comments:a.comments+r.comments,shares:a.shares+r.shares,reach:a.reach+r.reach}), {likes:0,comments:0,shares:0,reach:0});
+  const engagementRate = totals.reach ? (totals.likes+totals.comments+totals.shares)/totals.reach : 0;
+
+  // growth %: compare reach in the most recent half of the range vs the prior half
+  const half = Math.floor(rangeDays/2) || 1;
+  const midCutoff = new Date(today); midCutoff.setDate(midCutoff.getDate()-half);
+  const midIso = midCutoff.toISOString().slice(0,10);
+  const recent = rows.filter(r=>r.date>=midIso).reduce((s,r)=>s+r.reach,0);
+  const prior = rows.filter(r=>r.date<midIso).reduce((s,r)=>s+r.reach,0);
+  const growth = prior ? ((recent-prior)/prior)*100 : 0;
+
+  const byPlatform = {};
+  PLATFORMS.forEach(p=>{
+    const pr = rows.filter(r=>r.platform===p);
+    byPlatform[p] = pr.reduce((s,r)=>s+r.likes+r.comments+r.shares,0);
+  });
+
+  return { totals, engagementRate, growth, byPlatform, rollingSeries: rollingEngagement(rows, platformFilter) };
+}
+
+/* ================= Canvas chart helpers (dependency-free) ================= */
+function fitCanvas(cv){
+  const dpr = window.devicePixelRatio||1;
+  const rect = cv.getBoundingClientRect();
+  cv.width = rect.width*dpr; cv.height = rect.height*dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr,dpr);
+  return {ctx, w:rect.width, h:rect.height};
+}
+function drawLine(cv, series, color){
+  if(!series.length) return;
+  const {ctx,w,h} = fitCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const pad = 24;
+  const vals = series.map(s=>s.value);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = (max-min)||1;
+  ctx.strokeStyle = '#232838'; ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){ const y=pad+(h-2*pad)*i/3; ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-8,y); ctx.stroke(); }
+  ctx.beginPath();
+  series.forEach((s,i)=>{
+    const x = pad + (w-pad-8)*(i/(series.length-1||1));
+    const y = h-pad - (h-2*pad)*((s.value-min)/range);
+    i===0? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color; ctx.lineWidth=2; ctx.stroke();
+  // fill under line
+  ctx.lineTo(w-8, h-pad); ctx.lineTo(pad, h-pad); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, color+'33'); grad.addColorStop(1, color+'00');
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.font='10px monospace'; ctx.fillStyle='#838C9E';
+  ctx.fillText((max*100).toFixed(1)+'%', 2, pad);
+  ctx.fillText((min*100).toFixed(1)+'%', 2, h-pad+4);
+}
+function drawSpark(cv, vals, color){
+  const {ctx,w,h} = fitCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  if(vals.length<2) return;
+  const min=Math.min(...vals), max=Math.max(...vals), range=(max-min)||1;
+  ctx.beginPath();
+  vals.forEach((v,i)=>{ const x=i/(vals.length-1)*w; const y=h-2-(h-4)*((v-min)/range); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
+}
+function drawDonut(cv, segments){
+  const {ctx,w,h} = fitCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const total = segments.reduce((s,x)=>s+x.value,0) || 1;
+  const cx=w/2, cy=h/2, r=Math.min(w,h)/2-10, inner=r*0.6;
+  let start=-Math.PI/2;
+  segments.forEach(seg=>{
+    const angle = (seg.value/total)*Math.PI*2;
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,start,start+angle);
+    ctx.arc(cx,cy,inner,start+angle,start,true);
+    ctx.closePath(); ctx.fillStyle=seg.color; ctx.fill();
+    start += angle;
+  });
+  ctx.fillStyle='#E7E9EE'; ctx.font='bold 15px monospace'; ctx.textAlign='center';
+  ctx.fillText(Math.round(total).toLocaleString(), cx, cy+5);
+  ctx.font='9px monospace'; ctx.fillStyle='#838C9E';
+  ctx.fillText('interactions', cx, cy+18);
+  ctx.textAlign='left';
+}
+
+/* ================= Widgets subscribed to bus ================= */
+const PLATFORM_COLOR = {instagram:'#ff8fc0', youtube:'#ff8080', twitter:'#5FD3D3'};
+
+function renderCards(stats){
+  const cards = document.getElementById('cards');
+  const totalInteractions = stats.totals.likes+stats.totals.comments+stats.totals.shares;
+  cards.innerHTML = `
+    <div class="card"><div class="label">Total Reach</div><div class="value">${stats.totals.reach.toLocaleString()}</div>
+      <div class="delta ${stats.growth>=0?'up':'down'}">${stats.growth>=0?'▲':'▼'} ${Math.abs(stats.growth).toFixed(1)}% vs prior period</div></div>
+    <div class="card"><div class="label">Engagement Rate</div><div class="value">${(stats.engagementRate*100).toFixed(2)}%</div>
+      <canvas id="sparkEng"></canvas></div>
+    <div class="card"><div class="label">Total Interactions</div><div class="value">${totalInteractions.toLocaleString()}</div>
+      <div class="delta" style="color:var(--muted)">likes + comments + shares</div></div>
+    <div class="card"><div class="label">Top Platform</div><div class="value" style="text-transform:capitalize">${Object.entries(stats.byPlatform).sort((a,b)=>b[1]-a[1])[0][0]}</div>
+      <canvas id="sparkTop"></canvas></div>`;
+  requestAnimationFrame(()=>{
+    drawSpark(document.getElementById('sparkEng'), stats.rollingSeries.map(s=>s.value), '#E8A33D');
+    const topPlat = Object.entries(stats.byPlatform).sort((a,b)=>b[1]-a[1])[0][0];
+    const series = daily.filter(r=>r.platform===topPlat).slice(-14).map(r=>r.likes+r.comments+r.shares);
+    drawSpark(document.getElementById('sparkTop'), series, PLATFORM_COLOR[topPlat]);
+  });
+}
+
+function renderLineChart(stats){ drawLine(document.getElementById('lineChart'), stats.rollingSeries, '#E8A33D'); }
+
+function renderDonut(stats){
+  const segs = PLATFORMS.map(p=>({label:p, value:stats.byPlatform[p], color:PLATFORM_COLOR[p]}));
+  drawDonut(document.getElementById('donutChart'), segs);
+  document.getElementById('donutLegend').innerHTML = segs.map(s=>
+    `<span><span class="swatch" style="background:${s.color}"></span>${s.label} — ${s.value.toLocaleString()}</span>`).join('');
+}
+
+/* ================= Virtualized table ================= */
+const ROW_H = 41;
+let filteredPosts = posts;
+function renderTable(){
+  const vlist = document.getElementById('vlist');
+  document.getElementById('vlist-spacer').style.height = (filteredPosts.length*ROW_H)+'px';
+  // clear existing rows
+  vlist.querySelectorAll('.row').forEach(r=>r.remove());
+  const scrollTop = vlist.scrollTop;
+  const viewH = vlist.clientHeight;
+  const startIdx = Math.max(0, Math.floor(scrollTop/ROW_H)-3);
+  const endIdx = Math.min(filteredPosts.length, Math.ceil((scrollTop+viewH)/ROW_H)+3);
+  for(let i=startIdx;i<endIdx;i++){
+    const p = filteredPosts[i];
+    const row = document.createElement('div');
+    row.className='row'; row.style.top=(i*ROW_H)+'px'; row.style.height=ROW_H+'px';
+    row.innerHTML = `<span class="num">${p.date}</span><span><span class="plat ${p.platform}">${p.platform}</span></span>
+      <span>${p.title}</span><span class="num">${p.likes.toLocaleString()}</span><span class="num">${p.comments.toLocaleString()}</span><span class="num">${p.reach.toLocaleString()}</span>`;
+    vlist.appendChild(row);
+  }
+  document.getElementById('roRows').textContent = `${endIdx-startIdx} / ${filteredPosts.length}`;
+}
+document.getElementById('vlist').addEventListener('scroll', renderTable);
+
+/* ================= Debounce ================= */
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+
+/* ================= Wire filters -> bus -> widgets ================= */
+function applyFilters(){
+  const range = parseInt(document.getElementById('rangeSel').value);
+  const plat = document.getElementById('platSel').value;
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+
+  const cutoff = new Date(today); cutoff.setDate(cutoff.getDate()-range);
+  const cutoffIso = cutoff.toISOString().slice(0,10);
+  filteredPosts = posts.filter(p => p.date>=cutoffIso && (plat==='all'||p.platform===plat) && (!q || p.title.toLowerCase().includes(q)));
+
+  document.getElementById('roPosts').textContent = filteredPosts.length;
+  document.getElementById('roRange').textContent = range+'d';
+  renderTable();
+
+  bus.emit('filters:changed', currentStats(range, plat));
+}
+bus.on('filters:changed', renderCards);
+bus.on('filters:changed', renderLineChart);
+bus.on('filters:changed', renderDonut);
+
+document.getElementById('rangeSel').addEventListener('change', applyFilters);
+document.getElementById('platSel').addEventListener('change', applyFilters);
+document.getElementById('searchBox').addEventListener('input', debounce(applyFilters, 250));
+window.addEventListener('resize', debounce(applyFilters, 200));
+
+applyFilters();
+</script>
+</body>
+</html>

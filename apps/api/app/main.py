@@ -664,6 +664,190 @@ def create_app() -> FastAPI:
                 'timestamp': datetime.now(UTC).isoformat(),
             }
 
+    @app.get('/debug/sync-all-projects', include_in_schema=False)
+    async def debug_sync_all_projects() -> dict:
+        """Fast direct DB sync of all 34 projects from all_34_projects.json."""
+        import json
+        from pathlib import Path
+
+        from sqlalchemy import select
+        from sqlalchemy.orm.attributes import flag_modified
+
+        from app.core.database import async_session_factory
+        from app.models.enums import Difficulty
+        from app.models.project import Project
+
+        curr = Path(__file__).resolve()
+        json_path = None
+        for p in [curr, *list(curr.parents)]:
+            candidate = p / 'knowledge' / 'imports' / 'all_34_projects.json'
+            if candidate.exists():
+                json_path = candidate
+                break
+
+        if not json_path:
+            return {'success': False, 'message': 'JSON file not found'}
+
+        with open(json_path, encoding='utf-8') as f:
+            projects_list = json.load(f)
+
+        updated_count = 0
+        created_count = 0
+
+        difficulty_map = {
+            'beginner': Difficulty.BEGINNER,
+            'intermediate': Difficulty.INTERMEDIATE,
+            'advanced': Difficulty.ADVANCED,
+            'expert': Difficulty.EXPERT,
+        }
+
+        async with async_session_factory() as session:
+            stmt = select(Project)
+            res = await session.execute(stmt)
+            existing_projects = {p.slug: p for p in res.scalars().all()}
+
+            for item in projects_list:
+                slug = item['slug']
+                existing = existing_projects.get(slug)
+                raw_diff = str(item.get('difficulty')).lower()
+                diff_enum = difficulty_map.get(raw_diff, Difficulty.INTERMEDIATE)
+
+                meta = {
+                    'architecture_overview': item.get('architecture_overview', ''),
+                    'linked_node_explanations': item.get('linked_node_explanations', []),
+                    'milestones': item.get('milestones', []),
+                    'reference_repos': item.get('reference_repos', []),
+                    'demo_url': item.get('demo_url'),
+                }
+
+                if existing:
+                    existing.title = item.get('title', existing.title)
+                    existing.description = item.get('description', existing.description)
+                    existing.difficulty = diff_enum
+                    existing.estimated_hours = item.get('estimated_hours', existing.estimated_hours)
+                    existing.tech_stack = item.get('tech_stack', existing.tech_stack)
+                    existing.extra_metadata = meta
+                    flag_modified(existing, 'extra_metadata')
+                    updated_count += 1
+                else:
+                    new_proj = Project(
+                        slug=slug,
+                        title=item.get('title'),
+                        description=item.get('description', ''),
+                        difficulty=diff_enum,
+                        estimated_hours=item.get('estimated_hours', 10),
+                        tech_stack=item.get('tech_stack', []),
+                        extra_metadata=meta,
+                        is_published=True,
+                    )
+                    session.add(new_proj)
+                    created_count += 1
+
+            await session.commit()
+
+        return {
+            'success': True,
+            'message': f'Synced 34 projects (Upd: {updated_count}, New: {created_count})',
+            'timestamp': datetime.now(UTC).isoformat(),
+        }
+
+    @app.get('/debug/sync-all-careers', include_in_schema=False)
+    async def debug_sync_all_careers() -> dict:
+        """Fast direct DB sync of all 12 careers from all_12_careers.json."""
+        import json
+        from pathlib import Path
+
+        from sqlalchemy import select
+        from sqlalchemy.orm.attributes import flag_modified
+
+        from app.core.database import async_session_factory
+        from app.models.career import Career
+        from app.models.enums import DemandLevel
+
+        curr = Path(__file__).resolve()
+        json_path = None
+        for p in [curr, *list(curr.parents)]:
+            candidate = p / 'knowledge' / 'imports' / 'all_12_careers.json'
+            if candidate.exists():
+                json_path = candidate
+                break
+
+        if not json_path:
+            return {'success': False, 'message': 'JSON file not found'}
+
+        with open(json_path, encoding='utf-8') as f:
+            careers_list = json.load(f)
+
+        updated_count = 0
+        created_count = 0
+
+        demand_map = {
+            'high': DemandLevel.HIGH,
+            'growing': DemandLevel.GROWING,
+            'stable': DemandLevel.STABLE,
+            'niche': DemandLevel.NICHE,
+        }
+
+        def title_to_slug(t: str) -> str:
+            return t.lower().replace(' ', '-').replace('/', '-').replace('&', 'and')
+
+        async with async_session_factory() as session:
+            res1 = await session.execute(select(Career))
+            existing_careers_by_title = {c.title.lower(): c for c in res1.scalars().all()}
+
+            res2 = await session.execute(select(Career))
+            existing_careers_by_slug = {c.slug.lower(): c for c in res2.scalars().all()}
+
+            for item in careers_list:
+                raw_title = item.get('title', '')
+                slug = item.get('slug') or title_to_slug(raw_title)
+
+                by_t = existing_careers_by_title.get(raw_title.lower())
+                by_s = existing_careers_by_slug.get(slug.lower())
+                existing = by_t or by_s
+                demand_raw = str(item.get('demand_level', '')).lower()
+                demand_enum = DemandLevel.GROWING
+                for d_k, d_v in demand_map.items():
+                    if d_k in demand_raw:
+                        demand_enum = d_v
+                        break
+
+                meta = {
+                    'companies_hiring': item.get('companies_hiring', []),
+                    'certifications': item.get('certifications', []),
+                    'salary_range': item.get('salary_range'),
+                    'linked_projects': item.get('linked_projects', []),
+                }
+
+                if existing:
+                    existing.title = raw_title
+                    existing.description = item.get('description', existing.description)
+                    existing.average_salary = item.get('salary_range', existing.average_salary)
+                    existing.demand_level = demand_enum
+                    existing.extra_metadata = meta
+                    flag_modified(existing, 'extra_metadata')
+                    updated_count += 1
+                else:
+                    new_career = Career(
+                        slug=slug,
+                        title=raw_title,
+                        description=item.get('description', ''),
+                        average_salary=item.get('salary_range'),
+                        demand_level=demand_enum,
+                        extra_metadata=meta,
+                        is_published=True,
+                    )
+                    session.add(new_career)
+                    created_count += 1
+
+            await session.commit()
+
+        return {
+            'success': True,
+            'message': f'Synced 12 careers (Upd: {updated_count}, New: {created_count})',
+            'timestamp': datetime.now(UTC).isoformat(),
+        }
+
     return app
 
 

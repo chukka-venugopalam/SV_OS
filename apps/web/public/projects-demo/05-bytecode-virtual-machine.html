@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV-OS // Bytecode VM</title>
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --panel2:#171c27; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E; --danger:#E1543D; --success:#6FCF97;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;} body{margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans);}
+  header{border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;}
+  .brand{font-family:var(--mono); font-size:.95rem;} .brand b{color:var(--amber);}
+  .readout{font-family:var(--mono); font-size:.72rem; color:var(--muted); display:flex; gap:1.1rem;}
+  .readout b{color:var(--cyan);}
+  .readout .halted b{color:var(--danger);}
+
+  main{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); min-height:calc(100vh - 57px);}
+  .pane{background:var(--bg); padding:1rem; overflow:auto;}
+  .pane h3{font-family:var(--mono); font-size:.72rem; text-transform:uppercase; color:var(--muted); letter-spacing:.06em; margin-bottom:.6rem;}
+
+  textarea#src{width:100%; height:280px; background:var(--panel); border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:.82rem; padding:.8rem; border-radius:6px; resize:vertical; line-height:1.5;}
+  .toolbar{display:flex; gap:.5rem; margin:.7rem 0; flex-wrap:wrap;}
+  select{background:var(--panel); border:1px solid var(--border); color:var(--text); padding:.5rem .6rem; border-radius:4px; font-family:var(--mono); font-size:.78rem;}
+  .btn{font-family:var(--mono); font-size:.8rem; padding:.5rem .9rem; border-radius:4px; border:1px solid var(--border); background:var(--panel2); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--amber);}
+  .btn-primary{background:var(--amber); color:#1a1305; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{background:#f0ae52;}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  .console{background:#08090d; border:1px solid var(--border); border-radius:6px; padding:.8rem; font-family:var(--mono); font-size:.82rem; height:110px; overflow-y:auto; white-space:pre-wrap;}
+  .console .out{color:var(--success);}
+  .console .err{color:var(--danger);}
+  .console .info{color:var(--muted);}
+
+  .state-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-bottom:1rem;}
+  .stat{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:.6rem .7rem;}
+  .stat .l{font-family:var(--mono); font-size:.65rem; text-transform:uppercase; color:var(--muted);}
+  .stat .v{font-family:var(--mono); font-size:1.1rem; color:var(--cyan); margin-top:.2rem;}
+
+  .stack-view{display:flex; gap:.4rem; flex-wrap:wrap; min-height:2.2rem;}
+  .stack-cell{background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:.3rem .6rem; font-family:var(--mono); font-size:.85rem; color:var(--cyan);}
+  .stack-cell.top{border-color:var(--amber); color:var(--amber);}
+
+  .disasm{font-family:var(--mono); font-size:.76rem; line-height:1.7; background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:.7rem; max-height:220px; overflow-y:auto;}
+  .disasm .line{padding:.1rem .3rem; border-radius:3px; white-space:pre;}
+  .disasm .line.active{background:rgba(232,163,61,.15); color:var(--amber);}
+  .disasm .addr{color:var(--muted); margin-right:.6rem;}
+
+  .frames{font-family:var(--mono); font-size:.78rem; color:var(--muted);}
+  .frame{background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:.4rem .6rem; margin-bottom:.3rem;}
+  footer{padding:.8rem 1.5rem; color:var(--muted); font-size:.72rem; font-family:var(--mono); text-align:center; border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SV-OS // <b>bytecode-vm</b></div>
+  <div class="readout" id="readout">
+    <span>PC <b id="roPc">0</b></span>
+    <span>STEPS <b id="roSteps">0</b></span>
+    <span>STACK DEPTH <b id="roDepth">0</b></span>
+    <span>CALL DEPTH <b id="roCallDepth">0</b></span>
+    <span id="roHalted">RUNNING</span>
+  </div>
+</header>
+
+<main>
+  <div class="pane">
+    <h3>Assembly source</h3>
+    <div class="toolbar">
+      <select id="examples">
+        <option value="arith">(3+4)*2</option>
+        <option value="factorial" selected>Recursive factorial(6)</option>
+        <option value="loop">Loop sum 1..10</option>
+      </select>
+      <button class="btn" id="loadBtn">Load</button>
+    </div>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div class="toolbar">
+      <button class="btn btn-primary" id="assembleBtn">Assemble</button>
+      <button class="btn" id="runBtn" disabled>Run</button>
+      <button class="btn" id="stepBtn" disabled>Step</button>
+      <button class="btn" id="resetBtn" disabled>Reset</button>
+    </div>
+    <h3>Console output</h3>
+    <div class="console" id="console"></div>
+  </div>
+
+  <div class="pane">
+    <h3>Live VM state</h3>
+    <div class="state-grid">
+      <div class="stat"><div class="l">Opcode</div><div class="v" id="curOp">—</div></div>
+      <div class="stat"><div class="l">Locals[0..3]</div><div class="v" id="curLocals" style="font-size:.8rem;">—</div></div>
+      <div class="stat"><div class="l">Globals used</div><div class="v" id="curGlobals" style="font-size:.8rem;">—</div></div>
+    </div>
+    <h3>Operand stack (top → right, amber = top)</h3>
+    <div class="stack-view" id="stackView"></div>
+    <h3 style="margin-top:1rem;">Call stack (activation records)</h3>
+    <div class="frames" id="framesView">— empty —</div>
+    <h3 style="margin-top:1rem;">Disassembly</h3>
+    <div class="disasm" id="disasm">assemble a program to see bytecode</div>
+  </div>
+</main>
+
+<footer>opcode table: NOP PUSH POP DUP SWAP · ADD SUB MUL DIV MOD NEG · EQ LT GT LE GE NE · JMP JZ JNZ · LOAD STORE GLOAD GSTORE · CALL RET PRINT HALT — fixed-width operands, packed Uint8Array bytecode</footer>
+
+<script>
+/* ============== Opcode table (verified core — see conversation for standalone test suite) ============== */
+const OP = { NOP:0, PUSH:1, POP:2, DUP:3, SWAP:4, ADD:5, SUB:6, MUL:7, DIV:8, MOD:9, NEG:10,
+  EQ:11, LT:12, GT:13, LE:14, GE:15, NE:16, AND:17, OR:18, NOT:19,
+  JMP:20, JZ:21, JNZ:22, LOAD:23, STORE:24, GLOAD:25, GSTORE:26, CALL:27, RET:28, PRINT:29, HALT:30 };
+const OPERAND_WIDTH = { PUSH:4, JMP:4, JZ:4, JNZ:4, LOAD:1, STORE:1, GLOAD:2, GSTORE:2, CALL:5 };
+const NAME = Object.fromEntries(Object.entries(OP).map(([k,v])=>[v,k]));
+
+class Assembler{
+  assemble(src){
+    const rawLines = src.split('\n').map(l=>l.split(';')[0].trim()).filter(Boolean);
+    const labels = {}; let addr=0; const instrs=[];
+    for(const line of rawLines){
+      if(line.endsWith(':')){ labels[line.slice(0,-1)] = addr; continue; }
+      const [mnem, ...rest] = line.split(/\s+/);
+      const op = OP[mnem];
+      if(op===undefined) throw new Error('Unknown mnemonic: '+mnem);
+      const width = OPERAND_WIDTH[mnem]||0;
+      instrs.push({mnem, op, arg: rest.join(' '), addr, width});
+      addr += 1+width;
+    }
+    const buf = new Uint8Array(addr);
+    const dv = new DataView(buf.buffer);
+    for(const ins of instrs){
+      dv.setUint8(ins.addr, ins.op);
+      if(ins.mnem==='CALL'){
+        const [target, argc] = ins.arg.split(/\s+/);
+        const t = labels[target] !== undefined ? labels[target] : parseInt(target);
+        if(Number.isNaN(t)) throw new Error('Unknown label: '+target);
+        dv.setUint32(ins.addr+1, t, true); dv.setUint8(ins.addr+5, parseInt(argc));
+      } else if(ins.width===4){
+        let v = labels[ins.arg] !== undefined ? labels[ins.arg] : parseInt(ins.arg);
+        if(Number.isNaN(v)) throw new Error('Unknown label: '+ins.arg);
+        dv.setInt32(ins.addr+1, v, true);
+      } else if(ins.width===2){ dv.setUint16(ins.addr+1, parseInt(ins.arg), true); }
+      else if(ins.width===1){ dv.setUint8(ins.addr+1, parseInt(ins.arg)); }
+    }
+    return buf;
+  }
+}
+
+function disassemble(buf){
+  const dv = new DataView(buf.buffer);
+  let pc=0; const out=[];
+  while(pc<buf.length){
+    const op = buf[pc]; const mnem = NAME[op]; const width = OPERAND_WIDTH[mnem]||0;
+    let arg='';
+    if(mnem==='CALL') arg = `${dv.getUint32(pc+1,true)} argc=${dv.getUint8(pc+5)}`;
+    else if(width===4) arg = dv.getInt32(pc+1,true);
+    else if(width===2) arg = dv.getUint16(pc+1,true);
+    else if(width===1) arg = dv.getUint8(pc+1);
+    out.push({addr:pc, text:`${mnem}${arg!==''?' '+arg:''}`});
+    pc += 1+width;
+  }
+  return out;
+}
+
+class VM{
+  constructor(buf){
+    this.buf=buf; this.dv=new DataView(buf.buffer);
+    this.pc=0; this.stack=[]; this.callStack=[]; this.globals=new Array(64).fill(0);
+    this.locals=new Array(16).fill(0);
+    this.output=[]; this.steps=0; this.halted=false; this.error=null;
+  }
+  step(){
+    if(this.halted||this.error) return false;
+    try{
+      const op = this.buf[this.pc]; const mnem=NAME[op];
+      if(mnem===undefined) throw new Error('Bad opcode '+op+' at '+this.pc);
+      const width = OPERAND_WIDTH[mnem]||0;
+      let arg;
+      if(mnem==='CALL'){ arg = {addr:this.dv.getUint32(this.pc+1,true), argc:this.dv.getUint8(this.pc+5)}; }
+      else if(width===4) arg=this.dv.getInt32(this.pc+1,true);
+      else if(width===2) arg=this.dv.getUint16(this.pc+1,true);
+      else if(width===1) arg=this.dv.getUint8(this.pc+1);
+      const next = this.pc+1+width;
+      this.steps++; this.lastOp = mnem;
+      switch(op){
+        case OP.NOP: this.pc=next; break;
+        case OP.PUSH: this.stack.push(arg); this.pc=next; break;
+        case OP.POP: this.stack.pop(); this.pc=next; break;
+        case OP.DUP: this.stack.push(this.stack[this.stack.length-1]); this.pc=next; break;
+        case OP.SWAP: { const a=this.stack.pop(), b=this.stack.pop(); this.stack.push(a,b); this.pc=next; break; }
+        case OP.ADD: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a+b); this.pc=next; break; }
+        case OP.SUB: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a-b); this.pc=next; break; }
+        case OP.MUL: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a*b); this.pc=next; break; }
+        case OP.DIV: { const b=this.stack.pop(),a=this.stack.pop(); if(b===0) throw new Error('division by zero'); this.stack.push(Math.trunc(a/b)); this.pc=next; break; }
+        case OP.MOD: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a%b); this.pc=next; break; }
+        case OP.NEG: this.stack.push(-this.stack.pop()); this.pc=next; break;
+        case OP.EQ: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a===b?1:0); this.pc=next; break; }
+        case OP.LT: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a<b?1:0); this.pc=next; break; }
+        case OP.GT: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a>b?1:0); this.pc=next; break; }
+        case OP.LE: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a<=b?1:0); this.pc=next; break; }
+        case OP.GE: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a>=b?1:0); this.pc=next; break; }
+        case OP.NE: { const b=this.stack.pop(),a=this.stack.pop(); this.stack.push(a!==b?1:0); this.pc=next; break; }
+        case OP.JMP: this.pc=arg; break;
+        case OP.JZ: { const v=this.stack.pop(); this.pc = v===0? arg : next; break; }
+        case OP.JNZ: { const v=this.stack.pop(); this.pc = v!==0? arg : next; break; }
+        case OP.LOAD: this.stack.push(this.locals[arg]); this.pc=next; break;
+        case OP.STORE: this.locals[arg]=this.stack.pop(); this.pc=next; break;
+        case OP.GLOAD: this.stack.push(this.globals[arg]); this.pc=next; break;
+        case OP.GSTORE: this.globals[arg]=this.stack.pop(); this.pc=next; break;
+        case OP.CALL: {
+          const args=[]; for(let i=0;i<arg.argc;i++) args.unshift(this.stack.pop());
+          this.callStack.push({returnAddr: next, savedLocals: this.locals, calledAt:this.pc});
+          this.locals = new Array(16).fill(0);
+          args.forEach((v,i)=>this.locals[i]=v);
+          this.pc = arg.addr; break;
+        }
+        case OP.RET: {
+          if(this.callStack.length===0) throw new Error('RET with empty call stack');
+          const retVal = this.stack.pop();
+          const frame = this.callStack.pop();
+          this.locals = frame.savedLocals; this.pc = frame.returnAddr;
+          this.stack.push(retVal); break;
+        }
+        case OP.PRINT: this.output.push(this.stack[this.stack.length-1]); this.pc=next; break;
+        case OP.HALT: this.halted=true; break;
+        default: throw new Error('Unhandled opcode '+op);
+      }
+    }catch(e){ this.error = e.message; return false; }
+    return !this.halted;
+  }
+}
+
+/* ============== UI wiring ============== */
+const EXAMPLES = {
+  arith: `; (3+4)*2\nPUSH 3\nPUSH 4\nADD\nPUSH 2\nMUL\nPRINT\nHALT`,
+  factorial: `; recursive factorial(6) via CALL/RET activation records\nPUSH 6\nCALL fact 1\nPRINT\nHALT\nfact:\n  LOAD 0\n  PUSH 1\n  LE\n  JZ recurse\n  PUSH 1\n  RET\nrecurse:\n  LOAD 0\n  LOAD 0\n  PUSH 1\n  SUB\n  CALL fact 1\n  MUL\n  RET`,
+  loop: `; sum 1..10 via JMP/JZ loop\nPUSH 0\nSTORE 0\nPUSH 1\nSTORE 1\nloop:\n  LOAD 1\n  PUSH 10\n  GT\n  JNZ done\n  LOAD 0\n  LOAD 1\n  ADD\n  STORE 0\n  LOAD 1\n  PUSH 1\n  ADD\n  STORE 1\n  JMP loop\ndone:\n  LOAD 0\n  PRINT\n  HALT`
+};
+document.getElementById('src').value = EXAMPLES.factorial;
+document.getElementById('examples').addEventListener('change', e=>{});
+document.getElementById('loadBtn').addEventListener('click', ()=>{
+  document.getElementById('src').value = EXAMPLES[document.getElementById('examples').value];
+});
+
+let vm=null, bytecode=null, disasmLines=[];
+function logConsole(msg, cls=''){
+  const c = document.getElementById('console');
+  const div = document.createElement('div'); if(cls) div.className=cls; div.textContent = msg;
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
+}
+
+document.getElementById('assembleBtn').addEventListener('click', ()=>{
+  document.getElementById('console').innerHTML='';
+  try{
+    bytecode = new Assembler().assemble(document.getElementById('src').value);
+    disasmLines = disassemble(bytecode);
+    vm = new VM(bytecode);
+    logConsole(`assembled ${bytecode.length} bytes, ${disasmLines.length} instructions`, 'info');
+    renderDisasm(); renderState();
+    document.getElementById('runBtn').disabled=false;
+    document.getElementById('stepBtn').disabled=false;
+    document.getElementById('resetBtn').disabled=false;
+  }catch(e){
+    logConsole('Assembler error: '+e.message, 'err');
+  }
+});
+
+document.getElementById('stepBtn').addEventListener('click', ()=>{
+  if(!vm) return;
+  const running = vm.step();
+  renderState();
+  if(vm.error) logConsole('Runtime error: '+vm.error, 'err');
+  if(!running && !vm.error) finish();
+});
+
+document.getElementById('runBtn').addEventListener('click', ()=>{
+  if(!vm) return;
+  let guard=0;
+  while(vm.step() && guard++<100000){}
+  renderState();
+  if(vm.error) logConsole('Runtime error: '+vm.error, 'err');
+  else finish();
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  vm = new VM(bytecode); document.getElementById('console').innerHTML='';
+  renderState();
+});
+
+function finish(){
+  if(vm.output.length) logConsole('PRINT → '+vm.output.join(', '), 'out');
+  logConsole(`halted after ${vm.steps} steps`, 'info');
+}
+
+function renderDisasm(){
+  const el = document.getElementById('disasm');
+  el.innerHTML = disasmLines.map(l=>`<div class="line" data-addr="${l.addr}"><span class="addr">${String(l.addr).padStart(4,'0')}</span>${l.text}</div>`).join('');
+}
+function renderState(){
+  if(!vm) return;
+  document.getElementById('roPc').textContent = vm.pc;
+  document.getElementById('roSteps').textContent = vm.steps;
+  document.getElementById('roDepth').textContent = vm.stack.length;
+  document.getElementById('roCallDepth').textContent = vm.callStack.length;
+  document.getElementById('roHalted').textContent = vm.error? 'ERROR' : vm.halted? 'HALTED' : 'RUNNING';
+  document.getElementById('roHalted').parentElement.classList.toggle('halted', !!(vm.error||vm.halted));
+  document.getElementById('curOp').textContent = vm.lastOp || '—';
+  document.getElementById('curLocals').textContent = vm.locals.slice(0,4).join(', ');
+  document.getElementById('curGlobals').textContent = vm.globals.slice(0,4).join(', ');
+
+  document.getElementById('stackView').innerHTML = vm.stack.length
+    ? vm.stack.map((v,i)=>`<div class="stack-cell ${i===vm.stack.length-1?'top':''}">${v}</div>`).join('')
+    : '<span style="color:var(--muted); font-family:monospace; font-size:.8rem;">empty</span>';
+
+  document.getElementById('framesView').innerHTML = vm.callStack.length
+    ? vm.callStack.map((f,i)=>`<div class="frame">frame ${i}: called at pc=${f.calledAt}, returns to pc=${f.returnAddr}</div>`).join('')
+    : '— empty —';
+
+  document.querySelectorAll('.disasm .line').forEach(l=> l.classList.toggle('active', Number(l.dataset.addr)===vm.pc));
+}
+
+// auto-assemble the default example on load
+document.getElementById('assembleBtn').click();
+</script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aditya Rao — Full-Stack Developer</title>
+<meta name="description" content="Portfolio of Aditya Rao, full-stack developer.">
+<meta property="og:title" content="Aditya Rao — Full-Stack Developer">
+<meta property="og:description" content="Full-stack developer building fast, accessible web products.">
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --space-1:.5rem; --space-2:1rem; --space-3:1.5rem; --space-4:2.5rem; --space-5:4rem;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased;}
+  img{max-width:100%; display:block; height:auto;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--amber); outline-offset:3px;}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 var(--space-3);}
+  .eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--amber);}
+
+  header.nav{position:sticky; top:0; z-index:50; background:rgba(11,14,20,.85); backdrop-filter:blur(8px); border-bottom:1px solid var(--border);}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:var(--space-2) var(--space-3); max-width:1040px; margin:0 auto;}
+  .nav-brand{font-family:var(--mono); font-weight:600; letter-spacing:.02em;}
+  .nav-links{display:flex; gap:var(--space-3); list-style:none; font-size:.9rem;}
+  .nav-links a{text-decoration:none; color:var(--muted); transition:color .15s;}
+  .nav-links a.active, .nav-links a:hover{color:var(--amber);}
+  .nav-toggle{display:none; background:none; border:1px solid var(--border); color:var(--text); border-radius:4px; padding:.4rem .6rem; font-size:1rem;}
+
+  section{padding:var(--space-5) 0; opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease;}
+  section.visible{opacity:1; transform:translateY(0);}
+
+  .hero{min-height:78vh; display:flex; flex-direction:column; justify-content:center; padding-top:var(--space-5);}
+  .hero h1{font-size:clamp(2.2rem, 5vw, 3.6rem); font-weight:700; letter-spacing:-.02em; margin:var(--space-2) 0;}
+  .hero .accent{color:var(--amber);}
+  .hero p{max-width:52ch; color:var(--muted); font-size:1.05rem;}
+  .hero-cta{display:flex; gap:var(--space-2); margin-top:var(--space-4); flex-wrap:wrap;}
+  .btn{font-family:var(--mono); font-size:.85rem; letter-spacing:.02em; padding:.75rem 1.3rem; border-radius:4px; text-decoration:none; border:1px solid var(--border); transition:border-color .15s, background .15s;}
+  .btn-primary{background:var(--amber); color:#1a1305; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{background:#f0ae52;}
+  .btn-ghost{color:var(--text);}
+  .btn-ghost:hover{border-color:var(--amber); color:var(--amber);}
+
+  h2.section-title{font-size:1.5rem; margin-top:var(--space-1); margin-bottom:var(--space-4);}
+
+  .grid-projects{display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-3);}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:var(--space-3); display:flex; flex-direction:column; gap:.6rem;}
+  .card h3{font-size:1.1rem;}
+  .card p{color:var(--muted); font-size:.92rem;}
+  .tag-row{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.4rem;}
+  .tag{font-family:var(--mono); font-size:.7rem; color:var(--cyan); border:1px solid #1d3a3a; background:#0f1c1c; padding:.2rem .5rem; border-radius:3px;}
+  .card-links{display:flex; gap:var(--space-2); margin-top:.6rem; font-size:.85rem;}
+  .card-links a{color:var(--amber); text-decoration:none;}
+  .card-links a:hover{text-decoration:underline;}
+
+  .skills-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-2);}
+  .skill-group h4{font-family:var(--mono); font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.6rem;}
+  .skill-group ul{list-style:none; font-size:.92rem;}
+  .skill-group li{padding:.15rem 0; color:var(--text);}
+
+  .resume-box{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:var(--space-3); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-2);}
+
+  form.contact{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:var(--space-3); max-width:560px; display:flex; flex-direction:column; gap:var(--space-2);}
+  form.contact label{font-family:var(--mono); font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  form.contact input, form.contact textarea{background:#0d1017; border:1px solid var(--border); border-radius:4px; color:var(--text); padding:.65rem .75rem; font-family:var(--sans); font-size:.95rem;}
+  form.contact input:focus, form.contact textarea:focus{border-color:var(--amber);}
+  #form-status{font-size:.85rem; font-family:var(--mono); min-height:1.2rem;}
+  #form-status.ok{color:#6FCF97;} #form-status.err{color:#E1543D;} #form-status.pending{color:var(--muted);}
+
+  footer{border-top:1px solid var(--border); padding:var(--space-3) 0; color:var(--muted); font-size:.85rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:.5rem;}
+
+  @media (max-width:760px){
+    .nav-links{position:fixed; top:57px; left:0; right:0; background:var(--bg); border-bottom:1px solid var(--border); flex-direction:column; padding:var(--space-2); display:none;}
+    .nav-links.open{display:flex;}
+    .nav-toggle{display:block;}
+    .grid-projects{grid-template-columns:1fr;}
+    .skills-grid{grid-template-columns:repeat(2,1fr);}
+    .resume-box{flex-direction:column; align-items:flex-start;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; scroll-behavior:auto !important;} }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <span class="nav-brand">aditya<span style="color:var(--amber)">.</span>rao</span>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#projects" data-nav>Projects</a></li>
+      <li><a href="#skills" data-nav>Skills</a></li>
+      <li><a href="#resume" data-nav>Resume</a></li>
+      <li><a href="#contact" data-nav>Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero visible" id="hero">
+    <p class="eyebrow">// full-stack developer</p>
+    <h1>I build products that <span class="accent">ship</span>, not just demos.</h1>
+    <p>Three years across React, Node, and distributed systems. I care about the boring parts — correctness, load times, and code someone else can maintain after I'm gone.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View projects</a>
+      <a href="#contact" class="btn btn-ghost">Get in touch</a>
+    </div>
+  </section>
+
+  <section id="projects">
+    <p class="eyebrow">// selected work</p>
+    <h2 class="section-title">Projects</h2>
+    <div class="grid-projects">
+      <article class="card">
+        <h3>Orderflow — Inventory Sync Engine</h3>
+        <p>Real-time inventory sync across 4 sales channels using an event-sourced ledger. Cut stock-mismatch incidents by reconciling writes through a single atomic decrement path.</p>
+        <div class="tag-row"><span class="tag">Node.js</span><span class="tag">Postgres</span><span class="tag">Redis</span></div>
+        <div class="card-links"><a href="#">Live demo</a><a href="#">Source</a></div>
+      </article>
+      <article class="card">
+        <h3>Routewise — Delivery Planner</h3>
+        <p>Route optimization tool for last-mile delivery using a constrained nearest-neighbor heuristic with 2-opt local search, visualized on an interactive map.</p>
+        <div class="tag-row"><span class="tag">React</span><span class="tag">TypeScript</span><span class="tag">MapLibre</span></div>
+        <div class="card-links"><a href="#">Live demo</a><a href="#">Source</a></div>
+      </article>
+      <article class="card">
+        <h3>Ledgerline — Expense Splitter</h3>
+        <p>Group expense settlement using a debt-simplification graph algorithm that minimizes the number of repayment transactions needed to settle a group.</p>
+        <div class="tag-row"><span class="tag">Vue</span><span class="tag">Firebase</span></div>
+        <div class="card-links"><a href="#">Live demo</a><a href="#">Source</a></div>
+      </article>
+      <article class="card">
+        <h3>Signalboard — Uptime Monitor</h3>
+        <p>Self-hosted uptime monitor polling HTTP/TCP endpoints on configurable intervals, with incident timelines and Slack alerting on status-change edges only.</p>
+        <div class="tag-row"><span class="tag">Go</span><span class="tag">SQLite</span></div>
+        <div class="card-links"><a href="#">Live demo</a><a href="#">Source</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="skills">
+    <p class="eyebrow">// toolbox</p>
+    <h2 class="section-title">Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-group"><h4>Frontend</h4><ul><li>React / Next.js</li><li>TypeScript</li><li>CSS Grid / Flexbox</li></ul></div>
+      <div class="skill-group"><h4>Backend</h4><ul><li>Node.js</li><li>PostgreSQL</li><li>REST / gRPC</li></ul></div>
+      <div class="skill-group"><h4>Infra</h4><ul><li>Docker</li><li>AWS (EC2, S3, RDS)</li><li>GitHub Actions</li></ul></div>
+      <div class="skill-group"><h4>Other</h4><ul><li>System design</li><li>Data structures</li><li>Technical writing</li></ul></div>
+    </div>
+  </section>
+
+  <section id="resume">
+    <p class="eyebrow">// on paper</p>
+    <h2 class="section-title">Resume</h2>
+    <div class="resume-box">
+      <div>
+        <strong>One-page PDF, last updated August 2026.</strong>
+        <p style="color:var(--muted); font-size:.9rem; margin-top:.3rem;">Experience, education, and project links in a single sheet.</p>
+      </div>
+      <a href="#" class="btn btn-primary" id="resumeBtn">Download PDF</a>
+    </div>
+  </section>
+
+  <section id="contact">
+    <p class="eyebrow">// say hello</p>
+    <h2 class="section-title">Contact</h2>
+    <form class="contact" id="contactForm" novalidate>
+      <div><label for="name">Name</label><input id="name" name="name" type="text" required></div>
+      <div><label for="email">Email</label><input id="email" name="email" type="email" required></div>
+      <div><label for="message">Message</label><textarea id="message" name="message" rows="4" required></textarea></div>
+      <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Send message</button>
+      <p id="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© 2026 Aditya Rao</span>
+  <span>Built with vanilla HTML, CSS &amp; JS — no framework</span>
+</footer>
+
+<script>
+// ---- Scrollspy + reveal-on-scroll via IntersectionObserver (no scroll listener) ----
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('[data-nav]');
+
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+sections.forEach(s=> revealObserver.observe(s));
+
+const spyObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    const link = document.querySelector(`[data-nav][href="#${e.target.id}"]`);
+    if(!link) return;
+    if(e.isIntersecting) navLinks.forEach(l=>l.classList.remove('active')), link.classList.add('active');
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+sections.forEach(s=> spyObserver.observe(s));
+
+// ---- Mobile nav toggle ----
+const navToggle = document.getElementById('navToggle');
+const navLinksEl = document.getElementById('navLinks');
+navToggle.addEventListener('click', ()=>{
+  const open = navLinksEl.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', String(open));
+});
+navLinksEl.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=> navLinksEl.classList.remove('open')));
+
+// ---- Contact form: 3-state fetch handling (success / non-2xx / network failure) ----
+const form = document.getElementById('contactForm');
+const status = document.getElementById('form-status');
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  status.textContent = 'Sending…'; status.className='pending';
+  const data = Object.fromEntries(new FormData(form));
+  try{
+    // Replace this URL with a real form endpoint (e.g. Formspree) when deploying.
+    const res = await fetch('https://httpbin.org/status/200', { method:'POST', body: JSON.stringify(data) });
+    if(!res.ok){
+      status.textContent = `Server rejected the message (HTTP ${res.status}). Try again shortly.`;
+      status.className = 'err';
+      return;
+    }
+    status.textContent = 'Message sent — thanks, I\u2019ll reply within a day or two.';
+    status.className = 'ok';
+    form.reset();
+  }catch(err){
+    status.textContent = 'Network error — check your connection and try again.';
+    status.className = 'err';
+  }
+});
+
+// ---- Resume download placeholder ----
+document.getElementById('resumeBtn').addEventListener('click', (e)=>{
+  e.preventDefault();
+  alert('Wire this button to your actual resume file path, e.g. /resume.pdf');
+});
+</script>
+</body>
+</html>

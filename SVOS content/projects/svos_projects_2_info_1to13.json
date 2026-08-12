@@ -1,0 +1,912 @@
+[
+  {
+    "slug": "api-gateway",
+    "title": "API Gateway",
+    "difficulty": "intermediate",
+    "estimated_hours": 60,
+    "tech_stack": [
+      "Go",
+      "Reverse proxy (net/http/httputil)",
+      "Token-bucket rate limiting",
+      "JWT",
+      "Redis (optional distributed limiting)"
+    ],
+    "description": "Study of the request lifecycle every API gateway centralizes so individual backend services don't reimplement it: route matching (path/host-based) → auth middleware (JWT validation) → rate limiter (token bucket per client key) → reverse proxy to the matched upstream → response passthrough. The deliverable is a documented architecture trace plus a minimal working reconstruction of the routing and rate-limiting core, not a full gateway.\n\nRate limiting gets specific study: the token-bucket algorithm (tokens refill at a fixed rate up to a capacity, each request consumes one, requests are rejected when empty) is the standard choice because it allows controlled bursts up to bucket capacity while still enforcing a long-run average rate — unlike a fixed-window counter, which allows a 2x burst right at a window boundary.\n\nAt scale, route matching against thousands of rules needs a radix/trie structure for O(k) prefix matching (k = path length) instead of an O(n) linear scan through route rules, which is the specific data-structure choice worth tracing in the reference implementation's router.",
+    "architecture_overview": "Client → listener → router (radix-tree path/host match) → middleware chain (auth, rate limit, logging) → load balancer → upstream service pool → response pipeline → client.",
+    "linked_node_explanations": {
+      "Application Layer Protocols (HTTP/HTTPS)": "The entire gateway is HTTP semantics in practice — header forwarding, status-code passthrough, and connection reuse for proxied requests.",
+      "Process Synchronization": "The token bucket's refill-and-consume counter is shared across concurrent requests, so correct implementation needs the same mutex/atomic-counter reasoning as any producer-consumer problem.",
+      "Time and Space Complexity Analysis": "Routing via a radix tree gives O(k) matching independent of route count, versus O(n) linear scanning — a concrete argument for choosing a trie over a list once route count grows.",
+      "Hashing": "Per-client rate-limit buckets are keyed by client id/IP in a hash map for O(1) bucket lookup on every incoming request."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Request lifecycle study",
+        "description": "Read the reference gateways' source to document the full request path from listener to upstream, including where each middleware concern is inserted.",
+        "deliverables": [
+          "Annotated request-lifecycle diagram",
+          "Kong vs Tyk middleware-chain comparison notes"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Radix-tree router",
+        "description": "Reconstruct a minimal path-matching router using a radix tree, supporting path parameters and host-based rules.",
+        "deliverables": [
+          "Radix-tree router implementation",
+          "Path-parameter extraction",
+          "Host-based routing test cases"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Token-bucket rate limiter",
+        "description": "Implement a per-client token-bucket limiter and load-test it to confirm burst-then-throttle behavior matches the algorithm's guarantees.",
+        "deliverables": [
+          "Token-bucket implementation",
+          "Per-client bucket hash map",
+          "Load test showing burst then throttle"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "JWT auth & reverse proxy",
+        "description": "Add JWT validation middleware ahead of the rate limiter and a reverse proxy step forwarding validated requests to a mock upstream pool.",
+        "deliverables": [
+          "JWT validation middleware",
+          "Reverse proxy to 2+ mock upstreams",
+          "End-to-end request trace"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Kong",
+        "url": "https://github.com/Kong/kong",
+        "note": "The most widely deployed open-source API gateway; its plugin architecture treats each cross-cutting concern as a composable step in the request/response phase chain — the canonical reference for gateway middleware design."
+      },
+      {
+        "title": "Tyk Gateway",
+        "url": "https://github.com/TykTechnologies/tyk",
+        "note": "A Go-based gateway with a clearly readable middleware chain, useful as a second reference for comparing how a different codebase structures the same routing → auth → rate-limit → proxy pipeline."
+      }
+    ]
+  },
+  {
+    "slug": "docker-voting-app",
+    "title": "Distributed Voting App (Docker Multi-Service)",
+    "difficulty": "beginner",
+    "estimated_hours": 20,
+    "tech_stack": [
+      "Docker",
+      "Docker Compose",
+      "Python or Node (vote service)",
+      "Redis (queue)",
+      "PostgreSQL (result store)",
+      "Worker service (any language)"
+    ],
+    "description": "A canonical multi-container distributed-systems example: five independent services (vote frontend, Redis queue, worker, Postgres, results frontend), each in its own container, that only function correctly together over a Docker Compose-defined network. The voting logic itself is trivial — the point is the service-boundary and async-worker pattern underneath it.\n\nThe vote frontend writes each vote to Redis and returns immediately, keeping the user-facing write fast, while a separate worker consumes from Redis at its own pace and writes durably into Postgres. Decoupling the fast write path from the slower durable-write path is the same pattern production systems use to avoid blocking user-facing requests on database latency — Redis here plays the role a message queue plays in a larger system.\n\nStudying the docker-compose.yml network topology (which services can reach which, and how service-name DNS resolution works inside the Compose network) and deliberately breaking each service in turn (kill the worker, kill Postgres) to observe what degrades gracefully versus what fails outright is more instructive than reading the code top to bottom.",
+    "architecture_overview": "vote (web) → Redis (queue) → worker (consumer) → Postgres (durable store) → result (web, reads from Postgres); all services share a Docker Compose bridge network with service-name DNS resolution.",
+    "linked_node_explanations": {
+      "Process Synchronization": "Redis sitting between the vote-writer and the worker is a real producer-consumer problem decoupled across container (process) boundaries instead of threads.",
+      "Application Layer Protocols (HTTP/HTTPS)": "Both frontends are HTTP services reachable through the Compose network's service-name DNS, worth tracing against how a real load balancer would route the same requests.",
+      "File Systems": "Postgres's data directory is mounted as a named Docker volume specifically so a container restart doesn't lose data — a direct look at why persistent state must live outside a container's writable layer."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Topology study",
+        "description": "Read and diagram the docker-compose.yml service and network graph, noting which services can reach which.",
+        "deliverables": ["Annotated network/service diagram", "Service dependency list"]
+      },
+      {
+        "step": 2,
+        "title": "Run & trace a vote end to end",
+        "description": "Run the full stack locally and follow one vote through all five services using logs.",
+        "deliverables": ["Local full-stack run", "Log trace of one vote through all 5 services"]
+      },
+      {
+        "step": 3,
+        "title": "Modify the worker",
+        "description": "Add a small transform (e.g. vote validation or weighting) in the worker before the Postgres write, and confirm the pipeline still works.",
+        "deliverables": [
+          "Worker transform added and tested",
+          "Notes on why this belongs in the worker, not the frontend"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Failure-mode experiments",
+        "description": "Kill the worker and separately the Postgres container mid-run, and observe queue backlog and error behavior.",
+        "deliverables": [
+          "Worker-down experiment notes",
+          "Postgres-down experiment notes",
+          "Graceful-vs-hard-failure write-up"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Scale the read path",
+        "description": "Run multiple vote-frontend replicas via Compose scale, and document why the worker consuming from Redis needs care to avoid double-processing if scaled the same way.",
+        "deliverables": [
+          "Multi-replica vote frontend demo",
+          "Notes on safe vs unsafe worker scaling"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "example-voting-app",
+        "url": "https://github.com/dockersamples/example-voting-app",
+        "note": "Docker's own official reference architecture for this exact vote→Redis→worker→Postgres→result pattern, used in Docker's Compose and Swarm documentation for years — a maintained, trustworthy baseline to study."
+      }
+    ]
+  },
+  {
+    "slug": "ecommerce-api",
+    "title": "E-Commerce REST API",
+    "difficulty": "intermediate",
+    "estimated_hours": 55,
+    "tech_stack": [
+      "Node.js/TypeScript or Python",
+      "PostgreSQL",
+      "Redis (cart/session cache)",
+      "Payment webhook handling",
+      "REST"
+    ],
+    "description": "Study of a production-grade commerce backend's hardest problems, the ones a toy CRUD API skips: inventory consistency under concurrent checkout (two customers buying the last unit at once), the cart-to-order state machine (cart → pending order → paid → fulfilled, driven partly by payment-provider webhooks), and idempotency for those webhooks, since a webhook can be delivered more than once and processing it twice must not double-charge or double-decrement stock.\n\nThe concurrency problem specifically needs either a database row lock (SELECT ... FOR UPDATE) or an atomic conditional update (UPDATE stock SET qty = qty - 1 WHERE product_id = ? AND qty > 0, checked by rows-affected) — tracing which strategy the reference implementation uses, and why, is more valuable than implementing either in isolation.\n\nThe order-placement transaction has to be atomic across the order-row insert and the stock decrement together, or a payment can succeed while stock silently goes negative — this project studies exactly where that transaction boundary is drawn in a real schema.",
+    "architecture_overview": "Storefront API (products, cart, checkout) → order service (state machine: cart→pending→paid→fulfilled) → payment webhook handler (idempotency-key deduped) → inventory service (atomic conditional decrement) → Postgres (source of truth) + Redis (cart/session cache).",
+    "linked_node_explanations": {
+      "Transactions and Concurrency Control": "The last-unit-in-stock race is a textbook lost-update problem; the fix (row locking or an atomic conditional update) is this exact GATE DBMS topic applied to a real checkout flow.",
+      "Relational Model": "The schema design (products, orders, order_items, inventory) and the specific queries used for the atomic decrement are direct, applied relational-model and SQL practice.",
+      "Application Layer Protocols (HTTP/HTTPS)": "Webhooks are delivered at-least-once with retries by the payment provider, which is exactly why idempotency keys are required at all — a real HTTP-delivery-semantics problem, not an abstract one."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Domain model study",
+        "description": "Diagram the reference schema (products, orders, inventory, payments) and document the order state machine's valid transitions.",
+        "deliverables": ["Annotated ER diagram", "Order-state-machine transition notes"]
+      },
+      {
+        "step": 2,
+        "title": "Concurrency strategy trace",
+        "description": "Identify the exact locking or atomic-update strategy used for stock decrement, then reproduce the race condition without the fix and with it.",
+        "deliverables": ["Strategy documentation", "Race-condition demo (broken then fixed)"]
+      },
+      {
+        "step": 3,
+        "title": "Webhook idempotency trace",
+        "description": "Trace how the reference repo deduplicates webhook deliveries and build a demo handler showing a duplicate delivery being safely ignored.",
+        "deliverables": [
+          "Idempotency-key handling notes",
+          "Demo webhook handler with duplicate-delivery test"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Cart & checkout flow",
+        "description": "Build a cart API backed by Redis and a checkout endpoint that transitions a cart into a pending order.",
+        "deliverables": [
+          "Cart API (add/remove/update qty)",
+          "Checkout endpoint (cart→pending order)"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Read-path scaling notes",
+        "description": "Document where the reference repo caches catalog reads versus hitting Postgres directly, and why catalog reads and checkout writes need different consistency guarantees.",
+        "deliverables": ["Cache-vs-direct-read notes", "Consistency-guarantee comparison write-up"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Medusa",
+        "url": "https://github.com/medusajs/medusa",
+        "note": "A widely-used open-source headless commerce engine (Node/TypeScript) with a real order state machine, inventory module, and payment-provider webhook handling — the reference for how commerce domain logic is actually modeled, not just CRUD endpoints."
+      },
+      {
+        "title": "Saleor",
+        "url": "https://github.com/saleor/saleor",
+        "note": "A production-grade Python/GraphQL commerce platform, useful as a second reference for comparing how a different stack handles the same inventory-consistency and checkout-state-machine problems."
+      }
+    ]
+  },
+  {
+    "slug": "machine-learning-pipeline",
+    "title": "End-to-End Machine Learning Pipeline (MLOps)",
+    "difficulty": "intermediate",
+    "estimated_hours": 50,
+    "tech_stack": [
+      "Python",
+      "scikit-learn or PyTorch",
+      "Docker",
+      "Kubeflow Pipelines or Airflow",
+      "MLflow (experiment tracking)"
+    ],
+    "description": "Study of what separates a notebook model from a production ML pipeline: reproducibility (every run tied to a specific data version, code commit, and hyperparameter set), a DAG-structured pipeline (ingest → validate → feature-engineer → train → evaluate → register → deploy, each stage independently retriable and cacheable), and drift monitoring after deployment, where serving-time feature and prediction distributions are tracked against the training baseline.\n\nOrchestration specifically deserves study: Kubeflow Pipelines compiles a Python-defined DAG into a Kubernetes-executed workflow where each step runs in its own container with explicit input/output artifacts passed between steps rather than shared in-memory state — this containerized-step design is exactly what makes each stage independently scalable, and lets a step with unchanged inputs be skipped on re-run instead of recomputed.\n\nModel registry and versioning is the piece a from-scratch tutorial almost always skips, so it gets separate, deliberate study: how a model artifact is tied back to the exact data version, code commit, and hyperparameters that produced it, and how one version gets promoted to 'production' without ambiguity.",
+    "architecture_overview": "Data ingestion → validation (schema/statistics checks) → feature engineering → training (containerized step) → evaluation (metrics gate before promotion) → model registry (versioned artifact store) → deployment (serving endpoint) → monitoring (drift detection against training baseline), orchestrated as a DAG.",
+    "linked_node_explanations": {
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "The pipeline is literally a DAG; deciding which steps can run in parallel versus must wait on a dependency is direct topological-sort reasoning.",
+      "Time and Space Complexity Analysis": "Skipping unchanged pipeline steps on re-run is a memoization pattern, and understanding it requires reasoning about what 'unchanged input' means for large datasets — usually a content hash, not a full comparison.",
+      "Process Synchronization": "Parallel pipeline steps writing to a shared feature store need the same coordination reasoning as any concurrent-write problem, just applied at the orchestration layer instead of the thread layer."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Pipeline DAG study",
+        "description": "Diagram a full pipeline definition from the reference repo and list each stage's inputs, outputs, and artifacts.",
+        "deliverables": ["Annotated DAG diagram", "Per-stage input/output/artifact list"]
+      },
+      {
+        "step": 2,
+        "title": "Reproducibility trace",
+        "description": "Document how the reference repo ties a model artifact back to its exact data version, code commit, and hyperparameters.",
+        "deliverables": [
+          "Reproducibility-chain notes",
+          "Data/code/hyperparameter versioning diagram"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Local reconstruction of 3 stages",
+        "description": "Reproduce a minimal ingest→train→evaluate pipeline locally as separate scripts with explicit input/output files, without full orchestration.",
+        "deliverables": [
+          "Ingest script",
+          "Train script",
+          "Evaluate script with defined I/O contracts"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Model registry & versioning",
+        "description": "Document how the reference registry stores versions and promotes one to production, then build a small demo registering two versions and querying the current one.",
+        "deliverables": ["Registry mechanics notes", "2-version registry demo"]
+      },
+      {
+        "step": 5,
+        "title": "Monitoring concept",
+        "description": "Write up drift detection as comparing serving-time feature distributions to the training-time baseline, and identify the specific metric the reference tooling uses.",
+        "deliverables": [
+          "Drift-detection explanation with named metric",
+          "Training-baseline vs serving-time comparison diagram"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Kubeflow Pipelines",
+        "url": "https://github.com/kubeflow/pipelines",
+        "note": "The canonical open-source pipeline orchestrator for ML on Kubernetes; study how it compiles a Python DAG into a containerized, artifact-passing workflow — the industry-standard mental model for an MLOps 'pipeline.'"
+      },
+      {
+        "title": "mlops-for-devops",
+        "url": "https://github.com/techiescamp/mlops-for-devops",
+        "note": "A hands-on, project-structured walkthrough of an end-to-end MLOps pipeline aimed at engineers from a DevOps background — a more approachable second reference alongside Kubeflow's larger codebase."
+      }
+    ]
+  },
+  {
+    "slug": "netflix-clone",
+    "title": "Streaming Catalog Frontend (Netflix-Style)",
+    "difficulty": "beginner",
+    "estimated_hours": 25,
+    "tech_stack": ["React", "Redux or Context API", "TMDB API", "Firebase (auth/profiles)"],
+    "description": "This studies and reconstructs the catalog-browsing frontend — hero banner, genre-row carousels, modal detail view, profile switching — not Netflix's actual streaming infrastructure. Adaptive-bitrate video encoding, per-title CDN edge caching, and Netflix's recommendation system are out of scope for a frontend clone, and none of the reference repos claim to replicate them; that distinction is worth stating explicitly rather than implying otherwise.\n\nThe frontend problems that are real and worth studying: lazy-loading dozens of genre rows so the initial page doesn't fetch every row's data at once, typically an IntersectionObserver-gated fetch per row (the same technique the personal-website build project uses for animation, applied here to network requests); and multi-profile session handling, where one authenticated account has several profiles, each with separate watch history and preferences, switched without a full re-login.\n\nThe specific study focus is how the reference implementation structures its Redux/Context state for a catalog fetched per-row rather than all at once, and how profile switching is modeled in that same state tree.",
+    "architecture_overview": "TMDB API (catalog data source) → per-row data fetching (lazy, IntersectionObserver-gated) → global state (Redux/Context: catalog cache, current profile, watch history) → presentation (hero banner, genre-row carousels, modal detail view).",
+    "linked_node_explanations": {
+      "Application Layer Protocols (HTTP/HTTPS)": "Every genre row is a separate HTTP request to TMDB; understanding request batching or staggering to avoid rate limits is a real, applied HTTP-client design problem.",
+      "Time and Space Complexity Analysis": "Lazy per-row fetching keeps initial load cost proportional to visible rows rather than all rows — the same amortized-cost argument as IntersectionObserver-driven animation, applied to network requests."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Catalog data layer",
+        "description": "Integrate the TMDB API with per-genre-row fetch functions and response caching to avoid refetching an already-loaded row.",
+        "deliverables": ["TMDB API integration", "Per-row fetch functions with caching"]
+      },
+      {
+        "step": 2,
+        "title": "Lazy-loaded row rendering",
+        "description": "Gate each row's fetch on IntersectionObserver visibility, with a loading/skeleton state, and build the hero banner for a featured title.",
+        "deliverables": [
+          "IntersectionObserver-gated row fetching",
+          "Skeleton loading state per row",
+          "Hero banner component"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Multi-profile state",
+        "description": "Model an active profile and per-profile watch history in state, with a switch UI that doesn't reload the page.",
+        "deliverables": ["Multi-profile state model", "Profile-switch UI"]
+      },
+      {
+        "step": 4,
+        "title": "Detail modal & search",
+        "description": "Add a modal detail view with synopsis/cast/similar titles, and debounced search-as-you-type against TMDB.",
+        "deliverables": ["Modal detail view", "Debounced search"]
+      },
+      {
+        "step": 5,
+        "title": "Honest scope write-up",
+        "description": "Document what this clone does not reproduce (adaptive bitrate, CDN delivery, recommendation ranking) and why each is out of scope.",
+        "deliverables": ["Scope-boundary document", "Real-vs-simulated feature checklist"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Netflix_Clone (sophiasagan)",
+        "url": "https://github.com/sophiasagan/Netflix_Clone",
+        "note": "A feature-complete frontend clone (React/Redux, Firebase auth, TMDB catalog data, Stripe subscription flow) — useful for its state-management structure around catalog rows and account/subscription state."
+      },
+      {
+        "title": "Netflix-Clone (HoneyTyagii)",
+        "url": "https://github.com/HoneyTyagii/Netflix-Clone",
+        "note": "A TypeScript implementation with Firebase-backed multi-profile switching — good for comparing a typed approach to the same per-profile state problem."
+      }
+    ]
+  },
+  {
+    "slug": "chat-app",
+    "title": "Real-Time Chat Application",
+    "difficulty": "beginner",
+    "estimated_hours": 30,
+    "tech_stack": [
+      "Node.js",
+      "Socket.IO (WebSockets)",
+      "MongoDB or PostgreSQL",
+      "JWT auth",
+      "Redis (pub/sub, optional)"
+    ],
+    "description": "Study of the two things that make a chat app harder than an ordinary CRUD app: real-time delivery over WebSockets (a persistent bidirectional connection so messages push instantly, instead of clients polling 'anything new?'), and presence/delivery state — online/offline, typing indicators, and read receipts — which requires server-side tracking of which sockets belong to which user, not just message storage.\n\nThe scaling problem is worth studying specifically: a single Socket.IO server holds all active connections in memory, so if user A is connected to server 1 and user B to server 2, server 1 can't push directly to B. The standard fix is a Redis pub/sub adapter — every server publishes outgoing messages to a shared Redis channel, and every server (even ones with no direct connection to the recipient) subscribes and forwards to its own locally-connected sockets.\n\nThe study focus is tracing exactly how the reference repo structures its socket event handlers (connect, join-room, message, typing, disconnect) and, where present, how its Redis adapter wiring achieves cross-instance delivery.",
+    "architecture_overview": "Client (WebSocket) → Socket.IO server (connection registry: userId → socketId) → message persistence (Mongo/Postgres) → Redis pub/sub adapter (cross-instance fan-out) → recipient's Socket.IO server → recipient client.",
+    "linked_node_explanations": {
+      "Application Layer Protocols (HTTP/HTTPS)": "A WebSocket connection begins as an HTTP Upgrade request/response handshake before switching protocols — tracing this handshake shows HTTP being extended beyond simple request/response.",
+      "Process Synchronization": "Cross-server message fan-out via Redis pub/sub is a distributed producer-consumer pattern: any server can publish, and every subscribed server consumes independently.",
+      "Hashing": "The userId-to-socketId connection registry is a hash map lookup, needed for O(1) 'which socket does this user currently have open' checks on every incoming message."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Socket event architecture study",
+        "description": "Document the reference repo's socket events and payloads, and the shape of its connection-registry data structure.",
+        "deliverables": [
+          "Annotated event list (connect/join/message/typing/disconnect)",
+          "Connection-registry structure notes"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Core messaging",
+        "description": "Implement 1:1 messaging over WebSockets with message persistence and delivery to an online recipient.",
+        "deliverables": ["1:1 real-time messaging", "Message persistence layer"]
+      },
+      {
+        "step": 3,
+        "title": "Presence & typing indicators",
+        "description": "Add online/offline presence tracking, a debounced typing indicator, and read-receipt state on messages.",
+        "deliverables": [
+          "Presence tracking",
+          "Typing indicator with debounce",
+          "Read-receipt state"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Rooms & group chat",
+        "description": "Add room-based message routing with join/leave semantics and persisted group membership.",
+        "deliverables": ["Room join/leave", "Group message routing", "Membership persistence"]
+      },
+      {
+        "step": 5,
+        "title": "Horizontal scaling trace",
+        "description": "Document the Redis pub/sub adapter pattern for multi-instance Socket.IO and, if attempted, demo cross-instance delivery with two local server instances.",
+        "deliverables": [
+          "Redis pub/sub adapter explanation",
+          "(Optional) 2-instance cross-delivery demo"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "project_chat_application",
+        "url": "https://github.com/adrianhajdin/project_chat_application",
+        "note": "A complete MERN + Socket.IO real-time chat build with clean, readable socket-event structuring — a solid primary reference for the connect/join/message/disconnect lifecycle."
+      },
+      {
+        "title": "chat-app (sbbeez)",
+        "url": "https://github.com/sbbeez/chat-app",
+        "note": "A more infrastructure-heavy chat implementation (Docker, Postgres, Elasticsearch for message search) — a useful second reference once the basic real-time layer is understood."
+      }
+    ]
+  },
+  {
+    "slug": "relational-dbms-engine",
+    "title": "Relational Database Management System Engine",
+    "difficulty": "expert",
+    "estimated_hours": 150,
+    "tech_stack": [
+      "Rust, C++, or Go",
+      "B+ Tree storage engine",
+      "SQL parser",
+      "MVCC or lock-based concurrency control",
+      "Write-ahead log (WAL)"
+    ],
+    "description": "Study of what sits under a relational engine's SQL surface: a storage layer (pages organized as B+ Trees for table heaps and secondary indexes, keeping all data at leaf level so internal nodes are pure navigation, giving O(log n) point lookups and efficient range scans), a query layer (SQL parsed to an AST, then a logical plan, then a physical plan of Volcano-style iterators where each operator pulls one row at a time via next()), and a transaction layer (lock-based two-phase locking or MVCC, plus a write-ahead log so committed transactions survive a crash).\n\nThe concurrency-control decision deserves specific study: MVCC — each row version tagged with the transaction id that created it, so readers see a consistent snapshot without blocking writers — is what most modern engines (Postgres, and educational engines like toyDB) use instead of pure locking, because reads never block writes, at the cost of needing periodic garbage collection of old row versions.\n\nThe study focus is picking one reference implementation and tracing a single SELECT and a single INSERT all the way from SQL text to disk page, documenting every layer crossed — this single-query trace is more valuable than a shallow read of the whole codebase.",
+    "architecture_overview": "SQL text → parser (AST) → planner (logical plan → physical plan, Volcano-style iterator tree) → execution engine (operators pull rows via next()) → transaction manager (MVCC snapshot or 2PL locks) → buffer pool (page cache) → B+ Tree storage engine → WAL + disk pages.",
+    "linked_node_explanations": {
+      "Indexing (B and B+ Trees)": "The storage engine's B+ Tree is not a diagram exercise here — you trace real page splits, node-degree choices, and why leaf-level linking makes range scans efficient in an actual codebase.",
+      "Transactions and Concurrency Control": "MVCC snapshot isolation versus two-phase locking is studied as a real design decision with real trade-offs (reader-writer blocking vs. version garbage collection), not a definition to memorize.",
+      "ACID Properties": "The write-ahead log is literally what makes Atomicity and Durability hold across a crash — tracing WAL replay on restart turns 'durability' into a mechanism you've read rather than a word you've defined.",
+      "Relational Algebra": "The physical query plan's operators (scan, filter, join, project) are relational algebra operators made executable; the planner's job is translating SQL into a tree of exactly these operators.",
+      "SQL": "The parser's grammar is a complete, concrete specification of a SQL subset — reading it clarifies real grammar ambiguities better than a syntax reference table does."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Storage layer trace",
+        "description": "Study the reference engine's page format and B+ Tree implementation, and diagram a single page split.",
+        "deliverables": ["Page-format notes", "Page-split diagram"]
+      },
+      {
+        "step": 2,
+        "title": "Query layer trace",
+        "description": "Trace one SELECT query from SQL text through AST, logical plan, and physical Volcano-iterator plan.",
+        "deliverables": ["Full SELECT trace document", "Diagrammed operator tree"]
+      },
+      {
+        "step": 3,
+        "title": "Transaction & concurrency trace",
+        "description": "Determine whether the engine uses MVCC or 2PL and diagram two concurrent transactions and how isolation is maintained between them.",
+        "deliverables": [
+          "MVCC/2PL determination with reasoning",
+          "Concurrent-transaction isolation diagram"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Durability trace",
+        "description": "Study the WAL format and crash-recovery replay procedure, and walk through what happens if the process is killed mid-transaction.",
+        "deliverables": ["WAL format notes", "Crash-recovery walkthrough"]
+      },
+      {
+        "step": 5,
+        "title": "Minimal reconstruction",
+        "description": "Build a from-scratch B+ Tree storage layer (insert/lookup/range-scan only, no SQL layer) and validate it against the reference engine's behavior.",
+        "deliverables": [
+          "Standalone B+ Tree implementation",
+          "Behavioral validation against reference engine"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "toyDB",
+        "url": "https://github.com/erikgrinaker/toydb",
+        "note": "A genuinely complete educational SQL database in Rust — ACID transactions with MVCC, a real storage engine, Raft-based replication, and a from-scratch SQL parser/planner/executor. The single best reference for the full SQL-to-disk trace this project asks for."
+      },
+      {
+        "title": "db_tutorial",
+        "url": "https://github.com/cstack/db_tutorial",
+        "note": "A ground-up 'build a SQLite clone in C' walkthrough, far more incremental and readable at the byte/page level — a good second reference for the B+ Tree page format before tackling toyDB's larger codebase."
+      }
+    ]
+  },
+  {
+    "slug": "kv-store-lsm",
+    "title": "LSM-Tree Key-Value Store",
+    "difficulty": "advanced",
+    "estimated_hours": 70,
+    "tech_stack": [
+      "Go or Rust",
+      "Memtable (skip list)",
+      "SSTables",
+      "Bloom filters",
+      "Write-ahead log (WAL)"
+    ],
+    "description": "Study of the Log-Structured Merge-tree architecture behind write-heavy stores like Cassandra, RocksDB, and LevelDB: writes go to an in-memory memtable (typically a skip list, giving O(log n) sorted insert) plus a WAL for crash safety, and once the memtable hits a size threshold it flushes to disk as an immutable, sorted SSTable — meaning writes are always sequential, and the complexity moves onto reads.\n\nReads have to check the memtable, then potentially many SSTables newest-to-oldest, which is why bloom filters matter: a bloom filter per SSTable can say 'definitely not present' with zero disk reads, avoiding a seek against every SSTable for a key that lives in only one of them (or none).\n\nThe other half of the design is compaction — background merging of SSTables into fewer, larger ones, both to bound how many files a read must check and to physically remove overwritten or deleted (tombstoned) keys. The study focus is which compaction strategy (size-tiered vs. leveled) the reference implementation uses, since leveled compaction trades more write amplification for better read performance and bounded space amplification.",
+    "architecture_overview": "Write path: WAL append → memtable insert (skip list) → (on threshold) flush to immutable SSTable. Read path: memtable check → bloom-filter-gated SSTable checks (newest to oldest) → merged result. Background: compaction merges SSTables and drops tombstoned/overwritten keys.",
+    "linked_node_explanations": {
+      "Time and Space Complexity Analysis": "The whole LSM design makes a time/space tradeoff explicit: O(log n) sequential writes are bought by pushing cost onto reads, which bloom filters and compaction then claw back.",
+      "Hashing": "Bloom filters extend hashing directly: multiple independent hash functions set bits in a shared array, and a lookup checks whether all corresponding bits are set — GATE's hashing unit taken into probabilistic structures.",
+      "Trees and Binary Search Trees": "The memtable is a skip list or balanced BST specifically because both keep keys sorted with O(log n) insert, required so a flush can write to an SSTable in sorted order with one linear pass.",
+      "File Systems": "SSTables being immutable, append-only, never-modified-in-place files is a direct, applied example of why immutability simplifies concurrent file access."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Write path trace",
+        "description": "Study the reference implementation's WAL format and memtable node layout, and diagram the write path from API call to disk.",
+        "deliverables": ["WAL format notes", "Write-path diagram"]
+      },
+      {
+        "step": 2,
+        "title": "Memtable & flush",
+        "description": "Build a from-scratch memtable (skip list) with insert/get/range-scan, and flush-to-SSTable logic on a size threshold.",
+        "deliverables": ["Skip-list memtable", "Flush-on-threshold logic"]
+      },
+      {
+        "step": 3,
+        "title": "SSTable read path & bloom filters",
+        "description": "Implement the SSTable file format and a per-SSTable bloom filter, then a read path checking memtable then bloom-filter-gated SSTables newest-to-oldest.",
+        "deliverables": [
+          "SSTable file format (sorted blocks + index)",
+          "Bloom filter per SSTable",
+          "Full read path"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Compaction study & minimal implementation",
+        "description": "Compare size-tiered vs. leveled compaction in the reference repo, then implement a minimal compaction pass merging 2+ SSTables and dropping tombstones.",
+        "deliverables": [
+          "Compaction-strategy comparison notes",
+          "Minimal compaction implementation"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Benchmark against the reference",
+        "description": "Benchmark write/read throughput of the reconstructed store and compare against the reference implementation's published numbers.",
+        "deliverables": ["Throughput benchmark", "Comparison against reference numbers"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "go-lsm",
+        "url": "https://github.com/SarthakMakhija/go-lsm",
+        "note": "A clearly-written, education-focused LSM-tree store in Go with memtables, SSTables, bloom filters, and compaction implemented as separate, readable components — the best starting point for tracing each layer individually."
+      },
+      {
+        "title": "Badger",
+        "url": "https://github.com/dgraph-io/badger",
+        "note": "A production-grade embedded LSM store used by Dgraph; once the basics are clear from go-lsm, Badger is the reference for how a performance-tuned system (value-log separation, concurrent compaction) extends the same core design."
+      }
+    ]
+  },
+  {
+    "slug": "unix-shell-and-kernel",
+    "title": "UNIX Shell and Minimal Kernel",
+    "difficulty": "expert",
+    "estimated_hours": 130,
+    "tech_stack": [
+      "C",
+      "x86/RISC-V assembly (boot + context switch)",
+      "QEMU (emulation/testing)",
+      "POSIX system call conventions"
+    ],
+    "description": "Study of the two-layer system a shell depends on: below it, a kernel providing process creation (fork), program loading (exec), and coordination (wait) as system calls; above that boundary, the shell itself — really a read-eval-print loop that parses a command line, forks a child, execs the target program in that child, and waits on it in the parent, with pipes and redirection implemented as file-descriptor manipulation (dup2) done between the fork and the exec.\n\nOn the kernel side, the study focus is process scheduling (a simple round-robin scheduler cycling through a process table, using a timer interrupt to force preemption) and what a context switch actually does at the assembly level: saving the current process's register state to its kernel stack, switching to the next process's stack, restoring its register state, and returning to wherever it left off — the mechanism that makes multitasking on one CPU possible at all.\n\nThe single most GATE-relevant thing to trace is the syscall trap boundary itself: how a user-mode program's syscall instruction traps into kernel mode, and how the kernel returns a value back across that boundary.",
+    "architecture_overview": "Shell (parse command line → fork → dup2 for redirection/pipes → exec in child → wait in parent) runs entirely in user mode, reaching the kernel only through the fork/exec/wait/dup2 syscall trap boundary. Kernel side: syscall trap handler → process table → round-robin scheduler → context switch (register save/restore) → return to user mode.",
+    "linked_node_explanations": {
+      "CPU Scheduling": "xv6's round-robin scheduler, driven by timer interrupts, is the GATE scheduling-algorithms topic as running code, including the interrupt→save→pick-next→restore mechanism a diagram usually skips.",
+      "Process Synchronization": "fork() creating a parent-child relationship and wait() blocking the parent until the child exits is a real synchronization primitive, implemented via the process table's state field and the scheduler skipping blocked processes.",
+      "Memory Management and Virtual Memory": "exec() replacing a process's memory image means studying how the kernel builds a fresh page table for the new program — a concrete instance of virtual memory and address-space switching.",
+      "File Systems": "A shell's pipe is two file descriptors connected by an in-kernel buffer, and redirection is dup2 pointing a standard fd at a different open file — both direct applications of the file-descriptor abstraction.",
+      "Arrays, Stacks, Queues, Linked Lists": "The process table (a fixed-size array of process control blocks) and the scheduler's run-queue are concrete, small-scale data-structure choices worth comparing against this topic's array-vs-linked-list tradeoffs."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Boot & syscall trap study",
+        "description": "Trace how the reference kernel boots to its first process, and how the syscall trap mechanism moves control from user to kernel mode and back.",
+        "deliverables": ["Boot sequence notes", "Syscall trap trace"]
+      },
+      {
+        "step": 2,
+        "title": "Process table & context switch",
+        "description": "Diagram the process control block layout and trace a context switch's register save/restore sequence at the assembly level.",
+        "deliverables": ["PCB layout diagram", "Context-switch assembly trace"]
+      },
+      {
+        "step": 3,
+        "title": "Scheduler trace",
+        "description": "Study the round-robin scheduler's run-queue management and timer-interrupt-driven preemption.",
+        "deliverables": ["Scheduler mechanics notes", "Run-queue management diagram"]
+      },
+      {
+        "step": 4,
+        "title": "Shell core: fork/exec/wait",
+        "description": "Implement the parse → fork → exec → wait loop for simple commands and test it in QEMU or on the host.",
+        "deliverables": ["Working shell (simple commands)", "QEMU/host test run"]
+      },
+      {
+        "step": 5,
+        "title": "Pipes & redirection",
+        "description": "Add dup2-based redirection and pipe support chaining two or more commands, and connect each feature back to the kernel primitive it depends on.",
+        "deliverables": [
+          "Redirection (>, <, >>)",
+          "Pipe chaining (|)",
+          "Feature-to-primitive write-up"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "xv6-riscv",
+        "url": "https://github.com/mit-pdos/xv6-riscv",
+        "note": "MIT's teaching operating system (the RISC-V port used in current 6.1810 coursework) — small enough to read end to end, with a real process table, round-robin scheduler, and syscall trap mechanism; the definitive reference for the kernel side."
+      },
+      {
+        "title": "lsh",
+        "url": "https://github.com/brenns10/lsh",
+        "note": "A small, well-explained shell in C covering exactly the parse/fork/exec/wait loop and basic piping — a focused reference for the shell side once xv6's kernel primitives are understood."
+      }
+    ]
+  },
+  {
+    "slug": "user-threads-scheduler",
+    "title": "User-Level Threads Library with Custom Scheduler",
+    "difficulty": "advanced",
+    "estimated_hours": 60,
+    "tech_stack": [
+      "C",
+      "ucontext.h (or hand-written assembly context switch)",
+      "POSIX threads (for comparison benchmarking)"
+    ],
+    "description": "Study of user-level ('green') threads — thread scheduling implemented entirely in a userspace library, invisible to the kernel, which schedules only the single underlying kernel thread the library runs on. A context switch between two green threads is a plain userspace function call (save registers, swap stack pointer, restore registers), far cheaper than a kernel-thread switch, at the direct cost that one green thread blocking on a syscall blocks the entire process, since the kernel has no idea other green threads exist.\n\nThe scheduler-design question worth studying specifically is cooperative (a thread must explicitly yield) versus preemptive (a timer signal forces a switch even if the thread never yields) scheduling, and the exact mechanism used to save/restore execution state — ucontext.h's getcontext/makecontext/swapcontext, or a hand-rolled version using setjmp/longjmp plus manual stack setup.\n\nThe hardest part to get right from description alone is bootstrapping: how a new thread's stack is allocated and its context initialized so that a swapcontext into it starts execution at the right function with the right arguments — this is the specific mechanism the study focus targets in the reference implementation.",
+    "architecture_overview": "Thread control blocks (id, stack pointer, saved context, state: ready/running/blocked) held in a ready queue → scheduler (cooperative yield-based or timer-signal preemptive) picks the next TCB → context switch (save current registers/stack pointer, restore next thread's) via ucontext.h or hand-written assembly.",
+    "linked_node_explanations": {
+      "CPU Scheduling": "Implementing your own ready queue and next-thread policy (round robin at minimum) is the GATE scheduling topic with the kernel's usual involvement stripped away, isolating exactly what 'scheduling' means as an algorithm.",
+      "Process Synchronization": "Multiple green threads sharing the process's memory still need mutexes and condition variables reimplemented at the user level, since the kernel's versions don't know your green threads exist.",
+      "Arrays, Stacks, Queues, Linked Lists": "The ready queue is a direct queue application, and each thread's own execution stack — manually allocated, since the library doesn't get one for free per thread — makes the stack abstraction something you provision by hand.",
+      "Time and Space Complexity Analysis": "Benchmarking green-thread context-switch cost against real pthread switches quantifies exactly why userspace scheduling is cheaper, instead of asserting it."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Context-switch mechanism study",
+        "description": "Study the reference library's context save/restore mechanism and trace how a new thread's stack is bootstrapped to start at the right function.",
+        "deliverables": ["Context-switch mechanism notes", "Stack-bootstrapping trace"]
+      },
+      {
+        "step": 2,
+        "title": "Thread control block & creation",
+        "description": "Define the TCB structure and a thread-create function that allocates a stack and initializes its context.",
+        "deliverables": ["TCB structure", "thread_create implementation"]
+      },
+      {
+        "step": 3,
+        "title": "Cooperative scheduler",
+        "description": "Implement a ready queue and a yield() function performing a full save-current/restore-next context switch, with round-robin ordering across created threads.",
+        "deliverables": [
+          "Ready queue",
+          "yield() with full context switch",
+          "Round-robin scheduling test"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Preemption",
+        "description": "Add timer-signal-driven forced context switching so a deliberately non-yielding thread still gets preempted.",
+        "deliverables": ["Timer-signal preemption", "Non-yielding-thread test case"]
+      },
+      {
+        "step": 5,
+        "title": "Synchronization & benchmark",
+        "description": "Build a user-level mutex and condition variable on top of the scheduler, then benchmark context-switch latency against native pthreads.",
+        "deliverables": [
+          "User-level mutex & condition variable",
+          "Context-switch latency benchmark vs pthreads"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "gthread",
+        "url": "https://github.com/jonnrb/gthread",
+        "note": "A pthread-API-compatible green threads library in C with a documented fair scheduler — a strong primary reference for both the context-switch mechanism and mimicking the pthread interface it replaces."
+      },
+      {
+        "title": "uThreads",
+        "url": "https://github.com/samanbarghi/uThreads",
+        "note": "A more elaborate C++ user-level threading library supporting clusters and multiple scheduling policies — a useful second reference once single-scheduler basics work, for how larger systems generalize the idea."
+      }
+    ]
+  },
+  {
+    "slug": "custom-tcp-stack",
+    "title": "Custom TCP/IP Stack (Userspace)",
+    "difficulty": "expert",
+    "estimated_hours": 120,
+    "tech_stack": [
+      "C",
+      "Linux TUN/TAP virtual network interface",
+      "Raw sockets",
+      "Wireshark (verification)"
+    ],
+    "description": "Study of a userspace TCP/IP implementation attached to a TUN device — a virtual point-to-point interface the kernel routes packets to instead of a physical NIC — meaning IP header parsing/construction and the full TCP state machine have to be built by hand instead of relying on the OS's own network stack.\n\nThe TCP state machine is the core of the project: the connection lifecycle (CLOSED → SYN_SENT/SYN_RCVD → ESTABLISHED → FIN_WAIT/CLOSE_WAIT → CLOSED) driven by the three-way handshake and four-way close, plus the mechanisms that make TCP reliable over an unreliable IP layer: sequence and acknowledgment numbers tracking exactly which bytes have been received, a sliding window for flow control where the receiver advertises how many more bytes it can buffer, and retransmission on timeout when an ACK doesn't arrive.\n\nThe study focus is tracing the reference implementation's state transitions against a real Wireshark capture of the same connection, matching each captured packet to the exact transition it causes — the only reliable way to confirm the state machine is actually understood rather than just read.",
+    "architecture_overview": "TUN device (raw IP packets in/out of userspace) → IP layer (header parse/construct, checksum) → TCP layer (per-connection state machine: handshake, sequence/ack tracking, sliding-window flow control, retransmission timers) → socket-like API exposed to a test application.",
+    "linked_node_explanations": {
+      "ISO/OSI and TCP/IP Protocol Stack": "Building IP and TCP by hand on a raw TUN device is this topic with the usual kernel abstraction removed — every layer boundary normally taken for granted has to be implemented.",
+      "Sliding Window and Flow Control": "TCP's receive-window advertisement and the sender's respect for it is this exact GATE topic as working code, including what happens when the window shrinks to zero mid-transfer (persist timer).",
+      "Congestion Control": "Even a minimal stack needs a basic congestion-window mechanism (e.g. slow start) to avoid overwhelming the path, giving direct, implemented experience with why congestion control is distinct from flow control.",
+      "IP Addressing": "Constructing IP headers by hand (version, header length, TTL, checksum, source/destination) forces byte-level understanding of the header format instead of a diagram-level one.",
+      "Time and Space Complexity Analysis": "Managing retransmission timers across many concurrent connections needs an efficient 'which timer fires next' structure (a timer wheel or min-heap) rather than scanning every connection's timer on each tick."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "TUN device & IP layer",
+        "description": "Set up the TUN interface and a raw packet read/write loop, then implement IP header parsing and construction with checksum validation.",
+        "deliverables": ["TUN interface + packet loop", "IP header parse/construct with checksum"]
+      },
+      {
+        "step": 2,
+        "title": "TCP handshake & state machine skeleton",
+        "description": "Implement the connection state machine from CLOSED through ESTABLISHED with the 3-way handshake, and match the transitions against a Wireshark capture.",
+        "deliverables": [
+          "State machine (CLOSED→ESTABLISHED)",
+          "3-way handshake implementation",
+          "Wireshark-matched transition trace"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Reliable data transfer",
+        "description": "Add sequence/acknowledgment tracking, retransmission timers on unacknowledged segments, and out-of-order segment buffering.",
+        "deliverables": ["Sequence/ack tracking", "Retransmission timer", "Out-of-order buffering"]
+      },
+      {
+        "step": 4,
+        "title": "Flow control",
+        "description": "Implement sliding-window flow control respecting the peer's advertised receive window, including persist-timer handling for a zero window.",
+        "deliverables": ["Sliding-window flow control", "Zero-window persist-timer handling"]
+      },
+      {
+        "step": 5,
+        "title": "Connection teardown & verification",
+        "description": "Implement the 4-way close and run an end-to-end file transfer between two stack instances, verified byte-for-byte and cross-checked with Wireshark.",
+        "deliverables": [
+          "4-way close (FIN/ACK)",
+          "End-to-end file-transfer test",
+          "Wireshark-verified byte-for-byte correctness"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "level-ip",
+        "url": "https://github.com/saminiir/level-ip",
+        "note": "A userspace TCP/IP stack in C built on a TUN device with a real, traceable TCP state machine, sliding window, and retransmission — the closest match to this project, with an accompanying blog series explaining the design decisions."
+      }
+    ]
+  },
+  {
+    "slug": "http-proxy-cache",
+    "title": "HTTP Reverse Proxy with Caching",
+    "difficulty": "advanced",
+    "estimated_hours": 55,
+    "tech_stack": [
+      "C or Go",
+      "HTTP/1.1 parsing",
+      "LRU cache eviction",
+      "Cache-Control / ETag / conditional-request handling"
+    ],
+    "description": "Study of a reverse proxy cache's real job: sit in front of an origin server and, for cacheable responses, serve repeat requests directly from memory without contacting the origin at all — which means correctly implementing HTTP's own caching rules (Cache-Control directives like max-age and no-store, ETag-based validation, conditional requests via If-None-Match) rather than inventing a policy, since caching something the origin marked no-store is a correctness bug, not a missed optimization.\n\nCache eviction deserves specific study: with finite memory, LRU is the standard default, typically a hash map (key → entry) combined with a doubly-linked list (recency order), giving O(1) get and O(1) put-with-eviction — the hash map gives instant node lookup, the linked list gives instant move-to-front/evict-from-back.\n\nThe study focus is tracing how the reference implementation (Varnish or Squid) decides cacheability from response headers, and separately reconstructing the LRU data structure from scratch, since that structure reappears almost verbatim in OS page replacement and database buffer pools — it's the most transferable part of the project.",
+    "architecture_overview": "Client request → cache lookup (hash map, O(1)) → hit: freshness check (max-age/ETag) → serve from cache or revalidate with origin (conditional GET) → miss: forward to origin, store per Cache-Control rules, evict LRU entry if at capacity (O(1) via doubly-linked list) → serve to client.",
+    "linked_node_explanations": {
+      "Application Layer Protocols (HTTP/HTTPS)": "Correct caching depends entirely on correctly honoring Cache-Control, ETag, and conditional-request headers — an applied, high-stakes reading of HTTP's caching semantics, not just its request/response format.",
+      "Hashing": "The cache's O(1) key lookup is a direct hash-map application, and deciding what the cache key actually is (URL alone, or URL plus Vary-relevant headers) is a subtler key-design question than a typical hash-table exercise.",
+      "Arrays, Stacks, Queues, Linked Lists": "The LRU policy's O(1) eviction depends specifically on a doubly-linked list, not a singly-linked one or an array, so any node can be unlinked and moved to the front in constant time.",
+      "Time and Space Complexity Analysis": "The hash-map-plus-doubly-linked-list combination is the standard answer to getting O(1) on every LRU operation, and this project is where that answer gets implemented and benchmarked instead of just stated."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "HTTP proxying core",
+        "description": "Implement request forwarding to an origin server with response passthrough preserving headers and status.",
+        "deliverables": ["Request forwarding", "Header/status passthrough"]
+      },
+      {
+        "step": 2,
+        "title": "Cacheability & freshness logic",
+        "description": "Parse Cache-Control directives (max-age, no-store, no-cache) and check freshness before serving a cache hit.",
+        "deliverables": ["Cache-Control parsing", "Freshness check on hit"]
+      },
+      {
+        "step": 3,
+        "title": "LRU cache data structure",
+        "description": "Implement hash-map-plus-doubly-linked-list LRU with O(1) get/put/evict, with tests confirming constant-time behavior under load.",
+        "deliverables": ["LRU implementation (hash map + DLL)", "O(1) behavior test suite"]
+      },
+      {
+        "step": 4,
+        "title": "Conditional revalidation",
+        "description": "Store ETags and issue If-None-Match conditional requests to the origin on stale-but-present entries, handling 304 responses.",
+        "deliverables": ["ETag storage", "Conditional GET revalidation", "304 handling"]
+      },
+      {
+        "step": 5,
+        "title": "Benchmark & reference comparison",
+        "description": "Benchmark hit/miss ratio and latency under a repeated-request workload, and compare this implementation's caching decisions against Varnish's VCL or Squid's refresh_pattern for the same scenarios.",
+        "deliverables": [
+          "Hit/miss + latency benchmark",
+          "Comparison notes vs Varnish/Squid config rules"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Varnish Cache",
+        "url": "https://github.com/varnishcache/varnish-cache",
+        "note": "A widely-deployed HTTP accelerator built specifically around caching correctness and speed; its VCL rules are the clearest real-world expression of cacheability decisions."
+      },
+      {
+        "title": "Squid",
+        "url": "https://github.com/squid-cache/squid",
+        "note": "One of the oldest, most complete caching proxies — a second reference for comparing a more configuration-rule-driven approach (refresh_pattern) to the same freshness/revalidation problem."
+      }
+    ]
+  },
+  {
+    "slug": "c-compiler-subset",
+    "title": "C Compiler (Subset)",
+    "difficulty": "expert",
+    "estimated_hours": 100,
+    "tech_stack": ["C", "x86-64 assembly (codegen target)", "Recursive-descent parser"],
+    "description": "Study of a real compiler pipeline for a meaningful C subset: a lexer tokenizing identifiers, keywords, literals, and operators; a recursive-descent parser building an AST while correctly handling C's operator precedence and classic ambiguities (dangling-else, declarator parsing); semantic analysis doing type checking and scope resolution via a symbol table; and code generation from AST to x86-64 assembly.\n\nCode generation deserves specific study, since tutorials most often skip or fake it. Going from a tree-shaped AST to a linear instruction sequence requires an evaluation order for expressions and stack slots or registers for temporaries — even the naive approach of spilling every temporary to the stack is worth tracing precisely, because it makes clear why register allocation is a genuinely hard, separate problem, and correct function prologues/epilogues have to respect the target calling convention (caller- vs callee-saved registers, where arguments and the return address live on the stack).\n\nThe study focus is picking one reference compiler small enough to read end to end (not GCC or Clang) and tracing a single function's compilation from source text through every intermediate representation to final assembly, then verifying that assembly actually runs correctly.",
+    "architecture_overview": "Source → lexer (token stream) → recursive-descent parser (precedence-correct AST) → semantic analysis (type checking, symbol table/scope resolution) → code generator (AST → x86-64 assembly, stack-based expression evaluation, calling-convention-correct prologue/epilogue) → assembler/linker (runnable binary).",
+    "linked_node_explanations": {
+      "Lexical Analysis": "The lexer stage runs this GATE Compiler Design topic for real on C's actual keyword/operator set, including ambiguities like maximal-munch tokenizing of + versus ++ that a toy lexer usually glosses over.",
+      "Parsing": "Recursive-descent parsing of real C syntax means confronting genuine ambiguities the GATE syllabus references abstractly (dangling-else, declarator parsing) as concrete bugs resolved with real grammar rules.",
+      "Syntax-Directed Translation": "Type checking and scope resolution computed while walking the AST is syntax-directed translation in its most direct form — attributes computed as a function of tree structure.",
+      "Code Generation": "Translating AST nodes into x86-64 instructions, including a calling-convention-correct prologue/epilogue, is this topic's actual hard part: not which instruction represents addition, but where operands live and how they get there.",
+      "Machine Instructions and Addressing Modes": "Correct codegen requires x86-64's real addressing modes (register, immediate, memory with base+offset for stack slots) — fluency with a real ISA instead of a simplified textbook one."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Lexer",
+        "description": "Build a tokenizer for the target C subset's keywords, identifiers, literals, and operators with correct maximal-munch tokenizing.",
+        "deliverables": ["Tokenizer", "Maximal-munch operator tests"]
+      },
+      {
+        "step": 2,
+        "title": "Recursive-descent parser",
+        "description": "Build an AST-producing parser handling expressions (correct precedence), statements, and function declarations for the chosen subset.",
+        "deliverables": [
+          "Expression parser (precedence-correct)",
+          "Statement & function-declaration parser"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Semantic analysis",
+        "description": "Implement a symbol table with scope resolution and a type-checking pass catching mismatched-type and undeclared-identifier errors.",
+        "deliverables": [
+          "Symbol table with scope resolution",
+          "Type-checking pass with error reporting"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Code generation: expressions & statements",
+        "description": "Implement stack-based x86-64 codegen for arithmetic expressions and control flow (if/while), with a hand-verified trace of one compiled expression.",
+        "deliverables": ["Expression codegen", "if/while codegen", "Hand-verified assembly trace"]
+      },
+      {
+        "step": 5,
+        "title": "Function calls & calling convention",
+        "description": "Implement a calling-convention-correct prologue/epilogue and run an end-to-end recursive test program (e.g. Fibonacci) to a correct result.",
+        "deliverables": [
+          "Correct prologue/epilogue with argument passing",
+          "End-to-end recursive test program"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "chibicc",
+        "url": "https://github.com/rui314/chibicc",
+        "note": "A small, well-documented C compiler built incrementally with a public commit history designed for step-by-step learning — the single best reference for reading a complete C-to-x86-64 pipeline end to end."
+      },
+      {
+        "title": "c4",
+        "url": "https://github.com/rswier/c4",
+        "note": "An extremely minimal self-hosting C compiler ('C in four functions') — a useful second reference for seeing how far a compiler's scope can be stripped down while staying genuinely functional, before chibicc's fuller feature set."
+      }
+    ]
+  }
+]

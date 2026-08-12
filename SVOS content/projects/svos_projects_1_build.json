@@ -1,0 +1,549 @@
+[
+  {
+    "slug": "personal-website",
+    "title": "Personal Portfolio Website",
+    "difficulty": "beginner",
+    "estimated_hours": 15,
+    "tech_stack": [
+      "HTML5",
+      "CSS3 (Grid + Flexbox)",
+      "Vanilla JavaScript (ES6+)",
+      "Intersection Observer API"
+    ],
+    "description": "A deployable portfolio site, not a tutorial clone: hero, projects grid, skills, resume download, and a working contact form. The layout uses CSS Grid for the page skeleton and Flexbox inside components, driven by a small set of CSS custom properties so the entire theme (colors, spacing scale, type ramp) changes from one :root block.\n\nScroll-triggered reveal animations use the Intersection Observer API instead of a scroll event listener — the classic mistake of firing a handler on every scroll tick and forcing synchronous layout reads is avoided entirely, since IntersectionObserver runs asynchronously off the main thread's scroll path.\n\nThe contact form posts via fetch() to a formless backend (e.g. Formspree), with explicit handling of the three fetch outcomes: network failure (catch), non-2xx status (checked on response.ok), and success — most tutorial versions only handle the happy path.",
+    "architecture_overview": "Static single HTML document, five semantic sections (header/nav, hero, projects, skills, contact/footer), no build step required. IntersectionObserver drives reveal-on-scroll and scrollspy nav highlighting; a single app.js module handles form submission and interaction wiring.",
+    "linked_node_explanations": {
+      "Application Layer Protocols (HTTP/HTTPS)": "The contact form's fetch() call is a real HTTP request-response cycle; handling status codes and network failure separately forces you to actually reason about HTTP semantics instead of only the happy path.",
+      "Time and Space Complexity Analysis": "Comparing an IntersectionObserver callback (fires only on visibility change) against a naive scroll listener (fires dozens of times per second, each triggering layout reads) is a concrete O(1)-amortized vs O(n)-per-scroll argument."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Semantic structure & responsive grid skeleton",
+        "description": "Build the five-section page with semantic landmarks and a CSS Grid layout that reflows at two breakpoints without media-query duplication of content.",
+        "deliverables": [
+          "Semantic HTML5 skeleton (nav/main/section/footer)",
+          "CSS Grid page layout with 2 breakpoints",
+          "Custom-property theme file"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Component styling",
+        "description": "Style project cards, skill tags, and nav using Flexbox inside the grid regions, keeping all magic numbers replaced by the theme's spacing scale.",
+        "deliverables": [
+          "Project card component",
+          "Responsive nav with mobile toggle",
+          "Consistent spacing scale applied"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Scroll-driven interactions",
+        "description": "Wire IntersectionObserver for section reveal-on-scroll and for scrollspy-style active-link highlighting in the nav.",
+        "deliverables": [
+          "Reveal-on-scroll via IntersectionObserver",
+          "Scrollspy active nav state",
+          "Smooth-scroll anchor navigation"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Performance & accessibility pass",
+        "description": "Run Lighthouse, fix CLS from unset image dimensions, add alt text and visible focus states, and verify tab order matches visual order.",
+        "deliverables": [
+          "Lighthouse report ≥90 on Performance & Accessibility",
+          "All images sized to prevent CLS",
+          "Keyboard-navigable focus states"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Working contact form & deployment",
+        "description": "Wire the fetch()-based submission with explicit success/failure/network-error states, then deploy with correct meta tags and an OG image for link previews.",
+        "deliverables": [
+          "Contact form with 3-state fetch handling",
+          "Deployed site (Vercel/Netlify) with custom domain",
+          "OG/meta tags for social link previews"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "task-manager",
+    "title": "Task Manager (Kanban Board)",
+    "difficulty": "beginner",
+    "estimated_hours": 20,
+    "tech_stack": [
+      "HTML5",
+      "CSS3",
+      "Vanilla JavaScript (ES6+)",
+      "HTML5 Drag and Drop API",
+      "localStorage / IndexedDB"
+    ],
+    "description": "A three-column Kanban board (To Do / In Progress / Done) with full CRUD, native drag-and-drop between columns, and persistence — built without a state-management library so the state design has to be deliberate.\n\nThe core decision is normalized state: tasks live in a flat object keyed by id (task-1, task-2, ...), and each column holds only an ordered array of ids. This means moving a task between columns is an O(1) removal from one id array and O(1) push into another, versus the common beginner mistake of nesting full task objects inside column arrays, which turns every move into an O(n) find-and-splice on both sides.\n\nDrag-and-drop is implemented against the native HTML5 Drag and Drop API (dragstart, dragover with preventDefault to allow dropping, drop) rather than a library, which forces handling the browser's default reject-drop behavior explicitly. Persistence goes to localStorage as versioned JSON (a schemaVersion field) so a future format change can migrate old saved boards instead of silently breaking them.",
+    "architecture_overview": "Single normalized state object {tasks: {id: {...}}, columns: {todo: [ids], inProgress: [ids], done: [ids]}} treated as the single source of truth; pure update functions mutate a copy and trigger a targeted re-render of only the affected column, not the whole board.",
+    "linked_node_explanations": {
+      "Arrays, Stacks, Queues, Linked Lists": "Column ordering is effectively a linked-list-of-ids problem — reordering within a column via drag is closer to a linked-list splice than an array shift, and the project makes you choose and justify the representation.",
+      "Hashing": "Keying tasks by id in a flat object is a hash-map lookup pattern: O(1) average access instead of the O(n) linear scan an array-of-objects would force for every edit or delete.",
+      "Time and Space Complexity Analysis": "Directly compares the normalized-state O(1) move against the naive nested-array O(n) move, with the difference becoming visible once the board holds a few hundred tasks."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Normalized data model & CRUD core",
+        "description": "Define the {tasks, columns} normalized shape and implement add/edit/delete/toggle-complete as pure functions over it.",
+        "deliverables": [
+          "Normalized state shape (tasks map + column id arrays)",
+          "Add/edit/delete/complete operations",
+          "Render function keyed off state, not DOM queries"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Persistent storage layer",
+        "description": "Serialize state to localStorage on every mutation with a schemaVersion field, and write a migration stub for future format changes.",
+        "deliverables": [
+          "localStorage save/load with versioned schema",
+          "Migration stub for schemaVersion bumps",
+          "Graceful handling of corrupted/missing storage"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Native drag-and-drop reordering",
+        "description": "Implement dragstart/dragover/drop handlers to move a task's id between column arrays, including reordering within the same column.",
+        "deliverables": [
+          "Cross-column drag-and-drop",
+          "Within-column reorder on drop",
+          "Visual drop-target indicator"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Filtering, search, and due-date sorting",
+        "description": "Add a search box (substring match on title) and a sort toggle (by due date) that operate on derived views without mutating the underlying normalized state.",
+        "deliverables": ["Live search filter", "Due-date sort toggle", "Overdue-task visual flag"]
+      },
+      {
+        "step": 5,
+        "title": "Undo/redo and polish",
+        "description": "Maintain a bounded action-history stack so any mutation can be undone/redone, plus keyboard shortcuts and empty-column states.",
+        "deliverables": [
+          "Undo/redo action stack",
+          "Keyboard shortcuts (new task, delete, undo)",
+          "Empty-state UI per column"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "social-media-dashboard",
+    "title": "Social Media Analytics Dashboard",
+    "difficulty": "intermediate",
+    "estimated_hours": 30,
+    "tech_stack": [
+      "HTML5",
+      "CSS3 (Grid)",
+      "Vanilla JavaScript (ES6+)",
+      "Chart.js or native Canvas API",
+      "Fetch API"
+    ],
+    "description": "A metrics dashboard over sample social data (followers, engagement rate, per-post performance) across multiple mock platform feeds, with charts, date-range filtering, and a responsive card grid — the point is the data pipeline, not the widgets.\n\nThe pipeline is explicitly three layers: a data layer (fetch/normalize raw mock JSON), a transform layer (derive metrics like engagement rate = (likes+comments+shares)/reach, and a rolling 7-day average), and a presentation layer (cards + charts). Rolling averages are computed with a sliding-window technique — maintain a running sum and add/subtract at the window edges as the date range moves — which is O(n) total, versus recomputing the sum from scratch for every window position, which is O(n·w) and gets visibly slower as the window widens.\n\nFilter changes (date range, platform) propagate through a small pub/sub event bus rather than prop-drilling callbacks through every component, so adding a new chart later doesn't require touching the filter code.",
+    "architecture_overview": "data (mock/fetch) → transform (derived metrics, sliding-window aggregation) → presentation (card grid + Chart.js/canvas charts), wired together by a lightweight pub/sub bus so filter state changes are broadcast once and consumed by whichever widgets are mounted.",
+    "linked_node_explanations": {
+      "Time and Space Complexity Analysis": "The rolling 7-day average is the textbook sliding-window optimization: O(n) with a running sum versus the naive O(n·w) recomputation, made concrete with a real, feel-able dataset size.",
+      "Hashing": "Grouping posts by platform and by date bucket for the aggregation step uses hash maps keyed by (platform, date) rather than repeated array filtering, turning an O(n²) grouping into O(n).",
+      "Application Layer Protocols (HTTP/HTTPS)": "Even against mock JSON, the fetch layer is written against real HTTP semantics (status checks, abort on stale requests when filters change quickly) so it transfers directly to a real API."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Mock data layer & metric derivation",
+        "description": "Load mock per-post/per-day JSON and implement engagement-rate and growth-percentage derivation as pure transform functions.",
+        "deliverables": [
+          "Mock dataset (multi-platform, multi-week)",
+          "Engagement-rate & growth % derivation functions",
+          "Sliding-window rolling-average implementation"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Responsive card grid",
+        "description": "Build the CSS Grid card layout that reflows from 4 columns to 1 across breakpoints, with skeleton-loading states.",
+        "deliverables": [
+          "Responsive card grid (3 breakpoints)",
+          "Loading/skeleton state per card",
+          "Empty-data state"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Chart integration",
+        "description": "Bind derived metrics to a line chart (trend), donut chart (platform share), and sparkline (per-card mini trend).",
+        "deliverables": [
+          "Line chart bound to rolling average",
+          "Donut chart for platform distribution",
+          "Sparkline mini-charts on cards"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Filtering via pub/sub",
+        "description": "Implement a minimal publish/subscribe bus so date-range and platform filters broadcast one event consumed by every mounted widget.",
+        "deliverables": [
+          "Pub/sub event bus (subscribe/publish/unsubscribe)",
+          "Date-range filter wired through the bus",
+          "Platform filter wired through the bus"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Performance pass",
+        "description": "Debounce filter inputs and, if the post table is large, virtualize row rendering so only visible rows exist in the DOM.",
+        "deliverables": [
+          "Debounced filter inputs",
+          "Virtualized post table (windowed rendering)",
+          "Before/after DOM-node-count measurement"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "url-shortener",
+    "title": "URL Shortener (Encoding & Collision Simulator)",
+    "difficulty": "beginner",
+    "estimated_hours": 18,
+    "tech_stack": ["HTML5", "CSS3", "Vanilla JavaScript (ES6+)", "Web Crypto API", "localStorage"],
+    "description": "A fully client-side simulator of how a real URL shortener's core algorithm works — there is no server-side redirect infrastructure here (that's out of scope for an HTML/CSS/JS build), but the exact encoding logic real systems use is implemented and swappable between two strategies behind one interface.\n\nStrategy one is counter-to-Base62: an incrementing integer counter is converted to a Base62 string (0-9, a-z, A-Z), which is deterministic and collision-free by construction but reveals total link count to anyone who decodes a code. Strategy two is hash-based: SHA-256 of the long URL (via the Web Crypto API), truncated to a 7-character Base62 prefix, which hides scale but can collide — so a collision-resolution ladder is implemented that extends the prefix by one character on collision, the same approach real short-link systems use to keep codes short while staying correct.\n\nEach short code is stored in localStorage as {longUrl, clicks, createdAt, referrers[]}, and 'visiting' a short code in the app increments analytics rather than performing a real network redirect.",
+    "architecture_overview": "Two Encoder implementations (CounterEncoder, HashEncoder) behind one encode(longUrl) interface — a Strategy pattern — both writing to a single localStorage map from code to {longUrl, clicks, createdAt}. A resolver simulates redirect + click logging.",
+    "linked_node_explanations": {
+      "Hashing": "The hash-based strategy's collision-probe ladder (extend prefix on collision) is a direct, hands-on instance of open-addressing collision resolution applied to a 62^7-sized code space instead of an in-memory table.",
+      "Time and Space Complexity Analysis": "Both strategies give O(1) average-case lookup via the localStorage map, but the project makes you articulate why: the alternative (scanning an array of {code, url} pairs) is O(n), and the difference is explained in terms of load factor and address-space size."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Base62 counter encoder",
+        "description": "Implement bijective base conversion from an incrementing integer to a Base62 string and back, with a stored counter that persists across sessions.",
+        "deliverables": [
+          "Base62 encode/decode functions",
+          "Persistent incrementing counter",
+          "Round-trip test (encode→decode→original id)"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "SHA-256 hash-based encoder with collision ladder",
+        "description": "Hash the long URL with the Web Crypto API, truncate to a Base62 prefix, and extend the prefix by one character whenever the prefix already maps to a different URL.",
+        "deliverables": [
+          "Web Crypto SHA-256 hashing",
+          "Prefix-extension collision resolution",
+          "Collision-rate test harness (synthetic near-duplicate URLs)"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Redirect simulation & click analytics",
+        "description": "Simulate visiting a short code by logging a click event ({timestamp, simulated referrer}) and displaying an analytics table per link.",
+        "deliverables": ["Simulated redirect flow", "Per-link click log", "Analytics table view"]
+      },
+      {
+        "step": 4,
+        "title": "Custom aliases & validation",
+        "description": "Allow user-chosen aliases, validated against a reserved-word list and a format regex, with clear collision errors distinct from the automatic collision ladder.",
+        "deliverables": [
+          "Custom alias input with format validation",
+          "Reserved-word rejection list",
+          "Explicit 'alias taken' error path"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Dashboard & expiry",
+        "description": "Add a top-links-by-clicks view and optional link expiry (auto-hide/disable after a set date), reusing the analytics data from milestone 3.",
+        "deliverables": [
+          "Top-links-by-clicks dashboard",
+          "Optional expiry date per link",
+          "Expired-link handling in the UI"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "bytecode-virtual-machine",
+    "title": "Stack-Based Bytecode Virtual Machine",
+    "difficulty": "advanced",
+    "estimated_hours": 45,
+    "tech_stack": [
+      "JavaScript (ES6+) or TypeScript",
+      "Uint8Array / DataView for bytecode encoding",
+      "Web Workers (optional, non-blocking execution)"
+    ],
+    "description": "A real stack-based virtual machine with its own instruction set — arithmetic (IADD, ISUB, IMUL, IDIV), stack manipulation (PUSH, POP, DUP, SWAP), control flow (JMP, JZ, JNZ, CALL, RET), and memory access (LOAD/STORE against a frame-local symbol table) — modeled on how the JVM and CPython's bytecode interpreter actually work.\n\nThe VM runs a genuine fetch-decode-execute loop: a program counter register indexes into a packed Uint8Array of bytecode, each opcode is decoded along with its operand width, executed against an operand stack, and the PC advances. Function calls push a real activation record onto a separate call stack — return address, saved PC, and a block of local variable slots — which is what actually makes CALL/RET work correctly for nested and recursive calls, rather than the common shortcut of using JavaScript's own call stack and losing the pedagogical point.\n\nAn assembler turns human-readable mnemonics into the packed bytecode format, and a disassembler reverses it for debugging — proving the encoding is lossless. A stretch goal compiles a tiny expression language down to this bytecode, closing the loop from source text to execution.",
+    "architecture_overview": "Source (optional tiny language) → Assembler (mnemonics → packed Uint8Array bytecode with opcode + operand table) → VM loop (fetch opcode at PC → decode operand width → execute against operand stack → advance PC) → Call stack of activation records for CALL/RET.",
+    "linked_node_explanations": {
+      "Machine Instructions and Addressing Modes": "Designing the opcode table and operand-width encoding is a direct, hands-on version of this GATE topic — you are the ISA designer, choosing fixed vs variable-width operands and justifying the tradeoff.",
+      "ALU, Data-Path and Control Unit": "The VM's central execute() dispatch is a software control unit; the arithmetic opcodes implement the ALU's role, and the operand stack plays the register file's role.",
+      "Instruction Pipelining": "Building a naive, non-pipelined interpreter loop first makes the motivation for pipelining concrete: you can point to exactly where a real CPU would overlap fetch/decode/execute across instructions and this VM does not.",
+      "Runtime Environments": "The call-stack activation records (return address + saved PC + local slots) are precisely the 'runtime environment / activation record' content from Compiler Design, implemented rather than diagrammed.",
+      "Code Generation": "If the stretch-goal compiler is built, translating expression-tree nodes into opcode sequences is literal code generation, including register/stack-slot allocation for locals."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Instruction set design & bytecode encoding",
+        "description": "Define the opcode table (arithmetic, stack, control-flow, memory ops) and a packed encoding format with explicit operand widths.",
+        "deliverables": [
+          "Opcode table (name, code, operand width)",
+          "Bytecode encoding spec (header + instruction stream)",
+          "Encoding round-trip unit tests"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Assembler & disassembler",
+        "description": "Parse mnemonic source into the packed Uint8Array format, and reverse it into readable mnemonics for debugging.",
+        "deliverables": [
+          "Assembler (mnemonics → bytecode)",
+          "Disassembler (bytecode → mnemonics)",
+          "Label resolution for jump targets"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Core VM execution loop",
+        "description": "Implement the fetch-decode-execute loop for stack ops, arithmetic, comparisons, and unconditional/conditional jumps.",
+        "deliverables": [
+          "Fetch-decode-execute loop with PC register",
+          "Operand stack (push/pop/dup/swap, arithmetic)",
+          "JMP/JZ/JNZ control flow"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Function calls & activation records",
+        "description": "Add a call stack of activation records (return address, saved PC, local slots) so CALL/RET support nested and recursive calls correctly.",
+        "deliverables": [
+          "Call stack with activation records",
+          "CALL/RET with correct PC restoration",
+          "Recursive-call test program (e.g. factorial)"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Tiny compiler & error handling",
+        "description": "Compile a small expression language to this bytecode, and add trap opcodes for runtime errors (stack underflow, divide-by-zero, bad jump target).",
+        "deliverables": [
+          "Minimal expression-language compiler targeting the VM",
+          "Runtime error trap opcodes",
+          "End-to-end demo (source → bytecode → executed output)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "regex-engine-nfa-dfa",
+    "title": "Regex Engine via Thompson NFA and Subset-Construction DFA",
+    "difficulty": "advanced",
+    "estimated_hours": 40,
+    "tech_stack": ["JavaScript (ES6+) or TypeScript"],
+    "description": "A real regex engine built the way theory says to build one — not a wrapper around the browser's RegExp — following the classical automata pipeline end to end: regex string → parse tree (correctly handling precedence, where *, +, ? bind tighter than concatenation, which binds tighter than |, with parentheses for grouping) → Thompson's construction (epsilon-NFA) → subset construction (powerset construction to a DFA) → optional Hopcroft's DFA minimization.\n\nSupported syntax covers literals, concatenation, alternation (|), Kleene star (*), plus (+), optional (?), and character classes ([a-z], negated [^...]). Each construct maps to a specific, named NFA-fragment rule from Thompson's construction (e.g. star wraps a fragment with new epsilon transitions looping back and skipping over it), so the code traces directly back to the textbook algorithm rather than an ad hoc backtracking matcher.\n\nCorrectness is validated by differential testing: a generated corpus of test strings is run through both this engine and the native RegExp, and mismatches are treated as bugs. The NFA and resulting DFA are rendered as graphs so subset construction's potential state explosion (up to 2^n DFA states from an n-state NFA) is visible rather than abstract.",
+    "architecture_overview": "Parser (recursive descent → AST with correct operator precedence) → Thompson construction (AST → NFA with epsilon transitions, one fragment-composition rule per AST node type) → Subset construction (NFA → DFA via epsilon-closure sets treated as DFA states) → optional Hopcroft minimization → Matcher (DFA run over input, single pass).",
+    "linked_node_explanations": {
+      "Finite Automata (DFA/NFA)": "This is the project's core: hand-building the NFA-to-DFA pipeline is GATE Theory of Computation's most heavily tested topic, done as working code instead of a state-transition diagram on paper.",
+      "Regular Expressions and Regular Languages": "The project is a constructive proof of Kleene's theorem — regex, NFA, and DFA are shown to be equivalent by literally converting between all three representations.",
+      "Pumping Lemma for Regular Languages": "Used as a validation tool: adversarial test strings built from pumping-lemma reasoning help confirm the DFA rejects strings outside the intended regular language rather than just checking a handful of examples.",
+      "Lexical Analysis": "This exact pipeline (regex → NFA → DFA) is what lexer generators like flex/re2c run internally to turn a set of token regexes into one scanning DFA — the project is a lexer generator's core in isolation.",
+      "Time and Space Complexity Analysis": "NFA simulation matches in O(n·m) (n = input length, m = NFA states) with no precompilation, versus DFA matching in O(n) after a subset-construction step that is worst-case O(2^m) — a real, measurable time/space tradeoff, not just a formula."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Regex parser",
+        "description": "Tokenize the pattern and build a recursive-descent parser producing an AST with correct precedence for *, +, ?, concatenation, and | (alternation), plus grouping.",
+        "deliverables": [
+          "Tokenizer for regex syntax",
+          "Recursive-descent parser → AST",
+          "Precedence test suite (ambiguous patterns)"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Thompson's construction",
+        "description": "Implement the fragment-composition rules that convert each AST node type into an epsilon-NFA fragment, composing them per the construction's concatenation/union/star rules.",
+        "deliverables": [
+          "NFA fragment representation (start, accept, transitions)",
+          "Per-construct composition rules (concat/union/star/plus/optional)",
+          "NFA visualization (state/edge list)"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Subset construction",
+        "description": "Convert the NFA to a DFA by computing epsilon-closures and treating each reachable closure set as one DFA state.",
+        "deliverables": [
+          "Epsilon-closure computation",
+          "Subset construction algorithm (NFA → DFA)",
+          "DFA state-count report vs NFA state-count"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "DFA minimization & matcher",
+        "description": "Implement Hopcroft's (or Moore's) minimization algorithm and a single-pass matcher that runs the minimized DFA over input strings.",
+        "deliverables": [
+          "DFA minimization algorithm",
+          "Linear-time matcher over minimized DFA",
+          "Minimized vs unminimized state-count comparison"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Visualization & differential testing",
+        "description": "Render NFA/DFA as explorable graphs and build a differential test harness comparing this engine's matches against the native RegExp on a generated corpus.",
+        "deliverables": [
+          "Interactive NFA/DFA graph visualization",
+          "Differential test harness vs native RegExp",
+          "Test report covering all supported syntax constructs"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "sat-solver-dpll",
+    "title": "SAT Solver (DPLL Algorithm)",
+    "difficulty": "advanced",
+    "estimated_hours": 40,
+    "tech_stack": ["JavaScript (ES6+) or TypeScript"],
+    "description": "An implementation of the Davis-Putnam-Logemann-Loveland (DPLL) algorithm for Boolean satisfiability over CNF formulas — the canonical NP-complete decision procedure, and the direct ancestor of every modern SAT solver.\n\nThe three DPLL rules are implemented as separate, independently testable units: unit propagation (a clause with exactly one unassigned literal forces that literal's value, implemented with a watched-literal scheme so assigning a variable only re-checks the small set of clauses watching it, not every clause in the formula), pure literal elimination (a variable appearing with only one polarity across the whole formula can be assigned to satisfy every clause containing it, for free), and branching with backtracking (pick an unassigned variable, try True then False, undo bindings on conflict).\n\nInput/output uses the DIMACS CNF format — the standard format used by SAT competition benchmark instances — so the solver can be run against real published problems, not just hand-written toy formulas. A stretch goal adds a basic form of clause learning (recording a conflict clause when backtracking hits a dead end), making the gap between textbook DPLL and a modern CDCL solver directly visible in solve time on harder instances.",
+    "architecture_overview": "DIMACS parser (CNF file → clause/literal arrays) → DPLL core (unit-propagate → pure-literal-eliminate → branch → recurse → backtrack on conflict) → assignment trail (supports backtracking and optional conflict-clause recording) → verifier (checks a returned assignment actually satisfies every clause).",
+    "linked_node_explanations": {
+      "Propositional and First-Order Logic": "CNF, literals, and clause satisfiability are the exact working vocabulary of this GATE Discrete Mathematics topic — the solver operates on formulas the same way GATE questions describe them.",
+      "NP-Completeness": "SAT is the original NP-complete problem via the Cook-Levin theorem; building a working (if exponential worst-case) solver makes the P-vs-NP distinction something you've implemented, not just defined.",
+      "Divide and Conquer": "DPLL's branch-then-recurse-on-each-half structure is a textbook backtracking algorithm, with unit propagation acting as a pruning rule layered on top of plain search.",
+      "Boolean Algebra": "Converting arbitrary propositional formulas to CNF (e.g. via a Tseitin transformation) is a direct application of De Morgan's laws and distributivity from Digital Logic's Boolean algebra unit.",
+      "Time and Space Complexity Analysis": "Worst-case branching is O(2^n) in the number of variables; the project makes the gap between this bound and typical practical performance (thanks to unit propagation and pure-literal pruning) something you measure, not just cite."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "DIMACS parser & clause model",
+        "description": "Parse the DIMACS CNF format into a clause/literal data model using signed integers, with watched-literal indexing set up per clause.",
+        "deliverables": [
+          "DIMACS CNF parser",
+          "Signed-integer literal representation",
+          "Watched-literal index structure"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Unit propagation with watched literals",
+        "description": "Implement unit propagation so assigning a variable only triggers re-checks on clauses currently watching it, avoiding a full clause re-scan per assignment.",
+        "deliverables": [
+          "Watched-literal unit propagation",
+          "Conflict detection during propagation",
+          "Propagation unit tests on hand-built formulas"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Pure literal elimination & backtracking search",
+        "description": "Add pure-literal elimination as a pre-branch simplification, then implement the recursive branch/backtrack core of DPLL.",
+        "deliverables": [
+          "Pure literal elimination pass",
+          "Recursive branching with backtrack-on-conflict",
+          "Variable-selection heuristic (e.g. most-frequent-literal)"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Verifier & benchmark harness",
+        "description": "Verify returned assignments against all clauses, and run the solver against real DIMACS competition benchmark instances with timing.",
+        "deliverables": [
+          "Assignment verifier",
+          "Benchmark harness against DIMACS instances",
+          "SAT/UNSAT + model-output reporting"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Stretch: basic clause learning",
+        "description": "Record a conflict clause on backtrack (a simplified 1-UIP-style scheme) and compare solve time against plain DPLL on harder benchmark instances.",
+        "deliverables": [
+          "Conflict-clause recording on backtrack",
+          "Learned-clause database with simple deletion policy",
+          "Plain-DPLL vs clause-learning benchmark comparison"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "vulnerability-scanner-static",
+    "title": "Static Application Vulnerability Scanner",
+    "difficulty": "advanced",
+    "estimated_hours": 45,
+    "tech_stack": ["JavaScript (ES6+) or TypeScript", "Acorn or Esprima (JS AST parser)"],
+    "description": "A static analysis tool that parses source code into an Abstract Syntax Tree and walks it to flag real vulnerability patterns via AST-based matching — the same technique real tools like ESLint's security plugins and Semgrep use — rather than regex grep over raw text, which both over- and under-matches.\n\nThe core check is taint analysis for injection risk: a simplified dataflow pass treats every variable definition and use as a node in a def-use graph, marks 'source' nodes (user input, request parameters), and runs BFS/DFS to determine whether a 'sink' node (innerHTML, eval(), string-concatenated SQL) is reachable from any source — flagging it if so. Two supporting checks round out the scanner: hardcoded-secret detection (an entropy heuristic over string literals combined with pattern rules for API-key-shaped strings) and insecure-configuration checks (disabled TLS verification, wildcard CORS origins).\n\nFindings are ranked by severity and mapped to CWE identifiers, with the source line and the actual source-to-sink path included in the report — not just 'line 42 is bad' but the specific chain of assignments that makes it bad. A small deliberately-vulnerable sample app serves as the test corpus to measure true/false positive rates.",
+    "architecture_overview": "Parser (source → AST) → def-use graph builder (definitions/assignments/calls become graph nodes and edges) → rule engine (each rule is a source→sink reachability query or a local AST pattern) → reporter (severity-ranked findings with CWE id, source location, and source-to-sink path).",
+    "linked_node_explanations": {
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "Taint tracking from a tainted source to a dangerous sink is exactly reachability via BFS/DFS on the def-use graph — a direct, practical application rather than a shortest-path homework problem.",
+      "Parsing": "Producing and consuming the AST is a hands-on run of the Compiler Design parsing unit, using a real parser (Acorn/Esprima) the way production tools do.",
+      "Syntax-Directed Translation": "The rule engine annotates AST nodes with a taint attribute while walking the tree — the same attribute-passing pattern that syntax-directed definitions use to compute values during a parse.",
+      "Trees and Binary Search Trees": "AST walking (pre-order for finding definitions, post-order for propagating taint upward) is general tree-traversal from Programming & Data Structures applied to a non-toy tree shape.",
+      "Time and Space Complexity Analysis": "Naively re-walking the whole AST every time taint status changes can blow up around loops and recursive calls; a worklist/fixed-point algorithm is required for correct termination and reasonable performance, which is a direct, applied lesson in algorithmic termination arguments."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "AST parsing pipeline",
+        "description": "Wire up the AST parser and build a generic tree-walking visitor infrastructure that rules can hook into.",
+        "deliverables": [
+          "AST parser integration (Acorn/Esprima)",
+          "Visitor pattern infrastructure for tree walking",
+          "Source-location tracking on every visited node"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Def-use graph construction",
+        "description": "Walk the AST to build a graph of variable definitions, assignments, and function-call edges that the taint analysis will run over.",
+        "deliverables": [
+          "Def-use graph builder",
+          "Function-call edge resolution (including simple aliasing)",
+          "Graph visualization for debugging"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Taint analysis engine",
+        "description": "Implement source/sink rule definitions and BFS/DFS reachability over the def-use graph for the first three vulnerability classes: XSS via innerHTML, SQL injection via string concatenation, and eval() injection.",
+        "deliverables": [
+          "Source/sink rule definitions (3 vulnerability classes)",
+          "BFS/DFS taint-reachability engine",
+          "Source-to-sink path reconstruction for findings"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Secret detection & config checks",
+        "description": "Add entropy-based hardcoded-secret detection plus a regex rule pack, and insecure-configuration checks (disabled TLS verification, wildcard CORS).",
+        "deliverables": [
+          "Entropy-based secret detector",
+          "Pattern rule pack for known secret formats",
+          "Insecure-configuration rule set"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Reporting & validation corpus",
+        "description": "Produce severity-ranked, CWE-mapped reports with suggested fixes, and validate detection/false-positive rates against a deliberately-vulnerable sample app.",
+        "deliverables": [
+          "Severity-ranked, CWE-mapped report output",
+          "Deliberately-vulnerable sample-app test corpus",
+          "True/false-positive rate measurement"
+        ]
+      }
+    ]
+  }
+]

@@ -138,6 +138,7 @@ def _project_to_dict(p) -> dict:
         'milestones': meta.get('milestones', []),
         'architecture_overview': meta.get('architecture_overview'),
         'linked_node_explanations': meta.get('linked_node_explanations', {}),
+        'demo_url': meta.get('demo_url'),
         'extra_metadata': meta,
         'icon': p.icon,
         'color': p.color,

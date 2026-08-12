@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV-OS // URL Shortener</title>
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --panel2:#171c27; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E; --danger:#E1543D; --success:#6FCF97;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;} body{margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans);}
+  header{border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;}
+  .brand{font-family:var(--mono); font-size:.95rem;} .brand b{color:var(--amber);}
+  .readout{font-family:var(--mono); font-size:.72rem; color:var(--muted); display:flex; gap:1.2rem;}
+  .readout b{color:var(--cyan);}
+  main{max-width:920px; margin:0 auto; padding:1.5rem;}
+  .banner{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:4px; padding:.8rem 1rem; font-size:.85rem; color:var(--muted); margin-bottom:1.5rem;}
+  .banner b{color:var(--text);}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1.2rem; margin-bottom:1.2rem;}
+  .panel h2{font-size:.8rem; font-family:var(--mono); text-transform:uppercase; color:var(--muted); letter-spacing:.06em; margin-bottom:1rem;}
+  .row{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center;}
+  input[type=text], input[type=url]{flex:1; min-width:220px; background:#0d1017; border:1px solid var(--border); color:var(--text); padding:.65rem .8rem; border-radius:4px; font-family:var(--sans); font-size:.92rem;}
+  input:focus{border-color:var(--amber); outline:none;}
+  select{background:#0d1017; border:1px solid var(--border); color:var(--text); padding:.65rem .7rem; border-radius:4px; font-family:var(--mono); font-size:.82rem;}
+  .btn{font-family:var(--mono); font-size:.82rem; padding:.65rem 1.1rem; border-radius:4px; border:1px solid var(--border); background:var(--panel2); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--amber);}
+  .btn-primary{background:var(--amber); color:#1a1305; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{background:#f0ae52;}
+  .result{margin-top:1rem; padding:.9rem; background:var(--panel2); border:1px solid var(--border); border-radius:6px; display:none;}
+  .result.show{display:block;}
+  .result .short{font-family:var(--mono); color:var(--cyan); font-size:1.05rem;}
+  .result .meta{font-size:.75rem; color:var(--muted); margin-top:.4rem; font-family:var(--mono);}
+  .err{color:var(--danger); font-size:.82rem; margin-top:.5rem; display:none;}
+  .err.show{display:block;}
+
+  table{width:100%; border-collapse:collapse; font-size:.85rem;}
+  th{text-align:left; font-family:var(--mono); font-size:.68rem; text-transform:uppercase; color:var(--muted); padding:.5rem .4rem; border-bottom:1px solid var(--border);}
+  td{padding:.55rem .4rem; border-bottom:1px solid #1a1f2b;}
+  td.code{font-family:var(--mono); color:var(--cyan);}
+  td.url{color:var(--muted); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .strategy-pill{font-family:var(--mono); font-size:.68rem; padding:.1rem .4rem; border-radius:3px;}
+  .strategy-pill.counter{background:#12283a; color:var(--cyan);}
+  .strategy-pill.hash{background:#3a2e12; color:var(--amber);}
+  .visit-btn{background:none; border:1px solid var(--border); color:var(--muted); border-radius:3px; padding:.2rem .5rem; font-family:var(--mono); font-size:.7rem; cursor:pointer;}
+  .visit-btn:hover{border-color:var(--amber); color:var(--amber);}
+  .empty{color:var(--muted); text-align:center; padding:2rem; font-family:var(--mono); font-size:.8rem;}
+
+  .log-panel{max-height:200px; overflow-y:auto; font-family:var(--mono); font-size:.75rem; color:var(--muted);}
+  .log-line{padding:.25rem 0; border-bottom:1px solid #1a1f2b;}
+  .log-line b{color:var(--cyan);}
+  footer{padding:1rem 1.5rem; color:var(--muted); font-size:.75rem; font-family:var(--mono); text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SV-OS // <b>url-shortener</b></div>
+  <div class="readout">
+    <span>LINKS <b id="roLinks">0</b></span>
+    <span>CODE SPACE 62<sup>7</sup> <b>≈ 3.5T</b></span>
+    <span>COLLISIONS RESOLVED <b id="roCollisions">0</b></span>
+  </div>
+</header>
+
+<main>
+  <div class="banner"><b>Scope note:</b> this runs entirely client-side. There is no real redirect server — "visiting" a code below simulates a redirect and logs a click. What's real is the encoding algorithm itself: Base62 counter conversion, SHA-256 hashing via the Web Crypto API, and genuine collision resolution.</div>
+
+  <div class="panel">
+    <h2>Shorten a URL</h2>
+    <div class="row">
+      <input type="url" id="longUrl" placeholder="https://example.com/some/very/long/path?query=1" value="https://example.com/articles/how-hash-tables-work">
+      <select id="strategy">
+        <option value="counter">Counter → Base62</option>
+        <option value="hash" selected>SHA-256 → Base62 (with collision ladder)</option>
+      </select>
+      <button class="btn btn-primary" id="shortenBtn">Shorten</button>
+    </div>
+    <div class="row" style="margin-top:.6rem;">
+      <input type="text" id="alias" placeholder="Optional custom alias (a-z, 0-9, -, 3-20 chars)" style="max-width:320px;">
+    </div>
+    <p class="err" id="errMsg"></p>
+    <div class="result" id="result">
+      <div>Short link: <span class="short" id="shortOut"></span></div>
+      <div class="meta" id="metaOut"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Links &amp; analytics</h2>
+    <table>
+      <thead><tr><th>Code</th><th>Strategy</th><th>Target</th><th>Clicks</th><th></th></tr></thead>
+      <tbody id="linksBody"></tbody>
+    </table>
+    <div class="empty" id="emptyState" style="display:none;">No links yet — shorten one above.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Collision / click log</h2>
+    <div class="log-panel" id="log"></div>
+  </div>
+</main>
+
+<footer>Base62 counter is collision-free by construction · hash strategy extends its prefix by 1 char on genuine collision, same as production short-link systems</footer>
+
+<script>
+const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const RESERVED = new Set(['admin','api','www','login','signup','shorten','delete','edit']);
+const STORAGE_KEY = 'svos.urlshortener.v1';
+
+function b62encode(n){
+  if(n===0) return ALPHABET[0];
+  let s=''; while(n>0){ s = ALPHABET[n%62] + s; n = Math.floor(n/62); } return s;
+}
+
+async function sha256Base62(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  let big = 0n;
+  new Uint8Array(buf).forEach(b => { big = big*256n + BigInt(b); });
+  let s = '';
+  if(big===0n) return ALPHABET[0];
+  while(big>0n){ s = ALPHABET[Number(big % 62n)] + s; big /= 62n; }
+  return s;
+}
+
+// ---- state: code -> {longUrl, clicks, createdAt, referrers, strategy} ----
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
+}
+let links = loadState();
+let counter = Object.values(links).filter(l=>l.strategy==='counter').length;
+let collisionsResolved = 0;
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(links)); }
+function log(msg){
+  const el = document.getElementById('log');
+  const line = document.createElement('div'); line.className='log-line'; line.innerHTML = msg;
+  el.prepend(line);
+}
+
+// ---- Strategy 1: Counter -> Base62 (deterministic, collision-free) ----
+function counterEncode(){
+  const code = b62encode(counter);
+  counter++;
+  return code;
+}
+
+// ---- Strategy 2: SHA-256 -> Base62 with collision-probe ladder ----
+async function hashEncode(longUrl){
+  const full = await sha256Base62(longUrl);
+  let len = 7;
+  while(len <= full.length){
+    const candidate = full.slice(0, len);
+    const existing = links[candidate];
+    if(!existing){ return candidate; }
+    if(existing.longUrl === longUrl){ return candidate; } // already shortened, same URL
+    // real collision: same prefix, different URL -> extend by one character
+    collisionsResolved++;
+    log(`⚠ collision at <b>${candidate}</b> (${len} chars) — extending to ${len+1}`);
+    len++;
+  }
+  throw new Error('hash exhausted');
+}
+
+async function shorten(){
+  const errEl = document.getElementById('errMsg'); errEl.classList.remove('show');
+  const longUrl = document.getElementById('longUrl').value.trim();
+  const strategy = document.getElementById('strategy').value;
+  const aliasRaw = document.getElementById('alias').value.trim();
+
+  if(!longUrl){ showErr('Enter a URL to shorten.'); return; }
+  try{ new URL(longUrl); }catch(e){ showErr('That doesn\u2019t look like a valid URL (include https://).'); return; }
+
+  let code;
+  if(aliasRaw){
+    if(!/^[a-z0-9-]{3,20}$/.test(aliasRaw)){ showErr('Alias must be 3-20 chars: lowercase letters, digits, hyphens only.'); return; }
+    if(RESERVED.has(aliasRaw)){ showErr(`"${aliasRaw}" is a reserved word — pick another alias.`); return; }
+    if(links[aliasRaw]){ showErr(`Alias "${aliasRaw}" is already taken.`); return; }
+    code = aliasRaw;
+  } else if(strategy==='counter'){
+    code = counterEncode();
+  } else {
+    code = await hashEncode(longUrl);
+  }
+
+  links[code] = { longUrl, clicks:0, createdAt: Date.now(), referrers:[], strategy: aliasRaw?'custom':strategy };
+  save(); render();
+
+  document.getElementById('shortOut').textContent = location.origin + location.pathname + '#' + code;
+  document.getElementById('metaOut').textContent = `strategy: ${links[code].strategy} · code length: ${code.length}`;
+  document.getElementById('result').classList.add('show');
+  log(`created <b>${code}</b> → ${longUrl.slice(0,50)}${longUrl.length>50?'…':''}`);
+  document.getElementById('alias').value='';
+}
+function showErr(msg){ const e=document.getElementById('errMsg'); e.textContent=msg; e.classList.add('show'); }
+
+function simulateVisit(code){
+  const link = links[code]; if(!link) return;
+  link.clicks++;
+  const refs = ['direct','twitter.com','google.com','newsletter'];
+  link.referrers.push(refs[Math.floor(Math.random()*refs.length)]);
+  save(); render();
+  log(`→ visit <b>${code}</b> (click #${link.clicks}), redirecting to ${link.longUrl.slice(0,40)}…`);
+}
+
+function render(){
+  const body = document.getElementById('linksBody');
+  const entries = Object.entries(links).sort((a,b)=> b[1].createdAt - a[1].createdAt);
+  document.getElementById('roLinks').textContent = entries.length;
+  document.getElementById('roCollisions').textContent = collisionsResolved;
+  document.getElementById('emptyState').style.display = entries.length? 'none':'block';
+  body.innerHTML = entries.map(([code,l])=>`
+    <tr>
+      <td class="code">${code}</td>
+      <td><span class="strategy-pill ${l.strategy==='counter'?'counter':'hash'}">${l.strategy}</span></td>
+      <td class="url" title="${l.longUrl}">${l.longUrl}</td>
+      <td>${l.clicks}</td>
+      <td><button class="visit-btn" data-code="${code}">visit ↗</button></td>
+    </tr>`).join('');
+  body.querySelectorAll('.visit-btn').forEach(b=> b.addEventListener('click', ()=> simulateVisit(b.dataset.code)));
+}
+
+document.getElementById('shortenBtn').addEventListener('click', shorten);
+document.getElementById('longUrl').addEventListener('keydown', e=>{ if(e.key==='Enter') shorten(); });
+
+render();
+</script>
+</body>
+</html>

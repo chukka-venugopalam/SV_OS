@@ -1,0 +1,63 @@
+[
+  {
+    "title": "AI Engineer",
+    "description": "An AI Engineer builds and deploys applications on top of foundation models — designing RAG pipelines with vector databases like Pinecone or FAISS, fine-tuning pretrained transformers using techniques like LoRA, and writing evaluation harnesses to catch hallucination and regressions before shipping. Day-to-day work also includes optimizing inference cost and latency through quantization, batching, and caching strategies, and wiring model outputs into product APIs with guardrails for safety and reliability.",
+    "companies_hiring": ["Google", "Microsoft", "Amazon", "Meta", "NVIDIA"],
+    "certifications": [
+      "AWS Certified Machine Learning Engineer – Associate",
+      "Google Cloud Professional Machine Learning Engineer",
+      "Microsoft Certified: Azure AI Engineer Associate"
+    ],
+    "demand_level": "Very high — NASSCOM reports roughly 40% year-over-year growth in AI hiring in India; GenAI/LLM specialization is the fastest-growing, highest-paid segment within the role.",
+    "salary_range": "India: ~₹6–8 LPA entry, ₹15–30 LPA mid, ₹40–80+ LPA senior/GenAI specialist. Gap between IT-services and product/GCC employers at equal experience is large (60–150%), so averages alone are misleading.",
+    "linked_projects": ["transformer-nlp-engine", "computer-vision-segmentation"]
+  },
+  {
+    "title": "Backend Engineer",
+    "description": "A Backend Engineer designs and maintains the server-side logic, APIs, and data layer that power an application — writing REST or gRPC services, modeling relational or NoSQL data stores, and tuning database queries and indexes for latency under load. Day-to-day work includes handling concurrency and race conditions, implementing caching layers (Redis, Memcached) and message queues (Kafka, RabbitMQ) for async processing, and ensuring services scale horizontally with proper retries and idempotency guarantees.",
+    "companies_hiring": ["Amazon", "Google", "Microsoft", "Flipkart", "Razorpay"],
+    "demand_level": "High and stable — a foundational, evergreen hiring category across both IT-services and product companies.",
+    "salary_range": "India: ~₹4–9 LPA entry, ₹10–24 LPA mid, ₹25–60+ LPA senior. System-design skill is the single biggest lever above the ~5-year mark; unicorn/FAANG offices pay well above this range.",
+    "linked_projects": ["api-gateway", "ecommerce-api", "http-proxy-cache"]
+  },
+  {
+    "title": "Frontend Engineer",
+    "description": "A Frontend Engineer builds the user-facing layer of web or mobile applications — implementing component-based UIs in frameworks like React or Vue, managing application state (Redux, Context API, or signals), and integrating with backend APIs via REST or GraphQL. Day-to-day work includes optimizing rendering performance (minimizing re-renders, code-splitting, lazy loading), ensuring accessibility (WCAG/ARIA) and cross-browser compatibility, and translating design specs into responsive layouts.",
+    "companies_hiring": ["Google", "Meta", "Amazon", "Flipkart", "Swiggy"],
+    "demand_level": "High and stable — consumer and SaaS product companies pay the largest premiums here since UI quality drives retention and conversion directly.",
+    "salary_range": "India: ~₹4–10 LPA entry, ₹14–32 LPA mid, ₹40–90+ LPA senior/principal at top product companies and GCCs.",
+    "linked_projects": ["netflix-clone", "personal-website", "social-media-dashboard"]
+  },
+  {
+    "title": "ML Engineer",
+    "description": "An ML Engineer builds the pipeline that takes raw data to a trained, served model — engineering features, running experiments to compare algorithms (gradient boosting, neural networks) against baseline metrics, and packaging models for production with tools like MLflow or Kubeflow. Day-to-day work includes managing training infrastructure (distributed training, GPU scheduling), monitoring deployed models for data drift and performance decay, and automating retraining pipelines as data distributions shift.",
+    "companies_hiring": ["Google", "Meta", "Amazon", "Microsoft", "NVIDIA"],
+    "certifications": [
+      "AWS Certified Machine Learning Engineer – Associate",
+      "Google Cloud Professional Machine Learning Engineer"
+    ],
+    "demand_level": "Very high — multiple 2026 salary surveys report ML engineering has overtaken backend engineering as India's highest-paid mainstream technical specialization.",
+    "salary_range": "India: ~₹6–18 LPA entry, ₹20–42 LPA mid, ₹40–80+ LPA senior. GenAI/LLM and MLOps specialists sit at the top of this band; the ML/data-scientist boundary is blurring.",
+    "linked_projects": ["machine-learning-pipeline", "transformer-nlp-engine"]
+  },
+  {
+    "title": "Systems/Kernel Engineer",
+    "description": "A Systems/Kernel Engineer works at the OS layer — writing or modifying kernel modules and device drivers, implementing or tuning scheduler and memory-management algorithms, and debugging race conditions and deadlocks with tools like ftrace, perf, or kgdb. Day-to-day work includes profiling syscall overhead, working directly with page tables and interrupt handlers, and validating changes against kernel regression suites (e.g., the Linux Test Project) before upstreaming patches.",
+    "companies_hiring": ["Red Hat", "Google", "Microsoft", "Amazon", "Qualcomm"],
+    "demand_level": "Niche and steady rather than high-volume — far fewer dedicated openings than mainstream application-development roles, concentrated at semiconductor, OS, and cloud-infrastructure companies doing genuine kernel-level work.",
+    "salary_range": "not available — India-specific salary data for this exact title is too sparse and inconsistent to report confidently. The samples found ranged from single-digit numbers of data points to figures differing by roughly 10x for similarly-named titles, which is not a basis for a real number.",
+    "linked_projects": [
+      "unix-shell-and-kernel",
+      "user-threads-scheduler",
+      "bytecode-virtual-machine"
+    ]
+  },
+  {
+    "title": "Compiler Engineer",
+    "description": "A Compiler Engineer builds and optimizes the toolchain that translates source code into executable machine code — implementing lexers and parsers, designing intermediate representations (IR), and writing optimization passes for tasks like constant folding, loop unrolling, and register allocation. Day-to-day work often involves working within frameworks like LLVM or MLIR, debugging miscompilations via test-case reduction (e.g., with creduce), and benchmarking generated code against target instruction sets.",
+    "companies_hiring": ["Google", "NVIDIA", "Intel", "ARM", "Qualcomm"],
+    "demand_level": "Very niche — one of the smallest, most specialized hiring categories in this list, concentrated at a handful of semiconductor and platform companies with dedicated compiler teams.",
+    "salary_range": "not available — reliable India-specific salary data could not be confidently established. Search results returned single-data-point 'averages' and figures varying by roughly 10x across sources, which is not a reliable basis for a range.",
+    "linked_projects": ["c-compiler-subset", "bytecode-virtual-machine", "regex-engine-nfa-dfa"]
+  }
+]

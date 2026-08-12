@@ -1,0 +1,898 @@
+[
+  {
+    "slug": "transformer-nlp-engine",
+    "title": "Transformer-Based NLP Engine",
+    "difficulty": "expert",
+    "estimated_hours": 90,
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "NumPy",
+      "Scaled dot-product attention",
+      "Byte-Pair Encoding tokenizer"
+    ],
+    "description": "Study of the Transformer architecture from its actual mechanism outward: scaled dot-product attention, Attention(Q,K,V) = softmax(QK^T / √d_k)V, where the 1/√d_k scaling exists specifically to stop dot products from growing large in magnitude as dimensionality increases, which would otherwise push softmax into regions with vanishingly small gradients.\n\nMulti-head attention (running several scaled-dot-product-attention computations in parallel on different learned projections of Q/K/V, then concatenating) lets the model attend to information from different representation subspaces at different positions simultaneously; a single head empirically underperforms this. Positional encoding (sinusoidal functions of different frequencies added to token embeddings) then restores order-sensitivity to attention, which on its own is permutation-invariant and has no notion of sequence order.\n\nThe study focus is implementing and validating a minimal decoder-only Transformer (nanoGPT-style) from scratch on a small dataset, tracing training-loss convergence, since implementing attention correctly — causal masking for autoregressive generation especially — is close to impossible to verify by reading alone.",
+    "architecture_overview": "Token embedding + positional encoding → N stacked decoder blocks (masked multi-head self-attention → residual + layer norm → position-wise feed-forward → residual + layer norm) → final linear + softmax over vocabulary → next-token prediction, trained via cross-entropy loss and backpropagation.",
+    "linked_node_explanations": {
+      "Time and Space Complexity Analysis": "Self-attention's O(n²d) time and O(n²) memory cost in sequence length n is the specific bottleneck behind every long-context architecture innovation in modern NLP, made into something measured on a real forward pass instead of read about.",
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "Attention is best understood as building a fully-connected weighted graph over token positions at every layer, where softmax'd dot products are edge weights — reframing it this way clarifies why attention models long-range dependencies a fixed-window convolution cannot.",
+      "Arrays, Stacks, Queues, Linked Lists": "Efficient batched attention depends on getting tensor layout and masking (causal masks as triangular matrices) exactly right — a direct, high-stakes application of matrix-indexing discipline."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Attention mechanism from scratch",
+        "description": "Implement scaled dot-product attention from the raw formula in NumPy/PyTorch, not a library call, with a causal mask.",
+        "deliverables": [
+          "Scaled dot-product attention from formula",
+          "Causal mask implementation",
+          "Unit test vs known reference output"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Multi-head attention & positional encoding",
+        "description": "Implement multi-head attention (split/project/concatenate) and sinusoidal positional encoding, with an ablation against single-head attention.",
+        "deliverables": [
+          "Multi-head attention",
+          "Sinusoidal positional encoding",
+          "Single-head vs multi-head ablation notes"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Transformer block & tokenizer",
+        "description": "Assemble the full decoder block (attention + FFN + residual + layer norm) and train a byte-pair-encoding tokenizer on the target dataset.",
+        "deliverables": ["Full decoder block", "BPE tokenizer trained on target data"]
+      },
+      {
+        "step": 4,
+        "title": "Training loop & convergence validation",
+        "description": "Train with cross-entropy loss and backprop on a small dataset, tracking loss convergence and sampling generated text at checkpoints.",
+        "deliverables": [
+          "Training loop (cross-entropy + backprop)",
+          "Loss-curve plot",
+          "Sampled generations at increasing checkpoints"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Reference comparison",
+        "description": "Compare this implementation's architecture and hyperparameters against nanoGPT's, documenting every simplification made and its expected effect.",
+        "deliverables": [
+          "Architecture/hyperparameter comparison table",
+          "Simplification impact notes"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "nanoGPT",
+        "url": "https://github.com/karpathy/nanoGPT",
+        "note": "The clearest, most widely-studied from-scratch GPT-style Transformer implementation available; small enough to read end to end while remaining a real, trainable model — the definitive reference for this project's minimal decoder-only build."
+      },
+      {
+        "title": "The Annotated Transformer",
+        "url": "https://github.com/harvardnlp/annotated-transformer",
+        "note": "A line-by-line PyTorch implementation of the original 'Attention Is All You Need' paper paired with the paper's own text — the best reference for connecting the formula to exact code."
+      }
+    ]
+  },
+  {
+    "slug": "computer-vision-segmentation",
+    "title": "Image Segmentation Engine",
+    "difficulty": "advanced",
+    "estimated_hours": 70,
+    "tech_stack": [
+      "Python",
+      "PyTorch",
+      "Convolutional Neural Networks",
+      "IoU / Dice loss",
+      "OpenCV"
+    ],
+    "description": "Study of semantic/instance segmentation — classifying every pixel in an image, not just the whole image (classification) or a bounding box (detection) — through two architectural families: encoder-decoder networks (U-Net-style, where an encoder downsamples to capture context and a decoder upsamples back to full resolution, with skip connections carrying fine spatial detail across the bottleneck that would otherwise be lost) and region-proposal-based instance segmentation (Mask R-CNN, which proposes candidate object regions first, then classifies each and predicts a per-region binary mask).\n\nLoss function choice matters specifically here: pixel-wise cross-entropy alone struggles with severe class imbalance (a small foreground object against a huge background), so Dice loss — which directly optimizes an IoU-like overlap metric, 2|prediction ∩ ground truth| / (|prediction| + |ground truth|) — or a combination of the two is standard.\n\nThe study focus is tracing how skip connections concretely fix the loss-of-spatial-detail problem (comparing output with and without them on the same input), and separately studying how Segment Anything's promptable segmentation — a point or box prompt rather than a fixed class list determining what gets segmented — generalizes beyond a fixed-class model.",
+    "architecture_overview": "Input image → encoder (convolutional downsampling, hierarchical feature extraction) → bottleneck → decoder (upsampling, skip connections from corresponding encoder stages) → per-pixel class/mask prediction → post-processing (thresholding, connected-component cleanup).",
+    "linked_node_explanations": {
+      "Time and Space Complexity Analysis": "Convolution cost scales with kernel size, channel depth, and spatial resolution in a specific, computable way — comparing encoder stages' compute cost is a direct FLOPs-counting exercise grounded in real numbers.",
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "Post-processing a raw per-pixel mask into clean object instances typically uses connected-component labeling, a direct BFS/DFS-over-a-grid application on real image data instead of a toy grid.",
+      "Trees and Binary Search Trees": "The encoder-decoder's hierarchical feature pyramid (successively coarser resolution, successively richer semantics) mirrors a tree-structured decomposition, worth comparing explicitly against traversal orderings."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Architecture study & comparison",
+        "description": "Diagram U-Net-style encoder-decoder segmentation against Mask R-CNN's region-proposal approach and note when each is the better choice.",
+        "deliverables": ["Comparative architecture diagram", "When-to-use-which notes"]
+      },
+      {
+        "step": 2,
+        "title": "Encoder-decoder with skip connections",
+        "description": "Build a working encoder-decoder segmentation model on a small dataset, with an ablation comparing output quality with vs without skip connections.",
+        "deliverables": ["Working encoder-decoder model", "Skip-connection ablation results"]
+      },
+      {
+        "step": 3,
+        "title": "Loss function study & implementation",
+        "description": "Implement Dice loss from its formula and compare cross-entropy-only vs Dice vs combined loss on a class-imbalanced dataset.",
+        "deliverables": ["Dice loss implementation", "Loss-function comparison results"]
+      },
+      {
+        "step": 4,
+        "title": "Post-processing pipeline",
+        "description": "Add connected-component cleanup on raw predicted masks and implement an IoU-based evaluation metric.",
+        "deliverables": ["Connected-component cleanup", "IoU evaluation metric"]
+      },
+      {
+        "step": 5,
+        "title": "Promptable segmentation trace",
+        "description": "Study how Segment Anything's prompt encoder conditions the mask decoder, comparing promptable vs fixed-class segmentation on the same test image.",
+        "deliverables": ["Prompt-encoder mechanism notes", "Promptable vs fixed-class comparison"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Segment Anything (SAM)",
+        "url": "https://github.com/facebookresearch/segment-anything",
+        "note": "Meta's promptable segmentation model and codebase — the reference for prompt-conditioned, class-agnostic segmentation as a departure from traditional fixed-class models."
+      },
+      {
+        "title": "Mask R-CNN",
+        "url": "https://github.com/matterport/Mask_RCNN",
+        "note": "A widely-used, readable Keras/TensorFlow implementation of the region-proposal instance-segmentation architecture — the reference for the classify-then-mask-per-region approach."
+      }
+    ]
+  },
+  {
+    "slug": "realtime-flink-stream",
+    "title": "Real-Time Stream Processing Pipeline (Apache Flink)",
+    "difficulty": "advanced",
+    "estimated_hours": 55,
+    "tech_stack": [
+      "Apache Flink",
+      "Java or Scala",
+      "Kafka (stream source)",
+      "Windowing (tumbling/sliding/session)",
+      "Watermarks"
+    ],
+    "description": "Study of stream processing's central hard problem — computing correct results over an unbounded, continuously-arriving stream when events can arrive late or out of order — through Flink's model of event time (when an event actually happened) versus processing time (when the system sees it), and watermarks, a mechanism flowing through the stream asserting 'no more events earlier than X should arrive from here on,' which lets the engine decide when a time-based window is safe to finalize.\n\nWindowing strategies deserve specific study: tumbling windows (fixed-size, non-overlapping), sliding windows (fixed-size but overlapping, recomputed on a shorter interval), and session windows (dynamically sized, closing after a gap of inactivity) each answer a different question, and picking the wrong one silently produces a differently-wrong answer rather than an error.\n\nThe study focus is tracing exactly how a Flink job's state backend (RocksDB-backed for large state) enables exactly-once processing via checkpointing — periodically snapshotting operator state so a failure resumes from a consistent point instead of reprocessing everything or losing state — since this is the mechanism that makes 'real-time' and 'correct' compatible rather than a tradeoff.",
+    "architecture_overview": "Kafka (unbounded event source) → Flink source connector → watermark generation (event-time tracking) → windowed aggregation (tumbling/sliding/session, keyed by event attribute) → stateful operators (checkpointed to RocksDB state backend) → sink, with periodic checkpointing for exactly-once fault tolerance.",
+    "linked_node_explanations": {
+      "Time and Space Complexity Analysis": "Choosing a windowing strategy is directly a space/latency tradeoff: sliding windows with high overlap keep more state and emit more results per event than tumbling windows over the same data, quantifiable on a real stream.",
+      "Process Synchronization": "Exactly-once processing via checkpointing is a distributed-coordination problem — checkpoint barriers flowing through the operator graph force every operator to snapshot consistently, directly related to coordinated-snapshot problems.",
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "A Flink job is itself a DAG of operators, and checkpoint barriers propagate through it in an order that must respect the graph's dependency structure — the same topological reasoning as any DAG-scheduling problem."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Event-time vs processing-time study",
+        "description": "Write up watermarks with a worked example showing a late event and how the watermark decides whether it's still includable.",
+        "deliverables": ["Watermark mechanism explanation", "Worked late-event example"]
+      },
+      {
+        "step": 2,
+        "title": "Windowing strategy comparison",
+        "description": "Process the same input stream with tumbling, sliding, and session windows and compare how each produces a genuinely different result.",
+        "deliverables": [
+          "Same-stream output under 3 windowing strategies",
+          "Result-difference comparison"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Stateful keyed aggregation job",
+        "description": "Build a working Flink job computing a keyed, windowed aggregate reading from Kafka.",
+        "deliverables": ["Working keyed-windowed Flink job", "Kafka source integration"]
+      },
+      {
+        "step": 4,
+        "title": "Checkpointing & fault-tolerance trace",
+        "description": "Study the RocksDB state backend and checkpoint-barrier mechanism, then kill and restart a job to observe exactly-once recovery.",
+        "deliverables": ["State-backend/checkpointing notes", "Kill-and-restart recovery demo"]
+      },
+      {
+        "step": 5,
+        "title": "Late-data handling",
+        "description": "Configure allowed lateness to show a late event handled differently than a dropped one, with side-output routing for events too late to include.",
+        "deliverables": [
+          "Allowed-lateness configuration test",
+          "Side-output routing for late events"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Apache Flink",
+        "url": "https://github.com/apache/flink",
+        "note": "The canonical distributed stream-processing engine; its own examples and documentation on event time, watermarks, and windowing are the primary source for this project's core concepts."
+      }
+    ]
+  },
+  {
+    "slug": "data-warehouse-elt",
+    "title": "Data Warehouse ELT Pipeline",
+    "difficulty": "intermediate",
+    "estimated_hours": 45,
+    "tech_stack": [
+      "SQL",
+      "dbt (data build tool)",
+      "A cloud data warehouse (Snowflake/BigQuery/Postgres)",
+      "Airbyte (EL)",
+      "Dimensional modeling"
+    ],
+    "description": "Study of the ELT pattern (Extract, Load, Transform) that has largely replaced ETL in modern data warehousing: raw data is extracted and loaded into the warehouse first, untransformed, and transformation happens afterward inside the warehouse itself using SQL. This ordering matters because modern columnar warehouses are fast and cheap enough to transform at scale in SQL, and keeping raw data loaded means a transformation bug can be fixed and rerun without re-extracting from the source system.\n\ndbt's specific contribution is treating transformation as software engineering: each transformation is a SQL SELECT in a .sql file, dbt compiles a dependency graph from ref() calls between models so a model reading from another is automatically run after it, materializes each model as a table or view, and layers version control, testing (e.g. asserting a column is never null or always unique), and documentation directly on top of the SQL.\n\nThe study focus is tracing dbt's DAG resolution from ref() calls to actual run order, and separately studying dimensional modeling (fact tables holding measurable events, dimension tables holding descriptive context, joined by keys) as the schema-design pattern most ELT transformation layers converge on for analytics.",
+    "architecture_overview": "Source systems → EL tool (extracts + loads raw data into the warehouse) → warehouse staging schema (raw tables) → dbt transformation layer (staging → intermediate → mart models, dependency-ordered via ref()) → dimensional fact/dimension tables → BI/analytics consumption.",
+    "linked_node_explanations": {
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "dbt's model dependency graph, built from ref() calls, is executed in topological order — DAG-based scheduling configured and observed directly rather than an abstract algorithm.",
+      "Relational Model": "Dimensional modeling (fact and dimension tables, star or snowflake schema) is a specific, opinionated application of relational schema design aimed at analytical query performance rather than transactional integrity.",
+      "SQL": "Every transformation in this pipeline is plain SQL, organized with explicit dependency and materialization semantics — a direct look at how SQL scales from single queries to a maintained, tested codebase."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "ELT vs ETL study",
+        "description": "Write a comparison of ELT and ETL with a concrete example of a transformation bug that's cheap to fix under ELT and expensive under ETL.",
+        "deliverables": ["ELT vs ETL comparison document", "Concrete bug-cost example"]
+      },
+      {
+        "step": 2,
+        "title": "Extract & load setup",
+        "description": "Build a working EL pipeline loading raw data from at least one source into staging warehouse tables.",
+        "deliverables": ["Working EL pipeline", "Populated staging tables"]
+      },
+      {
+        "step": 3,
+        "title": "dbt staging & intermediate models",
+        "description": "Build staging models (light cleanup of raw tables) and at least one intermediate model with ref() dependencies on staging models.",
+        "deliverables": ["Staging models", "Intermediate model with ref() dependency"]
+      },
+      {
+        "step": 4,
+        "title": "Dimensional mart & dbt tests",
+        "description": "Build a fact table and at least one dimension table following dimensional modeling conventions, with dbt tests on key columns.",
+        "deliverables": ["Fact + dimension tables", "dbt tests (not-null/unique/relationships)"]
+      },
+      {
+        "step": 5,
+        "title": "DAG trace & documentation",
+        "description": "Trace the dbt-generated dependency graph against the actual ref() calls and generate model documentation.",
+        "deliverables": [
+          "Dependency graph traced against ref() calls",
+          "Generated model documentation"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "dbt-core",
+        "url": "https://github.com/dbt-labs/dbt-core",
+        "note": "The open-source transformation tool that defined the modern ELT transformation layer's conventions (ref(), models, tests, documentation) — the primary reference for how a SQL-based transformation DAG is built and run."
+      },
+      {
+        "title": "Airbyte",
+        "url": "https://github.com/airbytehq/airbyte",
+        "note": "A widely-used open-source EL tool, useful as the reference for the extract-and-load half of ELT that dbt deliberately does not handle."
+      }
+    ]
+  },
+  {
+    "slug": "kubernetes-operator-custom",
+    "title": "Custom Kubernetes Operator",
+    "difficulty": "advanced",
+    "estimated_hours": 60,
+    "tech_stack": [
+      "Go",
+      "Kubernetes API",
+      "Operator SDK / Kubebuilder",
+      "Custom Resource Definitions (CRDs)",
+      "controller-runtime"
+    ],
+    "description": "Study of the Operator pattern: extending Kubernetes with a Custom Resource Definition (a new declarative resource type) and a controller that continuously reconciles real cluster state toward that spec — exactly how Kubernetes itself manages built-in resources like Deployments, extended to application-specific logic a generic Deployment can't express.\n\nThe reconciliation loop is the core mechanism worth tracing precisely: a controller watches for changes to its CRD and related resources, and on any change calls a Reconcile function that reads current state, compares it against desired state, and takes whatever actions close the gap. Critically, this loop is level-triggered, not edge-triggered — it reasons from 'what does the world look like now' rather than 'what event just happened,' which is what makes it self-healing even if an update event is missed.\n\nThe study focus is tracing one full reconcile cycle in a reference operator from a CRD change through to the actual Kubernetes API calls the controller makes, and separately studying why reconcile functions must be idempotent, since the loop runs continuously on every relevant event, not just once.",
+    "architecture_overview": "Custom Resource Definition (declarative spec) → Kubernetes API server (stores CRD instances, notifies watchers) → controller (informer/watch mechanism triggers Reconcile) → Reconcile loop (read current state → diff against desired spec → issue create/update/delete API calls) → managed resources in the cluster.",
+    "linked_node_explanations": {
+      "Process Synchronization": "The reconcile loop is a level-triggered control system, a deliberate design choice to avoid the lost-update problems that plague purely event-driven (edge-triggered) systems.",
+      "Time and Space Complexity Analysis": "A naive controller re-listing all resources on every reconcile is expensive at scale; informers cache and index cluster state locally instead of re-querying the API server, a direct caching/indexing tradeoff.",
+      "Hashing": "The informer's local cache indexes objects by namespace/name (often by label selectors) via hash-based lookups, which is why a reconcile function can cheaply check 'does this resource already exist' without an API round trip."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Operator pattern & reconcile loop study",
+        "description": "Write up the level-triggered reconcile loop with a diagram and notes on why idempotency is required.",
+        "deliverables": ["Reconcile-loop diagram", "Idempotency requirement notes"]
+      },
+      {
+        "step": 2,
+        "title": "CRD design",
+        "description": "Design a Custom Resource Definition with a defined spec/status schema for a chosen application-management task.",
+        "deliverables": ["CRD with spec/status schema", "Chosen-task scope justification"]
+      },
+      {
+        "step": 3,
+        "title": "Basic controller & reconcile function",
+        "description": "Scaffold a controller with Kubebuilder/Operator SDK and implement a Reconcile function that creates/updates a managed resource to match the CRD spec.",
+        "deliverables": ["Scaffolded controller", "Working Reconcile function"]
+      },
+      {
+        "step": 4,
+        "title": "Status reporting & idempotency testing",
+        "description": "Update the status subresource to reflect real managed-resource state, and test that repeated reconciles with no spec change produce no unnecessary writes.",
+        "deliverables": ["Status subresource updates", "Idempotency test suite"]
+      },
+      {
+        "step": 5,
+        "title": "Failure & drift recovery demo",
+        "description": "Manually delete or modify a managed resource outside the operator and observe the controller reconcile it back to spec.",
+        "deliverables": ["Drift-recovery demo", "Reconcile-cycle trace document"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Operator SDK",
+        "url": "https://github.com/operator-framework/operator-sdk",
+        "note": "The standard toolkit for scaffolding and building Kubernetes operators in Go; its documentation and generated project structure are the reference for correct controller-runtime setup and CRD wiring."
+      },
+      {
+        "title": "operator-sdk-samples",
+        "url": "https://github.com/operator-framework/operator-sdk-samples",
+        "note": "Official sample operators (including the classic memcached-operator) demonstrating a complete, minimal reconcile loop end to end — the best starting point for tracing one full reconcile cycle."
+      }
+    ]
+  },
+  {
+    "slug": "terraform-multi-cloud-infra",
+    "title": "Multi-Cloud Infrastructure as Code (Terraform)",
+    "difficulty": "intermediate",
+    "estimated_hours": 45,
+    "tech_stack": [
+      "Terraform (HCL)",
+      "AWS",
+      "GCP or Azure",
+      "Remote state management",
+      "Terraform modules"
+    ],
+    "description": "Study of Terraform's declarative infrastructure model: you write the desired end state in HCL, and Terraform computes a plan (a diff between desired state and its tracked current state) and an execution graph of the specific create/update/delete calls needed, resolving resource dependencies automatically from references between resource blocks rather than requiring manual sequencing.\n\nState management causes the most real-world pain and deserves the most careful study. Terraform's state file is the source of truth for what it believes exists and how resources map to real cloud objects, so it must be stored remotely (e.g. an S3 backend with DynamoDB locking) rather than locally whenever more than one person or CI job might run Terraform, specifically to avoid two concurrent applies corrupting state or double-creating resources.\n\nThe study focus is tracing how a multi-cloud module structure (shared variable/output conventions letting an AWS module and a GCP module both be composed into one root configuration) is organized in the reference repos, and separately tracing one terraform plan output line by line against the HCL that produced it, since connecting a plan diff back to specific resource blocks is the skill that transfers most directly to real infrastructure work.",
+    "architecture_overview": "HCL configuration (resource/module/provider blocks) → Terraform core (builds a dependency graph from resource references) → provider plugins (AWS/GCP/Azure API translation) → plan (diff against tracked state) → apply (dependency-ordered create/update/delete calls) → remote state backend (with locking) recording new current state.",
+    "linked_node_explanations": {
+      "Graph Algorithms (BFS/DFS/Shortest Paths/MST)": "Terraform's dependency graph, built automatically from resource references, is executed in topologically-sorted order so a resource is never created before something it depends on — a direct, real-world DAG scheduling problem.",
+      "Process Synchronization": "Remote state locking exists specifically to prevent two concurrent terraform apply runs from racing on the same state file — a textbook mutual-exclusion problem applied to infrastructure operations instead of threads.",
+      "Time and Space Complexity Analysis": "Terraform's plan step diffs desired configuration against potentially thousands of tracked resources incrementally, using the graph, rather than re-reading all cloud state from scratch — a direct efficiency argument."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Declarative model & dependency graph study",
+        "description": "Diagram how a reference module's resource references translate into Terraform's dependency graph, noting implicit vs explicit dependencies.",
+        "deliverables": ["Dependency-graph diagram", "Implicit vs explicit dependency notes"]
+      },
+      {
+        "step": 2,
+        "title": "Remote state & locking setup",
+        "description": "Configure a remote state backend with locking and document what the lock prevents during a concurrent apply.",
+        "deliverables": [
+          "Configured remote state backend with locking",
+          "Lock-behavior explanation"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Single-cloud module",
+        "description": "Build a reusable Terraform module provisioning a small resource set on one cloud provider, with input variables and outputs.",
+        "deliverables": ["Reusable single-cloud module", "Defined variables/outputs"]
+      },
+      {
+        "step": 4,
+        "title": "Multi-cloud composition",
+        "description": "Compose modules across two providers in one root configuration, tracing shared variable/output conventions against the reference repo's structure.",
+        "deliverables": ["Multi-provider root configuration", "Convention comparison notes"]
+      },
+      {
+        "step": 5,
+        "title": "Plan-to-HCL trace",
+        "description": "Annotate a full terraform plan output line by line against the specific HCL blocks that produced each planned change.",
+        "deliverables": [
+          "Fully annotated plan-to-HCL trace",
+          "Summary of the most error-prone plan-diff patterns"
+        ]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "terraform-kubernetes-multi-cloud",
+        "url": "https://github.com/hajowieland/terraform-kubernetes-multi-cloud",
+        "note": "Provisions Kubernetes clusters across multiple cloud providers from one Terraform configuration — a direct reference for the shared module/variable conventions that make multi-cloud composition manageable."
+      },
+      {
+        "title": "terraform-multicloud-instance",
+        "url": "https://github.com/dtherhtun/terraform-multicloud-instance",
+        "note": "A more minimal multi-cloud example (compute instances across providers), useful as a simpler second reference for the same cross-provider module pattern."
+      }
+    ]
+  },
+  {
+    "slug": "network-packet-ids",
+    "title": "Network Intrusion Detection System (Packet-Level)",
+    "difficulty": "advanced",
+    "estimated_hours": 65,
+    "tech_stack": [
+      "C or Rust",
+      "libpcap",
+      "Aho-Corasick multi-pattern matching",
+      "Protocol parsing (Ethernet/IP/TCP/UDP)"
+    ],
+    "description": "Study of how a network IDS inspects traffic in real time: a packet capture layer (libpcap, reading raw frames off a network interface, typically in promiscuous mode) feeds a protocol-parsing layer (peeling off Ethernet, then IP, then TCP/UDP headers to reach the payload), which feeds a detection engine comparing traffic against rules — signature-based (known malicious byte patterns) or anomaly-based (statistical deviation from a learned baseline).\n\nSignature matching at line rate is the specific hard problem worth studying: checking every packet's payload against thousands of known-bad byte patterns one at a time is far too slow, so real IDS engines use multi-pattern matching algorithms like Aho-Corasick, which builds a single automaton from all patterns simultaneously and scans each byte of input exactly once regardless of pattern count, rather than re-scanning per pattern.\n\nThe study focus is tracing how the reference implementation reassembles a TCP stream (packets can arrive out of order or fragmented, so payload inspection often has to happen after reassembly, not per-packet) before running signature matching, since inspecting unreassembled fragments is a classic evasion technique attackers exploit against naive IDS implementations.",
+    "architecture_overview": "NIC (promiscuous mode) → libpcap capture → protocol parser (Ethernet → IP → TCP/UDP, with IP defragmentation and TCP stream reassembly) → detection engine (Aho-Corasick multi-pattern matching + protocol anomaly rules) → alert output (logged events with matched rule and packet context).",
+    "linked_node_explanations": {
+      "ISO/OSI and TCP/IP Protocol Stack": "Correctly parsing a raw captured frame requires peeling off exactly the right headers at each layer in order — a hands-on, byte-level application of the layered protocol model.",
+      "Time and Space Complexity Analysis": "Aho-Corasick matches every loaded signature in one linear pass over the input (O(n) in payload length, independent of pattern count after construction), versus naive per-pattern scanning's O(n·m) — the exact reason production IDS engines can run at line rate.",
+      "Finite Automata (DFA/NFA)": "Aho-Corasick's matching automaton is a direct generalization of a DFA to multiple patterns simultaneously (a trie with failure-link transitions), connecting straight back to automata-construction ideas practiced in a regex engine.",
+      "Congestion Control": "TCP stream reassembly for payload inspection means tracking sequence numbers and handling retransmissions/out-of-order segments the same way a real TCP receiver does, just for observation rather than delivery."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Packet capture & protocol parsing",
+        "description": "Build a libpcap-based capture loop and a layered parser extracting Ethernet/IP/TCP/UDP headers, tested against known packet captures.",
+        "deliverables": [
+          "libpcap capture loop",
+          "Layered header parser",
+          "Validation against known captures"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "IP defragmentation & TCP reassembly",
+        "description": "Implement IP fragment reassembly and TCP stream reassembly handling out-of-order segments, tested with a deliberately fragmented capture.",
+        "deliverables": [
+          "IP fragment reassembly",
+          "TCP stream reassembly",
+          "Fragmented/reordered capture test"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Signature matching engine",
+        "description": "Build an Aho-Corasick automaton from a signature list and match reassembled payloads in a single pass, benchmarked against naive per-pattern scanning.",
+        "deliverables": [
+          "Aho-Corasick automaton construction",
+          "Single-pass matching",
+          "Throughput benchmark vs naive scanning"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Protocol anomaly rules",
+        "description": "Add a small set of protocol-level anomaly checks and alert deduplication logic.",
+        "deliverables": ["Protocol anomaly rule set", "Alert deduplication"]
+      },
+      {
+        "step": 5,
+        "title": "Alerting & evaluation",
+        "description": "Produce structured alert output and evaluate detection/false-positive rate against a labeled test capture.",
+        "deliverables": ["Structured alert output", "Detection/false-positive rate report"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Suricata",
+        "url": "https://github.com/OISF/suricata",
+        "note": "A high-performance, widely-deployed open-source IDS/IPS engine; study its rule-matching pipeline and protocol parsers as the reference for how signature matching and stream reassembly work at production scale."
+      },
+      {
+        "title": "Zeek",
+        "url": "https://github.com/zeek/zeek",
+        "note": "A network analysis framework (formerly Bro) emphasizing deep protocol parsing and scriptable analysis over raw signature matching — a useful second reference for a more analysis-driven approach."
+      }
+    ]
+  },
+  {
+    "slug": "distributed-file-system-gfs",
+    "title": "Distributed File System (GFS-Inspired)",
+    "difficulty": "expert",
+    "estimated_hours": 140,
+    "tech_stack": [
+      "Go or C++",
+      "gRPC (master-chunkserver RPC)",
+      "Chunk-based storage",
+      "Replication",
+      "Heartbeat/lease mechanisms"
+    ],
+    "description": "Study of the Google File System's architecture, which trades general-purpose POSIX semantics for extreme scalability on a specific workload (huge files, mostly-append writes, streaming reads) by splitting responsibility between one master (holding all metadata — the file-to-chunk mapping, chunk locations, access control — entirely in memory for speed) and many chunkservers (storing fixed-size chunks, typically 64MB, as plain local files, with no knowledge of overall file structure).\n\nThe single-master design is the most counterintuitive and important thing to study — it sounds like an obvious single point of failure, but GFS makes it work by keeping the master out of the data path entirely (clients ask it once for chunk locations, then talk to chunkservers directly for all reads/writes, so master load stays proportional to metadata operations, not data volume) and by using an operation log plus checkpoints for metadata durability and failover.\n\nThe study focus is tracing exactly how a write is coordinated across chunk replicas via the primary-replica lease mechanism: the master grants one replica a time-limited lease making it primary for a chunk, the primary orders and forwards the write to all replicas in a fixed pipeline, and only acknowledges the client once all replicas confirm — this lease-based primary election is what keeps replicas consistent without the master being involved in every write.",
+    "architecture_overview": "Client → master (metadata only: namespace, chunk locations, lease grants) for chunk-location lookup → direct client-to-chunkserver data transfer for reads/writes → primary chunkserver (holds current lease) coordinates write ordering and replication to secondary replicas → chunkservers periodically heartbeat state back to the master.",
+    "linked_node_explanations": {
+      "File Systems": "GFS's chunk-based storage (huge files split into fixed-size chunks distributed across machines) is the file-systems topic pushed to distributed scale, making the analogy to local block allocation and its differences both concrete.",
+      "Process Synchronization": "The primary-replica lease mechanism is a distributed mutual-exclusion and ordering problem — exactly one chunkserver may be primary for a chunk at a time, and the lease's time-bound nature keeps recovery from a crashed primary bounded.",
+      "Time and Space Complexity Analysis": "Keeping all metadata in the master's memory rather than on disk is a deliberate space-for-speed trade that only works because chunk size is large — a specific, quantifiable design argument worth reproducing with real numbers.",
+      "Application Layer Protocols (HTTP/HTTPS)": "The master-chunkserver and client-chunkserver RPC protocols (often gRPC in modern reimplementations) are a direct application-layer protocol design exercise in what must be synchronous versus a heartbeat/async update."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Master/chunkserver architecture study",
+        "description": "Diagram what metadata lives on the master versus what's stored on chunkservers, and why the master is kept out of the data path.",
+        "deliverables": ["Metadata-vs-data-storage diagram", "Data-path-separation rationale notes"]
+      },
+      {
+        "step": 2,
+        "title": "Chunk storage & basic RPC",
+        "description": "Implement chunkservers storing fixed-size chunks as local files, master-chunkserver RPC for location lookup, and a client reading a multi-chunk file.",
+        "deliverables": [
+          "Chunkserver local storage",
+          "Location-lookup RPC",
+          "Multi-chunk file read"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Write path & lease mechanism",
+        "description": "Implement primary-replica lease granting, write pipelining from primary to secondaries, and a demo write confirmed only after all replicas acknowledge.",
+        "deliverables": [
+          "Lease granting from master",
+          "Write pipelining to replicas",
+          "All-replicas-ack write demo"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Heartbeats & failure detection",
+        "description": "Implement a chunkserver heartbeat mechanism, master detection of a stale/failed chunkserver, and re-replication of under-replicated chunks.",
+        "deliverables": [
+          "Heartbeat mechanism",
+          "Failed-chunkserver detection",
+          "Under-replication recovery"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Metadata durability & recovery",
+        "description": "Implement an operation log plus checkpoint mechanism for master metadata, and demo restarting the master with full state recovery.",
+        "deliverables": ["Operation log + checkpointing", "Master restart/recovery demo"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "dfs (uttam-li)",
+        "url": "https://github.com/uttam-li/dfs",
+        "note": "A Go-based GFS-inspired distributed file system with a clear master/chunkserver split over gRPC — a directly readable reference for the metadata/data-path separation this project studies."
+      },
+      {
+        "title": "cppGFS2.0",
+        "url": "https://github.com/Gan-Tu/cppGFS2.0",
+        "note": "A C++ reimplementation of GFS's core design (master, chunkservers, lease-based primary replicas) with clear documentation of which parts of the original paper are implemented — useful for cross-checking the lease/replication mechanism."
+      }
+    ]
+  },
+  {
+    "slug": "react-native-crypto-wallet",
+    "title": "Mobile Crypto Wallet (React Native)",
+    "difficulty": "intermediate",
+    "estimated_hours": 50,
+    "tech_stack": [
+      "React Native",
+      "ethers.js or web3.js",
+      "BIP-39/BIP-32 (mnemonic & key derivation)",
+      "Secure device storage (Keychain/Keystore)"
+    ],
+    "description": "Study of the two things that make a crypto wallet a genuinely different engineering problem from a normal mobile app: key management (the private key is the entire account, with no password reset, so generation, derivation, and storage all have zero-tolerance failure modes) and on-chain interaction (reading balances and submitting transactions against a live blockchain via an RPC provider, with real gas-fee and confirmation-latency considerations).\n\nKey derivation specifically deserves study: BIP-39 turns a securely-generated random seed into a human-writable mnemonic phrase (a fixed wordlist mapping with a built-in checksum so a mistyped word is usually detectable), and BIP-32 hierarchical deterministic derivation then generates a whole tree of key pairs from that one seed via a one-way derivation function — meaning a single backed-up mnemonic recovers every address the wallet ever generates.\n\nThe study focus is tracing exactly where and how the reference implementation stores the derived private key on-device (iOS Keychain / Android Keystore, hardware-backed secure storage rather than an encrypted file, so key material never exists in plain, extractable app-readable memory) since this storage decision is the single highest-consequence design choice in the whole app.",
+    "architecture_overview": "Mnemonic generation (BIP-39) → HD key derivation (BIP-32) → secure on-device key storage (Keychain/Keystore) → wallet UI (balance, send/receive) → RPC provider connection (balance queries, transaction broadcast) → blockchain network.",
+    "linked_node_explanations": {
+      "Trees and Binary Search Trees": "BIP-32's hierarchical deterministic derivation is literally a tree: one master seed at the root, each child key derived from its parent via a one-way function, and derivation paths are just paths down this tree.",
+      "Hashing": "Both mnemonic generation (checksum bits from a hash of the entropy) and HD key derivation (HMAC-SHA512 at each step) depend directly on cryptographic hash functions doing real, load-bearing work.",
+      "Application Layer Protocols (HTTP/HTTPS)": "Balance queries and transaction broadcasts go through a JSON-RPC provider over HTTPS — tracing exactly which RPC calls the wallet makes and when is a concrete look at a client dependent on a service it doesn't control."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Key derivation study & implementation",
+        "description": "Implement BIP-39 mnemonic generation with checksum validation and BIP-32 HD derivation producing at least 3 addresses from one seed, verified against known test vectors.",
+        "deliverables": [
+          "BIP-39 mnemonic generation",
+          "BIP-32 HD derivation (3+ addresses)",
+          "Test-vector verification"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Secure storage integration",
+        "description": "Store private key material via Keychain/Keystore and document exactly what is and isn't exposed to app-readable memory.",
+        "deliverables": ["Keychain/Keystore integration", "Exposure trace document"]
+      },
+      {
+        "step": 3,
+        "title": "Balance & transaction history",
+        "description": "Integrate RPC balance queries for a derived address and display transaction history.",
+        "deliverables": ["Live balance query", "Transaction history display"]
+      },
+      {
+        "step": 4,
+        "title": "Send transaction flow",
+        "description": "Implement transaction construction, signing with the securely-stored key, gas-fee estimation, and broadcast.",
+        "deliverables": ["Transaction construction & signing", "Gas-fee estimation & broadcast"]
+      },
+      {
+        "step": 5,
+        "title": "Recovery flow",
+        "description": "Implement wallet recovery from an existing mnemonic, re-deriving the same addresses and confirming balances match.",
+        "deliverables": ["Mnemonic-based recovery flow", "Address/balance match verification"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "rn-crypto-wallet",
+        "url": "https://github.com/vinnyhoward/rn-crypto-wallet",
+        "note": "A React Native wallet implementation covering mnemonic generation, HD derivation, and secure storage end to end — a direct reference for the full key-management flow this project studies."
+      },
+      {
+        "title": "react-native-wallet",
+        "url": "https://github.com/Kamahl19/react-native-wallet",
+        "note": "A second React Native wallet reference, useful for comparing an alternative structuring of the same ethers.js/web3.js integration and transaction-signing flow."
+      }
+    ]
+  },
+  {
+    "slug": "wasm-video-editor",
+    "title": "Browser-Based Video Editor (WebAssembly)",
+    "difficulty": "advanced",
+    "estimated_hours": 65,
+    "tech_stack": [
+      "WebAssembly (WASM)",
+      "FFmpeg (compiled to WASM)",
+      "JavaScript/TypeScript",
+      "Web Workers"
+    ],
+    "description": "Study of why real video editing (trimming, transcoding, filters, format conversion) in a browser needs WebAssembly at all: video codecs are computationally intensive C/C++ libraries that would be impractical to reimplement in JavaScript at usable speed, so the actual approach is compiling FFmpeg itself to WASM (via Emscripten) so the browser runs near-native-speed compiled code for the heavy lifting, while JavaScript handles UI and orchestration.\n\nThe specific engineering problem worth studying is keeping the UI responsive during genuinely heavy computation. FFmpeg-WASM operations run inside a Web Worker — a separate thread from the main UI thread, communicating via postMessage — specifically so a multi-second transcode doesn't freeze scrolling and button clicks, with progress reporting coming back through that same message-passing channel rather than a shared-memory read.\n\nThe study focus is tracing the exact message-passing protocol between the main thread and the FFmpeg worker: what triggers a job, how progress updates are chunked and reported back, and how the final output is transferred back, ideally via a Transferable object rather than a copy, to avoid duplicating potentially large video buffers.",
+    "architecture_overview": "Main thread (UI: timeline, trim controls, preview) → postMessage → Web Worker (FFmpeg-WASM instance, receives file + operation parameters) → FFmpeg WASM execution (transcode/trim/filter) → progress messages back to main thread → final output transferred back (Transferable ArrayBuffer) → downloadable/previewable result.",
+    "linked_node_explanations": {
+      "Process Synchronization": "Coordinating the main thread and Web Worker through message-passing rather than shared memory is a producer-consumer problem with an explicit, asynchronous hand-off protocol instead of locks.",
+      "Time and Space Complexity Analysis": "Transferring a large output buffer back as a Transferable object (ownership moved, zero-copy) versus a structured-clone copy is a direct, measurable memory-cost decision that matters because video files are large.",
+      "Application Layer Protocols (HTTP/HTTPS)": "If source video loads from a URL rather than local upload, correctly handling range requests for large video files is a real HTTP feature most simple fetch() usage never exercises."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "FFmpeg-WASM integration & worker setup",
+        "description": "Load FFmpeg-WASM inside a dedicated Web Worker and build a basic postMessage protocol triggering a simple operation from the main thread.",
+        "deliverables": ["FFmpeg-WASM loaded in Web Worker", "Basic postMessage protocol"]
+      },
+      {
+        "step": 2,
+        "title": "Progress reporting",
+        "description": "Send chunked progress updates from the worker back to the main thread during a long-running operation, wired to a UI progress bar.",
+        "deliverables": ["Chunked progress messaging", "UI progress bar"]
+      },
+      {
+        "step": 3,
+        "title": "Trim & basic filter operations",
+        "description": "Implement a trim-by-timestamp operation and at least one filter invoked through FFmpeg-WASM's command interface.",
+        "deliverables": ["Trim operation", "At least 1 filter operation"]
+      },
+      {
+        "step": 4,
+        "title": "Efficient output transfer",
+        "description": "Return the output buffer via a Transferable object rather than a structured-clone copy, with a before/after memory comparison.",
+        "deliverables": ["Transferable-based output return", "Memory-usage comparison"]
+      },
+      {
+        "step": 5,
+        "title": "Timeline UI & export",
+        "description": "Build a timeline scrubber driving trim in/out points and an export flow producing a downloadable output file.",
+        "deliverables": ["Timeline scrubber UI", "Export flow (downloadable output)"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "ffmpeg.wasm",
+        "url": "https://github.com/ffmpegwasm/ffmpeg.wasm",
+        "note": "The core project compiling FFmpeg to WebAssembly for in-browser use — the essential reference for how the WASM module is loaded, invoked, and how its command interface mirrors FFmpeg's own CLI."
+      },
+      {
+        "title": "video-editor-wasm-react",
+        "url": "https://github.com/imgly/video-editor-wasm-react",
+        "note": "A React-based video editor built on WASM video processing, useful as a second reference for how a full timeline/trim/export UI is structured around the underlying WASM layer."
+      }
+    ]
+  },
+  {
+    "slug": "stm32-rtos-weather-station",
+    "title": "STM32 RTOS-Based Weather Station",
+    "difficulty": "intermediate",
+    "estimated_hours": 45,
+    "tech_stack": [
+      "STM32 (ARM Cortex-M)",
+      "FreeRTOS",
+      "I2C/SPI (sensor communication)",
+      "UART or LoRa/Wi-Fi (data transmission)"
+    ],
+    "description": "Study of a real-time embedded system built on FreeRTOS rather than a bare-metal superloop: multiple concurrent tasks (sensor polling, data logging, wireless transmission, a status display) each get their own stack and priority, and the RTOS's preemptive scheduler ensures a high-priority task always runs ahead of a low-priority one, instead of a superloop where one slow function call delays everything else behind it.\n\nInter-task communication is the specific mechanism worth studying, since tasks can't just share variables safely the way sequential superloop code can. A sensor-reading task typically pushes readings into a FreeRTOS queue that a separate logging/transmission task consumes from, decoupling when a sensor is read from when that data actually gets sent, and a mutex or semaphore protects any I2C/SPI bus that multiple tasks might access, since two tasks issuing bus transactions simultaneously would corrupt both.\n\nThe study focus is tracing exactly how the reference project's task priorities are assigned and justifying them, since careless priority assignment is the most common real bug class in RTOS-based embedded systems — priority inversion, where a low-priority task holding a shared resource blocks a high-priority task indefinitely.",
+    "architecture_overview": "Sensor tasks (I2C/SPI polling) → FreeRTOS queue → logging/aggregation task → transmission task (UART/LoRa/Wi-Fi) → remote endpoint; a mutex/semaphore guards shared bus access, and the FreeRTOS preemptive scheduler enforces priority ordering across all tasks.",
+    "linked_node_explanations": {
+      "CPU Scheduling": "FreeRTOS's preemptive, priority-based scheduler is a real-time variant of this GATE topic — optimized for meeting deadlines rather than fairness/throughput, with priority assignment a design decision with real correctness consequences.",
+      "Process Synchronization": "Queues and mutexes/semaphores protecting shared sensor-bus access are this topic's primitives applied at embedded scale, including priority inversion — a specific, well-known synchronization failure mode worth studying by name.",
+      "Arrays, Stacks, Queues, Linked Lists": "Each FreeRTOS task has its own fixed-size stack allocated at creation, and getting stack sizing wrong is a direct, consequential application of stack-memory reasoning on a severely constrained resource."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "RTOS task & priority design study",
+        "description": "List the tasks with assigned priorities and justification for each, and note how priority inversion is avoided.",
+        "deliverables": [
+          "Task/priority list with justification",
+          "Priority-inversion avoidance notes"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Sensor task & bus communication",
+        "description": "Implement an I2C/SPI sensor read task with mutex/semaphore-protected bus access, verified against a known-good sensor datasheet range.",
+        "deliverables": [
+          "Sensor read task with protected bus access",
+          "Datasheet-range verification"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Inter-task queue communication",
+        "description": "Pass sensor readings from the sensor task to a separate logging/aggregation task via a FreeRTOS queue.",
+        "deliverables": [
+          "FreeRTOS queue between sensor and logging tasks",
+          "Decoupled read-vs-log timing verification"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Wireless transmission task",
+        "description": "Build a transmission task sending aggregated readings to a remote endpoint on its own schedule, independent of sensor read timing.",
+        "deliverables": ["Independent transmission task", "Remote endpoint delivery"]
+      },
+      {
+        "step": 5,
+        "title": "Priority & timing verification",
+        "description": "Deliberately introduce a timing conflict (two tasks needing the bus simultaneously), demonstrate it, then resolve it with before/after timing measurements.",
+        "deliverables": ["Timing-conflict demo", "Before/after timing measurements"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "STM32-Eviromental-Sensor-Station",
+        "url": "https://github.com/E2119A/STM32-Eviromental-Sensor-Station",
+        "note": "An STM32-based environmental sensor station project, useful as a direct reference for real sensor-to-STM32 wiring and I2C/SPI communication in a weather-station-shaped project."
+      },
+      {
+        "title": "STM32WXX",
+        "url": "https://github.com/allyndawn/STM32WXX",
+        "note": "An STM32 weather-station project covering sensor integration and data handling, useful as a second reference for comparing task/data organization choices."
+      }
+    ]
+  },
+  {
+    "slug": "vulkan-3d-render-engine",
+    "title": "Vulkan 3D Rendering Engine",
+    "difficulty": "expert",
+    "estimated_hours": 130,
+    "tech_stack": ["C++", "Vulkan API", "GLSL/SPIR-V (shaders)", "GLFW/SDL (windowing)"],
+    "description": "Study of Vulkan's explicit, low-level rendering model, which trades the convenience of OpenGL's implicit state machine for direct control over — and direct responsibility for — nearly everything: GPU memory allocation, command buffer recording, and synchronization between the CPU and GPU and between GPU operations themselves, all things a driver handled invisibly under OpenGL.\n\nThe concepts worth studying in depth have no OpenGL equivalent: the swapchain (an explicit set of images the GPU renders into and the presentation engine displays, requiring manual management of which image is currently available versus being presented), pipeline state objects (nearly the entire GPU pipeline configuration baked into one immutable object up front instead of toggled per-draw-call, so the driver can precompile and optimize it once), and explicit synchronization primitives (fences for CPU-GPU sync, semaphores for GPU-GPU sync between queue operations).\n\nThe study focus is tracing one full frame's synchronization sequence in the reference implementation precisely — acquire swapchain image, wait on fence, record/submit command buffer with semaphore dependencies, present — since getting this sequence wrong is the single most common source of validation-layer errors and hard-to-debug rendering glitches when learning Vulkan.",
+    "architecture_overview": "Instance/device setup (physical device selection, logical device + queues) → swapchain (presentable image set) → pipeline state objects (shaders, fixed-function state, baked immutable) → per-frame loop (acquire image [semaphore] → record command buffer → submit [wait/signal semaphores, fence] → present [wait semaphore]) → explicit GPU memory allocation for buffers/images throughout.",
+    "linked_node_explanations": {
+      "Process Synchronization": "Vulkan's fences (CPU–GPU) and semaphores (GPU–GPU) are explicit synchronization primitives with the same wait/signal semantics as classical OS synchronization, applied across the CPU/GPU boundary instead of threads.",
+      "Memory Management and Virtual Memory": "Vulkan requires manually allocating and sub-allocating GPU memory heaps for every buffer and image — a hands-on encounter with fragmentation, alignment, and allocation-strategy concerns usually only discussed for CPU virtual memory.",
+      "ALU, Data-Path and Control Unit": "Writing GLSL shaders that compile to SPIR-V and execute on the GPU's parallel compute units is a concrete look at a fundamentally different data-path/control-unit design (massively parallel, SIMT execution) than the single-instruction-stream model this topic usually assumes."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Instance/device/swapchain setup",
+        "description": "Implement physical device selection with queue family requirements and swapchain creation, documenting each setup step's responsibility.",
+        "deliverables": [
+          "Physical device + queue selection",
+          "Swapchain creation",
+          "Setup-step responsibility notes"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Pipeline state object construction",
+        "description": "Build a graphics pipeline object with a basic vertex/fragment shader pair and explicitly configured fixed-function state.",
+        "deliverables": [
+          "Vertex/fragment shaders (SPIR-V)",
+          "Configured fixed-function pipeline state"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Command buffer recording & submission",
+        "description": "Record a command buffer with a single draw call and submit it to the graphics queue with correct fence usage.",
+        "deliverables": ["Command buffer with draw call", "Correct fence-guarded submission"]
+      },
+      {
+        "step": 4,
+        "title": "Frame synchronization sequence",
+        "description": "Implement the full per-frame synchronization sequence and trace it step by step against the reference implementation's sequence.",
+        "deliverables": [
+          "Full acquire/submit/present sync sequence",
+          "Step-by-step trace vs reference"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "First real render & validation-layer clean pass",
+        "description": "Render a triangle/mesh correctly with zero Vulkan validation-layer errors or warnings on a full run.",
+        "deliverables": ["Correctly rendered output", "Zero validation-layer errors/warnings"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Vulkan Examples (SaschaWillems)",
+        "url": "https://github.com/SaschaWillems/Vulkan",
+        "note": "The most widely used collection of Vulkan example implementations, from a basic triangle to advanced techniques, each isolated and readable — the standard reference for tracing Vulkan's setup and synchronization sequence step by step."
+      },
+      {
+        "title": "Vulkan-Samples",
+        "url": "https://github.com/KhronosGroup/Vulkan-Samples",
+        "note": "The official Khronos Group sample collection, useful as a second, standards-body-maintained reference for comparing best-practice API usage against SaschaWillems' community examples."
+      }
+    ]
+  },
+  {
+    "slug": "zero-trust-auth-mesh",
+    "title": "Zero-Trust Authentication Service Mesh",
+    "difficulty": "advanced",
+    "estimated_hours": 70,
+    "tech_stack": ["Service mesh (Istio/Envoy)", "SPIFFE/SPIRE", "mTLS (mutual TLS)", "Kubernetes"],
+    "description": "Study of the zero-trust principle applied to service-to-service communication: instead of trusting traffic because it originates inside a perimeter, every request between services must independently authenticate and be authorized regardless of network location, meaning workload identity (proving which specific service is making a request, not just which IP) has to exist as a first-class concept.\n\nSPIFFE/SPIRE's approach is worth studying precisely: every workload is issued a cryptographically verifiable identity document (an SVID, containing a SPIFFE ID) by a SPIRE agent, based on attestation — proving identity via something the platform can verify, like 'this process was started by Kubernetes with this specific service account,' not a static, stealable credential. These SVIDs then establish mutual TLS between services, where both sides present and verify each other's identity, not just the client verifying the server as in ordinary TLS.\n\nThe study focus is tracing how a service mesh like Istio automates mTLS enrollment and enforcement via sidecar proxies (Envoy) that transparently intercept and encrypt traffic without application code knowing mTLS is happening, and separately tracing SPIRE's attestation flow from workload startup to receiving a signed SVID, since this attestation step is what actually earns trust rather than assuming it.",
+    "architecture_overview": "Workload startup → SPIRE agent attestation (verifies identity via platform-specific evidence) → SVID issuance (short-lived, cryptographically signed identity document) → mutual TLS handshake between services (both sides present + verify SVIDs) → authorization policy check → request proceeds or is denied, often enforced transparently by a sidecar proxy (Envoy) rather than application code.",
+    "linked_node_explanations": {
+      "Application Layer Protocols (HTTP/HTTPS)": "Mutual TLS is ordinary TLS with an added client-certificate verification step, and tracing the extra handshake messages this requires is a direct, applied extension of standard HTTPS handshake knowledge.",
+      "Process Synchronization": "Short-lived SVIDs require automatic rotation before expiry without dropping in-flight connections, a real coordination problem between the identity-issuing agent and the workload's active TLS sessions.",
+      "ISO/OSI and TCP/IP Protocol Stack": "A sidecar proxy transparently intercepting and encrypting traffic between services is a concrete example of inserting a new function at a specific layer of the stack without changing the layers above it."
+    },
+    "milestones": [
+      {
+        "step": 1,
+        "title": "Zero-trust principle & workload identity study",
+        "description": "Write up why perimeter-based trust fails for service-to-service calls, and what a SPIFFE ID/SVID actually contains.",
+        "deliverables": ["Perimeter-trust failure explanation", "SPIFFE ID/SVID content notes"]
+      },
+      {
+        "step": 2,
+        "title": "Attestation flow trace",
+        "description": "Trace SPIRE's attestation flow step by step from workload startup to signed SVID issuance in a reference deployment.",
+        "deliverables": [
+          "Step-by-step attestation flow trace",
+          "Notes on what evidence the attestor actually checks"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "mTLS setup between two services",
+        "description": "Configure two services with mutual TLS using issued identities, including a failed-connection demo when one side presents an invalid identity.",
+        "deliverables": [
+          "Working mTLS between 2 services",
+          "Failed-connection (invalid identity) demo"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Sidecar-transparent enforcement",
+        "description": "Configure a service mesh sidecar enforcing mTLS between two services with no application-code changes, with a traffic capture confirming encryption.",
+        "deliverables": ["Sidecar mTLS enforcement config", "Traffic capture confirming encryption"]
+      },
+      {
+        "step": 5,
+        "title": "Authorization policy & rotation",
+        "description": "Add an authorization policy restricting which identities can call a given endpoint, tested with an allowed and a denied identity, plus SVID rotation notes/demo.",
+        "deliverables": ["Authorization policy (allow/deny test)", "SVID rotation notes or demo"]
+      }
+    ],
+    "reference_repos": [
+      {
+        "title": "Istio",
+        "url": "https://github.com/istio/istio",
+        "note": "The most widely deployed service mesh, with automatic mTLS and Envoy sidecar enforcement as core features — the reference for how transparent, application-invisible mTLS enforcement is implemented at the infrastructure layer."
+      },
+      {
+        "title": "SPIRE",
+        "url": "https://github.com/spiffe/spire",
+        "note": "The reference implementation of the SPIFFE workload-identity standard, including the attestation and SVID-issuance flow — the primary source for cryptographic workload identity independent of any specific service mesh."
+      }
+    ]
+  }
+]

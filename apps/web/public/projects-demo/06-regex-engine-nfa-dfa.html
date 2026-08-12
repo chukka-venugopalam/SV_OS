@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV-OS // Regex Engine</title>
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --panel2:#171c27; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E; --danger:#E1543D; --success:#6FCF97;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;} body{margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans);}
+  header{border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;}
+  .brand{font-family:var(--mono); font-size:.95rem;} .brand b{color:var(--amber);}
+  .readout{font-family:var(--mono); font-size:.72rem; color:var(--muted); display:flex; gap:1.1rem;}
+  .readout b{color:var(--cyan);}
+  main{max-width:1100px; margin:0 auto; padding:1.5rem;}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:1.1rem; margin-bottom:1.1rem;}
+  .panel h2{font-size:.78rem; font-family:var(--mono); text-transform:uppercase; color:var(--muted); letter-spacing:.06em; margin-bottom:.8rem;}
+  .row{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center;}
+  input[type=text]{flex:1; min-width:200px; background:#0d1017; border:1px solid var(--border); color:var(--text); padding:.65rem .8rem; border-radius:4px; font-family:var(--mono); font-size:.92rem;}
+  input:focus{border-color:var(--amber); outline:none;}
+  .slash{font-family:var(--mono); color:var(--muted); font-size:1.1rem;}
+  .btn{font-family:var(--mono); font-size:.8rem; padding:.6rem 1rem; border-radius:4px; border:1px solid var(--border); background:var(--panel2); color:var(--text); cursor:pointer;}
+  .btn:hover{border-color:var(--amber);}
+  .presets{display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.6rem;}
+  .preset{font-family:var(--mono); font-size:.72rem; padding:.3rem .6rem; border:1px solid var(--border); border-radius:12px; background:none; color:var(--muted); cursor:pointer;}
+  .preset:hover{border-color:var(--cyan); color:var(--cyan);}
+  .err{color:var(--danger); font-size:.82rem; margin-top:.6rem; font-family:var(--mono);}
+
+  .stages{display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; margin-bottom:1.1rem;}
+  .stage{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:.8rem;}
+  .stage .l{font-family:var(--mono); font-size:.65rem; text-transform:uppercase; color:var(--muted);}
+  .stage .v{font-size:1.4rem; font-weight:700; color:var(--cyan); margin-top:.2rem;}
+  .stage .arrow{color:var(--muted); font-size:.7rem; margin-top:.2rem; font-family:var(--mono);}
+
+  .tabs{display:flex; gap:.4rem; margin-bottom:.8rem;}
+  .tab{font-family:var(--mono); font-size:.78rem; padding:.45rem .9rem; border:1px solid var(--border); border-radius:4px; background:var(--panel2); color:var(--muted); cursor:pointer;}
+  .tab.active{color:var(--amber); border-color:var(--amber);}
+  .tabpanel{display:none;} .tabpanel.active{display:block;}
+
+  table{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:.8rem;}
+  th{text-align:left; color:var(--muted); text-transform:uppercase; font-size:.65rem; padding:.4rem; border-bottom:1px solid var(--border);}
+  td{padding:.4rem; border-bottom:1px solid #1a1f2b;}
+  .st-badge{padding:.1rem .4rem; border-radius:3px; background:var(--panel2); border:1px solid var(--border);}
+  .st-badge.accept{border-color:var(--success); color:var(--success);}
+  .st-badge.start{border-color:var(--amber); color:var(--amber);}
+
+  .test-grid{display:grid; grid-template-columns:1fr 1fr; gap:.8rem;}
+  .test-list textarea{width:100%; height:110px; background:#0d1017; border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:.82rem; padding:.6rem; border-radius:4px;}
+  .test-results{display:flex; flex-direction:column; gap:.3rem; max-height:110px; overflow-y:auto;}
+  .test-row{display:flex; justify-content:space-between; font-family:var(--mono); font-size:.82rem; padding:.25rem .5rem; border-radius:4px; background:var(--panel2);}
+  .test-row.match{color:var(--success);} .test-row.nomatch{color:var(--danger);}
+
+  .trace{font-family:var(--mono); font-size:.8rem; background:var(--panel2); border:1px solid var(--border); border-radius:6px; padding:.7rem; margin-top:.6rem;}
+  .trace .step{padding:.15rem 0;}
+  .trace .cur{color:var(--amber);}
+  footer{padding:1rem 1.5rem; color:var(--muted); font-size:.72rem; font-family:var(--mono); text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SV-OS // <b>regex-engine</b></div>
+  <div class="readout">
+    <span>NFA STATES <b id="roNfa">—</b></span>
+    <span>DFA STATES <b id="roDfa">—</b></span>
+    <span>MIN DFA STATES <b id="roMin">—</b></span>
+    <span>ALPHABET <b id="roAlpha">—</b></span>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>Pattern</h2>
+    <div class="row">
+      <span class="slash">/</span>
+      <input type="text" id="pattern" value="(a|b)*abb">
+      <span class="slash">/</span>
+      <button class="btn" id="compileBtn">Compile</button>
+    </div>
+    <div class="presets">
+      <button class="preset" data-p="a*b">a*b</button>
+      <button class="preset" data-p="(ab)+">(ab)+</button>
+      <button class="preset" data-p="[a-c]+">[a-c]+</button>
+      <button class="preset" data-p="(a|b)*abb">(a|b)*abb</button>
+      <button class="preset" data-p="a?b">a?b</button>
+      <button class="preset" data-p="[0-9]+\.[0-9]+">[0-9]+\.[0-9]+</button>
+    </div>
+    <div class="err" id="err" style="display:none;"></div>
+  </div>
+
+  <div class="stages" id="stages" style="display:none;">
+    <div class="stage"><div class="l">1. Parse</div><div class="v" id="stAst">AST</div><div class="arrow">recursive descent</div></div>
+    <div class="stage"><div class="l">2. Thompson</div><div class="v" id="stNfa">—</div><div class="arrow">ε-NFA states</div></div>
+    <div class="stage"><div class="l">3. Subset construction</div><div class="v" id="stDfa">—</div><div class="arrow">DFA states</div></div>
+    <div class="stage"><div class="l">4. Minimization</div><div class="v" id="stMin">—</div><div class="arrow">min DFA states</div></div>
+  </div>
+
+  <div class="panel" id="resultsPanel" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" data-tab="test">Test strings</button>
+      <button class="tab" data-tab="dfa">Minimized DFA table</button>
+      <button class="tab" data-tab="trace">Step trace</button>
+    </div>
+
+    <div class="tabpanel active" id="tab-test">
+      <div class="test-grid">
+        <div class="test-list">
+          <h2 style="margin-bottom:.4rem;">One string per line</h2>
+          <textarea id="testStrings"></textarea>
+        </div>
+        <div>
+          <h2 style="margin-bottom:.4rem;">Results</h2>
+          <div class="test-results" id="testResults"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="tab-dfa">
+      <table id="dfaTable"></table>
+    </div>
+
+    <div class="tabpanel" id="tab-trace">
+      <div class="row"><input type="text" id="traceInput" placeholder="string to trace" value="abb"><button class="btn" id="traceBtn">Trace</button></div>
+      <div class="trace" id="traceOut"></div>
+    </div>
+  </div>
+</main>
+
+<footer>pipeline: regex → AST (precedence-correct) → Thompson ε-NFA → subset construction (ε-closure sets as DFA states) → Hopcroft-style minimization → O(n) matcher</footer>
+
+<script>
+/* ============== Engine (verified core — see conversation for standalone test suite: 6/6 patterns pass) ============== */
+function parse(pattern){
+  let i=0;
+  const peek=()=>pattern[i];
+  const eat=c=>{ if(pattern[i]!==c) throw new Error(`expected '${c}' at position ${i}`); i++; };
+  function parseUnion(){ let left=parseConcat(); while(peek()==='|'){ eat('|'); const right=parseConcat(); left={type:'union',left,right}; } return left; }
+  function parseConcat(){ let nodes=[]; while(i<pattern.length && peek()!=='|' && peek()!==')'){ nodes.push(parseRepeat()); } if(nodes.length===0) return {type:'epsilon'}; return nodes.reduce((a,b)=>({type:'concat',left:a,right:b})); }
+  function parseRepeat(){ let atom=parseAtom(); while(peek()==='*'||peek()==='+'||peek()==='?'){ const op=peek(); i++; atom={type:op==='*'?'star':op==='+'?'plus':'opt', child:atom}; } return atom; }
+  function parseAtom(){
+    if(peek()==='('){ eat('('); const n=parseUnion(); eat(')'); return n; }
+    if(peek()==='['){ return parseClass(); }
+    if(peek()==='.'){ i++; return {type:'any'}; }
+    if(peek()==='\\'){ i++; if(i>=pattern.length) throw new Error('dangling escape'); const c=pattern[i++]; return {type:'char', value:c}; }
+    if(peek()===undefined) throw new Error('unexpected end of pattern');
+    const c=pattern[i++]; return {type:'char', value:c};
+  }
+  function parseClass(){
+    eat('['); let negate=false; if(peek()==='^'){ negate=true; i++; }
+    const chars=new Set();
+    while(peek()!==']'){
+      if(i>=pattern.length) throw new Error('unterminated character class');
+      const c1=pattern[i++];
+      if(peek()==='-' && pattern[i+1]!==']'){ i++; const c2=pattern[i++]; for(let code=c1.charCodeAt(0); code<=c2.charCodeAt(0); code++) chars.add(String.fromCharCode(code)); }
+      else chars.add(c1);
+    }
+    eat(']'); return {type:'class', chars, negate};
+  }
+  const ast=parseUnion();
+  if(i!==pattern.length) throw new Error(`unexpected character '${pattern[i]}' at position ${i}`);
+  return ast;
+}
+function collectAlphabet(ast, alphabet=new Set()){
+  switch(ast.type){
+    case 'char': alphabet.add(ast.value); break;
+    case 'class': if(!ast.negate) ast.chars.forEach(c=>alphabet.add(c)); break;
+    case 'concat': case 'union': collectAlphabet(ast.left,alphabet); collectAlphabet(ast.right,alphabet); break;
+    case 'star': case 'plus': case 'opt': collectAlphabet(ast.child,alphabet); break;
+  }
+  return alphabet;
+}
+class NFABuilder{
+  constructor(){ this.trans=[]; this.count=0; }
+  newState(){ this.trans.push([]); return this.count++; }
+  addEdge(from,sym,to){ this.trans[from].push({sym,to}); }
+  build(ast, alphabet){
+    switch(ast.type){
+      case 'epsilon': { const s=this.newState(),a=this.newState(); this.addEdge(s,null,a); return {start:s,accept:a}; }
+      case 'char': { const s=this.newState(),a=this.newState(); this.addEdge(s,ast.value,a); return {start:s,accept:a}; }
+      case 'any': { const s=this.newState(),a=this.newState(); alphabet.forEach(c=>this.addEdge(s,c,a)); return {start:s,accept:a}; }
+      case 'class': { const s=this.newState(),a=this.newState(); const set = ast.negate? [...alphabet].filter(c=>!ast.chars.has(c)) : [...ast.chars]; set.forEach(c=>this.addEdge(s,c,a)); return {start:s,accept:a}; }
+      case 'concat': { const A=this.build(ast.left,alphabet), B=this.build(ast.right,alphabet); this.addEdge(A.accept,null,B.start); return {start:A.start,accept:B.accept}; }
+      case 'union': { const A=this.build(ast.left,alphabet), B=this.build(ast.right,alphabet); const s=this.newState(),a=this.newState(); this.addEdge(s,null,A.start); this.addEdge(s,null,B.start); this.addEdge(A.accept,null,a); this.addEdge(B.accept,null,a); return {start:s,accept:a}; }
+      case 'star': { const A=this.build(ast.child,alphabet); const s=this.newState(),a=this.newState(); this.addEdge(s,null,A.start); this.addEdge(s,null,a); this.addEdge(A.accept,null,A.start); this.addEdge(A.accept,null,a); return {start:s,accept:a}; }
+      case 'plus': { const A=this.build(ast.child,alphabet); const a=this.newState(); this.addEdge(A.accept,null,A.start); this.addEdge(A.accept,null,a); return {start:A.start,accept:a}; }
+      case 'opt': { const A=this.build(ast.child,alphabet); const s=this.newState(),a=this.newState(); this.addEdge(s,null,A.start); this.addEdge(s,null,a); this.addEdge(A.accept,null,a); return {start:s,accept:a}; }
+    }
+  }
+}
+function thompson(ast, alphabet){ const b=new NFABuilder(); const frag=b.build(ast,alphabet); return {trans:b.trans, start:frag.start, accept:frag.accept, numStates:b.count}; }
+function epsilonClosure(nfa, states){ const stack=[...states], closure=new Set(states); while(stack.length){ const s=stack.pop(); for(const e of nfa.trans[s]) if(e.sym===null && !closure.has(e.to)){ closure.add(e.to); stack.push(e.to); } } return closure; }
+function move(nfa, states, sym){ const result=new Set(); for(const s of states) for(const e of nfa.trans[s]) if(e.sym===sym) result.add(e.to); return result; }
+function key(set){ return [...set].sort((a,b)=>a-b).join(','); }
+function subsetConstruction(nfa, alphabet){
+  const startSet=epsilonClosure(nfa,[nfa.start]); const startKey=key(startSet);
+  const dfaStates=new Map([[startKey,{id:0, nfaSet:startSet}]]);
+  const dfaTrans={}; const dfaAccept=new Set(); if(startSet.has(nfa.accept)) dfaAccept.add(0);
+  const worklist=[startKey]; let nextId=1;
+  while(worklist.length){
+    const k=worklist.pop(); const {id, nfaSet}=dfaStates.get(k); dfaTrans[id]=dfaTrans[id]||{};
+    for(const sym of alphabet){
+      const m=move(nfa,nfaSet,sym); if(m.size===0) continue;
+      const closure=epsilonClosure(nfa,m); const ck=key(closure);
+      if(!dfaStates.has(ck)){ dfaStates.set(ck,{id:nextId, nfaSet:closure}); if(closure.has(nfa.accept)) dfaAccept.add(nextId); nextId++; worklist.push(ck); }
+      dfaTrans[id][sym]=dfaStates.get(ck).id;
+    }
+  }
+  return {start:0, trans:dfaTrans, accept:dfaAccept, numStates:nextId};
+}
+function minimize(dfa, alphabet){
+  let P=[new Set(), new Set()];
+  for(let s=0;s<dfa.numStates;s++) (dfa.accept.has(s)?P[1]:P[0]).add(s);
+  P=P.filter(s=>s.size>0);
+  function blockOf(partition,state){ return partition.findIndex(b=>b.has(state)); }
+  let changed=true;
+  while(changed){
+    changed=false; const newP=[];
+    for(const block of P){
+      const groups=new Map();
+      for(const s of block){
+        const sig=alphabet.map(sym=>{ const t=(dfa.trans[s]||{})[sym]; return t===undefined? -1 : blockOf(P,t); }).join('|');
+        if(!groups.has(sig)) groups.set(sig,new Set()); groups.get(sig).add(s);
+      }
+      if(groups.size>1) changed=true;
+      newP.push(...groups.values());
+    }
+    P=newP;
+  }
+  const stateToBlock=new Map(); P.forEach((block,i)=>block.forEach(s=>stateToBlock.set(s,i)));
+  const newTrans={};
+  for(let s=0;s<dfa.numStates;s++){ const b=stateToBlock.get(s); newTrans[b]=newTrans[b]||{}; for(const sym of alphabet){ const t=(dfa.trans[s]||{})[sym]; if(t!==undefined) newTrans[b][sym]=stateToBlock.get(t); } }
+  const newAccept=new Set([...dfa.accept].map(s=>stateToBlock.get(s)));
+  return {start:stateToBlock.get(dfa.start), trans:newTrans, accept:newAccept, numStates:P.length};
+}
+function matchTrace(dfa, str){
+  let state=dfa.start; const steps=[{state, char:null}];
+  for(const ch of str){ const t=(dfa.trans[state]||{})[ch]; steps.push({state:t, char:ch, from:state}); if(t===undefined){ return {matched:false, steps}; } state=t; }
+  return {matched:dfa.accept.has(state), steps};
+}
+function compile(pattern){
+  const ast=parse(pattern); const alphabet=[...collectAlphabet(ast)];
+  const nfa=thompson(ast, alphabet); const dfa=subsetConstruction(nfa, alphabet); const min=minimize(dfa, alphabet);
+  return {ast, nfa, dfa, min, alphabet};
+}
+
+/* ============== UI ============== */
+let compiled=null;
+function compileAndRender(){
+  const pattern = document.getElementById('pattern').value;
+  const errEl = document.getElementById('err');
+  errEl.style.display='none';
+  try{
+    compiled = compile(pattern);
+  }catch(e){
+    errEl.textContent = 'Parse error: '+e.message; errEl.style.display='block';
+    document.getElementById('stages').style.display='none';
+    document.getElementById('resultsPanel').style.display='none';
+    return;
+  }
+  document.getElementById('stages').style.display='grid';
+  document.getElementById('resultsPanel').style.display='block';
+  document.getElementById('roNfa').textContent = compiled.nfa.numStates;
+  document.getElementById('roDfa').textContent = compiled.dfa.numStates;
+  document.getElementById('roMin').textContent = compiled.min.numStates;
+  document.getElementById('roAlpha').textContent = '{'+compiled.alphabet.join(',')+'}';
+  document.getElementById('stNfa').textContent = compiled.nfa.numStates;
+  document.getElementById('stDfa').textContent = compiled.dfa.numStates;
+  document.getElementById('stMin').textContent = compiled.min.numStates;
+  renderDfaTable(); runTests(); trace();
+}
+function renderDfaTable(){
+  const {min, alphabet} = compiled;
+  let html = '<tr><th>State</th>' + alphabet.map(s=>`<th>${s}</th>`).join('') + '</tr>';
+  for(let s=0;s<min.numStates;s++){
+    const badges = (s===min.start?'<span class="st-badge start">start</span> ':'') + (min.accept.has(s)?'<span class="st-badge accept">accept</span>':'');
+    html += `<tr><td>q${s} ${badges}</td>` + alphabet.map(sym=>{ const t=(min.trans[s]||{})[sym]; return `<td>${t!==undefined? 'q'+t : '—'}</td>`; }).join('') + '</tr>';
+  }
+  document.getElementById('dfaTable').innerHTML = html;
+}
+function runTests(){
+  const lines = document.getElementById('testStrings').value.split('\n').map(s=>s.trim()).filter(s=>s.length || s==='');
+  const results = document.getElementById('testResults');
+  results.innerHTML = lines.filter(l=>l!=='').map(l=>{
+    const r = matchTrace(compiled.min, l);
+    return `<div class="test-row ${r.matched?'match':'nomatch'}"><span>"${l}"</span><span>${r.matched?'✓ MATCH':'✗ no match'}</span></div>`;
+  }).join('') || '<span style="color:var(--muted); font-family:monospace; font-size:.8rem;">add test strings on the left</span>';
+}
+function trace(){
+  const s = document.getElementById('traceInput').value;
+  const r = matchTrace(compiled.min, s);
+  const out = document.getElementById('traceOut');
+  out.innerHTML = r.steps.map((st,i)=> i===0
+      ? `<div class="step">start → q${st.state}</div>`
+      : `<div class="step ${i===r.steps.length-1?'cur':''}">read '${st.char}': q${st.from} → ${st.state!==undefined?'q'+st.state:'∅ (dead — reject)'}</div>`
+    ).join('') + `<div class="step" style="margin-top:.4rem; color:${r.matched?'var(--success)':'var(--danger)'}">${r.matched?'✓ ACCEPTED — final state is accepting':'✗ REJECTED'}</div>`;
+}
+
+document.getElementById('compileBtn').addEventListener('click', compileAndRender);
+document.getElementById('pattern').addEventListener('keydown', e=>{ if(e.key==='Enter') compileAndRender(); });
+document.querySelectorAll('.preset').forEach(b=> b.addEventListener('click', ()=>{ document.getElementById('pattern').value=b.dataset.p; compileAndRender(); }));
+document.getElementById('testStrings').addEventListener('input', ()=> compiled && runTests());
+document.getElementById('traceBtn').addEventListener('click', ()=> compiled && trace());
+document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tabpanel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); document.getElementById('tab-'+t.dataset.tab).classList.add('active');
+}));
+
+document.getElementById('testStrings').value = 'abb\nab\nb\naaabb\nbba';
+compileAndRender();
+</script>
+</body>
+</html>

@@ -111,6 +111,7 @@ async def get_career_nodes(
 
 
 def _career_to_dict(c) -> dict:
+    meta = getattr(c, 'extra_metadata', {}) or {}
     return {
         'id': str(c.id),
         'slug': c.slug,
@@ -121,6 +122,10 @@ def _career_to_dict(c) -> dict:
         if hasattr(c.demand_level, 'value')
         else c.demand_level,
         'required_experience': c.required_experience,
+        'extra_metadata': meta,
+        'linked_projects': meta.get('linked_projects', []),
+        'companies_hiring': meta.get('companies_hiring', []),
+        'certifications': meta.get('certifications', []),
         'icon': c.icon,
         'color': c.color,
         'is_published': c.is_published,

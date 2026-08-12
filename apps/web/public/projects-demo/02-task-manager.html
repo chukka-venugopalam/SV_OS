@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SV-OS // Task Manager</title>
+<style>
+  :root{
+    --bg:#0B0E14; --panel:#131720; --panel2:#171c27; --border:#232838;
+    --amber:#E8A33D; --cyan:#5FD3D3; --text:#E7E9EE; --muted:#838C9E; --danger:#E1543D; --success:#6FCF97;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;} body{margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh;}
+  :focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+
+  header{border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem;}
+  .brand{font-family:var(--mono); font-size:.95rem;}
+  .brand b{color:var(--amber);}
+  .readout{font-family:var(--mono); font-size:.72rem; color:var(--muted); display:flex; gap:1.2rem;}
+  .readout span b{color:var(--cyan); font-weight:600;}
+
+  .toolbar{display:flex; gap:.6rem; padding:1rem 1.5rem; flex-wrap:wrap; align-items:center; border-bottom:1px solid var(--border);}
+  input[type=text], input[type=date]{background:var(--panel); border:1px solid var(--border); color:var(--text); border-radius:4px; padding:.5rem .7rem; font-family:var(--sans); font-size:.9rem;}
+  input[type=text]:focus, input[type=date]:focus{border-color:var(--amber);}
+  #search{min-width:220px;}
+  select{background:var(--panel); border:1px solid var(--border); color:var(--text); border-radius:4px; padding:.5rem .6rem; font-family:var(--sans); font-size:.85rem;}
+  .btn{font-family:var(--mono); font-size:.8rem; padding:.5rem .9rem; border-radius:4px; border:1px solid var(--border); background:var(--panel); color:var(--text); cursor:pointer; transition:border-color .15s;}
+  .btn:hover{border-color:var(--amber);}
+  .btn-primary{background:var(--amber); color:#1a1305; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{background:#f0ae52;}
+  .btn-ghost{opacity:.85;}
+  .spacer{flex:1;}
+
+  main{padding:1.5rem; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:1200px; margin:0 auto;}
+  .column{background:var(--panel); border:1px solid var(--border); border-radius:8px; min-height:60vh; display:flex; flex-direction:column;}
+  .column-head{padding:.9rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;}
+  .column-head h2{font-size:.85rem; font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em;}
+  .count-pill{font-family:var(--mono); font-size:.72rem; background:var(--panel2); border:1px solid var(--border); color:var(--muted); padding:.15rem .5rem; border-radius:10px;}
+  .column-body{flex:1; padding:.7rem; display:flex; flex-direction:column; gap:.6rem; min-height:200px;}
+  .column-body.drag-over{background:rgba(232,163,61,.06); outline:1px dashed var(--amber);}
+  .empty-state{color:var(--muted); font-size:.82rem; text-align:center; padding:2rem 1rem; font-family:var(--mono);}
+
+  .task{background:var(--panel2); border:1px solid var(--border); border-radius:6px; padding:.7rem .8rem; cursor:grab; transition:border-color .15s, transform .1s;}
+  .task.dragging{opacity:.4;}
+  .task:hover{border-color:#39415a;}
+  .task-title{font-size:.92rem; margin-bottom:.35rem; word-break:break-word;}
+  .task-meta{display:flex; justify-content:space-between; align-items:center; font-size:.72rem; color:var(--muted); font-family:var(--mono);}
+  .task-meta.overdue{color:var(--danger);}
+  .task-actions{display:flex; gap:.4rem; margin-top:.5rem;}
+  .icon-btn{background:none; border:none; color:var(--muted); cursor:pointer; font-size:.78rem; font-family:var(--mono); padding:0;}
+  .icon-btn:hover{color:var(--amber);}
+  .icon-btn.del:hover{color:var(--danger);}
+
+  .add-row{padding:.7rem; border-top:1px solid var(--border);}
+  .add-row form{display:flex; gap:.4rem;}
+  .add-row input{flex:1;}
+
+  footer{padding:1rem 1.5rem; color:var(--muted); font-size:.75rem; font-family:var(--mono); text-align:center;}
+
+  @media (max-width:900px){ main{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SV-OS // <b>task-manager</b></div>
+  <div class="readout">
+    <span>TASKS <b id="roTotal">0</b></span>
+    <span>STORAGE <b id="roBytes">0 B</b></span>
+    <span>SAVED <b id="roSaved">—</b></span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="Search tasks…" aria-label="Search tasks">
+  <select id="sortSel" aria-label="Sort tasks">
+    <option value="none">No sort</option>
+    <option value="due-asc">Due date ↑</option>
+    <option value="due-desc">Due date ↓</option>
+  </select>
+  <div class="spacer"></div>
+  <button class="btn" id="undoBtn" title="Ctrl+Z">↶ Undo</button>
+  <button class="btn" id="redoBtn" title="Ctrl+Shift+Z">↷ Redo</button>
+  <button class="btn btn-ghost" id="resetBtn">Reset board</button>
+</div>
+
+<main id="board"></main>
+
+<footer>drag cards between columns · Ctrl+Z / Ctrl+Shift+Z to undo/redo · state persists to localStorage</footer>
+
+<script>
+/* ---------------- Normalized state ----------------
+   { tasks: { id: {id,title,due,createdAt} }, columns: { todo:[ids], inProgress:[ids], done:[ids] } }
+   Moving a task between columns is O(1) splice on the id arrays, not an O(n) search over nested objects. */
+const STORAGE_KEY = 'svos.taskmanager.v1';
+const SCHEMA_VERSION = 1;
+const COLS = [ ['todo','To Do'], ['inProgress','In Progress'], ['done','Done'] ];
+
+function seedState(){
+  const mk = (id,title,due)=>({id,title,due,createdAt:Date.now()});
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    tasks: {
+      't1': mk('t1','Design normalized state shape', ''),
+      't2': mk('t2','Implement HTML5 drag-and-drop', daysFromNow(2)),
+      't3': mk('t3','Wire localStorage persistence layer', daysFromNow(-1)),
+      't4': mk('t4','Add undo/redo action stack', daysFromNow(5)),
+    },
+    columns: { todo:['t1'], inProgress:['t2','t3'], done:['t4'] }
+  };
+}
+function daysFromNow(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return seedState();
+    const parsed = JSON.parse(raw);
+    if(parsed.schemaVersion !== SCHEMA_VERSION) return migrate(parsed);
+    return parsed;
+  }catch(e){ console.warn('Corrupted storage, reseeding.', e); return seedState(); }
+}
+function migrate(old){ /* schema-version migration stub for future format changes */ return seedState(); }
+
+let state = loadState();
+let idCounter = Object.keys(state.tasks).length + 1;
+const undoStack = [], redoStack = [];
+const MAX_HISTORY = 50;
+
+function snapshot(){ return JSON.parse(JSON.stringify(state)); }
+function pushHistory(){ undoStack.push(snapshot()); if(undoStack.length>MAX_HISTORY) undoStack.shift(); redoStack.length=0; }
+function undo(){ if(!undoStack.length) return; redoStack.push(snapshot()); state=undoStack.pop(); save(); render(); }
+function redo(){ if(!redoStack.length) return; undoStack.push(snapshot()); state=redoStack.pop(); save(); render(); }
+
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  document.getElementById('roSaved').textContent = new Date().toLocaleTimeString();
+  document.getElementById('roBytes').textContent = new Blob([JSON.stringify(state)]).size + ' B';
+  document.getElementById('roTotal').textContent = Object.keys(state.tasks).length;
+}
+
+// ---- CRUD (pure-ish functions over state) ----
+function addTask(column, title){
+  if(!title.trim()) return;
+  pushHistory();
+  const id = 't'+(idCounter++);
+  state.tasks[id] = {id, title:title.trim(), due:'', createdAt:Date.now()};
+  state.columns[column].push(id);
+  save(); render();
+}
+function deleteTask(id){
+  pushHistory();
+  delete state.tasks[id];
+  for(const key in state.columns) state.columns[key] = state.columns[key].filter(x=>x!==id);
+  save(); render();
+}
+function setDue(id, due){ pushHistory(); state.tasks[id].due = due; save(); render(); }
+function moveTask(id, fromCol, toCol, toIndex){
+  pushHistory();
+  state.columns[fromCol] = state.columns[fromCol].filter(x=>x!==id);
+  const arr = state.columns[toCol];
+  const idx = toIndex===undefined ? arr.length : toIndex;
+  arr.splice(idx,0,id);
+  save(); render();
+}
+
+// ---- Derived views (search/sort) ----
+function getFilteredSortedIds(colKey){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const sortMode = document.getElementById('sortSel').value;
+  let ids = state.columns[colKey].filter(id=>{
+    const t = state.tasks[id];
+    return !q || t.title.toLowerCase().includes(q);
+  });
+  if(sortMode!=='none'){
+    ids = [...ids].sort((a,b)=>{
+      const da = state.tasks[a].due || '9999-99-99', db = state.tasks[b].due || '9999-99-99';
+      return sortMode==='due-asc' ? da.localeCompare(db) : db.localeCompare(da);
+    });
+  }
+  return ids;
+}
+
+function isOverdue(due){ if(!due) return false; return new Date(due) < new Date(new Date().toDateString()); }
+
+// ---- Render ----
+let dragState = null; // {id, fromCol}
+
+function render(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLS.forEach(([key,label])=>{
+    const col = document.createElement('div');
+    col.className='column';
+    const ids = getFilteredSortedIds(key);
+    col.innerHTML = `
+      <div class="column-head"><h2>${label}</h2><span class="count-pill">${ids.length}</span></div>
+      <div class="column-body" data-col="${key}"></div>
+      <div class="add-row">
+        <form data-col="${key}">
+          <input type="text" placeholder="Add task…" aria-label="Add task to ${label}">
+          <button class="btn" type="submit">+</button>
+        </form>
+      </div>`;
+    const body = col.querySelector('.column-body');
+    if(ids.length===0) body.innerHTML = `<div class="empty-state">— empty —</div>`;
+    ids.forEach(id=> body.appendChild(renderTaskCard(state.tasks[id], key)));
+
+    body.addEventListener('dragover', e=>{ e.preventDefault(); body.classList.add('drag-over'); });
+    body.addEventListener('dragleave', ()=> body.classList.remove('drag-over'));
+    body.addEventListener('drop', e=>{
+      e.preventDefault(); body.classList.remove('drag-over');
+      if(!dragState) return;
+      moveTask(dragState.id, dragState.fromCol, key);
+      dragState=null;
+    });
+
+    col.querySelector('form').addEventListener('submit', e=>{
+      e.preventDefault();
+      const input = e.target.querySelector('input');
+      addTask(key, input.value);
+      input.value='';
+    });
+    board.appendChild(col);
+  });
+}
+
+function renderTaskCard(task, colKey){
+  const el = document.createElement('div');
+  el.className='task'; el.draggable=true;
+  const overdue = isOverdue(task.due);
+  el.innerHTML = `
+    <div class="task-title">${escapeHtml(task.title)}</div>
+    <div class="task-meta ${overdue?'overdue':''}">
+      <span>${task.due ? (overdue?'⚠ overdue '+task.due : task.due) : 'no due date'}</span>
+    </div>
+    <div class="task-actions">
+      <button class="icon-btn" data-act="due">set due</button>
+      <button class="icon-btn del" data-act="del">delete</button>
+    </div>`;
+  el.addEventListener('dragstart', ()=>{ dragState = {id:task.id, fromCol:colKey}; el.classList.add('dragging'); });
+  el.addEventListener('dragend', ()=> el.classList.remove('dragging'));
+  el.querySelector('[data-act="del"]').addEventListener('click', ()=> deleteTask(task.id));
+  el.querySelector('[data-act="due"]').addEventListener('click', ()=>{
+    const v = prompt('Due date (YYYY-MM-DD), blank to clear:', task.due||'');
+    if(v!==null) setDue(task.id, v);
+  });
+  return el;
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+// ---- Toolbar wiring ----
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('sortSel').addEventListener('change', render);
+document.getElementById('undoBtn').addEventListener('click', undo);
+document.getElementById('redoBtn').addEventListener('click', redo);
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Reset the board to its seed state? This clears saved data.')) return;
+  pushHistory(); state = seedState(); save(); render();
+});
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){
+    e.preventDefault();
+    e.shiftKey ? redo() : undo();
+  }
+});
+
+save(); render();
+</script>
+</body>
+</html>
