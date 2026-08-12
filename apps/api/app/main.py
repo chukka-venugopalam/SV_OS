@@ -813,7 +813,8 @@ def create_app() -> FastAPI:
 
                     chk_sql = text(
                         'SELECT id FROM careers '
-                        'WHERE LOWER(title) = LOWER(:title) OR LOWER(slug) = LOWER(:slug);'
+                        "WHERE REPLACE(LOWER(title), ' ', '') = REPLACE(LOWER(:title), ' ', '') "
+                        'OR LOWER(slug) = LOWER(:slug);'
                     )
                     res = await session.execute(chk_sql, {'title': raw_title, 'slug': slug})
                     existing_id = res.scalar()
@@ -821,7 +822,8 @@ def create_app() -> FastAPI:
                     if existing_id:
                         upd_sql = text("""
                             UPDATE careers
-                            SET title = :title,
+                            SET slug = :slug,
+                                title = :title,
                                 description = :description,
                                 average_salary = :average_salary,
                                 demand_level = :demand_level,
@@ -865,6 +867,19 @@ def create_app() -> FastAPI:
                         )
                         created_count += 1
 
+                # Deduplicate any duplicate rows created by title variations
+                dedup_sql = text("""
+                    DELETE FROM careers
+                    WHERE id IN (
+                        SELECT id FROM (
+                            SELECT id, ROW_NUMBER() OVER (
+                                PARTITION BY REPLACE(LOWER(title), ' ', '') ORDER BY created_at ASC
+                            ) as rnum
+                            FROM careers
+                        ) t WHERE t.rnum > 1
+                    );
+                """)
+                await session.execute(dedup_sql)
                 await session.commit()
 
             return JSONResponse(
