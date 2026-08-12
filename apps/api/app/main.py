@@ -766,7 +766,7 @@ def create_app() -> FastAPI:
         from pathlib import Path
 
         from fastapi.responses import JSONResponse
-        from sqlalchemy import select
+        from sqlalchemy import select, text
         from sqlalchemy.orm.attributes import flag_modified
 
         from app.core.database import async_session_factory
@@ -852,20 +852,9 @@ def create_app() -> FastAPI:
                         session.add(new_car)
                         created_count += 1
 
-                # Clean up any legacy dummy careers not in the 12 valid content careers
-                valid_slugs = {
-                    (item.get('slug') or title_to_slug(item.get('title', ''))).lower()
-                    for item in careers_list
-                }
-                valid_titles = {
-                    item.get('title', '').lower().replace(' ', '') for item in careers_list
-                }
-
-                for c in all_existing:
-                    c_norm = c.title.lower().replace(' ', '')
-                    if c.slug.lower() not in valid_slugs and c_norm not in valid_titles:
-                        await session.delete(c)
-
+                # Purge any legacy placeholder seed careers with 'CAR-' prefix
+                del_legacy_sql = text("DELETE FROM careers WHERE slug LIKE 'CAR-%';")
+                await session.execute(del_legacy_sql)
                 await session.commit()
 
             return JSONResponse(
