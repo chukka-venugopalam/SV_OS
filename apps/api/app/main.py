@@ -818,10 +818,12 @@ def create_app() -> FastAPI:
                     'linked_projects': item.get('linked_projects', []),
                 }
 
+                sal_str = (item.get('salary_range') or '')[:99]
+
                 if existing:
                     existing.title = raw_title
                     existing.description = item.get('description', existing.description)
-                    existing.average_salary = item.get('salary_range', existing.average_salary)
+                    existing.average_salary = sal_str
                     existing.demand_level = demand_enum
                     existing.extra_metadata = meta
                     flag_modified(existing, 'extra_metadata')
@@ -831,7 +833,7 @@ def create_app() -> FastAPI:
                         slug=slug,
                         title=raw_title,
                         description=item.get('description', ''),
-                        average_salary=item.get('salary_range'),
+                        average_salary=sal_str,
                         demand_level=demand_enum,
                         extra_metadata=meta,
                         is_published=True,
