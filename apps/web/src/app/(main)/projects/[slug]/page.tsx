@@ -61,6 +61,14 @@ export default function ProjectDetailPage() {
     );
   }
 
+  const pObj = project as unknown as Record<string, unknown>;
+  const meta = (pObj.extra_metadata as Record<string, unknown>) || {};
+  const referenceRepos =
+    (pObj.reference_repos as Array<{ title?: string; url?: string; note?: string }>) ||
+    (meta.reference_repos as Array<{ title?: string; url?: string; note?: string }>) ||
+    [];
+  const primaryGithubUrl = project.github_url || referenceRepos[0]?.url;
+
   return (
     <Shell maxWidth="4xl">
       <Link
@@ -95,11 +103,11 @@ export default function ProjectDetailPage() {
               {project.estimated_time}
             </Badge>
           )}
-          {project.github_url && (
-            <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="gap-2">
+          {primaryGithubUrl && (
+            <a href={primaryGithubUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="default" size="sm" className="gap-2">
                 <Github className="h-4 w-4" />
-                Source code
+                GitHub Repository
                 <ExternalLink className="h-3 w-3" />
               </Button>
             </a>
@@ -108,13 +116,52 @@ export default function ProjectDetailPage() {
             <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="sm" className="gap-2">
                 <Globe className="h-4 w-4" />
-                Live demo
+                Live Demo
                 <ExternalLink className="h-3 w-3" />
               </Button>
             </a>
           )}
         </div>
       </div>
+
+      {/* GitHub Reference Repositories Section */}
+      {referenceRepos.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            <Github className="mr-1.5 inline h-4 w-4 text-neutral-900 dark:text-neutral-100" />
+            GitHub Reference Repositories & Study Implementations
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {referenceRepos.map((repo, idx) => (
+              <Card
+                key={repo.url || idx}
+                className="flex flex-col justify-between p-4 transition-all hover:shadow-md"
+              >
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-neutral-900 dark:text-neutral-100">
+                      <Github className="text-primary-600 dark:text-primary-400 h-4 w-4" />
+                      {repo.title || 'Reference Repository'}
+                    </h3>
+                  </div>
+                  {repo.note && (
+                    <p className="mb-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+                      {repo.note}
+                    </p>
+                  )}
+                </div>
+                {repo.url && (
+                  <a href={repo.url} target="_blank" rel="noopener noreferrer" className="mt-2">
+                    <Button variant="outline" size="xs" className="w-full gap-1.5 text-xs">
+                      Open Repository <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </a>
+                )}
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Draws on Domains Callout */}
       {(project as unknown as { domains_crossed?: string[] }).domains_crossed &&

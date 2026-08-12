@@ -743,11 +743,18 @@ def create_app() -> FastAPI:
                     session.add(new_proj)
                     created_count += 1
 
+            # Clean up any legacy projects not in the 34 content JSONs
+            valid_slugs = {item['slug'] for item in projects_list}
+            for p in list(existing_projects.values()):
+                if p.slug not in valid_slugs:
+                    await session.delete(p)
+
             await session.commit()
 
+        msg = f'Synced {len(valid_slugs)} projects (Upd:{updated_count}, New:{created_count})'
         return {
             'success': True,
-            'message': f'Synced 34 projects (Upd: {updated_count}, New: {created_count})',
+            'message': msg,
             'timestamp': datetime.now(UTC).isoformat(),
         }
 
@@ -880,6 +887,23 @@ def create_app() -> FastAPI:
                     );
                 """)
                 await session.execute(dedup_sql)
+
+                # Clean up any legacy dummy careers not in the 12 valid content careers
+                valid_career_titles = [item.get('title', '') for item in careers_list]
+                valid_slugs = [
+                    item.get('slug') or title_to_slug(item.get('title', ''))
+                    for item in careers_list
+                ]
+
+                clean_sql = text("""
+                    DELETE FROM careers
+                    WHERE LOWER(slug) NOT IN (SELECT LOWER(unnest(:slugs::text[])))
+                    AND LOWER(title) NOT IN (SELECT LOWER(unnest(:titles::text[])));
+                """)
+                await session.execute(
+                    clean_sql,
+                    {'slugs': valid_slugs, 'titles': valid_career_titles},
+                )
                 await session.commit()
 
             return JSONResponse(

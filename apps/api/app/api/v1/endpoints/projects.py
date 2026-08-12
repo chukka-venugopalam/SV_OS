@@ -139,6 +139,12 @@ def _project_to_dict(p) -> dict:
         'architecture_overview': meta.get('architecture_overview'),
         'linked_node_explanations': meta.get('linked_node_explanations', {}),
         'demo_url': meta.get('demo_url'),
+        'reference_repos': meta.get('reference_repos', []),
+        'github_url': (
+            meta.get('reference_repos', [{}])[0].get('url')
+            if meta.get('reference_repos')
+            else None
+        ),
         'extra_metadata': meta,
         'icon': p.icon,
         'color': p.color,
