@@ -793,10 +793,9 @@ def create_app() -> FastAPI:
 
         async with async_session_factory() as session:
             res1 = await session.execute(select(Career))
-            existing_careers_by_title = {c.title.lower(): c for c in res1.scalars().all()}
-
-            res2 = await session.execute(select(Career))
-            existing_careers_by_slug = {c.slug.lower(): c for c in res2.scalars().all()}
+            all_c = res1.scalars().all()
+            existing_careers_by_title = {c.title.lower(): c for c in all_c if c.title}
+            existing_careers_by_slug = {c.slug.lower(): c for c in all_c if c.slug}
 
             for item in careers_list:
                 raw_title = item.get('title', '')
