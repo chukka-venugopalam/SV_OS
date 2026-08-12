@@ -782,10 +782,10 @@ def create_app() -> FastAPI:
         created_count = 0
 
         demand_map = {
-            'high': DemandLevel.HIGH,
+            'high': DemandLevel.HIGH_DEMAND,
             'growing': DemandLevel.GROWING,
             'stable': DemandLevel.STABLE,
-            'niche': DemandLevel.NICHE,
+            'declining': DemandLevel.DECLINING,
         }
 
         def title_to_slug(t: str) -> str:
