@@ -826,10 +826,11 @@ def create_app() -> FastAPI:
 
                     meta = {
                         'companies_hiring': item.get('companies_hiring', []),
-                        'certifications': item.get('certifications', []),
                         'salary_range': item.get('salary_range'),
                         'linked_projects': item.get('linked_projects', []),
                     }
+                    if item.get('certifications'):
+                        meta['certifications'] = item['certifications']
                     sal_str = (item.get('salary_range') or '')[:99]
                     desc = item.get('description', '')
 
