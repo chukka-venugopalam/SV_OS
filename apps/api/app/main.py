@@ -542,22 +542,73 @@ def create_app() -> FastAPI:
                 'timestamp': datetime.now(UTC).isoformat(),
             }
 
-    @app.get('/debug/projects-count', include_in_schema=False)
-    async def debug_projects_count() -> dict:
+    @app.get('/debug/check-schema', include_in_schema=False)
+    async def debug_check_schema() -> dict:
+        """Introspect knowledge_nodes columns and indexes on active production DB."""
         from sqlalchemy import text
 
         from app.core.database import async_session_factory
 
         async with async_session_factory() as session:
-            stmt = text('SELECT slug, is_published, is_deleted FROM projects ORDER BY slug')
-            res = await session.execute(stmt)
-            rows = res.fetchall()
+            cols_stmt = text(
+                "SELECT column_name, data_type FROM information_schema.columns "
+                "WHERE table_name = 'knowledge_nodes' ORDER BY ordinal_position;"
+            )
+            res_cols = await session.execute(cols_stmt)
+            columns = [{'column_name': r[0], 'data_type': r[1]} for r in res_cols.fetchall()]
+
+            idx_stmt = text(
+                "SELECT indexname FROM pg_indexes WHERE tablename = 'knowledge_nodes';"
+            )
+            res_idx = await session.execute(idx_stmt)
+            indexes = [r[0] for r in res_idx.fetchall()]
+
             return {
-                'total_in_db': len(rows),
-                'projects': [
-                    {'slug': r[0], 'is_published': r[1], 'is_deleted': r[2]} for r in rows
-                ],
+                'table': 'knowledge_nodes',
+                'total_columns': len(columns),
+                'columns': columns,
+                'indexes': indexes,
+                'timestamp': datetime.now(UTC).isoformat(),
             }
+
+    @app.get('/debug/apply-migration-006', include_in_schema=False)
+    async def debug_apply_migration_006() -> dict:
+        """Execute migration 006 on active production DB."""
+        from sqlalchemy import text
+
+        from app.core.database import async_session_factory
+
+        sql_statements = [
+            (
+                'ALTER TABLE knowledge_nodes ADD COLUMN IF NOT EXISTS act SMALLINT '
+                'CHECK (act BETWEEN 1 AND 8);'
+            ),
+            'ALTER TABLE knowledge_nodes ADD COLUMN IF NOT EXISTS district VARCHAR(100);',
+            'ALTER TABLE knowledge_nodes ADD COLUMN IF NOT EXISTS chapter_number SMALLINT;',
+            (
+                'ALTER TABLE knowledge_nodes ADD COLUMN IF NOT EXISTS tier VARCHAR(20) '
+                "CHECK (tier IN ('gate_core', 'career_track'));"
+            ),
+            (
+                'CREATE INDEX IF NOT EXISTS idx_nodes_act_district '
+                'ON knowledge_nodes(act, district, chapter_number);'
+            ),
+            'CREATE INDEX IF NOT EXISTS idx_nodes_tier ON knowledge_nodes(tier);',
+        ]
+
+        executed = []
+        async with async_session_factory() as session:
+            for stmt_str in sql_statements:
+                await session.execute(text(stmt_str))
+                executed.append(stmt_str)
+            await session.commit()
+
+        return {
+            'success': True,
+            'message': 'Migration 006 executed successfully on active production DB',
+            'statements_executed': executed,
+            'timestamp': datetime.now(UTC).isoformat(),
+        }
 
     @app.get('/debug/sync-all-nodes', include_in_schema=False)
     async def debug_sync_all_nodes() -> dict:
