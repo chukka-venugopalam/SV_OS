@@ -56,9 +56,21 @@ function KnowledgeNode({ data, selected }: NodeProps) {
           <p className="max-w-[140px] truncate text-sm font-semibold leading-tight text-neutral-900 dark:text-neutral-100">
             {data.label}
           </p>
-          <p className="text-[10px] capitalize leading-tight text-neutral-400 dark:text-neutral-500">
-            {typeLabel}
-          </p>
+          <div className="mt-0.5 flex items-center gap-1">
+            <span className="text-[10px] capitalize leading-tight text-neutral-400 dark:text-neutral-500">
+              {typeLabel}
+            </span>
+            {data.act && (
+              <span className="py-0.2 rounded bg-indigo-100 px-1 text-[9px] font-bold text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
+                Act {data.act}
+              </span>
+            )}
+            {data.district && (
+              <span className="py-0.2 max-w-[80px] truncate rounded bg-neutral-100 px-1 text-[9px] font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                {data.district}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -77,6 +89,10 @@ interface ReactFlowGraphProps {
     slug: string;
     depth?: number;
     domain?: string;
+    act?: number | null;
+    district?: string | null;
+    chapter_number?: number | null;
+    tier?: string | null;
   }>;
   edges: Array<{
     id: string;
@@ -149,6 +165,10 @@ function ReactFlowGraphInner({
           slug: node.slug,
           domain: node.domain,
           depth: d,
+          act: node.act,
+          district: node.district,
+          chapterNumber: node.chapter_number,
+          tier: node.tier,
         },
         selected: node.id === selectedNodeId,
       };

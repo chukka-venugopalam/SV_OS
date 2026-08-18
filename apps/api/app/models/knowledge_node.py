@@ -125,6 +125,29 @@ class KnowledgeNode(AppBaseMixin, Base):
         index=True,
         comment='Whether the node is publicly visible',
     )
+    act: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        index=True,
+        comment='Act number (1-8) in curriculum framework',
+    )
+    district: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        index=True,
+        comment='District name within Act',
+    )
+    chapter_number: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        comment='Chapter sequence number within District',
+    )
+    tier: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        index=True,
+        comment='Curriculum tier: gate_core or career_track',
+    )
 
     # ── Relationships ──────────────────────────────────────────────
 

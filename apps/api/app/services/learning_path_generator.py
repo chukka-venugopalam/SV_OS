@@ -289,4 +289,8 @@ def _node_to_dict(node) -> dict:
             else str(node.difficulty).lower(),
             45,
         ),
+        'act': getattr(node, 'act', None),
+        'district': getattr(node, 'district', None),
+        'chapter_number': getattr(node, 'chapter_number', None),
+        'tier': getattr(node, 'tier', None),
     }
