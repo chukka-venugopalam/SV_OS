@@ -4,12 +4,7 @@
  * Provides functions for interacting with career endpoints.
  */
 
-import type {
-  Career,
-  CareerWithRequirements,
-  KnowledgeNode,
-  PaginatedResponse,
-} from '@sv-os/types';
+import type { Career, KnowledgeNode, PaginatedResponse } from '@sv-os/types';
 
 import { apiClient } from '@/lib/api-client';
 
@@ -31,8 +26,8 @@ export const careerService = {
   },
 
   /** Get a single career by slug */
-  getBySlug(slug: string): Promise<CareerWithRequirements> {
-    return apiClient.get<CareerWithRequirements>(`/careers/${slug}`).then((res) => res.data!);
+  getBySlug(slug: string): Promise<Career> {
+    return apiClient.get<Career>(`/careers/${slug}`).then((res) => res.data!);
   },
 
   /**

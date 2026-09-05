@@ -1,5 +1,6 @@
 'use client';
 
+import type { CareerCertification } from '@sv-os/types';
 import { Card, CardContent, Button, Badge, Progress, Skeleton } from '@sv-os/ui';
 import {
   Briefcase,
@@ -25,6 +26,7 @@ import {
   BrainCircuit,
   Bot,
   Clock,
+  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -99,7 +101,10 @@ export default function CareerDetailPage() {
     (c.linked_projects as string[]) || (meta.linked_projects as string[]) || [];
   const companiesHiring =
     (c.companies_hiring as string[]) || (meta.companies_hiring as string[]) || [];
-  const certifications = (c.certifications as string[]) || (meta.certifications as string[]) || [];
+  const certifications =
+    (c.certifications as Array<CareerCertification | string>) ||
+    (meta.certifications as Array<CareerCertification | string>) ||
+    [];
   const salaryRange =
     (c.salary_range as string) ||
     (c.average_salary as string) ||
@@ -280,15 +285,41 @@ export default function CareerDetailPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="space-y-2">
-                    {certifications.map((cert: string) => (
-                      <div
-                        key={cert}
-                        className="flex items-center gap-2 text-xs text-neutral-700 dark:text-neutral-300"
-                      >
-                        <CheckCircle2 className="text-success-500 h-3.5 w-3.5 shrink-0" />
-                        <span>{cert}</span>
-                      </div>
-                    ))}
+                    {certifications.map((cert: CareerCertification | string, idx: number) => {
+                      const name = typeof cert === 'string' ? cert : cert?.name || '';
+                      const url = typeof cert === 'object' && cert !== null ? cert?.url : undefined;
+                      const note =
+                        typeof cert === 'object' && cert !== null ? cert?.note : undefined;
+
+                      return (
+                        <div
+                          key={name || idx}
+                          className="flex items-center justify-between gap-2 text-xs text-neutral-700 dark:text-neutral-300"
+                        >
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="text-success-500 h-3.5 w-3.5 shrink-0" />
+                            {url ? (
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 inline-flex items-center gap-1 font-medium hover:underline"
+                              >
+                                <span>{name}</span>
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <span>{name}</span>
+                            )}
+                          </div>
+                          {note && (
+                            <span className="text-[11px] text-neutral-400 dark:text-neutral-500">
+                              {note}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

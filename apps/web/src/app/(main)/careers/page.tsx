@@ -86,7 +86,7 @@ const CareerCard = memo(function CareerCard({
     title: string;
     description: string;
     salary_range?: string | null;
-    average_salary?: number | null;
+    average_salary?: number | string | null;
     demand?: string | null;
     demand_level?: string | null;
     icon?: string | null;
@@ -96,7 +96,11 @@ const CareerCard = memo(function CareerCard({
   const displayDemand = typeof rawDemand === 'string' ? rawDemand.replace(/_/g, ' ') : 'growing';
   const displaySalary =
     career.salary_range ??
-    (career.average_salary ? `$${career.average_salary.toLocaleString()}` : null);
+    (career.average_salary
+      ? typeof career.average_salary === 'number'
+        ? `$${career.average_salary.toLocaleString()}`
+        : career.average_salary
+      : null);
   const CareerIcon = CAREER_ICONS[career.slug] ?? Briefcase;
 
   return (
