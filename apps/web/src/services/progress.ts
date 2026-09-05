@@ -14,7 +14,7 @@ export const progressService = {
   /** Get the current user's progress entries */
   list(params?: {
     page?: number;
-    page_size?: number;
+    per_page?: number;
     status?: string;
   }): Promise<PaginatedResponse<UserProgress>> {
     return apiClient

@@ -68,7 +68,7 @@ export interface TabItem {
 /** Parameters sent with paginated API requests */
 export interface PaginationParams {
   page?: number;
-  page_size?: number;
+  per_page?: number;
 }
 
 // ── Filter / Sort ─────────────────────────────────────────────────

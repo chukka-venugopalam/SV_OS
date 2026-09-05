@@ -26,7 +26,7 @@ export const careerKeys = {
 /** Get a paginated list of careers */
 export function useCareers(params?: {
   page?: number;
-  page_size?: number;
+  per_page?: number;
   search?: string;
   demand?: string;
 }) {

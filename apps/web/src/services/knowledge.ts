@@ -14,14 +14,41 @@ export const knowledgeService = {
   /** Get a paginated list of knowledge nodes */
   list(params?: {
     page?: number;
-    page_size?: number;
+    per_page?: number;
     node_type?: string;
     difficulty?: string;
     search?: string;
+    act?: number;
+    district?: string;
+    tier?: string;
   }): Promise<PaginatedResponse<KnowledgeNode>> {
     return apiClient
       .get<PaginatedResponse<KnowledgeNode>>('/nodes', {
         params: params as unknown as Record<string, string | number | boolean | undefined>,
+      })
+      .then((res) => res.data!);
+  },
+
+  /** Get the full ordered curriculum sequence for a tier. Replaces the old
+   * static gate-path-nodes.ts array — this is a live, always-current query. */
+  getCurriculumPath(tier: 'gate_core' | 'career_track' = 'gate_core'): Promise<{
+    items: KnowledgeNode[];
+    total: number;
+  }> {
+    return apiClient
+      .get<{ items: KnowledgeNode[]; total: number }>('/nodes/curriculum-path', {
+        params: { tier },
+      })
+      .then((res) => res.data!);
+  },
+
+  /** List distinct published districts, optionally scoped to an act. */
+  getDistricts(act?: number): Promise<{
+    items: { act: number; district: string; node_count: number }[];
+  }> {
+    return apiClient
+      .get<{ items: { act: number; district: string; node_count: number }[] }>('/nodes/districts', {
+        params: act != null ? { act } : undefined,
       })
       .then((res) => res.data!);
   },

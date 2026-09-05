@@ -148,6 +148,18 @@ class KnowledgeNode(AppBaseMixin, Base):
         index=True,
         comment='Curriculum tier: gate_core or career_track',
     )
+    content_status: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        index=True,
+        comment=(
+            'Content QUALITY flag: stub | draft | in_review | verified | '
+            'published | archived. Distinct from is_published (visibility). '
+            'Mapped as plain String, not pg_enum(), to avoid coupling to the '
+            'exact Postgres enum type name — read-only usage for now, no '
+            'ORM-side writes to this column yet.'
+        ),
+    )
 
     # ── Relationships ──────────────────────────────────────────────
 

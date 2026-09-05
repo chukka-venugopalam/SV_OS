@@ -96,6 +96,64 @@ class KnowledgeNodeRepository(BaseRepository[KnowledgeNode]):
             sort_field='title',
         )
 
+    async def find_curriculum_path(
+        self,
+        tier: str = 'gate_core',
+    ) -> list[KnowledgeNode]:
+        """Return all published nodes for a curriculum tier, in reading order.
+
+        Ordered by (act, district, chapter_number) — the intended successor
+        to the frontend's old static ``gate-path-nodes.ts`` array, which had
+        drifted so far from the live DB that 82% of its slugs pointed at
+        soft-deleted nodes. Not paginated: a guided path is consumed as one
+        complete ordered sequence, not browsed a page at a time.
+        """
+        builder = (
+            self._query()
+            .active()
+            .filter(KnowledgeNode.is_published.is_(True))
+            .filter(KnowledgeNode.tier == tier)
+            .sort_multi(
+                [
+                    ('act', SortDirection.ASC),
+                    ('district', SortDirection.ASC),
+                    ('chapter_number', SortDirection.ASC),
+                ],
+            )
+        )
+        result = await self.session.execute(builder.build())
+        return list(result.scalars().all())
+
+    async def list_districts(self, act: int | None = None) -> list[dict]:
+        """Distinct published districts, optionally scoped to an act, with counts.
+
+        Verified against live DB: 52 distinct districts across acts 1-8.
+        Powers the Explorer's District filter — previously the frontend only
+        had an Act filter, no District filter, despite 52 real districts
+        existing in the curriculum structure.
+        """
+        stmt = (
+            select(
+                KnowledgeNode.act,
+                KnowledgeNode.district,
+                func.count(KnowledgeNode.id).label('node_count'),
+            )
+            .where(
+                KnowledgeNode.is_deleted.is_(False),
+                KnowledgeNode.is_published.is_(True),
+                KnowledgeNode.district.is_not(None),
+            )
+            .group_by(KnowledgeNode.act, KnowledgeNode.district)
+            .order_by(KnowledgeNode.act, KnowledgeNode.district)
+        )
+        if act is not None:
+            stmt = stmt.where(KnowledgeNode.act == act)
+        result = await self.session.execute(stmt)
+        return [
+            {'act': row.act, 'district': row.district, 'node_count': row.node_count}
+            for row in result.all()
+        ]
+
     # ── Relationship Counts ────────────────────────────────────────
 
     async def count_edges(self, node_id: UUID) -> int:

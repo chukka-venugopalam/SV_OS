@@ -25,7 +25,7 @@ export const projectKeys = {
 /** Get a paginated list of projects */
 export function useProjects(params?: {
   page?: number;
-  page_size?: number;
+  per_page?: number;
   search?: string;
   difficulty?: string;
 }) {

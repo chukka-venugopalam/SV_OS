@@ -97,10 +97,9 @@ export default function ProjectDetailPage() {
         </p>
 
         <div className="flex flex-wrap items-center gap-3">
-          {project.estimated_time && (
+          {project.estimated_hours != null && (
             <Badge variant="secondary" size="sm" className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {project.estimated_time}
+              <Clock className="h-3 w-3" />~{project.estimated_hours}h
             </Badge>
           )}
           {primaryGithubUrl && (

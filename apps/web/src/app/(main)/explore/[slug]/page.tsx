@@ -35,6 +35,7 @@ import {
   HelpCircle,
   Code,
   Sparkles,
+  Lightbulb,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -151,9 +152,7 @@ export default function KnowledgeNodeDetailPage() {
 
   const nodeColor = NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)';
 
-  const extraMetadata = ((node as unknown as Record<string, unknown>).extra_metadata ||
-    node.metadata ||
-    {}) as {
+  const extraMetadata = (node.extra_metadata || {}) as {
     learning_outcomes?: string[];
     common_mistakes?: string[];
     cross_domain_connections?: Array<{ target_slug: string; reason: string }>;
@@ -206,10 +205,8 @@ export default function KnowledgeNodeDetailPage() {
 
         {/* Promoted Cross-Domain Connections */}
         {Boolean(
-          (node.metadata as Record<string, unknown> | undefined)?.cross_domain_connections &&
-          Array.isArray((node.metadata as Record<string, unknown>).cross_domain_connections) &&
-          ((node.metadata as Record<string, unknown>).cross_domain_connections as Array<unknown>)
-            .length > 0,
+          Array.isArray(node.cross_domain_connections) &&
+          (node.cross_domain_connections as Array<unknown>).length > 0,
         ) && (
           <div className="mt-5 rounded-xl border border-pink-200 bg-pink-50/60 p-4 dark:border-pink-900/40 dark:bg-pink-950/20">
             <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-pink-700 dark:text-pink-300">
@@ -217,7 +214,7 @@ export default function KnowledgeNodeDetailPage() {
             </h3>
             <div className="flex flex-wrap gap-2">
               {(
-                (node.metadata as Record<string, unknown>).cross_domain_connections as Array<{
+                node.cross_domain_connections as Array<{
                   target_id: string;
                   target_title: string;
                   domain: string;
@@ -478,9 +475,9 @@ export default function KnowledgeNodeDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-              {(node as { summary?: string }).summary || node.description || node.content ? (
+              {node.summary || node.description ? (
                 <p className="whitespace-pre-line text-sm leading-relaxed">
-                  {(node as { summary?: string }).summary || node.description || node.content}
+                  {node.summary || node.description}
                 </p>
               ) : (
                 <p className="text-sm text-neutral-400 dark:text-neutral-500">
@@ -513,6 +510,55 @@ export default function KnowledgeNodeDetailPage() {
                     </li>
                   ))}
                 </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Worked Example — previously never rendered anywhere in this page
+              despite being present on 85+ nodes. Shape verified against
+              SVOS content/73_nodes/*.jsonl: {setup, steps[], result}. */}
+          {node.worked_example && (
+            <Card className="border-blue-200/60 bg-blue-50/30 dark:border-blue-900/40 dark:bg-blue-950/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-semibold text-blue-900 dark:text-blue-300">
+                  <Lightbulb className="h-5 w-5 text-blue-500" />
+                  Worked Example
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(node.worked_example as { setup?: string }).setup && (
+                  <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                    {(node.worked_example as { setup?: string }).setup}
+                  </p>
+                )}
+                {Array.isArray((node.worked_example as { steps?: string[] }).steps) &&
+                  (node.worked_example as { steps?: string[] }).steps!.length > 0 && (
+                    <ol className="space-y-2.5">
+                      {(node.worked_example as { steps: string[] }).steps.map(
+                        (step: string, idx: number) => (
+                          <li
+                            key={idx}
+                            className="flex items-start gap-3 text-sm text-neutral-700 dark:text-neutral-300"
+                          >
+                            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                              {idx + 1}
+                            </span>
+                            <span>{step}</span>
+                          </li>
+                        ),
+                      )}
+                    </ol>
+                  )}
+                {(node.worked_example as { result?: string }).result && (
+                  <div className="rounded-lg border border-blue-200/60 bg-white/60 p-3 dark:border-blue-900/40 dark:bg-blue-950/20">
+                    <p className="mb-1 text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                      Result
+                    </p>
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                      {(node.worked_example as { result?: string }).result}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

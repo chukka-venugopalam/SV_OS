@@ -2,6 +2,7 @@
 
 from collections import defaultdict, deque
 from typing import TYPE_CHECKING, Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
@@ -14,8 +15,6 @@ from app.schemas.response import success_response
 from app.services.legacy_graph import GraphService
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)

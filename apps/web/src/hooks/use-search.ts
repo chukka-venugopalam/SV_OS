@@ -29,7 +29,7 @@ export function useSearch(params: {
   node_type?: string;
   difficulty?: string;
   page?: number;
-  page_size?: number;
+  per_page?: number;
 }) {
   return useQuery({
     queryKey: searchKeys.results(params),

@@ -349,6 +349,7 @@ class GraphTraversalService:
 
 
 def _node_to_dict(node) -> dict:
+    meta = getattr(node, 'extra_metadata', None) or {}
     return {
         'id': str(node.id),
         'slug': node.slug,
@@ -360,6 +361,14 @@ def _node_to_dict(node) -> dict:
         else node.difficulty,
         'icon': getattr(node, 'icon', None),
         'color': getattr(node, 'color', None),
+        'estimated_minutes': getattr(node, 'estimated_minutes', None),
+        'act': getattr(node, 'act', None),
+        'district': getattr(node, 'district', None),
+        'chapter_number': getattr(node, 'chapter_number', None),
+        'tier': getattr(node, 'tier', None),
+        'content_status': getattr(node, 'content_status', None),
+        'is_published': getattr(node, 'is_published', None),
+        'worked_example': meta.get('worked_example'),
     }
 
 

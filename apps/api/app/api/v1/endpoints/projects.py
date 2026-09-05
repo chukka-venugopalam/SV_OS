@@ -167,6 +167,10 @@ def _node_to_dict(node) -> dict:
         'estimated_minutes': getattr(node, 'estimated_minutes', None),
         'icon': node.icon,
         'color': node.color,
+        'act': getattr(node, 'act', None),
+        'district': getattr(node, 'district', None),
+        'chapter_number': getattr(node, 'chapter_number', None),
+        'tier': getattr(node, 'tier', None),
         'domain': meta.get('domain', 'General CS'),
         'cross_domain_connections': meta.get('cross_domain_connections', []),
     }

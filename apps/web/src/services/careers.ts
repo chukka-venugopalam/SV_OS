@@ -19,7 +19,7 @@ export const careerService = {
   /** Get a paginated list of careers */
   list(params?: {
     page?: number;
-    page_size?: number;
+    per_page?: number;
     search?: string;
     demand?: string;
   }): Promise<PaginatedResponse<Career>> {
@@ -35,16 +35,38 @@ export const careerService = {
     return apiClient.get<CareerWithRequirements>(`/careers/${slug}`).then((res) => res.data!);
   },
 
-  /** Get the roadmap for a career (required/recommended/bonus nodes) */
+  /**
+   * Get the roadmap for a career: requirement rows grouped by type.
+   *
+   * NOTE: backed by the `career_requirements` table, which is currently
+   * empty for all 12 careers (verified against live DB) — a separate,
+   * also-empty mechanism from `learning_goal_nodes`/`learning_goals`
+   * (goal_type='career_path'), which is the one the project's handoff docs
+   * describe as the intended future home for per-career curriculum
+   * sequencing. Two parallel unpopulated systems for the same concept —
+   * flagged as DRIFT, not resolved here. Each requirement row only carries
+   * a node_id, not a hydrated node — the caller must resolve node_ids
+   * against /nodes if it wants titles/slugs to link to.
+   */
   getRoadmap(slug: string): Promise<{
-    required: KnowledgeNode[];
-    recommended: KnowledgeNode[];
-    bonus: KnowledgeNode[];
+    career: Career;
+    requirements: {
+      required: { id: string; node_id: string; order_index: number }[];
+      recommended: { id: string; node_id: string; order_index: number }[];
+      bonus: { id: string; node_id: string; order_index: number }[];
+    };
+    total_requirements: number;
   }> {
     return apiClient
-      .get<{ required: KnowledgeNode[]; recommended: KnowledgeNode[]; bonus: KnowledgeNode[] }>(
-        `/careers/${slug}/roadmap`,
-      )
+      .get<{
+        career: Career;
+        requirements: {
+          required: { id: string; node_id: string; order_index: number }[];
+          recommended: { id: string; node_id: string; order_index: number }[];
+          bonus: { id: string; node_id: string; order_index: number }[];
+        };
+        total_requirements: number;
+      }>(`/careers/${slug}/roadmap`)
       .then((res) => res.data!);
   },
 

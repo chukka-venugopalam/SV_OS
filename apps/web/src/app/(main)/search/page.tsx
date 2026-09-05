@@ -172,7 +172,7 @@ export default function SearchPage() {
   const { data, isLoading, isError, refetch } = useSearchHook({
     q: debouncedQuery,
     page,
-    page_size: PAGE_SIZE,
+    per_page: PAGE_SIZE,
     node_type: nodeType || undefined,
     difficulty: difficulty || undefined,
   });

@@ -18,7 +18,7 @@ export const activityKeys = {
 // ── Hooks ─────────────────────────────────────────────────────────
 
 /** Get the current user's recent activity feed */
-export function useActivityFeed(params?: { page?: number; page_size?: number }) {
+export function useActivityFeed(params?: { page?: number; per_page?: number }) {
   return useQuery({
     queryKey: activityKeys.feed(params),
     queryFn: () => activityService.getFeed(params),

@@ -13,6 +13,18 @@ import {
   Award,
   FolderGit2,
   DollarSign,
+  Brain,
+  Server,
+  Blocks,
+  Cloud,
+  Cpu,
+  Shield,
+  Database,
+  LayoutTemplate,
+  Gamepad2,
+  BrainCircuit,
+  Bot,
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -24,11 +36,31 @@ import { useCareer, useCareerRoadmap } from '@/hooks/use-careers';
 import { slugToTitle } from '@/lib';
 import { ROUTES } from '@/lib/constants';
 
+// All 12 career slugs are stable, hand-verified against the live DB — unlike
+// knowledge node slugs, these aren't subject to the Act/District restructuring
+// churn, so hardcoding is safe here. Every career currently has icon=null in
+// the DB, so this is the only source of visual distinction until enriched.
+const CAREER_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  'ai-engineer': Brain,
+  'backend-engineer': Server,
+  'blockchain-engineer': Blocks,
+  'cloud-devops-engineer': Cloud,
+  'compiler-engineer': Cpu,
+  'cybersecurity-engineer': Shield,
+  'data-engineer-data-scientist': Database,
+  'frontend-engineer': LayoutTemplate,
+  'game-developer': Gamepad2,
+  'ml-engineer': BrainCircuit,
+  'robotics-engineer': Bot,
+  'systems-kernel-engineer': Cpu,
+};
+
 export default function CareerDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
   const { data: career, isLoading } = useCareer(slug);
-  useCareerRoadmap(slug);
+  const { data: roadmap } = useCareerRoadmap(slug);
+  const CareerIcon = CAREER_ICONS[slug] ?? Briefcase;
 
   if (isLoading) {
     return (
@@ -77,6 +109,9 @@ export default function CareerDetailPage() {
 
   return (
     <Shell>
+      <div className="bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400 mb-3 flex h-12 w-12 items-center justify-center rounded-xl">
+        <CareerIcon className="h-6 w-6" />
+      </div>
       <PageHeader
         title={career.title}
         description={career.description}
@@ -85,7 +120,7 @@ export default function CareerDetailPage() {
           <div className="flex gap-2">
             <Link href={ROUTES.CAREERS}>
               <Button variant="outline" size="sm" className="gap-2">
-                <Briefcase className="h-4 w-4" /> Compare Careers
+                <ArrowRight className="h-4 w-4 rotate-180" /> All Careers
               </Button>
             </Link>
           </div>
@@ -283,24 +318,38 @@ export default function CareerDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          {/* Skill Gap */}
+          {/* Roadmap status — was a hardcoded 40% with no backing data.
+              career_requirements is empty for all careers (verified live),
+              so this now honestly reflects that rather than fabricating a
+              number. */}
           <Card>
             <CardContent className="p-4">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                <AlertTriangle className="mr-1 inline h-3 w-3" /> Path Mastery Progress
+                <AlertTriangle className="mr-1 inline h-3 w-3" /> Curriculum Roadmap
               </h3>
-              <Progress value={40} size="sm" />
-              <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                40% of foundational CS nodes completed toward this career path.
-              </p>
+              {roadmap && roadmap.total_requirements > 0 ? (
+                <>
+                  <Progress value={0} size="sm" />
+                  <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                    {roadmap.total_requirements} node
+                    {roadmap.total_requirements !== 1 ? 's' : ''} mapped to this career path.
+                  </p>
+                </>
+              ) : (
+                <p className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  Per-career curriculum sequencing hasn&apos;t been built for this career yet.
+                  Explore the GATE-core path in the meantime.
+                </p>
+              )}
             </CardContent>
           </Card>
 
           {/* Quick Actions */}
           <div className="space-y-2">
-            <Link href={`${ROUTES.EXPLORE}?career=${slug}`}>
+            <Link href={ROUTES.LEARNING_PATH}>
               <Button variant="default" size="sm" className="w-full gap-2">
-                <BookOpen className="h-4 w-4" /> View Learning Path
+                <BookOpen className="h-4 w-4" /> Explore GATE-Core Path
               </Button>
             </Link>
             <Link href={ROUTES.PROGRESS}>

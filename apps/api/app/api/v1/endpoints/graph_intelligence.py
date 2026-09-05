@@ -10,6 +10,7 @@ Provides endpoints for:
 """
 
 from typing import TYPE_CHECKING, Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
@@ -23,8 +24,6 @@ from app.services.progress_intelligence import ProgressIntelligence
 from app.services.recommendation_engine import RecommendationEngine
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from app.repositories import UnitOfWork
 
 logger = get_logger(__name__)

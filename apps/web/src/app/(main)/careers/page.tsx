@@ -15,7 +15,25 @@ import {
   EmptyState,
   Pagination,
 } from '@sv-os/ui';
-import { Briefcase, Search, TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
+import {
+  Briefcase,
+  Search,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ArrowRight,
+  Brain,
+  Server,
+  Blocks,
+  Cloud,
+  Cpu,
+  Shield,
+  Database,
+  LayoutTemplate,
+  Gamepad2,
+  BrainCircuit,
+  Bot,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useState, memo } from 'react';
 
@@ -23,6 +41,23 @@ import { PageHeader } from '@/components/shared/page-header';
 import { Shell } from '@/components/shared/shell';
 import { useCareers } from '@/hooks/use-careers';
 import { useDebounce } from '@/hooks/use-debounce';
+
+// Same mapping as careers/[slug]/page.tsx — all 12 slugs verified stable
+// against live DB. Keep both in sync if new careers are added.
+const CAREER_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  'ai-engineer': Brain,
+  'backend-engineer': Server,
+  'blockchain-engineer': Blocks,
+  'cloud-devops-engineer': Cloud,
+  'compiler-engineer': Cpu,
+  'cybersecurity-engineer': Shield,
+  'data-engineer-data-scientist': Database,
+  'frontend-engineer': LayoutTemplate,
+  'game-developer': Gamepad2,
+  'ml-engineer': BrainCircuit,
+  'robotics-engineer': Bot,
+  'systems-kernel-engineer': Cpu,
+};
 
 const demandIcons: Record<string, React.ReactNode> = {
   growing: <TrendingUp className="h-3.5 w-3.5" />,
@@ -62,6 +97,7 @@ const CareerCard = memo(function CareerCard({
   const displaySalary =
     career.salary_range ??
     (career.average_salary ? `$${career.average_salary.toLocaleString()}` : null);
+  const CareerIcon = CAREER_ICONS[career.slug] ?? Briefcase;
 
   return (
     <Link href={`/careers/${career.slug}`}>
@@ -69,7 +105,7 @@ const CareerCard = memo(function CareerCard({
         <CardContent className="flex h-full flex-col p-5">
           <div className="mb-3 flex items-start justify-between">
             <div className="bg-career-50 text-career-600 dark:bg-career-950/30 dark:text-career-400 flex h-10 w-10 items-center justify-center rounded-lg">
-              <Briefcase className="h-5 w-5" />
+              <CareerIcon className="h-5 w-5" />
             </div>
             <Badge
               variant={demandColors[rawDemand] ?? 'secondary'}
@@ -108,7 +144,7 @@ export default function CareersPage() {
 
   const { data, isLoading, isError, refetch } = useCareers({
     page,
-    page_size: 12,
+    per_page: 12,
     search: debouncedSearch || undefined,
     demand: demand || undefined,
   });

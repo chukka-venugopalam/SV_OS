@@ -18,14 +18,33 @@ export interface KnowledgeNode {
   id: string;
   slug: string;
   title: string;
+  summary: string;
   description: string;
-  content: string;
+  domain: string;
+  /** Content QUALITY flag — distinct from is_published (visibility). */
+  content_status: 'stub' | 'draft' | 'in_review' | 'verified' | 'published' | 'archived' | null;
   node_type: NodeType;
   difficulty: Difficulty;
-  icon_name: string;
-  color: string;
-  metadata: Record<string, unknown>;
+  estimated_minutes: number;
+  icon: string | null;
+  color: string | null;
+  view_count: number;
   is_published: boolean;
+  /** Curriculum placement — act 1-7 = GATE-core, act 8 = career-track, null = unassigned. */
+  act: number | null;
+  district: string | null;
+  chapter_number: number | null;
+  tier: 'gate_core' | 'career_track' | null;
+  worked_example: Record<string, unknown> | null;
+  sources: unknown[];
+  simulators: unknown[];
+  common_mistakes: unknown;
+  exam_traps: unknown;
+  quick_techniques: unknown;
+  previous_year_questions: unknown;
+  cross_domain_connections: unknown[];
+  learning_outcomes: unknown[];
+  extra_metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

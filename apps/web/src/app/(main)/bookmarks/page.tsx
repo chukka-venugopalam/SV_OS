@@ -30,8 +30,8 @@ export default function BookmarksPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState('bookmarks');
 
-  const { data: bookmarks, isLoading: bookmarksLoading } = useBookmarks({ page, page_size: 12 });
-  const { data: favorites, isLoading: favoritesLoading } = useFavorites({ page, page_size: 12 });
+  const { data: bookmarks, isLoading: bookmarksLoading } = useBookmarks({ page, per_page: 12 });
+  const { data: favorites, isLoading: favoritesLoading } = useFavorites({ page, per_page: 12 });
   const toggleBookmark = useToggleBookmark();
   const removeFavorite = useRemoveFavorite();
 

@@ -213,12 +213,12 @@ function DifficultyBadge({ difficulty }: { difficulty: string }) {
 export default function DashboardPage() {
   const { user } = useAuth();
   const { data: progressStats, isLoading: statsLoading } = useProgressStats();
-  const { data: progressList } = useProgressList({ page_size: 5, status: 'learning' });
+  const { data: progressList } = useProgressList({ per_page: 5, status: 'learning' });
   const { data: popularNodes, isLoading: popularLoading } = usePopularNodes();
   const { data: graphStats, isLoading: graphLoading } = useGraphStatistics();
   const { data: trendingSearches } = useTrendingSearches();
-  const { data: bookmarks } = useBookmarks({ page_size: 3 });
-  const { data: activityFeed } = useActivityFeed({ page_size: 5 });
+  const { data: bookmarks } = useBookmarks({ per_page: 3 });
+  const { data: activityFeed } = useActivityFeed({ per_page: 5 });
 
   const displayName = user?.display_name ?? user?.username ?? 'Learner';
   const completionRate =

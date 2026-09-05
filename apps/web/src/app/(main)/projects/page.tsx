@@ -42,7 +42,7 @@ const ProjectCard = memo(function ProjectCard({
     description: string;
     difficulty: string;
     tech_stack: string[];
-    estimated_time: string;
+    estimated_hours: number | null;
     github_url: string | null;
     demo_url: string | null;
     domains_crossed?: string[];
@@ -106,10 +106,9 @@ const ProjectCard = memo(function ProjectCard({
             )}
           </div>
           <div className="flex items-center justify-between text-xs text-neutral-400 dark:text-neutral-500">
-            {project.estimated_time && (
+            {project.estimated_hours != null && (
               <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {project.estimated_time}
+                <Clock className="h-3 w-3" />~{project.estimated_hours}h
               </span>
             )}
             <div className="flex items-center gap-2">
@@ -131,7 +130,7 @@ export default function ProjectsPage() {
 
   const { data, isLoading, isError, refetch } = useProjects({
     page,
-    page_size: 12,
+    per_page: 12,
     search: debouncedSearch || undefined,
     difficulty: difficulty || undefined,
   });

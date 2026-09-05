@@ -30,15 +30,36 @@ export const knowledgeKeys = {
 /** Get a paginated list of knowledge nodes */
 export function useKnowledgeNodes(params?: {
   page?: number;
-  page_size?: number;
+  per_page?: number;
   node_type?: string;
   difficulty?: string;
   search?: string;
+  act?: number;
+  district?: string;
+  tier?: string;
 }) {
   return useQuery({
     queryKey: knowledgeKeys.list(params),
     queryFn: () => knowledgeService.list(params),
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+/** Get the full ordered curriculum sequence for a tier (act, district, chapter_number). */
+export function useCurriculumPath(tier: 'gate_core' | 'career_track' = 'gate_core') {
+  return useQuery({
+    queryKey: ['knowledge', 'curriculum-path', tier],
+    queryFn: () => knowledgeService.getCurriculumPath(tier),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+/** List distinct published districts, optionally scoped to an act. */
+export function useDistricts(act?: number) {
+  return useQuery({
+    queryKey: ['knowledge', 'districts', act],
+    queryFn: () => knowledgeService.getDistricts(act),
+    staleTime: 30 * 60 * 1000,
   });
 }
 

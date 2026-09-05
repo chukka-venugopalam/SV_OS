@@ -78,7 +78,7 @@ function StatCard({
 
 export default function ProgressPage() {
   const { data: stats, isLoading: statsLoading } = useProgressStats();
-  const { data: progressList, isLoading: listLoading } = useProgressList({ page_size: 50 });
+  const { data: progressList, isLoading: listLoading } = useProgressList({ per_page: 50 });
   const { data: graphStats } = useGraphStatistics();
 
   const totalNodes = graphStats?.node_count ?? 0;

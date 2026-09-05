@@ -37,11 +37,25 @@ import { NODE_TYPE_COLORS } from '@/components/graph';
 import { PageHeader, PageTransition } from '@/components/shared';
 import { Shell } from '@/components/shared/shell';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useKnowledgeNodes } from '@/hooks/use-knowledge';
+import { useKnowledgeNodes, useDistricts } from '@/hooks/use-knowledge';
 import { cn, slugToTitle, truncate } from '@/lib';
 
 const NODE_TYPES = ['subject', 'concept', 'technology', 'tool', 'career', 'project'] as const;
 const DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'expert'] as const;
+const TIERS = [
+  { label: 'GATE Core (Acts 1-7)', value: 'gate_core' },
+  { label: 'Career Track (Act 8)', value: 'career_track' },
+] as const;
+const ACTS = [
+  { label: 'Act 1 — Math & Digital Logic', value: 1 },
+  { label: 'Act 2 — Computer Organization', value: 2 },
+  { label: 'Act 3 — Data Structures & Algorithms', value: 3 },
+  { label: 'Act 4 — Operating Systems', value: 4 },
+  { label: 'Act 5 — Computer Networks', value: 5 },
+  { label: 'Act 6 — DBMS', value: 6 },
+  { label: 'Act 7 — Theory of Computation & Compilers', value: 7 },
+  { label: 'Act 8 — Career Track', value: 8 },
+] as const;
 const SORT_OPTIONS = [
   { label: 'Graph Position (Depth)', value: 'depth_asc' },
   { label: 'Title A-Z', value: 'title_asc' },
@@ -94,16 +108,12 @@ const NodeCard = memo(function NodeCard({
     description: string;
     node_type: string;
     difficulty: string;
-    cross_domain_connections?: Array<{
-      target_id: string;
-      target_title: string;
-      domain: string;
-      reason: string;
-    }>;
+    cross_domain_connections?: unknown[];
   };
 }) {
   const color = NODE_TYPE_COLORS[node.node_type] ?? 'var(--color-neutral-400)';
-  const firstCd = node.cross_domain_connections?.[0];
+  const firstCd = node.cross_domain_connections?.[0] as
+    { target_id?: string; target_title?: string; domain?: string; reason?: string } | undefined;
 
   return (
     <Link href={`/explore/${node.slug}`}>
@@ -213,6 +223,13 @@ export default function ExplorePage() {
   const [search, setSearch] = useState(searchParams.get('search') ?? '');
   const [nodeType, setNodeType] = useState(searchParams.get('node_type') ?? '');
   const [difficulty, setDifficulty] = useState(searchParams.get('difficulty') ?? '');
+  const [tier, setTier] = useState(searchParams.get('tier') ?? '');
+  const [act, setAct] = useState<number | undefined>(
+    searchParams.get('act') ? Number(searchParams.get('act')) : undefined,
+  );
+  const [district, setDistrict] = useState(searchParams.get('district') ?? '');
+  const { data: districtsData } = useDistricts(act);
+  const districts = districtsData?.items ?? [];
   const [sort, setSort] = useState('depth_asc');
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
@@ -222,18 +239,24 @@ export default function ExplorePage() {
 
   const { data, isLoading, isError, refetch } = useKnowledgeNodes({
     page,
-    page_size: 12,
+    per_page: 12,
     node_type: nodeType || undefined,
     difficulty: difficulty || undefined,
     search: debouncedSearch || undefined,
+    tier: tier || undefined,
+    act,
+    district: district || undefined,
   });
 
-  const hasActiveFilters = nodeType || difficulty || debouncedSearch;
+  const hasActiveFilters = nodeType || difficulty || debouncedSearch || tier || act || district;
 
   const clearFilters = () => {
     setNodeType('');
     setDifficulty('');
     setSearch('');
+    setTier('');
+    setAct(undefined);
+    setDistrict('');
     setPage(1);
   };
 
@@ -273,7 +296,11 @@ export default function ExplorePage() {
                 Filters
                 {hasActiveFilters && (
                   <span className="bg-primary-500 flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-white">
-                    {(nodeType ? 1 : 0) + (difficulty ? 1 : 0)}
+                    {(nodeType ? 1 : 0) +
+                      (difficulty ? 1 : 0) +
+                      (tier ? 1 : 0) +
+                      (act != null ? 1 : 0) +
+                      (district ? 1 : 0)}
                   </span>
                 )}
               </Button>
@@ -322,6 +349,21 @@ export default function ExplorePage() {
                   label={`Difficulty: ${slugToTitle(difficulty)}`}
                   onRemove={() => setDifficulty('')}
                 />
+              )}
+              {tier && (
+                <FilterTag
+                  label={`Tier: ${TIERS.find((t) => t.value === tier)?.label ?? tier}`}
+                  onRemove={() => setTier('')}
+                />
+              )}
+              {act != null && (
+                <FilterTag
+                  label={ACTS.find((a) => a.value === act)?.label ?? `Act ${act}`}
+                  onRemove={() => setAct(undefined)}
+                />
+              )}
+              {district && (
+                <FilterTag label={`District: ${district}`} onRemove={() => setDistrict('')} />
               )}
               {debouncedSearch && (
                 <FilterTag label={`Search: "${debouncedSearch}"`} onRemove={() => setSearch('')} />
@@ -399,6 +441,97 @@ export default function ExplorePage() {
                       {SORT_OPTIONS.map((o) => (
                         <SelectItem key={o.value} value={o.value}>
                           {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    Tier
+                  </label>
+                  <Select
+                    value={tier}
+                    onValueChange={(v: string) => {
+                      setTier(v);
+                      // Career track lives entirely in Act 8 — clear a
+                      // GATE-core act selection that would now return nothing.
+                      if (v === 'career_track' && act != null && act < 8) setAct(undefined);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All tiers" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All tiers</SelectItem>
+                      {TIERS.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>
+                          {t.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    District (Act)
+                  </label>
+                  <Select
+                    value={act != null ? String(act) : ''}
+                    onValueChange={(v: string) => {
+                      const n = v ? Number(v) : undefined;
+                      setAct(n);
+                      setDistrict('');
+                      if (n === 8) setTier('career_track');
+                      else if (n != null) setTier('gate_core');
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="All acts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All acts</SelectItem>
+                      {ACTS.map((a) => (
+                        <SelectItem key={a.value} value={String(a.value)}>
+                          {a.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    District
+                  </label>
+                  <Select
+                    value={district}
+                    onValueChange={(v: string) => {
+                      setDistrict(v);
+                      // A district uniquely determines its act — set it too
+                      // so the two filters stay consistent with each other.
+                      if (v) {
+                        const match = districts.find((d) => d.district === v);
+                        if (match) setAct(match.act);
+                      }
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-64">
+                      <SelectValue
+                        placeholder={
+                          act != null ? 'All districts in this act' : 'Pick an act first'
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">
+                        {act != null ? 'All districts in this act' : 'All districts'}
+                      </SelectItem>
+                      {districts.map((d) => (
+                        <SelectItem key={d.district} value={d.district}>
+                          {d.district} ({d.node_count})
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -18,7 +18,11 @@ interface GraphNode {
   description: string;
   slug: string;
   difficulty: string;
-  metadata?: { estimated_minutes?: number };
+  estimated_minutes?: number | null;
+  act?: number | null;
+  district?: string | null;
+  chapter_number?: number | null;
+  tier?: string | null;
 }
 
 interface GraphEdge {
@@ -253,10 +257,20 @@ export default function GraphPage() {
                   <Badge variant="info" size="sm">
                     {selectedNode.difficulty}
                   </Badge>
-                  {(selectedNode.metadata?.estimated_minutes as number | undefined) && (
+                  {selectedNode.act != null && (
+                    <Badge variant="secondary" size="sm">
+                      Act {selectedNode.act}
+                    </Badge>
+                  )}
+                  {selectedNode.district && (
+                    <Badge variant="secondary" size="sm">
+                      {selectedNode.district}
+                    </Badge>
+                  )}
+                  {selectedNode.estimated_minutes != null && (
                     <Badge variant="secondary" size="sm" className="flex items-center gap-1">
                       <BookOpen className="h-3 w-3" />
-                      {selectedNode.metadata?.estimated_minutes as number} min
+                      {selectedNode.estimated_minutes} min
                     </Badge>
                   )}
                 </div>

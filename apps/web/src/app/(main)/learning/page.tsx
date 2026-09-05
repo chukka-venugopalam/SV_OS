@@ -26,7 +26,7 @@ import { ROUTES } from '@/lib/constants';
 
 export default function LearningDashboardPage() {
   const { data: progressStats, isLoading: statsLoading } = useProgressStats();
-  const { data: progressList } = useProgressList({ page_size: 10, status: 'learning' });
+  const { data: progressList } = useProgressList({ per_page: 10, status: 'learning' });
   const { data: nextRecs } = useNextRecommendations(5);
   useDailyRecommendations(8);
 

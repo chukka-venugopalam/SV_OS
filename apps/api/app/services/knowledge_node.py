@@ -48,6 +48,9 @@ class KnowledgeNodeService:
         per_page: int = 20,
         node_type: str | None = None,
         difficulty: str | None = None,
+        act: int | None = None,
+        district: str | None = None,
+        tier: str | None = None,
         sort_by: str = 'title',
         sort_dir: str = 'asc',
     ) -> PageResult[KnowledgeNode]:
@@ -57,6 +60,12 @@ class KnowledgeNodeService:
             filters['node_type'] = node_type
         if difficulty:
             filters['difficulty'] = difficulty
+        if act is not None:
+            filters['act'] = act
+        if district:
+            filters['district'] = district
+        if tier:
+            filters['tier'] = tier
         return await self._uow.knowledge_nodes.paginate(
             page=page,
             per_page=per_page,
@@ -64,6 +73,14 @@ class KnowledgeNodeService:
             sort_field=sort_by,
             sort_direction=sort_dir,
         )
+
+    async def get_curriculum_path(self, tier: str = 'gate_core') -> list[KnowledgeNode]:
+        """Get the full ordered curriculum sequence for a tier."""
+        return await self._uow.knowledge_nodes.find_curriculum_path(tier=tier)
+
+    async def list_districts(self, act: int | None = None) -> list[dict]:
+        """List distinct published districts, optionally scoped to an act."""
+        return await self._uow.knowledge_nodes.list_districts(act=act)
 
     async def search_nodes(
         self,

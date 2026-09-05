@@ -39,7 +39,7 @@ export const bookmarkService = {
   /** Get the current user's bookmarks */
   listBookmarks(params?: {
     page?: number;
-    page_size?: number;
+    per_page?: number;
   }): Promise<PaginatedResponse<Bookmark>> {
     return apiClient
       .get<PaginatedResponse<Bookmark>>('/bookmarks', {
@@ -67,7 +67,7 @@ export const bookmarkService = {
   /** Get the current user's favorites */
   listFavorites(params?: {
     page?: number;
-    page_size?: number;
+    per_page?: number;
   }): Promise<PaginatedResponse<Favorite>> {
     return apiClient
       .get<PaginatedResponse<Favorite>>('/favorites', {

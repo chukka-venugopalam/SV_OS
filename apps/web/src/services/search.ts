@@ -37,7 +37,7 @@ export const searchService = {
     node_type?: string;
     difficulty?: string;
     page?: number;
-    page_size?: number;
+    per_page?: number;
   }): Promise<SearchResult> {
     return apiClient
       .get<SearchResult>('/search', {

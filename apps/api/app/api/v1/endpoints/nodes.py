@@ -61,6 +61,11 @@ async def list_nodes(
     per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 20,
     node_type: Annotated[str | None, Query(description='Filter by node type')] = None,
     difficulty: Annotated[str | None, Query(description='Filter by difficulty')] = None,
+    act: Annotated[int | None, Query(description='Filter by act number (1-8)')] = None,
+    district: Annotated[str | None, Query(description='Filter by district')] = None,
+    tier: Annotated[
+        str | None, Query(description='Filter by tier: gate_core or career_track')
+    ] = None,
     sort_by: Annotated[str, Query(description='Sort field')] = 'title',
     sort_dir: Annotated[str, Query(description='Sort direction (asc/desc)')] = 'asc',
 ) -> dict:
@@ -71,6 +76,9 @@ async def list_nodes(
         per_page=per_page,
         node_type=node_type,
         difficulty=difficulty,
+        act=act,
+        district=district,
+        tier=tier,
         sort_by=sort_by,
         sort_dir=sort_dir,
     )
@@ -84,6 +92,42 @@ async def list_nodes(
         },
         message='Nodes retrieved',
     )
+
+
+@router.get('/curriculum-path')
+async def get_curriculum_path(
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    tier: Annotated[
+        str, Query(description='Curriculum tier: gate_core or career_track')
+    ] = 'gate_core',
+) -> dict:
+    """Get the full ordered curriculum sequence for a tier.
+
+    Replaces the old frontend static 72-node array. Ordered by
+    (act, district, chapter_number). Not paginated — a guided path is
+    one complete sequence, not a browsable list.
+    """
+    service = KnowledgeNodeService(uow)
+    nodes = await service.get_curriculum_path(tier=tier)
+    return success_response(
+        data={'items': [_node_to_dict(n) for n in nodes], 'total': len(nodes)},
+        message='Curriculum path retrieved',
+    )
+
+
+@router.get('/districts')
+async def get_districts(
+    uow: Annotated[UnitOfWork, Depends(get_uow)],
+    act: Annotated[int | None, Query(description='Filter districts by act (1-8)')] = None,
+) -> dict:
+    """List distinct published districts, optionally scoped to an act.
+
+    Powers the Explorer's District filter. Verified against live DB: 52
+    distinct districts across acts 1-8.
+    """
+    service = KnowledgeNodeService(uow)
+    districts = await service.list_districts(act=act)
+    return success_response(data={'items': districts}, message='Districts retrieved')
 
 
 @router.get('/popular')
@@ -215,7 +259,27 @@ def _node_to_dict(node) -> dict:
         'summary': node.description,
         'description': node.description,
         'domain': meta.get('domain', 'Computer Science'),
-        'content_status': meta.get('content_status', 'published'),
+        # Real column (fixes DRIFT: previously faked from metadata with a
+        # bogus 'published' default that had nothing to do with the actual
+        # content_status enum column on the row).
+        'content_status': node.content_status,
+        # Curriculum placement — previously never serialized despite the
+        # columns existing on the ORM model since before this fix.
+        'act': node.act,
+        'district': node.district,
+        'chapter_number': node.chapter_number,
+        'tier': node.tier,
+        # Previously buried in extra_metadata only; lifted out so the
+        # frontend doesn't have to know metadata's internal shape.
+        'worked_example': meta.get('worked_example'),
+        'sources': meta.get('sources', []),
+        'simulators': meta.get('simulators', []),
+        'common_mistakes': meta.get('common_mistakes'),
+        'exam_traps': meta.get('exam_traps'),
+        'quick_techniques': meta.get('quick_techniques'),
+        'previous_year_questions': meta.get('previous_year_questions'),
+        'cross_domain_connections': meta.get('cross_domain_connections', []),
+        'learning_outcomes': meta.get('learning_outcomes', []),
         'extra_metadata': meta,
         'node_type': node.node_type.value if hasattr(node.node_type, 'value') else node.node_type,
         'difficulty': node.difficulty.value
