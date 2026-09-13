@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     APP_DESCRIPTION: str = 'Silicon Valley Learning OS — Backend API'
     APP_VERSION: str = '0.3.0'
     ENVIRONMENT: str = 'development'
+    DEBUG: bool = False
 
     # ── Database ─────────────────────────────────────────────────────
     DATABASE_URL: str = 'postgresql+asyncpg://svos:svos_dev_password@localhost:5432/svos'
@@ -106,6 +107,17 @@ class Settings(BaseSettings):
             msg = f'ENVIRONMENT must be one of {allowed}'
             raise ValueError(msg)
         return v.lower()
+
+    @field_validator('DEBUG', mode='before')
+    @classmethod
+    def validate_debug(cls, v: Any, info) -> bool:
+        """Validate DEBUG mode. Always force False in production."""
+        environment = info.data.get('ENVIRONMENT', 'development')
+        if environment == 'production':
+            return False
+        if isinstance(v, str):
+            return v.lower() in {'1', 'true', 'yes', 'on'}
+        return bool(v)
 
     @field_validator('DATABASE_URL')
     @classmethod

@@ -12,7 +12,7 @@ Builds and configures the FastAPI application with:
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Request
@@ -20,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from structlog.stdlib import get_logger
 
-from app.api.deps import get_uow
+from app.api.deps import get_uow, require_admin
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.logging import configure_logging
@@ -188,12 +188,20 @@ def create_app() -> FastAPI:
         }
 
     # ── Debug Endpoints ──────────────────────────────────────────────
-    # These expose runtime configuration for production debugging.
-    # Disable in production by removing include_in_schema or guarding
-    # with settings.is_production check if sensitive info is exposed.
+    # Excluded from registration unless settings.DEBUG is True.
+    # In addition, diagnostic and destructive actions require admin role.
+    if settings.DEBUG:
+        _register_debug_routes(app)
 
+    return app
+
+
+def _register_debug_routes(app: FastAPI) -> None:
     @app.get('/debug/cors', tags=['debug'], include_in_schema=False)
-    async def debug_cors(request: Request) -> dict:
+    async def debug_cors(
+        request: Request,
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Debug endpoint: inspect current CORS configuration at runtime.
 
         This is intentionally gated behind ``/debug/`` so it is not
@@ -225,7 +233,9 @@ def create_app() -> FastAPI:
     # Hit GET /debug/db-check after deploying to see the actual error.
 
     @app.get('/debug/db-check', tags=['debug'], include_in_schema=False)
-    async def debug_db_check() -> dict:
+    async def debug_db_check(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Diagnose database execution failures.
 
         Runs progressive checks:
@@ -485,6 +495,7 @@ def create_app() -> FastAPI:
     )
     async def debug_seed_database(
         uow: Annotated[UnitOfWork, Depends(get_uow)],
+        _admin: Annotated[Any, Depends(require_admin)],
     ) -> dict:
         """Run Phase 0 database seed script on active production database."""
         import importlib.util
@@ -543,7 +554,9 @@ def create_app() -> FastAPI:
             }
 
     @app.get('/debug/check-schema', include_in_schema=False)
-    async def debug_check_schema() -> dict:
+    async def debug_check_schema(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Introspect knowledge_nodes columns and indexes on active production DB."""
         from sqlalchemy import text
 
@@ -572,7 +585,9 @@ def create_app() -> FastAPI:
             }
 
     @app.get('/debug/apply-migration-006', include_in_schema=False)
-    async def debug_apply_migration_006() -> dict:
+    async def debug_apply_migration_006(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Execute migration 006 on active production DB."""
         from sqlalchemy import text
 
@@ -611,7 +626,9 @@ def create_app() -> FastAPI:
         }
 
     @app.get('/debug/sync-all-nodes', include_in_schema=False)
-    async def debug_sync_all_nodes() -> dict:
+    async def debug_sync_all_nodes(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Fast direct DB sync of all 221 nodes from stage5_2_import_refactored.json."""
         import json
         from pathlib import Path
@@ -678,7 +695,9 @@ def create_app() -> FastAPI:
         }
 
     @app.get('/debug/sql-audit', include_in_schema=False)
-    async def debug_sql_audit() -> dict:
+    async def debug_sql_audit(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Run the exact 3 audit queries on the live production database."""
         from sqlalchemy import text
 
@@ -716,7 +735,9 @@ def create_app() -> FastAPI:
             }
 
     @app.get('/debug/sync-all-projects', include_in_schema=False)
-    async def debug_sync_all_projects() -> dict:
+    async def debug_sync_all_projects(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ) -> dict:
         """Fast direct DB sync of all 34 projects from all_34_projects.json."""
         import json
         from pathlib import Path
@@ -810,7 +831,9 @@ def create_app() -> FastAPI:
         }
 
     @app.get('/debug/sync-all-careers', include_in_schema=False)
-    async def debug_sync_all_careers():
+    async def debug_sync_all_careers(
+        _admin: Annotated[Any, Depends(require_admin)],
+    ):
         """Fast direct DB sync of all 12 careers using SQLAlchemy ORM."""
         import json
         import traceback
@@ -942,8 +965,6 @@ def create_app() -> FastAPI:
                     'timestamp': datetime.now(UTC).isoformat(),
                 },
             )
-
-    return app
 
 
 app = create_app()
