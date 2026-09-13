@@ -3,8 +3,10 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from pydantic import BaseModel
+
+from app.api.deps import get_current_user_id
 
 router = APIRouter(prefix='/export', tags=['export-platform'])
 
@@ -41,6 +43,7 @@ def _safe(data: dict, _msg: str = 'Success') -> dict:
 async def export_graph(
     request: Request,
     body: ExportGraphRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -57,6 +60,7 @@ async def export_graph(
 async def export_subgraph(
     request: Request,
     body: ExportSubgraphRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -69,6 +73,7 @@ async def export_subgraph(
 async def export_node(
     request: Request,
     body: ExportNodeRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -81,6 +86,7 @@ async def export_node(
 async def export_dependency_chain(
     request: Request,
     body: dict,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'node_id' not in body:
@@ -96,6 +102,7 @@ async def export_dependency_chain(
 async def export_career_graph(
     request: Request,
     body: dict,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'career_node_id' not in body:
@@ -109,6 +116,7 @@ async def export_career_graph(
 @router.get('/jobs')
 async def list_exports(
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> dict:
     engine = _get_engine(request)
@@ -122,6 +130,7 @@ async def list_exports(
 async def get_export_status(
     export_id: str,
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -134,6 +143,7 @@ async def get_export_status(
 async def download_export(
     export_id: str,
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:

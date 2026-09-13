@@ -1,3 +1,5 @@
+> **SUPERSEDED** — integration task completed September 2026. Archived for historical reference only.
+
 # SV-OS — Antigravity Integration Prompt
 
 Paste this as the first message in Antigravity. This zip is a **drop-in replacement**

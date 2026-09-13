@@ -172,10 +172,10 @@ Open [http://localhost:3000](http://localhost:3000) for the app and [http://loca
 
 ### Essential
 
-| Document                              | Description                  |
-| ------------------------------------- | ---------------------------- |
-| [Project Memory](PROJECT_MEMORY.md)   | Permanent AI onboarding file |
-| [Project Handoff](PROJECT_HANDOFF.md) | AI assistant handoff guide   |
+| Document                                           | Description                             |
+| -------------------------------------------------- | --------------------------------------- |
+| [Project Memory](docs/archive/PROJECT_MEMORY.md)   | Permanent AI onboarding file (archived) |
+| [Project Handoff](docs/archive/PROJECT_HANDOFF.md) | AI assistant handoff guide (archived)   |
 
 ### Architecture & Design
 

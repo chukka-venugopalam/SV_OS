@@ -1,3 +1,5 @@
+> **SUPERSEDED** — see [docs/Knowledge/KNOWLEDGE_SCHEMA.md](../Knowledge/KNOWLEDGE_SCHEMA.md) and the live codebase instead. Archived for historical reference only.
+
 # SV-OS — Project Handoff
 
 > **Purpose**: Official handoff document for future AI assistants.

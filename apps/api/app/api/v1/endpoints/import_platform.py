@@ -9,11 +9,12 @@ Provides:
 """
 
 from typing import TYPE_CHECKING, Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 from structlog.stdlib import get_logger
 
-from app.api.deps import get_uow
+from app.api.deps import get_current_user_id, get_uow
 from app.schemas.response import success_response
 
 if TYPE_CHECKING:
@@ -27,6 +28,7 @@ router = APIRouter(prefix='/import', tags=['import-platform'])
 @router.post('')
 async def start_import(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
     body: dict,
 ) -> dict:
     """Run a full import of a dataset in ``computer_science_map.json`` format.
@@ -52,6 +54,7 @@ async def start_import(
 @router.post('/dry-run')
 async def dry_run_import(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
     body: dict,
 ) -> dict:
     """Validate an import payload without persisting anything.
@@ -134,6 +137,7 @@ async def dry_run_import(
 @router.post('/validate')
 async def validate_import(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
     body: dict,
 ) -> dict:
     """Validate an import payload — schema and referential integrity only.
@@ -190,6 +194,7 @@ async def validate_import(
 @router.get('/nodes')
 async def list_imported_nodes(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
     domain: Annotated[str | None, Query(description='Filter by domain (from metadata)')] = None,
     page: Annotated[int, Query(ge=1, description='Page number')] = 1,
     per_page: Annotated[int, Query(ge=1, le=100, description='Items per page')] = 100,
@@ -307,6 +312,7 @@ async def list_imported_nodes(
 @router.get('/report')
 async def get_import_report(
     uow: Annotated[UnitOfWork, Depends(get_uow)],
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     """Get a summary report of all imported data.
 

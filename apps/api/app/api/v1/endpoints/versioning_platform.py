@@ -1,9 +1,12 @@
 """Versioning Platform API — capability-based versioning endpoints."""
 
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from pydantic import BaseModel
+
+from app.api.deps import get_current_user_id
 
 router = APIRouter(prefix='/versions', tags=['versioning-platform'])
 
@@ -44,6 +47,7 @@ def _safe(data: dict, _msg: str = 'Success') -> dict:
 @router.get('')
 async def list_versions(
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
     branch: Annotated[str | None, Query()] = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
 ) -> dict:
@@ -58,6 +62,7 @@ async def list_versions(
 async def get_version(
     version_id: str,
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -70,6 +75,7 @@ async def get_version(
 async def create_snapshot(
     request: Request,
     body: CreateSnapshotRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -87,6 +93,7 @@ async def create_snapshot(
 async def restore_snapshot(
     request: Request,
     body: dict,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'version_id' not in body:
@@ -99,6 +106,7 @@ async def restore_snapshot(
 async def rollback(
     request: Request,
     body: dict,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'version_id' not in body:
@@ -111,6 +119,7 @@ async def rollback(
 async def diff_versions(
     request: Request,
     body: DiffRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -123,6 +132,7 @@ async def diff_versions(
 async def compare_versions(
     request: Request,
     body: dict,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None or 'version_id_a' not in body or 'version_id_b' not in body:
@@ -135,6 +145,7 @@ async def compare_versions(
 async def tag_version(
     request: Request,
     body: TagRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -147,6 +158,7 @@ async def tag_version(
 async def create_branch(
     request: Request,
     body: CreateBranchRequest,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -158,6 +170,7 @@ async def create_branch(
 @router.get('/branches')
 async def list_branches(
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:
@@ -169,6 +182,7 @@ async def list_branches(
 @router.get('/checksum')
 async def graph_checksum(
     request: Request,
+    _user_id: Annotated[UUID, Depends(get_current_user_id)],
 ) -> dict:
     engine = _get_engine(request)
     if engine is None:

@@ -1,3 +1,5 @@
+> **SUPERSEDED** — see [docs/Knowledge/KNOWLEDGE_SCHEMA.md](../Knowledge/KNOWLEDGE_SCHEMA.md) and the live codebase instead. Archived for historical reference only.
+
 # SV-OS — Project Memory
 
 > **Purpose**: Single-source-of-truth for every AI agent working on this project.
