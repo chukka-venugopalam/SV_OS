@@ -1,12 +1,11 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Cpu } from 'lucide-react';
 import { useState } from 'react';
 
 export function AluBitwiseVisualizer() {
-  const [opA, setOpA] = useState<number>(5); // 0101
-  const [opB, setOpB] = useState<number>(3); // 0011
+  const [opA, _setOpA] = useState<number>(5); // 0101
+  const [opB, _setOpB] = useState<number>(3); // 0011
   const [operation, setOperation] = useState<string>('ADD');
 
   const compute = () => {

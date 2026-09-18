@@ -1,0 +1,426 @@
+{
+  "attribute-closure-calculator": {
+    "file": "AttributeClosureCalculator.tsx",
+    "chapters": ["act6-d3-ch01-functional-dependencies-closure"]
+  },
+  "bandwidth-delay-product-visualizer": {
+    "file": "BandwidthDelayProductVisualizer.tsx",
+    "chapters": ["act5-d1-ch04-network-performance"]
+  },
+  "cidr-aggregation-visualizer": {
+    "file": "CidrAggregationVisualizer.tsx",
+    "chapters": ["act5-d3-ch02-cidr-supernetting"]
+  },
+  "codegen-linking-sim": {
+    "file": "CodegenLinkingSim.tsx",
+    "chapters": ["cd-code-generation-linking"]
+  },
+  "consistent-hashing-ring-sim": {
+    "file": "ConsistentHashingRingSim.tsx",
+    "chapters": ["act6-d6-ch01-document-keyvalue-column-stores"]
+  },
+  "crc-calculator-visualizer": {
+    "file": "CrcCalculatorVisualizer.tsx",
+    "chapters": ["act5-d2-ch02-error-detection"]
+  },
+  "csma-collision-sim": {
+    "file": "CsmaCollisionSim.tsx",
+    "chapters": ["act5-d2-ch05-mac-protocols"]
+  },
+  "distance-vector-routing-visualizer": {
+    "file": "DistanceVectorRoutingVisualizer.tsx",
+    "chapters": ["act5-d3-ch03-routing-distance-vector-rip"]
+  },
+  "dns-resolution-visualizer": {
+    "file": "DnsResolutionVisualizer.tsx",
+    "chapters": ["act5-d5-ch01-dns-resolution"]
+  },
+  "er-diagram-builder": {
+    "file": "ErDiagramBuilder.tsx",
+    "chapters": ["act6-d1-ch01-er-model"]
+  },
+  "er-to-table-mapper": {
+    "file": "ErToTableMapper.tsx",
+    "chapters": ["act6-d1-ch02-er-to-relational-mapping"]
+  },
+  "finite-automata-modes-visualizer": {
+    "file": "FiniteAutomataModesVisualizer.tsx",
+    "chapters": [
+      "fa-dfa-applications-lexical-analysis",
+      "fa-dfa-minimization",
+      "fa-epsilon-nfa-closure",
+      "fa-nfa",
+      "fa-nfa-to-dfa-subset-construction"
+    ]
+  },
+  "frame-delimiter-sim": {
+    "file": "FrameDelimiterSim.tsx",
+    "chapters": ["act5-d2-ch01-framing-techniques"]
+  },
+  "group-by-visualizer": {
+    "file": "GroupByVisualizer.tsx",
+    "chapters": ["act6-d2-ch05-aggregate-functions-group-by"]
+  },
+  "hamming-code-sim": {
+    "file": "HammingCodeSim.tsx",
+    "chapters": ["act5-d2-ch03-error-correction-hamming-code"]
+  },
+  "hash-index-mode": {
+    "file": "HashIndexMode.tsx",
+    "chapters": ["act6-d5-ch03-hashing"]
+  },
+  "http-request-response-visualizer": {
+    "file": "HttpRequestResponseVisualizer.tsx",
+    "chapters": ["act5-d5-ch02-http"]
+  },
+  "ir-optimization-sim": {
+    "file": "IrOptimizationSim.tsx",
+    "chapters": ["cd-intermediate-code-generation-optimization"]
+  },
+  "link-state-routing-sim": {
+    "file": "LinkStateRoutingSim.tsx",
+    "chapters": ["act5-d3-ch04-routing-link-state-ospf"]
+  },
+  "ll1-parser-sim": {
+    "file": "Ll1ParserSim.tsx",
+    "chapters": ["cd-ll1-parsing"]
+  },
+  "longest-prefix-match-visualizer": {
+    "file": "LongestPrefixMatchVisualizer.tsx",
+    "chapters": ["act5-d3-ch05-ip-forwarding-routing-tables"]
+  },
+  "normalization-step-visualizer": {
+    "file": "NormalizationStepVisualizer.tsx",
+    "chapters": ["act6-d3-ch02-1nf", "act6-d3-ch03-2nf", "act6-d3-ch04-3nf", "act6-d3-ch05-bcnf"]
+  },
+  "osi-layer-stack-visualizer": {
+    "file": "OSILayerStackVisualizer.tsx",
+    "chapters": ["act5-d1-ch01-osi-model", "act5-d1-ch03-encapsulation-decapsulation"]
+  },
+  "pda-cfg-visualizer": {
+    "file": "PdaCfgVisualizer.tsx",
+    "chapters": ["cfl-cfg", "cfl-pda"]
+  },
+  "pvs-np-visualizer": {
+    "file": "PvsNpVisualizer.tsx",
+    "chapters": ["tm-complexity-classes"]
+  },
+  "query-cost-calculator": {
+    "file": "QueryCostCalculator.tsx",
+    "chapters": ["act6-d5-ch04-query-processing-cost-estimation"]
+  },
+  "query-plan-visualizer": {
+    "file": "QueryPlanVisualizer.tsx",
+    "chapters": ["act6-d5-ch05-query-optimization"]
+  },
+  "regex-nfa-visualizer": {
+    "file": "RegexNfaVisualizer.tsx",
+    "chapters": ["rl-regular-expressions", "rl-thompsons-construction"]
+  },
+  "serializability-checker": {
+    "file": "SerializabilityChecker.tsx",
+    "chapters": ["act6-d4-ch03-conflict-serializability"]
+  },
+  "sliding-window-protocol-visualizer": {
+    "file": "SlidingWindowProtocolVisualizer.tsx",
+    "chapters": ["act5-d2-ch04-flow-control", "act5-d4-ch03-tcp-flow-control"]
+  },
+  "sql-ddl-playground": {
+    "file": "SqlDdlPlayground.tsx",
+    "chapters": ["act6-d2-ch01-ddl"]
+  },
+  "sql-dml-playground": {
+    "file": "SqlDmlPlayground.tsx",
+    "chapters": ["act6-d2-ch02-dml"]
+  },
+  "sql-join-visualizer": {
+    "file": "SqlJoinVisualizer.tsx",
+    "chapters": ["act6-d2-ch03-joins"]
+  },
+  "subnet-calculator-visualizer": {
+    "file": "SubnetCalculatorVisualizer.tsx",
+    "chapters": ["act5-d3-ch01-ipv4-addressing-subnetting"]
+  },
+  "subquery-execution-sim": {
+    "file": "SubqueryExecutionSim.tsx",
+    "chapters": ["act6-d2-ch04-subqueries"]
+  },
+  "tcpip-layer-mapper": {
+    "file": "TCPIPLayerMapper.tsx",
+    "chapters": ["act5-d1-ch02-tcp-ip-model"]
+  },
+  "tcp-congestion-reliability-sim": {
+    "file": "TcpCongestionReliabilitySim.tsx",
+    "chapters": ["act5-d4-ch04-tcp-congestion-control", "act5-d4-ch05-tcp-reliability"]
+  },
+  "tls-handshake-sim": {
+    "file": "TlsHandshakeSim.tsx",
+    "chapters": ["act5-d5-ch04-ssl-tls-handshake"]
+  },
+  "transaction-state-sim": {
+    "file": "TransactionStateSim.tsx",
+    "chapters": ["act6-d4-ch02-transaction-states-serializability"]
+  },
+  "transaction-wait-for-graph-sim": {
+    "file": "TransactionWaitForGraphSim.tsx",
+    "chapters": ["act6-d4-ch05-deadlock-in-dbms"]
+  },
+  "two-phase-lock-sim": {
+    "file": "TwoPhaseLockSim.tsx",
+    "chapters": ["act6-d4-ch04-locking-2pl"]
+  },
+  "type-checker-sim": {
+    "file": "TypeCheckerSim.tsx",
+    "chapters": ["cd-semantic-analysis-type-checking"]
+  },
+  "wal-recovery-sim": {
+    "file": "WalRecoverySim.tsx",
+    "chapters": ["act6-d4-ch06-recovery"]
+  },
+  "advanced-trees-visualizer": {
+    "file": "advanced-trees-visualizer.tsx",
+    "chapters": ["advanced-trees-b-tree-trie-segment-tree"]
+  },
+  "amortized-cost-visualizer": {
+    "file": "amortized-cost-visualizer.tsx",
+    "chapters": ["d1-05-amortized-analysis"]
+  },
+  "array-address-visualizer": {
+    "file": "array-address-visualizer.tsx",
+    "chapters": ["d2-01-arrays"]
+  },
+  "avl-rotation-visualizer": {
+    "file": "avl-rotation-visualizer.tsx",
+    "chapters": ["d3-03-avl-trees-rotations"]
+  },
+  "bayes-theorem-visualizer": {
+    "file": "bayes-theorem-visualizer.tsx",
+    "chapters": ["math-counting-permutations-combinations", "math-probability-bayes-theorem"]
+  },
+  "context-switch-visualizer": {
+    "file": "context-switch-visualizer.tsx",
+    "chapters": ["act4-d1-ch03-context-switching"]
+  },
+  "critical-point-visualizer": {
+    "file": "critical-point-visualizer.tsx",
+    "chapters": ["math-optimization-maxima-minima"]
+  },
+  "demand-paging-sim": {
+    "file": "demand-paging-sim.tsx",
+    "chapters": ["act4-d3-ch05-virtual-memory-demand-paging"]
+  },
+  "dining-philosophers-sim": {
+    "file": "dining-philosophers-sim.tsx",
+    "chapters": ["act4-d4-ch03-dining-philosophers-problem"]
+  },
+  "disk-arm-scheduler": {
+    "file": "disk-arm-scheduler.tsx",
+    "chapters": ["act4-d5-ch05-disk-scheduling"]
+  },
+  "disk-bitmap-visualizer": {
+    "file": "disk-bitmap-visualizer.tsx",
+    "chapters": ["act4-d5-ch04-free-space-management"]
+  },
+  "expression-evaluator": {
+    "file": "expression-evaluator.tsx",
+    "chapters": ["d2-06-expression-evaluation"]
+  },
+  "file-allocation-sim": {
+    "file": "file-allocation-sim.tsx",
+    "chapters": ["act4-d5-ch02-file-allocation"]
+  },
+  "flipflop-fsm-visualizer": {
+    "file": "flipflop-fsm-visualizer.tsx",
+    "chapters": [
+      "seqcirc-finite-state-machines",
+      "seqcirc-jk-t-d-flipflops",
+      "seqcirc-ripple-sync-counters-gap"
+    ]
+  },
+  "fork-tree-visualizer": {
+    "file": "fork-tree-visualizer.tsx",
+    "chapters": ["act4-d1-ch05-process-creation-fork-exec"]
+  },
+  "gaussian-elimination-visualizer": {
+    "file": "gaussian-elimination-visualizer.tsx",
+    "chapters": ["math-matrices-determinants-rank"]
+  },
+  "growth-rate-grapher": {
+    "file": "growth-rate-grapher.tsx",
+    "chapters": ["d1-01-asymptotic-notation"]
+  },
+  "huffman-coding-visualizer": {
+    "file": "huffman-coding-visualizer.tsx",
+    "chapters": ["d6-07-greedy"]
+  },
+  "ieee754-representation-visualizer": {
+    "file": "ieee754-representation-visualizer.tsx",
+    "chapters": ["numsys-ieee754-floating-point"]
+  },
+  "inode-allocation-visualizer": {
+    "file": "inode-allocation-visualizer.tsx",
+    "chapters": ["act4-d5-ch03-inodes-unix-file-system"]
+  },
+  "ipc-channel-sim": {
+    "file": "ipc-channel-sim.tsx",
+    "chapters": ["act4-d1-ch06-interprocess-communication"]
+  },
+  "kmp-pattern-match-visualizer": {
+    "file": "kmp-pattern-match-visualizer.tsx",
+    "chapters": ["d6-08-string-matching"]
+  },
+  "limits-continuity-visualizer": {
+    "file": "limits-continuity-visualizer.tsx",
+    "chapters": ["math-limits-continuity-differentiation"]
+  },
+  "linked-list-reversal-visualizer": {
+    "file": "linked-list-reversal-visualizer.tsx",
+    "chapters": ["d2-02-linked-lists"]
+  },
+  "loop-complexity-counter": {
+    "file": "loop-complexity-counter.tsx",
+    "chapters": ["d1-02-loop-complexity"]
+  },
+  "master-theorem-visualizer": {
+    "file": "master-theorem-visualizer.tsx",
+    "chapters": ["d1-04-master-theorem"]
+  },
+  "memory-allocation-sim": {
+    "file": "memory-allocation-sim.tsx",
+    "chapters": ["act4-d3-ch01-contiguous-allocation-fragmentation"]
+  },
+  "page-table-walker": {
+    "file": "page-table-walker.tsx",
+    "chapters": ["act4-d3-ch02-paging-page-tables"]
+  },
+  "priority-queue-sim": {
+    "file": "priority-queue-sim.tsx",
+    "chapters": ["d2-05-deque-priority-queue"]
+  },
+  "process-state-visualizer": {
+    "file": "process-state-visualizer.tsx",
+    "chapters": ["act4-d1-ch02-process-states-transitions"]
+  },
+  "queue-operations-sim": {
+    "file": "queue-operations-sim.tsx",
+    "chapters": ["d2-04-queues"]
+  },
+  "race-condition-demonstrator": {
+    "file": "race-condition-demonstrator.tsx",
+    "chapters": ["act4-d4-ch01-race-conditions-critical-section"]
+  },
+  "rb-tree-insertion-sim": {
+    "file": "rb-tree-insertion-sim.tsx",
+    "chapters": ["d3-04-red-black-trees"]
+  },
+  "recurrence-solver": {
+    "file": "recurrence-solver.tsx",
+    "chapters": ["d1-03-recurrence-relations"]
+  },
+  "relation-properties-visualizer": {
+    "file": "relation-properties-visualizer.tsx",
+    "chapters": ["math-sets-relations-functions"]
+  },
+  "ripple-carry-adder-visualizer": {
+    "file": "ripple-carry-adder-visualizer.tsx",
+    "chapters": ["combcirc-half-full-adder"]
+  },
+  "segment-map-visualizer": {
+    "file": "segment-map-visualizer.tsx",
+    "chapters": ["act4-d3-ch04-segmentation"]
+  },
+  "semaphore-signaling-sim": {
+    "file": "semaphore-signaling-sim.tsx",
+    "chapters": ["act4-d4-ch02-mutex-semaphores"]
+  },
+  "stack-operations-sim": {
+    "file": "stack-operations-sim.tsx",
+    "chapters": ["d2-03-stacks"]
+  },
+  "thread-lifecycle-sim": {
+    "file": "thread-lifecycle-sim.tsx",
+    "chapters": ["act4-d1-ch04-threads"]
+  },
+  "tower-of-hanoi-visualizer": {
+    "file": "tower-of-hanoi-visualizer.tsx",
+    "chapters": ["d6-06-recursion-master-theorem"]
+  },
+  "tree-traversal-animator": {
+    "file": "tree-traversal-animator.tsx",
+    "chapters": ["d3-01-binary-trees-traversals"]
+  },
+  "trie-insert-search-sim": {
+    "file": "trie-insert-search-sim.tsx",
+    "chapters": ["d3-06-tries"]
+  },
+  "twos-complement-overflow-visualizer": {
+    "file": "twos-complement-overflow-visualizer.tsx",
+    "chapters": ["numsys-signed-2s-complement-overflow"]
+  },
+  "kmap-2-3-variable-visualizer": {
+    "file": "kmap-2-3-variable-visualizer.tsx",
+    "chapters": ["kmap-2-3-variable"]
+  },
+  "kmap-4-variable-visualizer": {
+    "file": "kmap-4-variable-visualizer.tsx",
+    "chapters": ["kmap-4-variable-dont-cares"]
+  },
+  "pipeline-hazard-visualizer": {
+    "file": "pipeline-hazard-visualizer.tsx",
+    "chapters": ["arch-instruction-pipelining", "arch-pipeline-hazards"]
+  },
+  "dp-matrix-visualizer": {
+    "file": "dp-matrix-visualizer.tsx",
+    "chapters": ["d5-02-knapsack", "d5-03-lcs", "d5-04-mcm", "d5-05-lis", "d5-06-apsp"]
+  },
+  "tlb-visualizer": {
+    "file": "tlb-visualizer.tsx",
+    "chapters": ["act4-d3-ch03-tlb"]
+  },
+  "linear-binary-search-visualizer": {
+    "file": "linear-binary-search-visualizer.tsx",
+    "chapters": ["d6-01-search"]
+  },
+  "cpu-scheduler-extension": {
+    "file": "cpu-scheduler-extension.tsx",
+    "chapters": [
+      "act4-d2-ch02-fcfs-nonpreemptive-sjf",
+      "act4-d2-ch03-preemptive-sjf-srtf-round-robin",
+      "act4-d2-ch04-priority-scheduling",
+      "act4-d2-ch05-multilevel-queue-feedback-queue",
+      "act4-d2-ch06-scheduling-comparison"
+    ]
+  },
+  "graph-algorithms-extension": {
+    "file": "graph-algorithms-extension.tsx",
+    "chapters": ["d4-04-topological-sort", "d4-06-mst"]
+  },
+  "lr-parser-sim": {
+    "file": "LrParserSim.tsx",
+    "chapters": ["cd-lr-parsing"]
+  },
+  "cyk-parser-sim": {
+    "file": "CykParserSim.tsx",
+    "chapters": ["cfl-cyk-parsing"]
+  },
+  "grammar-normal-form-converter": {
+    "file": "GrammarNormalFormConverter.tsx",
+    "chapters": ["cfl-cnf-gnf-conversion"]
+  },
+  "parse-tree-ambiguity-demo": {
+    "file": "ParseTreeAmbiguityDemo.tsx",
+    "chapters": ["cfl-parse-trees-ambiguity"]
+  },
+  "compiler-pipeline-visualizer": {
+    "file": "CompilerPipelineVisualizer.tsx",
+    "chapters": ["cd-compiler-phases-overview"]
+  },
+  "sdt-attribute-sim": {
+    "file": "SdtAttributeSim.tsx",
+    "chapters": ["cd-syntax-directed-translation"]
+  },
+  "string-algorithms-visualizer": {
+    "file": "string-algorithms-visualizer.tsx",
+    "chapters": ["string-algorithms"]
+  }
+}

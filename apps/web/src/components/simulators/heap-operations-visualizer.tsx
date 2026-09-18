@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Plus, Minus, RotateCcw } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { useState } from 'react';
 
 export function HeapOperationsVisualizer() {

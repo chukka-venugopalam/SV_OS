@@ -4,6 +4,14 @@ import { Card, Button, Badge } from '@sv-os/ui';
 import { Play, RotateCcw, Cpu } from 'lucide-react';
 import React, { useState } from 'react';
 
+import {
+  SjfMode,
+  SrtfMode,
+  PriorityMode,
+  MultilevelQueueMode,
+  ComparisonMode,
+} from './cpu-scheduler-extension';
+
 interface Process {
   id: string;
   name: string;
@@ -19,8 +27,14 @@ const INITIAL_PROCESSES: Process[] = [
   { id: 'p4', name: 'P4 (UI Thread)', burstTime: 2, remainingTime: 2, color: 'bg-amber-500' },
 ];
 
-export function CpuSchedulerVisualizer() {
-  const [algorithm, setAlgorithm] = useState<'fcfs' | 'rr'>('fcfs');
+export type SchedulerAlgorithm = 'fcfs' | 'rr' | 'sjf' | 'srtf' | 'priority' | 'mlq' | 'comparison';
+
+export function CpuSchedulerVisualizer({
+  initialAlgorithm = 'fcfs',
+}: {
+  initialAlgorithm?: SchedulerAlgorithm;
+}) {
+  const [algorithm, setAlgorithm] = useState<SchedulerAlgorithm>(initialAlgorithm);
   const [processes, setProcesses] = useState<Process[]>(INITIAL_PROCESSES);
   const [currentTime, setCurrentTime] = useState(0);
   const [activeProcess, setActiveProcess] = useState<string | null>(null);
@@ -60,7 +74,7 @@ export function CpuSchedulerVisualizer() {
 
   return (
     <Card className="rounded-xl border border-neutral-200 bg-neutral-900 p-6 text-neutral-100 shadow-md">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 pb-4">
         <div className="flex items-center gap-2">
           <Cpu className="h-5 w-5 text-emerald-400" />
           <h3 className="text-lg font-bold text-neutral-100">CPU Process Scheduler Simulator</h3>
@@ -68,7 +82,7 @@ export function CpuSchedulerVisualizer() {
             OS Core
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Button
             size="sm"
             variant={algorithm === 'fcfs' ? 'default' : 'outline'}
@@ -76,6 +90,7 @@ export function CpuSchedulerVisualizer() {
               setAlgorithm('fcfs');
               reset();
             }}
+            className="text-xs"
           >
             FCFS
           </Button>
@@ -86,86 +101,144 @@ export function CpuSchedulerVisualizer() {
               setAlgorithm('rr');
               reset();
             }}
+            className="text-xs"
           >
-            Round Robin (Q=2)
+            Round Robin
+          </Button>
+          <Button
+            size="sm"
+            variant={algorithm === 'sjf' ? 'default' : 'outline'}
+            onClick={() => setAlgorithm('sjf')}
+            className="text-xs"
+          >
+            SJF
+          </Button>
+          <Button
+            size="sm"
+            variant={algorithm === 'srtf' ? 'default' : 'outline'}
+            onClick={() => setAlgorithm('srtf')}
+            className="text-xs"
+          >
+            SRTF
+          </Button>
+          <Button
+            size="sm"
+            variant={algorithm === 'priority' ? 'default' : 'outline'}
+            onClick={() => setAlgorithm('priority')}
+            className="text-xs"
+          >
+            Priority
+          </Button>
+          <Button
+            size="sm"
+            variant={algorithm === 'mlq' ? 'default' : 'outline'}
+            onClick={() => setAlgorithm('mlq')}
+            className="text-xs"
+          >
+            MLQ
+          </Button>
+          <Button
+            size="sm"
+            variant={algorithm === 'comparison' ? 'default' : 'outline'}
+            onClick={() => setAlgorithm('comparison')}
+            className="text-xs"
+          >
+            Comparison
           </Button>
         </div>
       </div>
 
-      {/* Control Bar */}
-      <div className="mb-6 flex items-center gap-3">
-        <Button
-          size="sm"
-          onClick={stepSimulation}
-          className="gap-2 bg-emerald-600 hover:bg-emerald-500"
-        >
-          <Play className="h-4 w-4" /> Step Cycle ({currentTime}ms)
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={reset}
-          className="gap-2 border-neutral-700 text-neutral-300"
-        >
-          <RotateCcw className="h-4 w-4" /> Reset
-        </Button>
-        {activeProcess && (
-          <span className="text-sm font-medium text-emerald-400">
-            Running: <strong className="text-white">{activeProcess}</strong>
-          </span>
-        )}
-      </div>
-
-      {/* Ready Queue & Processes */}
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-        {processes.map((p) => (
-          <div
-            key={p.id}
-            className={`rounded-lg border p-3 ${
-              activeProcess === p.name
-                ? 'border-emerald-500 bg-emerald-950/40'
-                : 'border-neutral-800 bg-neutral-950/60'
-            }`}
-          >
-            <div className="mb-1 flex items-center justify-between text-xs font-bold">
-              <span>{p.name}</span>
-              <span className="text-neutral-400">
-                {p.remainingTime}/{p.burstTime} ms
+      {/* Mode rendering */}
+      {algorithm === 'fcfs' || algorithm === 'rr' ? (
+        <div>
+          {/* Control Bar */}
+          <div className="mb-6 flex items-center gap-3">
+            <Button
+              size="sm"
+              onClick={stepSimulation}
+              className="gap-2 bg-emerald-600 hover:bg-emerald-500"
+            >
+              <Play className="h-4 w-4" /> Step Cycle ({currentTime}ms)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={reset}
+              className="gap-2 border-neutral-700 text-neutral-300"
+            >
+              <RotateCcw className="h-4 w-4" /> Reset
+            </Button>
+            {activeProcess && (
+              <span className="text-sm font-medium text-emerald-400">
+                Running: <strong className="text-white">{activeProcess}</strong>
               </span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+            )}
+          </div>
+
+          {/* Ready Queue & Processes */}
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+            {processes.map((p) => (
               <div
-                className={`h-full ${p.color} transition-all duration-300`}
-                style={{ width: `${((p.burstTime - p.remainingTime) / p.burstTime) * 100}%` }}
-              />
+                key={p.id}
+                className={`rounded-lg border p-3 ${
+                  activeProcess === p.name
+                    ? 'border-emerald-500 bg-emerald-950/40'
+                    : 'border-neutral-800 bg-neutral-950/60'
+                }`}
+              >
+                <div className="mb-1 flex items-center justify-between text-xs font-bold">
+                  <span>{p.name}</span>
+                  <span className="text-neutral-400">
+                    {p.remainingTime}/{p.burstTime} ms
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+                  <div
+                    className={`h-full ${p.color} transition-all duration-300`}
+                    style={{ width: `${((p.burstTime - p.remainingTime) / p.burstTime) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Gantt Chart Timeline */}
+          <div className="rounded-lg border border-neutral-800 bg-neutral-950/80 p-4">
+            <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">
+              CPU Execution Timeline (Gantt Chart)
+            </h4>
+            <div className="flex h-10 w-full overflow-x-auto rounded border border-neutral-800 bg-neutral-900 p-1">
+              {timeline.length === 0 ? (
+                <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                  Click Step Cycle to begin CPU execution
+                </div>
+              ) : (
+                timeline.map((slot, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex h-full min-w-[28px] items-center justify-center text-[10px] font-bold text-white ${slot.color} border-r border-neutral-950`}
+                    title={`${slot.processName} at ${slot.time}ms`}
+                  >
+                    {slot.time}
+                  </div>
+                ))
+              )}
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Gantt Chart Timeline */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950/80 p-4">
-        <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">
-          CPU Execution Timeline (Gantt Chart)
-        </h4>
-        <div className="flex h-10 w-full overflow-x-auto rounded border border-neutral-800 bg-neutral-900 p-1">
-          {timeline.length === 0 ? (
-            <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-              Click Step Cycle to begin CPU execution
-            </div>
-          ) : (
-            timeline.map((slot, idx) => (
-              <div
-                key={idx}
-                className={`flex h-full min-w-[28px] items-center justify-center text-[10px] font-bold text-white ${slot.color} border-r border-neutral-950`}
-                title={`${slot.processName} at ${slot.time}ms`}
-              >
-                {slot.time}
-              </div>
-            ))
-          )}
         </div>
-      </div>
+      ) : (
+        <div className="rounded-lg bg-neutral-950 p-6 text-neutral-900">
+          <div className="rounded-lg bg-[#FAF7F0] p-5">
+            {algorithm === 'sjf' && <SjfMode />}
+            {algorithm === 'srtf' && <SrtfMode />}
+            {algorithm === 'priority' && <PriorityMode />}
+            {algorithm === 'mlq' && <MultilevelQueueMode />}
+            {algorithm === 'comparison' && <ComparisonMode />}
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
+
+export default CpuSchedulerVisualizer;

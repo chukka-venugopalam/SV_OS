@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Play, RotateCcw, SkipForward } from 'lucide-react';
+import { RotateCcw, SkipForward } from 'lucide-react';
 import { useState } from 'react';
 
 interface GraphNode {

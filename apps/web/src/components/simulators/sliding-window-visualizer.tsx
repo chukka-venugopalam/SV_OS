@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Play, RotateCcw, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
 export function SlidingWindowVisualizer() {

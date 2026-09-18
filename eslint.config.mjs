@@ -1,4 +1,5 @@
 import baseConfig from './packages/eslint-config/base.js';
+import reactConfig from './packages/eslint-config/react.js';
 
 export default [
   {
@@ -14,7 +15,7 @@ export default [
       'apps/api/**',
     ],
   },
-  ...baseConfig,
+  ...reactConfig,
   // Handle root-level CommonJS config files (e.g. commitlint.config.js)
   {
     files: ['commitlint.config.js'],

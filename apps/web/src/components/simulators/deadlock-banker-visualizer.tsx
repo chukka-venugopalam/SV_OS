@@ -1,24 +1,24 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Play, RotateCcw, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 
 export function DeadlockBankerVisualizer() {
-  const [available, setAvailable] = useState<number[]>([3, 3, 2]);
-  const [allocation, setAllocation] = useState<number[][]>([
+  const [available, _setAvailable] = useState<number[]>([3, 3, 2]);
+  const [_allocation, _setAllocation] = useState<number[][]>([
     [0, 1, 0],
     [2, 0, 0],
     [3, 0, 2],
     [2, 1, 1],
   ]);
-  const [need, setNeed] = useState<number[][]>([
+  const [_need, _setNeed] = useState<number[][]>([
     [7, 4, 3],
     [1, 2, 2],
     [6, 0, 0],
     [0, 1, 1],
   ]);
-  const [safeSeq, setSafeSeq] = useState<string[]>(['P1', 'P3', 'P4', 'P2']);
+  const [_safeSeq, _setSafeSeq] = useState<string[]>(['P1', 'P3', 'P4', 'P2']);
   const [status, setStatus] = useState<string>(
     'Safe State Confirmed! Executable sequence found: P1 -> P3 -> P4 -> P2',
   );

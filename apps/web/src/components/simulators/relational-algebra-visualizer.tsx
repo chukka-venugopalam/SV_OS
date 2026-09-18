@@ -1,7 +1,6 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Database, Filter } from 'lucide-react';
 import { useState } from 'react';
 
 export function RelationalAlgebraVisualizer() {

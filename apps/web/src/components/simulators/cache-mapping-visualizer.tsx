@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, CardContent } from '@sv-os/ui';
-import { Search, Zap } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 
 export function CacheMappingVisualizer() {
