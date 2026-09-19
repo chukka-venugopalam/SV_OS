@@ -81,6 +81,8 @@ export function SortingVisualizer() {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
+    // array is only mutated by this effect itself; including it would restart the loop on every step
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, speed]);
 
   return (

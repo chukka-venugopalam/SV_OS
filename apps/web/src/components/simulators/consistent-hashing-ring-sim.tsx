@@ -84,13 +84,16 @@ export default function ConsistentHashingRingSim() {
   const [nodeAdded, setNodeAdded] = useState(false);
 
   const nodesBefore = BASE_NODES;
-  const nodesAfter = nodeAdded ? [...BASE_NODES, EXTRA_NODE] : BASE_NODES;
+  const nodesAfter = useMemo(
+    () => (nodeAdded ? [...BASE_NODES, EXTRA_NODE] : BASE_NODES),
+    [nodeAdded],
+  );
 
-  const assignBefore = useMemo(() => assignRing(nodesBefore, KEYS), []);
+  const assignBefore = useMemo(() => assignRing(nodesBefore, KEYS), [nodesBefore]);
   const assignAfter = useMemo(() => assignRing(nodesAfter, KEYS), [nodesAfter]);
   const ringMoved = KEYS.filter((k) => assignBefore[k] !== assignAfter[k]);
 
-  const modBefore = useMemo(() => assignModN(nodesBefore.length, KEYS), []);
+  const modBefore = useMemo(() => assignModN(nodesBefore.length, KEYS), [nodesBefore.length]);
   const modAfter = useMemo(() => assignModN(nodesAfter.length, KEYS), [nodesAfter]);
   const modMoved = KEYS.filter((k) => modBefore[k] !== modAfter[k]);
 
